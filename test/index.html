@@ -220,11 +220,12 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1}
 .edgetab.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
 #videoTab{top:58px}
-#drawer{position:fixed;right:0;top:112px;z-index:8;width:min(94vw,560px);transform:translateX(100%);transition:transform .22s ease-out}
-#drawer.open{transform:translateX(0)}
-#drawer[hidden]{display:none}
-#drawer .edgetab{position:absolute;right:auto;left:-27px;top:0}
-#drawerBody{max-height:calc(100dvh - 130px);overflow:auto;-webkit-overflow-scrolling:touch;background:#0a0b0e;border:1px solid #4a4436;border-right:0;border-radius:0 0 0 6px;padding:8px;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
+#drawer,#fbDrawer{position:fixed;right:0;top:112px;z-index:8;width:min(94vw,560px);transform:translateX(100%);transition:transform .22s ease-out}
+#drawer.open,#fbDrawer.open{transform:translateX(0)}
+#drawer[hidden],#fbDrawer[hidden]{display:none}
+#drawer .edgetab,#fbDrawer .edgetab{position:absolute;right:auto;left:-27px;top:0}
+#fbBody{padding:12px 14px!important}
+#drawerBody,#fbBody{max-height:calc(100dvh - 130px);overflow:auto;-webkit-overflow-scrolling:touch;background:#0a0b0e;border:1px solid #4a4436;border-right:0;border-radius:0 0 0 6px;padding:8px;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
 #drawerBody .map,#drawerBody .planmap{margin:0}
 #top{overflow-x:clip}
 #cutscene.slidein{animation:cut-in .22s ease-out}
@@ -242,6 +243,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 </div>
 <button class="edgetab" id="videoTab">映像</button>
 <aside id="drawer" hidden><button class="edgetab" id="mapTab">地図</button><div id="drawerBody"></div></aside>
+<aside id="fbDrawer" hidden><button class="edgetab" id="fbTab">意見</button><div id="fbBody"></div></aside>
 <main id="main"></main>
 <script>
 'use strict';
@@ -287,7 +289,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:14 9637c75';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:21 f62d71d';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -3454,14 +3456,15 @@ function placeTabs(){
   const y = Math.round(shown ? wrap.getBoundingClientRect().top : document.getElementById('top').getBoundingClientRect().bottom) + 2;
   document.getElementById('videoTab').style.top = y + 'px';
   document.getElementById('drawer').style.top = (y + 54) + 'px';
+  document.getElementById('fbDrawer').style.top = (y + (document.getElementById('drawer').hidden ? 54 : 108)) + 'px';
 }
 addEventListener('resize', () => placeTabs());
 function syncTuck(anim){
-  const wrap = document.getElementById('cutscene'), d = document.getElementById('drawer'), tuck = mapOpen && !d.hidden, was = wrap.classList.contains('tucked');
+  const wrap = document.getElementById('cutscene'), d = document.getElementById('drawer'), tuck = (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD), was = wrap.classList.contains('tucked');
   document.getElementById('videoTab').classList.toggle('on', videoOn && !tuck);
   if(tuck === was) return;
   if(!anim || !videoOn){ wrap.classList.toggle('tucked', tuck); return; }
-  if(tuck){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); wrap.classList.toggle('tucked', mapOpen && !d.hidden); }, 230); }
+  if(tuck){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); wrap.classList.toggle('tucked', (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD)); }, 230); }
   else { wrap.classList.remove('tucked'); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); }
 }
 function townMapSvg(s, w, choices, live){
@@ -5228,7 +5231,7 @@ let fbNote = '', fbBusy = false, fbKeyOpen = false;
 const fbToken = () => store.get('fb-token', '');
 const FB_MODES = { opinion:'意見', prompt:'指示' };
 // その場で直している所：{ kind:'text'（本文）|'msg'（出来事の文）|'choice'（選択肢の文）|'add'（選択肢を足す）, i, value, orig }
-let fbe = null, editOn = false, draftShown = null, flushing = false;
+let fbSetOpen = false, fbe = null, editOn = false, draftShown = null, flushing = false;
 const FB_HELP = {
   edit:'下の文と選択肢を、直したい形に書き換えてください。変えた行だけが、前と後を並べて送られます。',
   opinion:'気になったこと、直してほしいこと、足してほしいものを書いてください。',
@@ -5271,7 +5274,6 @@ function render(){
   tabs.innerHTML =
     CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${id === w.lock ? '（ロック中）' : ''}</button>`).join('')
     + `<button class="mapbtn${helpOpen ? ' on' : ''}" id="helpbtn">遊び方</button>`
-    + (TEST_BUILD ? '<button class="mapbtn' + (fbOpen ? ' on' : '') + '" id="fbBtn">意見・指示' + (store.get('outbox', []).length ? '（' + store.get('outbox', []).length + '）' : '') + '</button>' : '')
     + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
     + (w.lock && lockMine() ? '<button id="saveBtn">保存して交代</button>' : '')
     + (room ? '' : '<button class="reset" id="reset">最初から</button>')
@@ -5340,7 +5342,6 @@ function render(){
   html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb" style="margin-top:0;border-top:0;padding-top:0"><div class="note">' + roomNote + '</div></div>' + html;
   if(roomPanel) html = roomPanelHtml() + html;
-  if(fbOpen && TEST_BUILD) html = fbPanelHtml() + html;
   if(helpOpen) html = '<p class="help">右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます。<br>画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。<br>☰ の「最初から」で、全員が朝からやり直します。</p>' + html;
 
   document.getElementById('main').innerHTML = html;
@@ -5348,6 +5349,11 @@ function render(){
   drawer.hidden = !drawerHtml; drawer.classList.toggle('open', mapOpen && !!drawerHtml);
   document.getElementById('drawerBody').innerHTML = drawerHtml;
   document.getElementById('mapTab').classList.toggle('on', mapOpen);
+  const fbD = document.getElementById('fbDrawer'), waitN = TEST_BUILD ? store.get('outbox', []).length : 0;
+  fbD.hidden = !TEST_BUILD; fbD.classList.toggle('open', fbOpen && TEST_BUILD);
+  document.getElementById('fbBody').innerHTML = fbOpen && TEST_BUILD ? fbPanelHtml() : '';
+  document.getElementById('fbTab').classList.toggle('on', fbOpen);
+  document.getElementById('fbTab').textContent = '意見' + (waitN ? waitN : '');
   syncTuck();
   placeTabs();
 
@@ -5362,7 +5368,8 @@ function render(){
   on('lockBtn', takeLock);
   on('saveBtn', () => { menuOpen = false; releaseLock(); });
   on('endSave', releaseLock);
-  on('fbBtn', () => { fbOpen = !fbOpen; menuOpen = false; if(!fbOpen) fbNote = ''; render(); window.scrollTo(0, 0); });
+  const fbSet = document.getElementById('fbSet'); if(fbSet) fbSet.ontoggle = () => { fbSetOpen = fbSet.open; };
+  on('fbTab', () => { fbOpen = !fbOpen; if(fbOpen) mapOpen = false; else fbNote = ''; render(); });
   on('fbAtSet', () => { const t = document.getElementById('fbAt').value; if(/^\d\d:\d\d$/.test(t)){ store.set('send-at', t); fbNote = ''; render(); } });
   on('fbAtClear', () => { store.remove('send-at'); render(); });
   on('fbFlush', () => { if(fbToken()) flushOutbox(true); else outboxToGithub(); });
@@ -5408,11 +5415,11 @@ function render(){
   }
   on('videoTab', () => {
     const wrap = document.getElementById('cutscene');
-    if(wrap.classList.contains('tucked')){ mapOpen = false; document.getElementById('drawer').classList.remove('open'); document.getElementById('mapTab').classList.remove('on'); syncTuck(true); if(videoOn) return; }
+    if(wrap.classList.contains('tucked')){ if(fbOpen){ fbOpen = false; mapOpen = false; render(); if(videoOn) return; } mapOpen = false; document.getElementById('drawer').classList.remove('open'); document.getElementById('mapTab').classList.remove('on'); syncTuck(true); if(videoOn) return; }
     if(videoOn){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); videoOn = false; store.set('video', false); render(); }, 230); }
     else { videoOn = true; store.set('video', true); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); render(); }
   });
-  on('mapTab', () => { mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
+  on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
   on('roombtn', () => { roomPanel = !roomPanel; menuOpen = false; if(!roomPanel) roomNote = ''; render(); window.scrollTo(0, 0); });
   on('roomNew', roomCreate);
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
@@ -5483,20 +5490,21 @@ function fbPanelHtml(){
     + '<p>' + FB_HELP[fbMode] + '</p>'
     + (fbMode === 'opinion' ? '<select id="fbKind">' + FEEDBACK_KINDS.map(k => '<option' + (k === fbKind ? ' selected' : '') + '>' + k + '</option>').join('') + '</select>' : '')
     + '<textarea id="fbText"></textarea>'
-    + '<input id="fbName" placeholder="名前（書いた人が分かるように。任意）" maxlength="30">'
     + '<div class="row"><button id="fbSend">送る</button><button id="fbCancel">閉じる</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
+    + (box.length ? '<p>送るのを待っているものが、' + box.length + '件あります。</p><div class="row"><button id="fbFlush">今すぐ全部送る</button></div>' : '')
+    + '<details id="fbSet"' + (fbSetOpen ? ' open' : '') + ' style="margin-top:14px"><summary>送る時刻・名前・合言葉</summary>'
+    + '<input id="fbName" placeholder="名前（書いた人が分かるように。任意）" maxlength="30">'
     + '<p><b>送る時刻</b>　' + (at ? at + ' より前に書いたものは、' + at + ' になってから送ります。' : '今は、書いたらすぐ送ります。') + '</p>'
     + '<div class="row"><input id="fbAt" type="time" value="' + at + '" style="width:auto;margin:0"><button id="fbAtSet">この時刻にする</button>' + (at ? '<button id="fbAtClear">すぐ送るに戻す</button>' : '') + '</div>'
-    + (box.length ? '<p>送るのを待っているものが、' + box.length + '件あります。</p><div class="row"><button id="fbFlush">今すぐ全部送る</button></div>' : '')
     + '<p>時刻を決めておくと、夜中に書いたものも、その時刻になってから届きます。文や選択肢の直しも同じです。その時刻にこのページを開いていなければ、次に開いたときに送ります。</p>'
     + (fbToken()
       ? '<p>送ったものは、そのまま届きます。本の名前・段落の番号・直前に選んだものは、自動で入ります。<br><a href="#" id="fbInvite">招待リンクをコピーする</a>　<a href="#" id="fbForget">この端末の合言葉を消す</a></p>'
       : '<p>この端末は、送るときに GitHub の画面が開きます。その画面で緑のボタンを押すと届きます。招待リンクから開いた端末では、画面を通さずに届きます。<br><a href="#" id="fbKeyBtn">合言葉を入れる</a></p>'
         + (fbKeyOpen ? '<input id="fbKey" type="password" placeholder="合言葉（github_pat_…）" autocomplete="off"><div class="row"><button id="fbKeySave">覚える</button></div>' : ''))
-    + '</div>';
+    + '</details></div>';
 }
-// ☰ の「意見・指示」から送る
+// 右端の「意見」から送る
 function sendFeedback(){
   const text = fbDrafts[fbMode].trim();
   if(!text) return;
@@ -5526,7 +5534,7 @@ function queueIssue(id, label, head, main, auto){
   if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
   else if(fbToken()) flushOutbox();
   else if(auto) outboxToGithub();
-  else fbNote = '下書きにしました。☰ の「意見・指示」から、まとめて送れます。';
+  else fbNote = '下書きにしました。右端の「意見」から、まとめて送れます。';
 }
 function unqueue(id){ store.set('outbox', store.get('outbox', []).filter(x => x.id !== id)); }
 // 合言葉のある端末：時刻を過ぎたものを、1件ずつ意見用のリポジトリへ届ける
