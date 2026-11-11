@@ -271,7 +271,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 16:52 f688b8e';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 16:54 41c6fa1';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -5256,7 +5256,7 @@ function render(){
     + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
     + (w.lock && lockMine() ? '<button id="saveBtn">保存して交代</button>' : '')
     + (room ? '' : '<button class="reset" id="reset">最初から</button>')
-    + `<span style="font-size:11px;color:#6a6458;margin-left:auto;align-self:center">${!TEST_BUILD ? APP_VERSION : BUILD.startsWith('__') ? '開発版' : BUILD}</span>`;
+    + (TEST_BUILD ? '' : `<span style="font-size:11px;color:#6a6458;margin-left:auto;align-self:center">${APP_VERSION}</span>`); // テスト版では出さない（どの版かは、意見を送るときに自動で付く）
   const whose = `<span><b>${CHARS[current].name}</b></span>`;
 
   let html = '', drawerHtml = '';
