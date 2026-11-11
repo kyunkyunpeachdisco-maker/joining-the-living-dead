@@ -289,7 +289,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:26 8e026e6';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:35 4b21fbe';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -642,7 +642,7 @@ const SPOTS = {
       + '\n\n手前の左に「1年2組」、その先に「保健室」の札が出ている。',
     runLabel:{ gym:'ほかの人たちと同じように、壁に寄って3人の後ろを通る' },
     run:{ ok:'壁に背中をつけて、3人の後ろを抜けた。男は窓から額を離さなかった。白衣の2人は、食缶の中をのぞいている。', hit:'台車の脇を抜けかけたとき、白衣のひとりが顔を上げた。配膳の手袋をはめた手が、袖をつかんでくる。振りほどいて、体育館の扉を押した。' } },
-  classroom:{ no:67, name:'1年2組', place:'school', room:'classroom', adj:['corridor'], go:{ corridor:'廊下へ戻る' }, z:4,
+  classroom:{ no:67, name:'1年2組', place:'school', room:'classroom', adj:['corridor'], go:{ corridor:'廊下へ戻る' }, z:4, calm:true,
     text:'机は後ろへ寄せてあって、黒板に「保健局　待機室」と書いた紙が貼ってある。\n\n机を並べた囲いの中に、4人が入れてあった。3人は囲いに沿ってゆっくり歩いている。もうひとりは子ども用の椅子に座らされていて、首には長い柄のついた輪が掛かったままだ。膝が、机の天板より高いところにある。\n\n用紙に何か書き込んでいた黄色いベストの係員が、顔を上げた。\n「ご家族の方ですか」\n「いえ」\n「でしたら、すみませんが」' },
   nurse:{ no:66, name:'保健室', place:'school', room:'nurse', adj:['corridor'], go:{ corridor:'廊下へ戻る' },
     z:s => (s.flags.nurseUp ? 1 : 0), block:s => (s.flags.nurseUp ? ['corridor'] : []),
@@ -810,6 +810,8 @@ BOOKS.voter = {
   hubs:{},
   noJump:true,
   spots:SPOTS, map:MAP, maps:{ city:CITY }, wound,
+  lines:{ noticed:'ひとりが、こっちを向いた。歩いてくる。', grabbed:'気がつくと、すぐ後ろまで来ていた。袖をつかまれる。振りほどいた。',
+    follow:n => n + '人が、あとをついてくる。足は遅いが、止まらない。', shake:'戸を閉めた。ついてきたのは、外に残った。ガラスに、手のひらの跡がつく。', lost:'振り返ると、ついてきたのは、角の手前で足を止めていた。' },
   // 建物の中にいるあいだ、映像に映るゾンビの数（小学校は廊下の用務員）
   planZ:{ school:s => [[janitorGone(s) ? 0 : 3, 'corridor'], [4, 'classroom'], [2, 'gym'], [s.flags.nurseUp ? 1 : 0, 'nurse']], hosp:s => [[3, 'lobby'], [3, 'er'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ school:{ gym:[53, 54, 55, 56, 69, 70, 71, 72] }, hosp:{ supply:[84], er:[85] } },
@@ -1141,6 +1143,8 @@ BOOKS.governor = {
   start:200,
   hubs:{},
   noJump:true,
+  lines:{ noticed:'1人が、こちらを向いた。ルイス巡査部長が、半歩前に出た。カメラは、まだ気づいていない。', grabbed:'巡査部長の腕の下から、手が伸びてきた。袖をつかまれる。巡査部長が引きはがした。シャッターの音が、2回した。',
+    follow:n => n + '人が、車のあとを歩いてくる。ペイジが、後ろの窓から目を離さない。', shake:'扉が閉まった。ついてきた者は、ガラスの向こうに残った。', lost:'ついてきた者は、角の手前で足を止めた。巡査部長が、無線を下ろした。' },
   spots:SPOTS, map:MAP, wound:() => WOUND,
   planZ:{ hotel:s => [[3, 'lobby'], [4, 'ball'], [s.flags.waiterGone ? 0 : 3, 'hall']] },
   planParas:{ hotel:{ ball:[224] } },
@@ -1332,7 +1336,7 @@ const SPOTS = {
 
   // ===== 巡回で回る現場 =====
   lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[30, 4], adj:['p_lobby', ...others('lot')], go:{ p_lobby:'署の玄関へ入る', ...go('lot') },
-    z:s => (s.clock >= FENCE ? (s.flags.sent ? 0 : 4) : s.flags.cells ? 0 : 2), arrive:arr(325),
+    z:s => (s.clock >= FENCE ? (s.flags.sent ? 0 : 4) : s.flags.cells ? 0 : 2), calm:true, arrive:arr(325),
     text:s => (s.clock >= FENCE
         ? (s.flags.sent ? '駐車場の金網のフェンスに、外した手錠が8つ下がっている。風が来ると、端から順に鳴る。' : '駐車場の金網のフェンスに、8人が手錠でつないである。朝は2人だった。保健局の車は、まだ1台も来ていない。' + (s.flags.lit ? '投光器が2台、8人を照らしている。' : ''))
           + (s.flags.sent || s.flags.lit ? '' : '\n\nドイル副署長が玄関から出てきて、フェンスを端から端まで目で数えた。\n「署長。日が暮れたら、フェンスの者は外から見えなくなります。州立病院なら、救急で預かってくれるかもしれません」')
@@ -1408,6 +1412,8 @@ BOOKS.chief = {
   start:300,
   hubs:{},
   noJump:true,
+  lines:{ noticed:'1人が、こちらを向いた。距離は、車2台ぶん。歩いてくる。', grabbed:'警棒を抜くより先に、手首をつかまれた。ねじって外した。',
+    follow:n => n + '人が、パトカーのあとを歩いてくる。ケインが、鏡を見ている。', shake:'扉を閉めた。ついてきた者は、外に残った。', lost:'ついてきた者は、途中で足を止めた。鏡の中で、小さくなっていく。' },
   spots:SPOTS, map:MAP, wound:() => WOUND,
   planZ:{ ps:s => [[2, 'lobby'], [loose(s) ? 2 : 0, 'hall']] },
   planParas:{ ps:{ roll:[300], office:[307] } },
@@ -1594,6 +1600,8 @@ BOOKS.director = {
   start:400,
   hubs:{},
   noJump:true,
+  lines:{ noticed:'ひとりが、こちらを向いた。カルテで名前を見たことのある顔だ。歩いてくる。', grabbed:'白衣の裾をつかまれた。引いた拍子に、手首に歯が当たった。',
+    follow:n => n + '人が、あとをついてくる。看護師が、ワゴンを壁へ寄せて道を空けた。', shake:'戸を閉めた。ついてきた者は、小窓の向こうに立っている。', lost:'ついてきた者は、途中で足を止めた。' },
   spots:SPOTS, wound:() => WOUND,
   planZ:{ hosp:s => [[3, 'lobby'], [3, 'er'], [wardZ(s), 'ward'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ hosp:{ office:[400, 407], er:[401], aud:[404], ward:[405] } },
@@ -1928,6 +1936,8 @@ function act(choice){
   }
   if(s.book === 'monster' && s.clock >= DAWN) target = 699;
   go(s, w, target);
+  if(s.book !== 'monster' && !s.moved && !choice.risky) spotLinger(s, w);
+  s.moved = false;
   if(s.book === 'monster' && target === 699) s.status = 'monster-done';
   const blindAfter = inBlindSpot(s);
   markRoom(s);
@@ -3374,7 +3384,30 @@ for(const id of CHAR_IDS){
   for(const [plan, rooms] of Object.entries(B.planParas || {})) for(const [room, list] of Object.entries(rooms)) for(const n of list){ delete PARA_CAMS[n]; PLAN_PARA[n] = { plan, room }; }
 }
 function spotOf(s){ const p = paraOf(s); return p && p.spot ? bookOf(s).spots[p.spot] : null; }
-function spotZ(s, w, sp){ return Math.max(0, typeof sp.z === 'function' ? sp.z(s, w) : sp.z || 0); }
+// その場にいる数。ついてきた者は、今いる場所の数に足す
+function spotZ(s, w, sp){
+  const base = Math.max(0, typeof sp.z === 'function' ? sp.z(s, w) : sp.z || 0);
+  return base + (s.follow && s.follow.n > 0 && bookOf(s).spots[s.follow.at] === sp ? s.follow.n : 0);
+}
+// ===== 襲ってくる =====
+// その場で何かするたびに（移らずに選ぶたびに）、気づかれていく。気づかれたまま居続けると、つかまれる
+const ATTACK = { notice:.1, noticeHide:.05, grab:.22, cap:4 };
+const SPOT_LINES = {
+  noticed:'ひとりが、こちらを向いた。歩いてくる。', grabbed:'すぐ後ろまで来ていた。腕をつかまれる。振りほどいた。',
+  follow:n => n + '人が、あとをついてくる。', shake:'戸を閉めた。ついてきた者は、外に残った。', lost:'ついてきた者は、途中で足を止めた。',
+};
+const spotLine = (s, k, n) => { const v = (bookOf(s).lines || {})[k] || SPOT_LINES[k]; return typeof v === 'function' ? v(n) : v; };
+const addMsg = (s, t) => { s.msg = (s.msg ? s.msg + '\n\n' : '') + t; };
+// 移らずに何かしたあとに呼ぶ
+function spotLinger(s, w){
+  const B = bookOf(s), id = paraOf(s).spot, sp = id && B.spots[id];
+  if(!sp || sp.calm || s.status !== 'active') return;
+  const z = Math.min(ATTACK.cap, spotZ(s, w, sp));
+  if(!z) return;
+  if(s.aware === id){
+    if(Math.random() < ATTACK.grab + .04 * (z - 1)){ bite(s); addMsg(s, spotLine(s, 'grabbed') + (B.wound ? '\n' + B.wound(s) : '')); }
+  } else if(Math.random() < 1 - (1 - (sp.hide ? ATTACK.noticeHide : ATTACK.notice)) ** z){ s.aware = id; addMsg(s, spotLine(s, 'noticed')); }
+}
 function spotAdj(s, w, sp){ return typeof sp.adj === 'function' ? sp.adj(s, w) : sp.adj || []; }
 // ゾンビの向こう側にある行き先か
 function spotBlocked(s, w, sp, to){
@@ -3384,7 +3417,13 @@ function spotBlocked(s, w, sp, to){
 }
 function spotMove(s, w, to){
   const B = bookOf(s), d = B.spots[to];
-  s.from = paraOf(s).spot; s.aware = null; s.clock += 2;
+  const fromId = paraOf(s).spot, fromSp = fromId && B.spots[fromId], trailed = !!(s.follow && s.follow.n > 0 && s.follow.at === fromId),
+    chased = fromSp && !fromSp.calm && s.aware === fromId && !trailed ? Math.min(2, spotZ(s, w, fromSp)) : 0; // ついてこられて着いた場所からは、もう1つ先へ行けば振り切れる
+  s.from = fromId; s.aware = null; s.clock += 2; s.moved = true;
+  // 気づかれたまま逃げると、何人かがついてくる。建物の中へ入って戸を閉めるか、もう1つ先まで行けば、振り切れる
+  const had = s.follow && s.follow.n > 0 ? s.follow.n : 0, inDoors = !!d.room, wasIn = !!(fromSp && fromSp.room);
+  if(chased && !inDoors){ s.follow = { n:chased, at:to }; s.aware = to; addMsg(s, spotLine(s, 'follow', chased)); }
+  else { if(chased || had) addMsg(s, spotLine(s, inDoors && !wasIn ? 'shake' : 'lost')); s.follow = null; }
   s.spots = s.spots || []; if(!s.spots.includes(to)) s.spots.push(to);
   const hook = d.arrive ? d.arrive(s, w) : null;
   return hook || d.no;
