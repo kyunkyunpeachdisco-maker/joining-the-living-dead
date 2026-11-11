@@ -289,7 +289,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:21 f62d71d';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:26 8e026e6';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -304,7 +304,10 @@ let room = (() => {
   } catch(e){ return null; }
 })();
 if(room && !/^[A-Z2-9]{8}$/.test(room)) room = null;
-const GLOBAL_KEYS = new Set(['room', 'dev', 'fb-token', 'fb-name', 'video']);
+const GLOBAL_KEYS = new Set(['room', 'room-kind', 'dev', 'fb-token', 'fb-name', 'video', 'send-at']);
+// 部屋の種類。'test' は、各自が自分の一日を遊び、意見や直しだけを部屋にためる。それ以外は、全員で1つの一日を交代で進める
+let roomKind = (() => { try { return room ? JSON.parse(localStorage.getItem(BASE + 'room-kind') || 'null') : null; } catch(e){ return null; } })();
+const testRoom = () => !!room && roomKind === 'test';
 const keyOf = key => BASE + (room && !GLOBAL_KEYS.has(key) ? 'room-' + room + '-' : '') + key;
 let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
@@ -321,7 +324,7 @@ const store = {
   set(key, value){
     const k = keyOf(key);
     memory[k] = JSON.stringify(value);
-    if(room && (key === 'world' || key.startsWith('player-'))) roomDirty();
+    if(room && !testRoom() && (key === 'world' || key.startsWith('player-'))) roomDirty();
     try { localStorage.setItem(k, memory[k]); }
     catch(e){ if(!saveWarned){ saveWarned = true; const note = 'この端末では進み具合を保存できません。ページを閉じると進み具合は消えます。'; console.warn(note); setTimeout(() => alert(note)); } }
   },
@@ -5000,15 +5003,51 @@ let me = store.get('me', CHAR_IDS[0]); if(!CHARS[me]) me = CHAR_IDS[0];
 let histIndex = null; // 履歴を見ているときの位置（null は最新）
 let lastView = null;  // いま画面に出している内容（選んだときに履歴へ残す）
 function canAct(){ return loadWorld().lock === me && current === me && lockMine(); }
-function takeLock(){ if(room) return roomTakeLock(); const w = loadWorld(); if(w.lock) return; me = current; store.set('me', me); w.lock = me; store.set('world', w); store.remove('undo'); undoOpen = false; histIndex = null; render(); }
-function releaseLock(){ const w = loadWorld(); if(w.lock !== me || !lockMine()) return; w.lock = null; w.lockDev = null; store.set('world', w); store.remove('undo'); undoOpen = false; if(room){ clearTimeout(roomTimer); roomPush(); } render(); }
+function takeLock(){ if(room && !testRoom()) return roomTakeLock(); const w = loadWorld(); if(w.lock) return; me = current; store.set('me', me); w.lock = me; store.set('world', w); store.remove('undo'); undoOpen = false; histIndex = null; render(); }
+function releaseLock(){ const w = loadWorld(); if(w.lock !== me || !lockMine()) return; w.lock = null; w.lockDev = null; store.set('world', w); store.remove('undo'); undoOpen = false; if(room && !testRoom()){ clearTimeout(roomTimer); roomPush(); } render(); }
 
 // ===== 部屋（各自の端末で、同じ一日を進める）。進み具合は Firebase の Realtime Database に預ける =====
 const ROOM_DB = 'https://my-movie-reviews-b8b70-default-rtdb.asia-southeast1.firebasedatabase.app/jtld/rooms/';
 const DEV = (() => { let d = store.get('dev', ''); if(!d){ d = Math.random().toString(36).slice(2, 10); store.set('dev', d); } return d; })();
 const STALE = 30 * 60000; // ロックしたまま30分動きがなければ、ほかの人が引き継げる
 let roomNote = '', roomPanel = false, roomBusy = false, roomSeen = 0;
-const lockMine = () => !room || loadWorld().lockDev === DEV;
+const lockMine = () => !room || testRoom() || loadWorld().lockDev === DEV;
+let roomOpen = true; // テスト用の部屋が、開いているか（ホストが閉じると、書いたものを送れなくなる）
+const itemKey = id => { let x = 5381; for(const c of String(id)) x = ((x << 5) + x + c.charCodeAt(0)) >>> 0; return DEV + '-' + x.toString(36); };
+const roomPath = path => ROOM_DB + room + '/' + path + '.json';
+// テスト用の部屋：開いているかどうかを確かめ、自分の名前を名簿に載せる
+async function testPull(){
+  if(!testRoom()) return;
+  try {
+    const open = await (await fetch(roomPath('open'))).json(), was = roomOpen;
+    roomOpen = open === true;
+    const name = store.get('fb-name', '');
+    if(roomOpen && name) fetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify({ name:name.slice(0, 30) }) }).catch(() => {});
+    if(was !== roomOpen) render();
+  } catch(e){}
+}
+// テスト用の部屋：書いたものを、部屋にためる。書いた時刻は残さず、「この時刻より後に見せてよい」という印だけを付ける
+async function roomSendItems(){
+  if(flushing) return;
+  if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。書いたものは、この端末に残っています。'; render(); return; }
+  flushing = true;
+  let did = false;
+  try {
+    for(;;){
+      const it = store.get('outbox', [])[0];
+      if(!it) break;
+      did = true;
+      const key = itemKey(it.id);
+      const res = await fetch(roomPath('items/' + key), { method:'PUT', body:JSON.stringify({ label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）' }) });
+      if(!res.ok) throw 0;
+      const sent = store.get('sent', {}); sent[it.id] = key; store.set('sent', sent);
+      store.set('outbox', store.get('outbox', []).filter(x => x.id !== it.id));
+      fbNote = it.after ? store.get('send-at', '') + ' を過ぎたら、届いたものとして扱われます。' : '届きました。';
+    }
+  } catch(e){ fbNote = '届きませんでした。電波のよい所で開き直すと、もう一度送ります。書いたものは、この端末に残っています。'; }
+  flushing = false;
+  if(did) render();
+}
 const roomUrl = (code = room) => ROOM_DB + code + '.json';
 // 部屋から読んだものは、ほかの人が書けるもの。形を確かめ、文字の中の < > は記号として働かない字に替える
 function clean(v, d = 0){
@@ -5092,16 +5131,18 @@ async function roomTakeLock(){
   } catch(e){ roomNote = e === 'gone' ? 'この部屋は、もうありません。' : '部屋につながりません。電波のよい所で、もう一度押してください。'; }
   roomBusy = false; render();
 }
-function roomEnter(code){ try { localStorage.setItem(BASE + 'room', JSON.stringify(code)); } catch(e){} location.reload(); }
-async function roomCreate(){
+function roomEnter(code, kind){ try { localStorage.setItem(BASE + 'room', JSON.stringify(code)); localStorage.setItem(BASE + 'room-kind', JSON.stringify(kind || 'day')); } catch(e){} location.reload(); }
+async function roomCreate(kind){
   if(roomBusy) return;
   roomBusy = true; roomNote = '部屋を作っています…'; render();
   const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', rnd = crypto.getRandomValues(new Uint8Array(8));
   const code = Array.from(rnd, n => abc[n % 32]).join('');
   try {
-    const r = await fetch(roomUrl(code), { method:'PUT', body:JSON.stringify({ v:1, world:JSON.stringify(newWorld()), updated:Date.now() }) });
+    const init = kind === 'test' ? { v:1, kind:'test', open:true, host:DEV } : { v:1, kind:'day', world:JSON.stringify(newWorld()), updated:Date.now() };
+    const r = await fetch(roomUrl(code), { method:'PUT', body:JSON.stringify(init) });
     if(!r.ok) throw 0;
-    roomEnter(code);
+    try { localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code)); } catch(e){}
+    roomEnter(code, kind === 'test' ? 'test' : 'day');
   } catch(e){ roomBusy = false; roomNote = '部屋を作れませんでした。電波のよい所で、もう一度押してください。'; render(); }
 }
 async function roomJoin(text){
@@ -5111,19 +5152,31 @@ async function roomJoin(text){
   try {
     const data = await (await fetch(roomUrl(code))).json();
     if(data === null){ roomBusy = false; roomNote = 'その番号の部屋は、ありません。'; render(); return; }
-    roomEnter(code);
+    roomEnter(code, data.kind === 'test' ? 'test' : 'day');
   } catch(e){ roomBusy = false; roomNote = '部屋につながりません。電波のよい所で、もう一度押してください。'; render(); }
 }
-function roomLeave(){ const w = loadWorld(); if(w.lock && w.lockDev === DEV) releaseLock(); try { localStorage.removeItem(BASE + 'room'); } catch(e){} setTimeout(() => location.reload(), 600); }
+async function roomClose(open){
+  try { const r = await fetch(roomPath('open'), { method:'PUT', body:JSON.stringify(!!open) }); if(!r.ok) throw 0; roomOpen = !!open; roomNote = open ? '部屋を開けました。' : '部屋を閉じました。メンバーは、遊べますが、書いたものを送れなくなります。'; }
+  catch(e){ roomNote = '部屋につながりません。'; }
+  render();
+}
+function roomLeave(){ const w = loadWorld(); if(!testRoom() && w.lock && w.lockDev === DEV) releaseLock(); try { localStorage.removeItem(BASE + 'room'); localStorage.removeItem(BASE + 'room-kind'); } catch(e){} setTimeout(() => location.reload(), 600); }
+const roomHost = () => store.get('host-of', '') === room;
 function roomPanelHtml(){
   const w = loadWorld();
+  if(testRoom()) return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">'
+    + '<p><b>テスト用の部屋 ' + room + '</b>　' + (roomOpen ? 'それぞれが自分の一日を、好きな時に遊べます。直した文・足した選択肢・意見・指示は、この部屋に届きます。' : 'この部屋は、ホストが閉じました。遊べますが、書いたものは送れません。') + '</p>'
+    + '<input id="roomName" placeholder="名前（最初に1回だけ）" maxlength="30">'
+    + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomLeave">部屋を出る</button>' + (roomHost() ? '<button id="roomToggle">' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '</button>' : '') + '</div>'
+    + (roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '') + '</div>';
   return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">'
     + (room
       ? '<p><b>部屋 ' + room + '</b>　この部屋に入っている人どうしで、同じ一日を進めます。進められるのは、ロックした人だけです。「保存して交代」を押すと、ほかの人の端末に届きます。</p>'
         + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomReload">ほかの人の進み具合を読みこむ</button><button id="roomLeave">部屋を出る</button></div>'
         + '<p>' + (w.lock ? CHARS[w.lock].name + 'の本を、' + (w.lockDev === DEV ? 'この端末' : 'ほかの人') + 'がロックしています。' : '今は、誰もロックしていません。') + '</p>'
       : '<p><b>部屋</b>　それぞれが自分の端末で、同じ一日を進めるときに使います。1人で遊ぶときは、要りません。</p>'
-        + '<div class="row"><button id="roomNew">部屋を作る</button></div>'
+        + '<div class="row">' + (TEST_BUILD ? '<button id="roomNewTest">テスト用の部屋を作る</button>' : '') + '<button id="roomNew">いっしょに進める部屋を作る</button></div>'
+        + '<p>テスト用の部屋は、それぞれが自分の一日を好きな時に遊び、直しや意見だけを集めます。いっしょに進める部屋は、全員で1つの一日を、交代で進めます。</p>'
         + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><div class="row"><button id="roomJoinBtn">この番号の部屋に入る</button></div>')
     + (roomNote ? '<div class="note">' + roomNote + '</div>' : '') + '</div>';
 }
@@ -5276,7 +5329,7 @@ function render(){
     + `<button class="mapbtn${helpOpen ? ' on' : ''}" id="helpbtn">遊び方</button>`
     + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
     + (w.lock && lockMine() ? '<button id="saveBtn">保存して交代</button>' : '')
-    + (room ? '' : '<button class="reset" id="reset">最初から</button>')
+    + (room && !testRoom() ? '' : '<button class="reset" id="reset">最初から</button>')
     + (TEST_BUILD ? '' : `<span style="font-size:11px;color:#6a6458;margin-left:auto;align-self:center">${APP_VERSION}</span>`); // テスト版では出さない（どの版かは、意見を送るときに自動で付く）
   const whose = `<span><b>${CHARS[current].name}</b></span>`;
 
@@ -5372,7 +5425,7 @@ function render(){
   on('fbTab', () => { fbOpen = !fbOpen; if(fbOpen) mapOpen = false; else fbNote = ''; render(); });
   on('fbAtSet', () => { const t = document.getElementById('fbAt').value; if(/^\d\d:\d\d$/.test(t)){ store.set('send-at', t); fbNote = ''; render(); } });
   on('fbAtClear', () => { store.remove('send-at'); render(); });
-  on('fbFlush', () => { if(fbToken()) flushOutbox(true); else outboxToGithub(); });
+  on('fbFlush', () => { if(testRoom()) roomSendItems(); else if(fbToken()) flushOutbox(true); else outboxToGithub(); });
   on('fbReset', () => { fbDrafts.edit = fbOrig; render(); });
   document.querySelectorAll('[data-fbmode]').forEach(el => { el.onclick = () => { fbMode = el.dataset.fbmode; fbStart(); render(); }; });
   on('fbCancel', () => { fbOpen = false; fbNote = ''; render(); });
@@ -5421,7 +5474,11 @@ function render(){
   });
   on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
   on('roombtn', () => { roomPanel = !roomPanel; menuOpen = false; if(!roomPanel) roomNote = ''; render(); window.scrollTo(0, 0); });
-  on('roomNew', roomCreate);
+  on('roomNew', () => roomCreate('day'));
+  on('roomNewTest', () => roomCreate('test'));
+  on('roomToggle', () => roomClose(!roomOpen));
+  const rn = document.getElementById('roomName');
+  if(rn){ rn.value = store.get('fb-name', ''); rn.onchange = () => { store.set('fb-name', rn.value.trim()); testPull(); }; }
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
   on('roomReload', () => roomPull(true));
   on('roomLeave', roomLeave);
@@ -5531,12 +5588,17 @@ function queueIssue(id, label, head, main, auto){
   const m = issueMeta(), after = sendAfter(), box = store.get('outbox', []).filter(x => x.id !== id);
   box.push({ id, label, title:'[' + m.name + ' ' + m.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40), body:main + m.tail, after });
   store.set('outbox', box);
-  if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
+  if(testRoom()) roomSendItems();
+  else if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
   else if(fbToken()) flushOutbox();
   else if(auto) outboxToGithub();
   else fbNote = '下書きにしました。右端の「意見」から、まとめて送れます。';
 }
-function unqueue(id){ store.set('outbox', store.get('outbox', []).filter(x => x.id !== id)); }
+function unqueue(id){
+  store.set('outbox', store.get('outbox', []).filter(x => x.id !== id));
+  const sent = store.get('sent', {});
+  if(testRoom() && sent[id]){ fetch(roomPath('items/' + sent[id]), { method:'DELETE' }).catch(() => {}); delete sent[id]; store.set('sent', sent); }
+}
 // 合言葉のある端末：時刻を過ぎたものを、1件ずつ意見用のリポジトリへ届ける
 async function flushOutbox(force){
   const token = fbToken();
@@ -5740,9 +5802,20 @@ function resultHtml(){
 
 render();
 // 送るのを待っているものは、開いたときと、1分ごとに、時刻を過ぎていれば送る
-if(TEST_BUILD){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
+if(TEST_BUILD && !testRoom()){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
+if(testRoom()){
+  testPull().then(() => { if(store.get('outbox', []).length) roomSendItems(); if(!store.get('fb-name', '')){ roomPanel = true; roomNote = '最初に、名前を入れてください。'; render(); } });
+  setInterval(() => { if(document.visibilityState === 'visible') testPull(); }, 60000);
+}
 // 部屋に入っていれば、開いたとき・画面に戻ったとき・30秒ごとに、ほかの人の進み具合を読みこむ
-if(room){
+// 招待リンクから入ったばかりで、部屋の種類がまだ分からないときは、部屋に聞いてから開き直す
+if(room && !roomKind){
+  fetch(roomUrl()).then(r => r.json()).then(d => {
+    try { if(d === null){ localStorage.removeItem(BASE + 'room'); } else localStorage.setItem(BASE + 'room-kind', JSON.stringify(d.kind === 'test' ? 'test' : 'day')); } catch(e){}
+    location.reload();
+  }).catch(() => { roomNote = '部屋につながりません。電波のよい所で開き直してください。'; roomPanel = true; render(); });
+}
+if(room && roomKind && !testRoom()){
   roomPull(true);
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') roomPull(); });
   setInterval(() => { if(document.visibilityState === 'visible') roomPull(); }, 30000);
