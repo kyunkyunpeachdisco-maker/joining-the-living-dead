@@ -271,7 +271,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 16:47 6ee3dda';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 16:51 6d5cad2';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -790,7 +790,7 @@ BOOKS.voter = {
   noJump:true,
   spots:SPOTS, map:MAP, maps:{ city:CITY }, wound,
   // 建物の中にいるあいだ、映像に映るゾンビの数（小学校は廊下の用務員）
-  planZ:{ school:(s, w, room) => (room === 'nurse' ? (s.flags.nurseUp ? [1, 'nurse'] : 0) : room === 'classroom' ? [4, 'classroom'] : room === 'gym' ? [2, 'gym'] : janitorGone(s) ? 0 : 3), hosp:(s, w, room) => (room === 'er' ? [3, 'er'] : room === 'lobby' ? [3, 'lobby'] : risen(s) ? 2 : 0) },
+  planZ:{ school:s => [[janitorGone(s) ? 0 : 3, 'corridor'], [4, 'classroom'], [2, 'gym'], [s.flags.nurseUp ? 1 : 0, 'nurse']], hosp:s => [[3, 'lobby'], [3, 'er'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ school:{ gym:[53, 54, 55, 56, 69, 70, 71, 72] }, hosp:{ supply:[84], er:[85] } },
   paras:{
     // ===== 朝：自宅 =====
@@ -1121,7 +1121,7 @@ BOOKS.governor = {
   hubs:{},
   noJump:true,
   spots:SPOTS, map:MAP, wound:() => WOUND,
-  planZ:{ hotel:(s, w, room) => (room === 'lobby' ? [3, 'lobby'] : room === 'ball' ? [4, 'ball'] : s.flags.waiterGone ? 0 : 3) },
+  planZ:{ hotel:s => [[3, 'lobby'], [4, 'ball'], [s.flags.waiterGone ? 0 : 3, 'hall']] },
   planParas:{ hotel:{ ball:[224] } },
   paras:{
     // ===== 朝：公邸 =====
@@ -1388,7 +1388,7 @@ BOOKS.chief = {
   hubs:{},
   noJump:true,
   spots:SPOTS, map:MAP, wound:() => WOUND,
-  planZ:{ ps:(s, w, room) => (room === 'lobby' ? [2, 'lobby'] : loose(s) ? 2 : 0) },
+  planZ:{ ps:s => [[2, 'lobby'], [loose(s) ? 2 : 0, 'hall']] },
   planParas:{ ps:{ roll:[300], office:[307] } },
   paras:{
     // ===== 朝：点呼 =====
@@ -1574,7 +1574,7 @@ BOOKS.director = {
   hubs:{},
   noJump:true,
   spots:SPOTS, wound:() => WOUND,
-  planZ:{ hosp:(s, w, room) => (room === 'lobby' ? [3, 'lobby'] : room === 'er' ? [3, 'er'] : room === 'ward' ? (wardZ(s) ? [3, 'ward'] : 0) : room === 'hall' && risen(s) ? 2 : 0) },
+  planZ:{ hosp:s => [[3, 'lobby'], [3, 'er'], [wardZ(s), 'ward'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ hosp:{ office:[400, 407], er:[401], aud:[404], ward:[405] } },
   paras:{
     // ===== 朝：夜勤の報告 =====
@@ -3769,11 +3769,12 @@ function cctvState(s, w){
   const ended = s.status === 'stranded' || s.status === 'monster-done';
   const sp = spotOf(s), pz = sp && planOf(s) ? bookOf(s).planZ?.[s.place] : null;
   const other = others(s.char).find(o => o.status === 'active' && w.events.some(e => e.type === 'pass' && e.by === o.char && e.place === s.place && e.t <= s.clock && s.clock - e.t <= 30));
-  const pzv = pz ? pz(s, w, planOf(s).room) : null, pzn = Array.isArray(pzv) ? pzv[0] : pzv;
+  // planZ は、[数, 部屋] の組の並びを返す。組はどれも、自分がどの部屋にいても映る
+  const zgroups = pz ? pz(s, w, planOf(s).room).filter(g => g[0] > 0) : null;
   return {
-    zroom:Array.isArray(pzv) && pzv[0] ? pzv[1] : null,
+    zgroups,
     place:s.place, cam:camFor(s), plan:planOf(s), offscreen:inBlindSpot(s), you:s.char, monster:s.book === 'monster', ended,
-    zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? (pz ? pzn : spotZ(s, w, sp)) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? p.zombies : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
+    zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? spotZ(s, w, sp) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? p.zombies : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
     hideOk:sp ? !!sp.hide : p.zombies == null || !!p.hide, inDoor:p.inside === 'door',
     aware:sp ? s.aware === p.spot : !!zsHere(s)?.aware, alert:zsHere(s)?.alert || 0, encounter:!!p.encounter, other:other ? other.char : null,
     blackout:s.clock >= BLACKOUT, clock:s.clock,
@@ -3964,6 +3965,8 @@ function makeNav(T, scene, plan, floor, area){
   return { free, snap, fix, los, path, W, H, x0, z0, cell, comp, sizes };
 }
 // 化け物がうろつく範囲と、もう一人が横切る線。玄関のある階は見取り図の指定、ほかの階はいちばん広い部屋
+// 廊下で、ゾンビの立つ範囲（部屋の全体でなく、通り道をふさぐ所）
+const PLAN_ZZONE = { school:{ corridor:[14.5, 17.5, -2.3, -.9] }, hosp:{ hall:[20, 23, -2.3, -.9] }, hotel:{ hall:[14, 17, -2.3, -.9] }, ps:{ hall:[18, 21, -2.3, -.9] } };
 function zoneFor(plan, floor){
   const P = PLANS[plan], hub = P.rooms[P.hub];
   if(hub.floor === floor && hub.zone) return { zone:hub.zone, cross:hub.cross };
@@ -4545,7 +4548,7 @@ function makeActors(T, scene, built, st0){
   scene.add(you);
   const other = person(T, st0.you === 'police' ? 'doctor' : 'police'); other.visible = false; scene.add(other);
   const zs = [];
-  for(let i = 0; i < 6; i++){ const m = shambler(T); m.visible = false; scene.add(m); zs.push(m); }
+  for(let i = 0; i < 12; i++){ const m = shambler(T); m.visible = false; scene.add(m); zs.push(m); }
   const free = (x, zz) => !nav || nav.free(x, zz);
   const rnd = (a, b) => a + Math.random() * (b - a);
   const gap = (m, x, zz) => Math.hypot(m.position.x - x, m.position.z - zz);
@@ -4675,16 +4678,25 @@ function makeActors(T, scene, built, st0){
       }
       // 化け物：危険度の数だけ出る。気づくまでは範囲の中をうろつき、気づいたら物を避けて寄ってくる
       const tx = you.position.x, tz = you.position.z;
-      const zr = built.plan && st.zroom ? PLANS[built.plan].rooms[st.zroom] : null;
-      if((st.zroom || '') !== (this.zroom || '')){ this.zroom = st.zroom || ''; zs.forEach(m => { m.userData.placed = false; }); }
-      const wz = zr ? [Math.min(zr.rect[0], zr.rect[2]) + .9, Math.max(zr.rect[0], zr.rect[2]) - .9, Math.min(zr.rect[1], zr.rect[3]) + .9, Math.max(zr.rect[1], zr.rect[3]) - .9] : wantHide(st, built) && built.hideZone ? built.hideZone : z;
+      const wz0 = wantHide(st, built) && built.hideZone ? built.hideZone : z;
+      // 見取り図の建物：部屋ごとの組を、この階にいるぶんだけ並べる。i 番目の者が、どの部屋の範囲を歩くかを決める
+      const slots = [];
+      if(built.plan && st.zgroups) for(const [n, room] of st.zgroups){
+        const r = PLANS[built.plan].rooms[room];
+        if(!r || r.floor !== built.floor) continue;
+        const zone = PLAN_ZZONE[built.plan]?.[room] || [Math.min(r.rect[0], r.rect[2]) + .9, Math.max(r.rect[0], r.rect[2]) - .9, Math.min(r.rect[1], r.rect[3]) + .9, Math.max(r.rect[1], r.rect[3]) - .9];
+        for(let k = 0; k < n; k++) slots.push({ room, zone });
+      }
+      const grouped = built.plan && !!st.zgroups, here = st.plan ? st.plan.room : null;
       const pull = clamp01(((st.alert || 0) - 30) / 70), avoid = st.monster ? .8 : 2.2 - pull * 1.1;
       zs.forEach((m, i) => {
         const u = m.userData;
-        const show = i < (built.room && !built.open ? Math.min(2, st.zombies) : st.zombies) || (st.encounter && i === 0);
+        const slot = grouped ? slots[i] : null, wz = slot ? slot.zone : wz0;
+        const show = grouped ? !!slot : i < (built.room && !built.open ? Math.min(2, st.zombies) : st.zombies) || (st.encounter && i === 0);
         m.visible = show;
-        if(!show){ u.placed = false; return; }
-        u.lunge = st.encounter && i === 0; u.hunt = st.aware && !st.monster;
+        if(!show){ u.placed = false; u.zroom = null; return; }
+        if(grouped && u.zroom !== slot.room){ u.zroom = slot.room; u.placed = false; }
+        u.lunge = st.encounter && i === 0; u.hunt = st.aware && !st.monster && (!slot || slot.room === here);
         const fresh = !u.placed;
         if(fresh && !u.lunge) place(m, wz, tx, tz, base);
         const px = m.position.x, pz = m.position.z, d = gap(m, tx, tz);
