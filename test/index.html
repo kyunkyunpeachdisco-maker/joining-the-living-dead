@@ -188,6 +188,13 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .fb textarea{min-height:110px}
 .fb .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .fb .modes{display:flex;gap:6px;margin:8px 0}
+.fbe{background:none;border:0;color:#8a8270;font-size:13px;padding:4px 2px;font-family:inherit}
+.choices .crow{display:flex;gap:6px;align-items:stretch}
+.choices .crow>button[data-i]{flex:1}
+.choices .crow .fbe{flex:none;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:15px;background:none;color:#8a8270}
+.choices button.pending{border-style:dashed;color:#a8a090;background:none}
+.choices button.pending .tag{display:block;font-size:11px;color:#8a8270;margin-top:3px}
+.choices .fb button{font-size:13px;padding:8px 12px;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-radius:6px}
 .fb .modes button.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
 .fb textarea.edit{min-height:240px;line-height:1.7}
 .fb input{font-size:16px;width:100%;box-sizing:border-box;background:#0f1013;color:#e8e2d2;border:1px solid #4a4436;border-radius:6px;padding:8px;margin:6px 0;font-family:inherit}
@@ -271,7 +278,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 16:54 41c6fa1';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:09 9a50d17';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -5210,7 +5217,9 @@ let fbNote = '', fbBusy = false, fbKeyOpen = false;
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
 })();
 const fbToken = () => store.get('fb-token', '');
-const FB_MODES = { edit:'文を直す', opinion:'意見', prompt:'指示' };
+const FB_MODES = { opinion:'意見', prompt:'指示' };
+// その場で直している所：{ kind:'text'（本文）|'msg'（出来事の文）|'choice'（選択肢の文）|'add'（選択肢を足す）, i, value, orig }
+let fbe = null;
 const FB_HELP = {
   edit:'下の文と選択肢を、直したい形に書き換えてください。変えた行だけが、前と後を並べて送られます。',
   opinion:'気になったこと、直してほしいこと、足してほしいものを書いてください。',
@@ -5328,7 +5337,7 @@ function render(){
           : '<p>「送る」を押すと、GitHub の画面が開きます。その画面で緑のボタンを押すと届きます。招待リンクから開いた端末では、画面を通さずにそのまま届きます。<br><a href="#" id="fbKeyBtn">合言葉を入れる</a></p>'
             + (fbKeyOpen ? '<input id="fbKey" type="password" placeholder="合言葉（github_pat_…）" autocomplete="off"><div class="row"><button id="fbKeySave">覚える</button></div>' : ''))
         + '</div>'
-      : '<div class="fb"><button id="fbBtn">この場面に意見を書く・文を直す</button></div>';
+      : '<div class="fb"><button id="fbBtn">この場面に、意見や指示を書く</button></div>';
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
     setCutscene(cctvState(s, w));
   }
@@ -5370,6 +5379,7 @@ function render(){
   const fbT = document.getElementById('fbText'), fbK = document.getElementById('fbKind');
   if(fbT){ fbT.value = fbDrafts[fbMode]; fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; }; }
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
+  decorateForEdit(mode);
   on('undobtn', () => { undoOpen = !undoOpen; render(); window.scrollTo(0, 0); });
   on('undoClose', () => { undoOpen = false; render(); });
   document.querySelectorAll('.undolist button[data-undo]').forEach(b => b.onclick = () => undoTo(+b.dataset.undo));
@@ -5469,17 +5479,75 @@ function tallyResult(){
 // 意見を、意見用のリポジトリの投稿画面へ渡す。どの場面かは自動で付ける
 function sendFeedback(){
   const text = fbDrafts[fbMode].trim();
+  if(!text) return;
+  const main = (fbMode === 'prompt' ? '### 指示\n\n' : '') + text;
+  const label = fbMode === 'prompt' ? '指示' : fbKind, head = (fbMode === 'prompt' ? '指示：' : '') + text;
+  sendIssue(main, label, head, note => { fbDrafts[fbMode] = ''; fbNote = note; fbBusy = false; render(); });
+}
+// その場で直したもの・足したものを送る
+function fbeSend(){
+  const e = fbe;
+  if(!e || fbBusy) return;
+  const val = (e.value || '').trim();
   let main, label, head;
-  if(fbMode === 'edit'){
-    const ch = lineChanges(fbOrig, fbDrafts.edit);
-    if(!ch.length) return;
-    main = '### 文の直し\n\n' + ch.map(c => '前：\n' + (c.before || '（なし）') + '\n\n後：\n' + (c.after || '（削る）')).join('\n\n----\n\n');
-    label = '文の直し'; head = '直し：' + (ch[0].after || ch[0].before);
+  if(e.kind === 'add'){
+    if(!val) return;
+    main = '### 選択肢の追加\n\n新しい選択肢：' + val + '\n\n（選んだ先は、まだ書かれていない）'; label = '追加の案'; head = '選択肢の追加：' + val;
+  } else if(e.kind === 'choice'){
+    if(!val || val === e.orig) return;
+    main = '### 選択肢の直し\n\n前：\n' + e.orig + '\n\n後：\n' + val; label = '選択肢'; head = '選択肢の直し：' + val;
   } else {
-    if(!text) return;
-    main = (fbMode === 'prompt' ? '### 指示\n\n' : '') + text;
-    label = fbMode === 'prompt' ? '指示' : fbKind; head = (fbMode === 'prompt' ? '指示：' : '') + text;
+    const ch = lineChanges(e.orig, e.value);
+    if(!ch.length) return;
+    main = '### 文の直し\n\n' + ch.map(c => '前：\n' + (c.before || '（なし）') + '\n\n後：\n' + (c.after || '（削る）')).join('\n\n----\n\n'); label = '文の直し'; head = '直し：' + (ch[0].after || ch[0].before);
   }
+  const key = lastView.char + ':' + lastView.para;
+  sendIssue(main, label, head, note => {
+    // 足した選択肢は、先が書かれるまで「足したばかり」として並べておく
+    if(e.kind === 'add'){ const all = store.get('pend', {}); (all[key] = all[key] || []).push({ label:val, at:Date.now() }); store.set('pend', all); }
+    fbe = null; fbNote = note; fbBusy = false; render();
+  });
+}
+// 文と選択肢に、直すための印を付ける。押すと、その場で書き換えられる
+function decorateForEdit(mode){
+  if(!TEST_BUILD || !lastView || mode === 'history') return;
+  const main = document.getElementById('main'), v = lastView;
+  const editor = (multi) => {
+    const box = document.createElement('div'); box.className = 'fb'; box.style.cssText = 'margin:8px 0 0;padding-top:0;border-top:0';
+    box.innerHTML = (multi ? '<textarea class="edit"></textarea>' : '<input maxlength="80" placeholder="選択肢の文">') + '<div class="row"><button data-k="send">' + (fbBusy ? '送っています…' : '送る') + '</button><button data-k="cancel">やめる</button></div>';
+    const f = box.firstChild; f.value = fbe.value; f.oninput = () => { fbe.value = f.value; };
+    box.querySelector('[data-k=send]').onclick = fbeSend;
+    box.querySelector('[data-k=cancel]').onclick = () => { fbe = null; render(); };
+    return box;
+  };
+  const pen = (text, title, fn) => { const p = document.createElement('button'); p.className = 'fbe'; p.textContent = text; p.title = title; p.setAttribute('aria-label', title); p.onclick = ev => { ev.stopPropagation(); fn(); }; return p; };
+  for(const [kind, sel, orig] of [['msg', '.msg', v.msg], ['text', '.text', v.text]]){
+    const el = main.querySelector(sel);
+    if(!el || !orig || el.textContent.trim() !== String(orig).trim()) continue;
+    if(fbe && fbe.kind === kind) el.replaceWith(editor(true));
+    else { const wrap = document.createElement('div'); wrap.style.textAlign = 'right'; wrap.appendChild(pen('✎ 文を直す', 'この文を直す', () => { fbe = { kind, value:orig, orig }; fbNote = ''; render(); })); el.after(wrap); }
+  }
+  const box = main.querySelector('.choices');
+  if(!box || box.querySelector('#endSave') || box.querySelectorAll('button[data-i]').length !== v.labels.length) return;
+  box.querySelectorAll('button[data-i]').forEach(btn => {
+    const i = +btn.dataset.i;
+    if(fbe && fbe.kind === 'choice' && fbe.i === i){ btn.replaceWith(editor(false)); return; }
+    const row = document.createElement('div'); row.className = 'crow';
+    btn.replaceWith(row); row.appendChild(btn);
+    row.appendChild(pen('✎', 'この選択肢の文を直す', () => { fbe = { kind:'choice', i, value:v.labels[i], orig:v.labels[i] }; fbNote = ''; render(); }));
+  });
+  const pend = (store.get('pend', {})[v.char + ':' + v.para] || []).filter(p => !v.labels.includes(p.label));
+  for(const p of pend){
+    const q = document.createElement('button'); q.className = 'pending';
+    q.innerHTML = escText(p.label) + '<span class="tag">足したばかりの選択肢。選んだ先は、まだ書かれていない</span>';
+    q.onclick = () => { fbNote = '「' + p.label + '」は、足したばかりの選択肢です。選んでも、まだ何も起きません。先が書かれると、ふつうの選択肢になります。'; render(); };
+    box.appendChild(q);
+  }
+  if(fbe && fbe.kind === 'add') box.appendChild(editor(false));
+  else { const add = document.createElement('button'); add.className = 'pending'; add.textContent = '＋ 選択肢を足す'; add.onclick = () => { fbe = { kind:'add', value:'' }; fbNote = ''; render(); }; box.appendChild(add); }
+  if(fbNote && !fbOpen){ const n = document.createElement('div'); n.className = 'fb'; n.style.cssText = 'margin:8px 0 0;padding-top:0;border-top:0'; n.innerHTML = '<div class="note">' + escText(fbNote) + '</div>'; box.after(n); }
+}
+function sendIssue(main, label, head, done){
   const s = loadPlayer(current), sp = spotOf(s), name = CHARS[s.char].name + (s.book === 'monster' ? '（変わったあと）' : '');
   const last = (s.history || []).slice(-5).map(h => '- ' + h.para + '：' + h.chosen).join('\n') || '- （まだ何も選んでいない）';
   const items = Object.entries(s.items || {}).map(([k, n]) => k + '×' + n).join('、') || 'なし';
@@ -5487,7 +5555,6 @@ function sendFeedback(){
   const title = '[' + name + ' ' + s.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40);
   const who = store.get('fb-name', '');
   const body = main + (who ? '\n\n名前：' + who : '') + ctx;
-  const done = note => { fbDrafts[fbMode] = ''; fbNote = note; fbBusy = false; render(); };
   const token = fbToken();
   if(token){
     // 合言葉があれば、意見用のリポジトリへそのまま届ける
