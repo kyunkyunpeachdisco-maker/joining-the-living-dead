@@ -188,6 +188,14 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .fb textarea{min-height:110px}
 .fb .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .fb .modes{display:flex;gap:6px;margin:8px 0}
+.th{border:1px solid #33302a;border-radius:6px;padding:8px 10px;margin:8px 0}
+.th .who{font-size:11px;color:#8a8270}
+.th .tx{color:#e8e2d2;white-space:pre-wrap;margin:4px 0;overflow-wrap:anywhere}
+.th .re{border-left:2px solid #4a4436;padding-left:8px;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.th img{max-width:100%;border-radius:4px;margin:6px 0;display:block}
+.th button.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
+.fb label{display:flex;gap:6px;align-items:center}
+.fb input[type=checkbox]{width:auto;margin:0}
 .text .para,.msg .para{white-space:pre-line;margin-bottom:1.9em}
 .text .para:last-child,.msg .para:last-child{margin-bottom:0}
 .para.draft{border-left:2px solid #a8780a;padding-left:10px;margin-left:-12px}
@@ -289,7 +297,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 00:11 0506d65';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 00:15 9cb8fcf';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -5065,8 +5073,11 @@ async function roomSendItems(){
       if(!it) break;
       did = true;
       const key = itemKey(it.id);
-      const res = await fetch(roomPath('items/' + key), { method:'PUT', body:JSON.stringify({ label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）' }) });
+      if(it.img){ const r0 = await fetch(ROOM_DB + room + '-img/' + key + '.json', { method:'PUT', body:JSON.stringify(it.img) }); if(!r0.ok) throw 0; }
+      const item = { label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）', at:it.at || '', text:it.text || '', ask:!!it.ask, opts:it.opts || null, img:!!it.img };
+      const res = await fetch(roomPath('items/' + key), { method:'PATCH', body:JSON.stringify(item) });
       if(!res.ok) throw 0;
+      roomItems[key] = Object.assign(roomItems[key] || {}, clean(item)); roomSig = '';
       const sent = store.get('sent', {}); sent[it.id] = key; store.set('sent', sent);
       store.set('outbox', store.get('outbox', []).filter(x => x.id !== it.id));
       fbNote = it.after ? store.get('send-at', '') + ' を過ぎたら、届いたものとして扱われます。' : '届きました。';
@@ -5101,7 +5112,7 @@ function roomPayload(){
   return out;
 }
 // 読みこんだものが、前と同じかを見る印（自分の本の分は数えない）
-const roomSigOf = d => JSON.stringify([d.open, d.own || null, CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
+const roomSigOf = d => JSON.stringify([d.open, d.own || null, JSON.stringify(d.items || null).length, CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
 // 街を組み直す：自分の本の出来事はこの端末のもの、ほかの本の出来事は部屋のもの
 function roomApply(data){
   if(!data || data.v !== 2) return false;
@@ -5159,7 +5170,7 @@ async function roomPull(force){
     if(data.open === true && name && !(data.members && data.members[DEV] && data.members[DEV].name === name)) fetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify({ name }) }).catch(() => {});
     const sig = roomSigOf(data);
     if(!force && sig === roomSig) return;
-    if(roomApply(data)){ roomSig = sig; if(force) roomNote = ''; render(); }
+    if(roomApply(data)){ roomItems = clean(data.items || {}) || {}; roomSig = sig; if(force) roomNote = ''; if(typing()) pendingRender = true; else render(); }
   } catch(e){ if(force){ roomNote = '部屋につながりません。電波のよい所で開き直してください。'; render(); } }
 }
 // 本を受け持つ。同時に押した人がいれば、先に届いたほうのものになる
@@ -5341,6 +5352,10 @@ let fbNote = '', fbBusy = false, fbKeyOpen = false;
 })();
 const fbToken = () => store.get('fb-token', '');
 // その場で直している所：{ kind:'text'（本文）|'msg'（出来事の文）|'choice'（選択肢の文）|'add'（選択肢を足す）, i, value, orig }
+// 部屋にたまった話（部屋から読んだもの）・付けようとしている画像・問いの欄・返信の書きかけ・読んだ画像
+let roomItems = {}, fbImg = '', fbAll = false, fbAskOpen = false, fbOpts = '', fbOtherOpen = false, pendingRender = false;
+const fbRe = {}, imgCache = {};
+const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
 let fbSetOpen = false, fbe = null, editOn = false, draftShown = null, flushing = false;
 // 今の場面の文（出来事の文・本文・選択肢）
 function sceneText(){ const v = lastView; return v ? (v.msg ? v.msg + '\n\n' : '') + v.text + '\n\n【選択肢】\n' + v.labels.map(l => '・' + l).join('\n') : ''; }
@@ -5462,7 +5477,8 @@ function render(){
   fbD.hidden = !TEST_BUILD; fbD.classList.toggle('open', fbOpen && TEST_BUILD);
   document.getElementById('fbBody').innerHTML = fbOpen && TEST_BUILD ? fbPanelHtml() : '';
   document.getElementById('fbTab').classList.toggle('on', fbOpen);
-  document.getElementById('fbTab').textContent = '意見' + (waitN ? waitN : '');
+  const hereN = room && TEST_BUILD ? hereItems().filter(x => x[2] === 'here').length : 0;
+  document.getElementById('fbTab').textContent = '意見' + (hereN || waitN || '');
   syncTuck();
   placeTabs();
 
@@ -5494,6 +5510,18 @@ function render(){
   const fbN = document.getElementById('fbName');
   if(fbN){ fbN.value = store.get('fb-name', ''); fbN.oninput = () => store.set('fb-name', fbN.value.trim()); }
   on('fbSend', sendFeedback);
+  on('fbMic', fbMic);
+  const fbA = document.getElementById('fbAll'); if(fbA) fbA.onchange = () => { fbAll = fbA.checked; };
+  const fbQ = document.getElementById('fbAsk'); if(fbQ) fbQ.ontoggle = () => { fbAskOpen = fbQ.open; };
+  const fbO = document.getElementById('fbOpts'); if(fbO){ fbO.value = fbOpts; fbO.oninput = () => { fbOpts = fbO.value; }; }
+  const fbOt = document.getElementById('fbOther'); if(fbOt) fbOt.ontoggle = () => { fbOtherOpen = fbOt.open; };
+  const fbF = document.getElementById('fbImgFile'); if(fbF) fbF.onchange = () => fbPickImage(fbF.files[0]);
+  on('fbImgBtn', () => fbF && fbF.click());
+  on('fbImgDrop', () => { fbImg = ''; render(); });
+  document.querySelectorAll('[data-re]').forEach(el => { el.value = fbRe[el.dataset.re] || ''; el.oninput = () => { fbRe[el.dataset.re] = el.value; }; });
+  document.querySelectorAll('[data-resend]').forEach(el => { el.onclick = () => threadReply(el.dataset.resend); });
+  document.querySelectorAll('[data-vote]').forEach(el => { el.onclick = () => { const [k, i] = el.dataset.vote.split('|'); threadVote(k, +i); }; });
+  document.querySelectorAll('[data-img]').forEach(el => { el.onclick = () => threadImage(el.dataset.img); });
   const fbT = document.getElementById('fbText'), fbK = document.getElementById('fbKind');
   if(fbT){ fbT.value = fbDrafts[fbMode]; fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; }; }
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
@@ -5602,9 +5630,14 @@ function fbPanelHtml(){
   return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">この場面について'
     + '<p>気になったこと、直してほしいこと、足してほしいもの。Claude への頼みごとも、ここに書けます。</p>'
     + '<textarea id="fbText"></textarea>'
+    + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<div class="row" style="margin-bottom:8px"><button id="fbMic">' + (fbRec ? '■ 聞き取りを止める' : '声で書く') + '</button></div>' : '')
+    + (room ? '<label><input type="checkbox" id="fbAll"' + (fbAll ? ' checked' : '') + '>この場面でなく、全体の話として書く</label>'
+      + '<div class="row" style="margin-top:8px"><button id="fbImgBtn">' + (fbImg ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (fbImg ? '<button id="fbImgDrop">画像を外す</button>' : '') + '<input type="file" id="fbImgFile" accept="image/*" hidden></div>'
+      + '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + ' style="margin:8px 0"><summary>みんなに聞く</summary><p>上の欄に、聞きたいことを書きます。ここを開いたまま送ると、部屋のみんなが答えられる問いになります。</p><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ。空のままなら、返信で自由に答えてもらう" style="min-height:80px"></textarea></details>' : '')
     + '<div class="row"><button id="fbSend">送る</button><button id="fbCancel">閉じる</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
     + (box.length ? '<p>送るのを待っているものが、' + box.length + '件あります。</p><div class="row"><button id="fbFlush">今すぐ全部送る</button></div>' : '')
+    + threadsHtml()
     + '<details id="fbSet"' + (fbSetOpen ? ' open' : '') + ' style="margin-top:14px"><summary>送る時刻・名前・合言葉</summary>'
     + '<input id="fbName" placeholder="名前（書いた人が分かるように。任意）" maxlength="30">'
     + '<p><b>送る時刻</b>　' + (at ? at + ' より前に書いたものは、' + at + ' になってから送ります。' : '今は、書いたらすぐ送ります。') + '</p>'
@@ -5620,8 +5653,92 @@ function fbPanelHtml(){
 function sendFeedback(){
   const text = fbDrafts.opinion.trim();
   if(!text) return;
-  queueIssue('op|' + Date.now(), 'その他', text, text, true);
-  fbDrafts.opinion = ''; render();
+  const extra = {};
+  if(room){
+    if(fbAll) extra.at = 'all';
+    if(fbImg) extra.img = fbImg;
+    if(fbAskOpen){ extra.ask = true; const o = fbOpts.split('\n').map(x => x.trim().slice(0, 60)).filter(Boolean).slice(0, 8); if(o.length) extra.opts = o; }
+  }
+  queueIssue('op|' + Date.now(), 'その他', text, text, true, extra);
+  fbDrafts.opinion = ''; fbImg = ''; fbOpts = ''; fbAskOpen = false; render();
+}
+// 話の一覧：この場面の話・全体の話・ほかの場面の話。まだ見せない時刻のものは出さない
+const hereItems = () => { const now = Date.now(), key = lastView ? lastView.char + ':' + lastView.para : ''; return Object.entries(roomItems).filter(([k, it]) => /^[\w-]+$/.test(k) && it && typeof it === 'object' && typeof it.title === 'string' && !(it.showAt > now)).map(([k, it]) => [k, it, it.at === key ? 'here' : it.at === 'all' ? 'all' : 'other']); };
+function threadsHtml(){
+  if(!room) return '';
+  const now = Date.now(), list = hereItems();
+  const one = ([k, it, where]) => {
+    const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV];
+    const res = Object.entries(it.re && typeof it.re === 'object' ? it.re : {}).filter(([, r]) => r && typeof r.text === 'string' && !(r.showAt > now)).sort(([x], [y]) => x.split('-').pop().localeCompare(y.split('-').pop()));
+    return '<div class="th"><div class="who">' + escText(it.by || '名前なし') + (it.ask ? '　みんなへの問い' : it.label && it.label !== 'その他' ? '　' + escText(it.label) : '') + (it.done ? '　反映済み' : '') + (where === 'other' ? '　' + escText(String(it.title).split(']')[0] + ']') : '') + '</div>'
+      + '<div class="tx">' + escText(it.text || String(it.body || '').split('\n\n---\n')[0]) + '</div>'
+      + (it.img ? (imgCache[k] ? '<img src="' + imgCache[k] + '" alt="付けられた画像">' : '<div class="row"><button data-img="' + k + '">画像を見る</button></div>') : '')
+      + (Array.isArray(it.opts) ? '<div class="row">' + it.opts.map((o, i) => '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '>' + escText(o) + '　' + votes.filter(v => v === i).length + '</button>').join('') + '</div>' : '')
+      + (it.reply ? '<div class="re"><b>Claude</b>　' + escText(it.reply) + '</div>' : '')
+      + res.map(([, r]) => '<div class="re"><b>' + escText(r.by || '名前なし') + '</b>　' + escText(r.text) + '</div>').join('')
+      + '<input data-re="' + k + '" placeholder="返信を書く" maxlength="400"><div class="row"><button data-resend="' + k + '">返信する</button></div></div>';
+  };
+  const part = w => list.filter(x => x[2] === w), here = part('here'), all = part('all'), other = part('other');
+  return '<div style="margin-top:16px"><b>この場面の話</b>' + (here.length ? here.map(one).join('') : '<p>まだ、ありません。</p>')
+    + (all.length ? '<b>全体の話</b>' + all.map(one).join('') : '')
+    + (other.length ? '<details id="fbOther"' + (fbOtherOpen ? ' open' : '') + '><summary>ほかの場面の話（' + other.length + '件）</summary>' + other.map(one).join('') + '</details>' : '') + '</div>';
+}
+// 声で書く：話した言葉を、上の欄に足していく（聞き取りは、ブラウザの機能を使う）
+let fbRec = null;
+function fbMic(){
+  if(fbRec){ fbRec.stop(); return; }
+  const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  r.lang = 'ja-JP'; r.continuous = true; r.interimResults = false;
+  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal) fbDrafts.opinion += e.results[i][0].transcript; const t = document.getElementById('fbText'); if(t) t.value = fbDrafts.opinion; };
+  r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクを使う許しが、出ていません。' : '声を聞き取れませんでした。'; };
+  r.onend = () => { fbRec = null; render(); };
+  fbRec = r;
+  try { r.start(); } catch(e){ fbRec = null; fbNote = '声を聞き取れませんでした。'; }
+  render();
+}
+// 返信する・問いに答える・画像を読む
+async function threadReply(k){
+  const text = (fbRe[k] || '').trim();
+  if(!text) return;
+  if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。'; render(); return; }
+  const id = DEV + '-' + Date.now().toString(36), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 400), showAt:sendAfter() };
+  try {
+    const res = await fetch(roomPath('items/' + k + '/re/' + id), { method:'PUT', body:JSON.stringify(r) });
+    if(!res.ok) throw 0;
+    const it = roomItems[k]; if(it){ it.re = it.re && typeof it.re === 'object' ? it.re : {}; it.re[id] = clean(r); }
+    fbRe[k] = ''; roomSig = ''; fbNote = r.showAt ? store.get('send-at', '') + ' を過ぎたら、ほかの人に見えます。' : '';
+  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  render();
+}
+async function threadVote(k, i){
+  if(!roomOpen) return;
+  try {
+    const res = await fetch(roomPath('items/' + k + '/votes/' + DEV), { method:'PUT', body:JSON.stringify(i) });
+    if(!res.ok) throw 0;
+    const it = roomItems[k]; if(it){ it.votes = it.votes && typeof it.votes === 'object' ? it.votes : {}; it.votes[DEV] = i; }
+    roomSig = '';
+  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  render();
+}
+async function threadImage(k){
+  try {
+    const v = await (await fetch(ROOM_DB + room + '-img/' + k + '.json')).json();
+    if(typeof v !== 'string' || v.length > 600000 || !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v)) throw 0;
+    imgCache[k] = v;
+  } catch(e){ fbNote = '画像を読めませんでした。'; }
+  render();
+}
+// 付ける画像は、端末の中で小さくしてから預ける（長いほうの辺を900まで）
+function fbPickImage(file){
+  if(!file) return;
+  const rd = new FileReader();
+  rd.onload = () => { const im = new Image(); im.onload = () => {
+    const k = Math.min(1, 900 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(im.width * k)); cv.height = Math.max(1, Math.round(im.height * k));
+    cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+    fbImg = cv.toDataURL('image/jpeg', .55); render();
+  }; im.onerror = () => { fbNote = 'その画像は、読めませんでした。'; render(); }; im.src = rd.result; };
+  rd.readAsDataURL(file);
 }
 
 // ===== 送るのを待つ箱。書いたものはまずここへ入り、送る時刻を過ぎたものから送る =====
@@ -5638,9 +5755,9 @@ function sendAfter(){
   const d = new Date(); d.setHours(+t.slice(0, 2), +t.slice(3), 0, 0);
   return Date.now() >= d.getTime() ? 0 : d.getTime();
 }
-function queueIssue(id, label, head, main, auto){
+function queueIssue(id, label, head, main, auto, extra){
   const m = issueMeta(), after = sendAfter(), box = store.get('outbox', []).filter(x => x.id !== id);
-  box.push({ id, label, title:'[' + m.name + ' ' + m.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40), body:main + m.tail, after });
+  box.push({ id, label, title:'[' + m.name + ' ' + m.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40), body:main + m.tail, after, at:current + ':' + m.para, text:main, ...extra });
   store.set('outbox', box);
   if(room) roomSendItems();
   else if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
@@ -5651,7 +5768,7 @@ function queueIssue(id, label, head, main, auto){
 function unqueue(id){
   store.set('outbox', store.get('outbox', []).filter(x => x.id !== id));
   const sent = store.get('sent', {});
-  if(room && sent[id]){ fetch(roomPath('items/' + sent[id]), { method:'DELETE' }).catch(() => {}); delete sent[id]; store.set('sent', sent); }
+  if(room && sent[id]){ fetch(roomPath('items/' + sent[id]), { method:'DELETE' }).catch(() => {}); fetch(ROOM_DB + room + '-img/' + sent[id] + '.json', { method:'DELETE' }).catch(() => {}); delete roomItems[sent[id]]; delete sent[id]; store.set('sent', sent); }
 }
 // 合言葉のある端末：時刻を過ぎたものを、1件ずつ意見用のリポジトリへ届ける
 async function flushOutbox(force){
@@ -5864,6 +5981,7 @@ if(room){
     if(!store.get('fb-name', '')){ roomPanel = true; roomNote = '最初に、名前を入れてください。誰がどの本を受け持っているかが、ほかの人に分かります。'; render(); }
   });
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') roomPull(); });
+  document.addEventListener('focusout', () => { setTimeout(() => { if(pendingRender && !typing()){ pendingRender = false; render(); } }, 80); });
   setInterval(() => { if(document.visibilityState === 'visible') roomPull(); }, 30000);
 }
 </script>
