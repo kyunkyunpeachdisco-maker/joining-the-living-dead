@@ -210,6 +210,9 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .chips{margin:8px 0}
 .chips button{padding:4px 10px}
 #cutscene.flash canvas{filter:brightness(2.6)}
+#cutstill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;filter:saturate(.7) contrast(1.15) brightness(1.05)}
+#cutstill[hidden]{display:none}
+.draftimg{max-width:100%;border-radius:4px;margin:0 0 12px;display:block}
 #fbDrawer.max{left:0;width:100vw;top:0!important;z-index:30}
 #fbDrawer.max #fbBody{max-height:100dvh;height:100dvh;box-sizing:border-box;border:0;border-radius:0}
 #fbDrawer.max .edgetab{display:none}
@@ -266,7 +269,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
   <div class="bar"><div class="stat" id="stat"></div><div class="barbtns" id="barbtns"></div></div>
   <div class="tabs" id="tabs" hidden></div>
 </header>
-<div id="cutscene" hidden><canvas id="cutcanvas" width="320" height="180"></canvas><canvas id="osd" class="osd" width="320" height="180" aria-hidden="true"></canvas><div class="cctv-top"><span id="camName"></span><span class="rec">● REC</span></div><div class="cctv-bot"><span id="camTarget"></span><span id="camTime"></span></div><div class="cctv-nosig">NO SIGNAL</div></div>
+<div id="cutscene" hidden><canvas id="cutcanvas" width="320" height="180"></canvas><img id="cutstill" alt="" hidden><canvas id="osd" class="osd" width="320" height="180" aria-hidden="true"></canvas><div class="cctv-top"><span id="camName"></span><span class="rec">● REC</span></div><div class="cctv-bot"><span id="camTarget"></span><span id="camTime"></span></div><div class="cctv-nosig">NO SIGNAL</div></div>
 </div>
 <button class="edgetab" id="videoTab">映像</button>
 <aside id="drawer" hidden><button class="edgetab" id="mapTab">地図</button><div id="drawerBody"></div></aside>
@@ -316,7 +319,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 03:54 6ef8be0';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 04:02 27a8168';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -5268,6 +5271,28 @@ let ghNote = '', ghSetOpen = false, repoOk = false, repoAt = 0;
 const PACK = EMBED ? '' : store.get('pack', '');
 let CUSTOM = !!EMBED || !!PACK, packNote = '';
 let overlay = EMBED || (PACK && store.get('pack-cache', null)) || store.get('overlay', null) || { keys:{}, items:{} }, overlaySha = null;
+// 素材（絵）の番地。置き場所は、追加分のリポジトリの book/assets/<名前>.jpg
+//   配布用のファイル … 中に入っている　　公開のリポジトリを付けた版 … そのまま読める番地　　部屋（非公開） … トークンで読んで、端末に覚える
+const assetCache = {}, assetWait = {};
+const assetOk = id => /^[A-Za-z0-9_-]{1,60}$/.test(String(id || ''));
+function assetUrl(id){
+  if(!assetOk(id)) return '';
+  if(assetCache[id]) return assetCache[id];
+  if(EMBED && EMBED.assets && EMBED.assets[id]) return (assetCache[id] = EMBED.assets[id]);
+  if(PACK && !store.get('pack-key', '')) return (assetCache[id] = 'https://raw.githubusercontent.com/' + PACK + '/HEAD/book/assets/' + id + '.jpg');
+  if(!assetWait[id]){ assetWait[id] = assetFetch(id).then(u => { if(u){ assetCache[id] = u; render(); } }).catch(() => {}); }
+  return '';
+}
+async function assetFetch(id){
+  const key = PACK ? store.get('pack-key', '') : ghPat(), repo = PACK || ghRepo();
+  if(!key || !repo) return '';
+  const r = await fetch('https://api.github.com/repos/' + repo + '/contents/book/assets/' + id + '.jpg', { headers:{ Authorization:'Bearer ' + key, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+  if(!r.ok) return '';
+  const c = String((await r.json()).content || '').replace(/\s/g, '');
+  return /^[A-Za-z0-9+\/=]+$/.test(c) ? 'data:image/jpeg;base64,' + c : '';
+}
+// 監視カメラの映像の上に、絵を1枚出す（消すときは、空で呼ぶ）
+function stillShow(url){ const el = document.getElementById('cutstill'); if(!el) return; if(url){ if(el.getAttribute('src') !== url) el.src = url; el.hidden = false; } else el.hidden = true; }
 const overlayPoses = () => { try { posesFrom(overlay.poses); } catch(e){} };
 overlayPoses();
 // 今動いている原本の版。追加分（overlay.json）には、これを base として書いておく（原本が変わったときに、どの版に合わせて作ったかが分かるように）
@@ -6598,11 +6623,24 @@ async function publishPack(){
     const data = await packDataPublic();
     const r = await ghWrite('book/overlay.json', () => ({ message:'採用したものを出す', content:b64(JSON.stringify(data)) }), { api });
     if(r.status !== 200) throw r.status;
+    // 使っている絵も、公開用のリポジトリへ写す
+    for(const id of usedAssets()){ const d = await assetData(id), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(m) await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] }), { api }); }
     const link = packLink(slug, '');
     try { await navigator.clipboard.writeText(link); } catch(e){}
     roomNote = '公開用のリポジトリへ出しました。配るリンク（コピーしてあります）：' + link;
   } catch(e){ roomNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。①公開のリポジトリとして作ってあること ②部屋のトークンに、そのリポジトリも足してあること（Contents: Read and write）を、確かめてください。' : '出せませんでした。電波のよい所で、もう一度押してください。'; }
   render();
+}
+// 採用したものが使っている絵の名前
+function usedAssets(){
+  const out = new Set();
+  for(const d of Object.values(overlay.keys || {})) for(const a of (d && d.add) || []) if(a.fx && a.fx.img && assetOk(a.fx.img.id)) out.add(a.fx.img.id);
+  return [...out];
+}
+// 絵を、データとして取ってくる（配布用のファイルに入れる・公開用のリポジトリへ写すため）
+async function assetData(id){
+  const u = assetCache[id] && assetCache[id].startsWith('data:') ? assetCache[id] : await assetFetch(id);
+  return u && u.startsWith('data:') ? u : '';
 }
 // 配布用のファイルを作る：今開いているページ（テスト版）をもとに、採用したものを入れて、編集の機能を切った1つのファイルにする
 async function exportCustom(){
@@ -6611,7 +6649,8 @@ async function exportCustom(){
     const src = await (await fetch(location.href.split('#')[0], { cache:'no-store' })).text();
     if(!src.includes(mark) || !src.includes(verMark) || src.includes('<scr' + 'ipt src="book-')) throw 0;
     const d = new Date(), ver = 'custom-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
-    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{}, poses:overlay.poses || {} }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
+    const assets = {}; for(const id of usedAssets()){ const d = await assetData(id); if(d) assets[id] = d; }
+    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{}, poses:overlay.poses || {}, assets }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
     const out = src.replace(mark, () => '/*EMB' + 'ED*/' + json + '/*EMB' + 'ED*/').replace(verMark, () => "'" + ver + "'");
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type:'text/html' })); a.download = 'joining-the-living-dead-' + ver + '.html';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
@@ -6662,6 +6701,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
   + '- overlay.json … 採用したもの。base は、合わせて作った原本の版。keys は、場面ごとの直し（場面の名前は「本:段落の番号」。「本:*」は、どの場面でも使える隠し選択肢。「…>番号」は、足した選択肢の先の場面）\n'
   + '  - paras … 文の直し（before がもとの段落、after が直した段落。after が空なら、その段落を消す）\n  - ins … 足した段落（afterOf の段落のあとに置く。@top は冒頭）\n  - labels … 選択肢の文の直し（もとの文 → 直した文）\n  - del・off … 消した選択肢・いつも選べなくした選択肢（もとの文）\n  - cond … もとの選択肢に付けた、選べる条件\n  - add … 足した選択肢（label 文、result 選んだら出る文、to そのあと、fx 主人公に起きること・条件・演出・隠し番号）\n'
   + '  - poses … 足したしぐさ。overlay.json のいちばん上に { "poses": { "salute": { "name":"敬礼する", "words":"敬礼", "armR":[2.2, 2.0] } } } のように書くと、演出の「しぐさ」に出て、文に words の言葉があれば、自動で選ばれる。名前は、小文字の英数字。数字は、関節の角度（ラジアン、-4〜4）：hip 腰の高さ（立った高さを1として）、leg ももを前へ上げる、knee 膝を曲げる、body 上体を前へ倒す、head うつむく、armL・armR [肩を前へ上げる（1.5 で水平、3 で真上）, ひじを曲げる]、lie 体ごと後ろへ倒す、y 体を浮かせる高さ、wave 振る腕（"L" か "R"）、shake 小刻みに動かす（1）。もとからあるしぐさ（crouch・kneel・sit・lie・bend・aim・fend・handsup・wave・point・phone・knock・cross・down・cover・hide）と同じ名前は、使えない\n'
+  + '- assets/<名前>.jpg … 絵（JPEG。長いほうの辺が 900 くらいまで）。足した選択肢の fx に { "img": { "id":"<名前>", "as":"cam" } } と書くと、その選択肢を選んだあと、監視カメラの映像として、その絵が出る（"as":"text" なら、文の下に出る）。名前は、英数字と - _\n'
   + '- report.json … 当たらなかった直しの一覧（ホストが、ゲームの画面から書く）\n\n'
   + '## 原本が変わって、直しが当たらなくなったとき\n\n直しは、もとの文（before・afterOf・選択肢の文）が、原本の文と1字も違わず同じときにだけ当たる。原本の文が変わると、当たらなくなる（ゲームは動く。その直しが出ないだけ）。\n\n'
   + '1. overlay.json の base.ver（合わせて作った版）と、report.json を読む。\n2. 原本は、公開のリポジトリ kyunkyunpeachdisco-maker/joining-the-living-dead にある（本の文は book-*.js）。base.ver の版と、いちばん新しい版を取ってきて、見比べる（リリースごとに、コミットがある）。\n3. 当たらなくなった直しごとに、前の版でのもとの文が、新しい版でどの文になったかを探し、overlay.json の before・afterOf・選択肢の文を、新しい文に書き換える。直した中身（after・足した文・条件）は、変えない。\n4. もとの場面や選択肢が、新しい版でなくなっていて、当て直せないものは、消さずに残して、一覧にして人に聞く。\n5. 書き換えたら、base.ver を新しい版にする。\n\n'
@@ -6679,7 +6719,7 @@ async function adoptItem(k, on){
 }
 // 足した選択肢の「そのあと」と「主人公に起きること」を、言葉にする
 const toText = to => to === 'stay' ? 'この場面にとどまる' : to === 'off' ? 'カメラの外へ出る（まだ映像のない場所）' : String(to).startsWith('spot:') ? '「' + ((bookOf(loadPlayer(current)).spots[String(to).slice(5)] || {}).name || String(to).slice(5)) + '」へ移る' : '「' + to + '」と同じ先へ進む';
-const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose'].map(k => fx && fx[k] && fx[k].length ? fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす' }[k] : ''), ].filter(Boolean).join('、');
+const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.img ? (fx.img.as === 'text' ? '文の下に、絵を出す' : '監視カメラの映像として、絵を出す') : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose'].map(k => fx && fx[k] && fx[k].length ? fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす' }[k] : ''), ].filter(Boolean).join('、');
 // ===== 演出：足した選択肢の文と、その先の文から、映像の動きを決める。手で選び直したものがあれば、そちらを使う =====
 const STAGE_NAMES = {
   gait:{ walk:'歩く', run:'走る', sneak:'忍び足' },
@@ -6838,6 +6878,7 @@ function runDraft(a, key, child, v){
     store.set('player-' + current, s);
     draftShown = { key, text, scene:child };
   }
+  if(a.fx && a.fx.img && assetOk(a.fx.img.id)) draftShown.img = a.fx.img;
   render(); window.scrollTo(0, 0);
 }
 // ===== 流れ：この本の場面と、選択肢の行き先の一覧。番号を押すと、その場面へ移る（試すための機能） =====
@@ -7006,7 +7047,12 @@ function decorateForEdit(mode){
     const cb = main.querySelector('.choices'); if(cb) cb.before(tb);
   }
   if(draftShown && draftShown.key !== key) draftShown = null;
-  if(draftShown && draftShown.key === key){ const m = document.createElement('div'); m.className = 'msg draftmsg'; m.textContent = draftShown.text; const first = main.querySelector('.msg, .text'); if(first) first.before(m); }
+  if(draftShown && draftShown.key === key){ const m = document.createElement('div'); m.className = 'msg draftmsg'; m.textContent = draftShown.text; const first = main.querySelector('.msg, .text'); if(first) first.before(m);
+    // 絵：文の下に出すか、監視カメラの映像として出す（読めるまでは、出さない）
+    const im = draftShown.img, url = im ? assetUrl(im.id) : '';
+    if(im && im.as === 'text' && url){ const pic = document.createElement('img'); pic.className = 'draftimg'; pic.src = url; pic.alt = ''; m.after(pic); }
+    stillShow(im && im.as !== 'text' ? url : '');
+  } else stillShow('');
   const box = main.querySelector('.choices:not(.dsub)');
   if(!box || box.querySelector('#endSave') || box.querySelectorAll('button[data-i]').length !== v.labels.length) return;
   const live = mode === 'live', locked = (loadPlayer(current).dlock || {})[key] || [];
@@ -7030,6 +7076,7 @@ function decorateForEdit(mode){
       + '<div class="row fxrow"><label>体力<select data-fx="hp">' + [[0, '変えない'], [1, '+1（回復）'], [2, '+2'], [-1, '−1（傷を負う）'], [-2, '−2']].map(([n, t]) => '<option value="' + n + '">' + t + '</option>').join('') + '</select></label>'
       + '<label>感染<select data-fx="inf"><option value="">変えない</option><option value="on">感染する</option><option value="off">感染が消える</option></select></label>'
       + '<label>時間<select data-fx="min">' + [0, 5, 10, 30, 60, 120].map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div>'
+      + '<div class="row" style="margin:0 0 8px"><button data-k="img">' + (fbe.fx && fbe.fx.img ? '絵を付けました（選び直す）' : '絵を付ける') + '</button>' + (fbe.fx && fbe.fx.img ? '<select data-imgas style="width:auto;flex:1;margin:0"><option value="cam">監視カメラの映像として出す</option><option value="text">文の下に出す</option></select><button data-k="imgdrop">絵を外す</button>' : '') + '</div>'
       + '<input data-hide inputmode="numeric" maxlength="4" placeholder="隠し選択肢にするなら、番号（打ちこんだ人だけが選べる）">'
       + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select>'
       + '<details open style="margin:0 0 8px"><summary>演出（文から自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">'
@@ -7059,7 +7106,20 @@ function decorateForEdit(mode){
     condWire(e, fbe.fx);
     e.querySelectorAll('[data-any]').forEach(q => { q.value = fbe.fx.any ? '1' : ''; q.onchange = () => { if(q.value) fbe.fx.any = true; else delete fbe.fx.any; }; });
     e.querySelectorAll('[data-hide]').forEach(q => { q.value = fbe.fx.hide || ''; q.oninput = () => { const n = q.value.replace(/\D/g, '').slice(0, 4); if(n) fbe.fx.hide = n; else delete fbe.fx.hide; }; });
-    return wire(e, { save:() => fbeSave(), drop:() => fbeSave('drop'), cancel });
+    e.querySelectorAll('[data-imgas]').forEach(q => { q.value = fbe.fx.img.as || 'cam'; q.onchange = () => { fbe.fx.img = { ...fbe.fx.img, as:q.value }; }; });
+    return wire(e, { save:() => fbeSave(), drop:() => fbeSave('drop'), cancel, imgdrop:() => { delete fbe.fx.img; render(); }, img:() => {
+      if(!room || !ghReady()){ fbNote = '絵を付けるのは、部屋に入っているときにできます（絵は、部屋の置き場所のリポジトリに入ります）。'; render(); return; }
+      const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+      f.onchange = () => shrinkImage(f.files[0], async d => {
+        const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
+        if(!m) return;
+        fbNote = '絵を、リポジトリに置いています…'; render();
+        const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 }));
+        if(r.status !== 200){ fbNote = '絵を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
+        assetCache[id] = d; fbe.fx.img = { id, as:(fbe.fx.img && fbe.fx.img.as) || 'cam' }; fbNote = ''; render();
+      });
+      f.click();
+    } });
   };
   box.querySelectorAll('button[data-i]').forEach(btn => {
     const i = +btn.dataset.i, orig = v.labels[i], changed = d.labels[orig], gone = d.del.includes(orig), off = d.off.includes(orig);
