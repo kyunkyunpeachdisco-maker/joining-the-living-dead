@@ -316,7 +316,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 03:46 5122d40';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 03:54 6ef8be0';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -4684,6 +4684,7 @@ const setExitGait = g => { Cut.gait = g; Cut.exitMs = Cut.exitStart ? (g === 'ru
 // 人：小走り（速いほど前のめりで腕を曲げて振る）。sneak は腰を落とした忍び足
 function gaitRun(g, dist, dt, sneak){
   const u = g.userData;
+  g.rotation.x *= .5;
   u.spd = (u.spd || 0) + (dist / dt - (u.spd || 0)) * .5;
   const spd = u.spd, run = sneak ? 0 : clamp01((spd - 1.4) / 1.6), m = clamp01(spd / .6);
   const stride = sneak ? .5 : .7 + .45 * run + Math.max(0, spd - 3) * .2;
@@ -4701,20 +4702,59 @@ function gaitRun(g, dist, dt, sneak){
   g.position.y = Math.abs(c) * (.025 + .03 * run) * m; u.shadow.position.y = .02 - g.position.y;
 }
 // 人：立ち止まる。息をして、ときどき辺りを見回す。fend は襲われて両手で押し返す
-function gaitRest(g, t, fend, crouch){
-  const u = g.userData, to = (o, p, v) => { o[p] += (v - o[p]) * .45; };
+// しぐさの表。数字は、関節の角度（ラジアン）。書いていない所は、ふつうに立った姿
+//   hip：腰の高さ（立った高さを 1 として）　leg：ももを前へ上げる角度（左右とも）　knee：膝を曲げる角度　body：上体を前へ倒す角度　head：うつむく角度
+//   armL・armR：腕を前へ上げる角度（[肩, ひじ]。肩は 1.5 で水平、3 で真上。ひじは曲げる角度）　lie：体ごと後ろへ倒す角度　y：体を浮かせる高さ
+//   wave：その腕を、ゆっくり振る（'L' か 'R'）　shake：腕を小刻みに動かす
+// words は、文の中にあると、このしぐさに決まる言葉（「|」で区切る）
+const POSES = {
+  none:{ name:'立っている' },
+  hide:{ name:'物陰に隠れる', words:'隠れ|身をひそめ|陰に' },
+  crouch:{ name:'その場でしゃがむ', words:'しゃが|かがみこ|腰を落と', hip:.52, leg:1.25, knee:2.2, body:.35 },
+  kneel:{ name:'ひざまずく', words:'ひざまず|膝をつ|ひざをつ', hip:.56, leg:0, knee:1.55, body:.05 },
+  sit:{ name:'地面に座る', words:'座りこ|座った|腰を下ろ|へたりこ', hip:.2, leg:1.5, knee:.25, body:-.15, armL:[.5, .3], armR:[.5, .3] },
+  lie:{ name:'倒れている', words:'倒れた|倒れこ|横たわ|気を失', lie:1.5, y:.22, armL:[.3, 0], armR:[-.2, 0] },
+  bend:{ name:'かがんで、手を伸ばす', words:'拾っ|拾い|拾う|かがん|かがむ|手を伸ば', hip:.9, leg:.35, knee:.45, body:1.05, armL:[1.2, .1], armR:[1.2, .1], head:.2 },
+  aim:{ name:'銃を構えて撃つ', words:'撃っ|撃つ|撃ち|引き金|発砲|銃を構え', armR:[1.5, 0], armL:[1.3, .5], body:.05 },
+  fend:{ name:'襲われて、押し返す', words:'つかまれ|噛まれ|襲われ|組みつかれ|引っかかれ|押し返', armL:[1.15, .95], armR:[1.15, .95], body:-.1, shake:1 },
+  handsup:{ name:'両手を上げる', words:'両手を上げ|手を上げ|両手を挙げ|手を挙げ', armL:[2.9, .15], armR:[2.9, .15] },
+  wave:{ name:'手を振る', words:'手を振', armR:[2.7, .35], wave:'R' },
+  point:{ name:'指をさす', words:'指さ|指をさ|指差', armR:[1.45, 0] },
+  phone:{ name:'電話か無線で話す', words:'電話|無線|受話器|携帯を耳', armR:[.9, 2.25], head:.05 },
+  knock:{ name:'戸をたたく', words:'戸をたた|扉をたた|ドアをたた|ノック', armR:[1.35, 1.0], shake:1 },
+  cross:{ name:'腕を組む', words:'腕を組', armL:[.55, 1.9], armR:[.55, 1.9] },
+  down:{ name:'うなだれる', words:'うなだれ|うつむ|肩を落と', head:.6, body:.18, armL:[.05, .05], armR:[.05, .05] },
+  cover:{ name:'頭を抱える', words:'頭を抱え|耳をふさ|頭をかば', armL:[2.5, 2.2], armR:[2.5, 2.2], head:.35, body:.25 },
+};
+// 追加分で足されたしぐさを、表に入れる（数字だけ。-4〜4 の範囲に収める）
+function posesFrom(extra){
+  for(const [id, p] of Object.entries(extra || {})){
+    if(!/^[a-z0-9_]{1,20}$/.test(id) || !p || typeof p !== 'object' || POSES_BASE.includes(id)) continue;
+    const num = v => Math.max(-4, Math.min(4, Number(v) || 0)), arm = v => (Array.isArray(v) ? [num(v[0]), num(v[1])] : undefined), q = { name:String(p.name || id).slice(0, 20), words:String(p.words || '').slice(0, 200) };
+    for(const k of ['hip', 'leg', 'knee', 'body', 'head', 'lie', 'y']) if(p[k] != null) q[k] = num(p[k]);
+    if(arm(p.armL)) q.armL = arm(p.armL); if(arm(p.armR)) q.armR = arm(p.armR);
+    if(p.wave === 'L' || p.wave === 'R') q.wave = p.wave; if(p.shake) q.shake = 1;
+    POSES[id] = q;
+  }
+}
+const POSES_BASE = Object.keys(POSES);
+function gaitRest(g, t, pose){
+  const u = g.userData, to = (o, p, v) => { o[p] += (v - o[p]) * .45; }, P = POSES[pose] || POSES.none;
   u.spd = (u.spd || 0) * .5;
-  // しゃがむ：腰を落として、膝を深く曲げる
-  const hipY = crouch ? u.HIP * .52 : u.HIP;
-  for(const l of [u.LL, u.LR]){ to(l.hip.rotation, 'x', crouch ? -1.25 : 0); to(l.kn.rotation, 'x', crouch ? 2.2 : 0); to(l.hip.position, 'y', hipY); }
+  const hipY = u.HIP * (P.hip != null ? P.hip : 1);
+  for(const l of [u.LL, u.LR]){ to(l.hip.rotation, 'x', -(P.leg || 0)); to(l.kn.rotation, 'x', P.knee || 0); to(l.hip.position, 'y', hipY); }
   to(u.body.position, 'y', hipY);
-  const sx = fend ? -1.15 + Math.sin(t * 11) * .1 : 0, ex = fend ? -.95 : -.08;
-  to(u.AL.sh.rotation, 'x', sx); to(u.AR.sh.rotation, 'x', sx); to(u.AL.el.rotation, 'x', ex); to(u.AR.el.rotation, 'x', ex);
+  const sh = P.shake ? Math.sin(t * 11) * .12 : 0;
+  for(const [side, A] of [['L', u.AL], ['R', u.AR]]){
+    const a = P['arm' + side] || [0, .08], wv = P.wave === side ? Math.sin(t * 7) * .3 : 0;
+    to(A.sh.rotation, 'x', -(a[0] + sh)); to(A.el.rotation, 'x', -(a[1] + wv + (P.shake ? sh * 2 : 0)));
+  }
   to(u.chest.rotation, 'y', 0);
-  to(u.body.rotation, 'x', fend ? -.1 : crouch ? .35 : .02 + Math.sin(t * 1.2 + u.phase) * .012);
-  const n = Math.sin(t * .6 + u.phase) + Math.sin(t * .37 + u.phase * 2);
-  to(u.neck.rotation, 'y', !fend && Math.abs(n) > 1.2 ? Math.sign(n) * .6 : 0); to(u.neck.rotation, 'x', 0);
-  to(g.position, 'y', 0); u.shadow.position.y = .02 - g.position.y;
+  to(u.body.rotation, 'x', P.body != null ? P.body : .02 + Math.sin(t * 1.2 + u.phase) * .012);
+  const n = Math.sin(t * .6 + u.phase) + Math.sin(t * .37 + u.phase * 2), still = !P.name || P === POSES.none;
+  to(u.neck.rotation, 'y', still && Math.abs(n) > 1.2 ? Math.sign(n) * .6 : 0); to(u.neck.rotation, 'x', P.head || 0);
+  to(g.rotation, 'x', -(P.lie || 0));
+  to(g.position, 'y', P.y || 0); u.shadow.position.y = .02 - g.position.y;
 }
 // 化け物：片足を引きずって歩く。止まっている間は足を動かさず、体だけ揺れる。追うとき・襲うときは腕を伸ばす
 function gaitShamble(g, dist, dt, t){
@@ -4861,7 +4901,7 @@ function makeActors(T, scene, built, st0){
       if(st.monster){ U.lunge = false; U.hunt = false; gaitShamble(you, moving ? dist : 0, dt, t); }
       else if(moving){ U.k = 0; gaitRun(you, dist, dt, sneak); }
       else {
-        gaitRest(you, t, st.encounter || st.pose === 'fend' || st.pose === 'aim' || performance.now() < (Cut.aimUntil || 0), st.pose === 'crouch');
+        gaitRest(you, t, st.encounter ? 'fend' : performance.now() < (Cut.aimUntil || 0) ? 'aim' : st.pose && st.pose !== 'hide' ? st.pose : null);
         U.k = (U.k || 0) + ((hiding ? 1 : 0) - (U.k || 0)) * .35;
         if(U.k > .02) U.crouch(U.k);
       }
@@ -5228,12 +5268,14 @@ let ghNote = '', ghSetOpen = false, repoOk = false, repoAt = 0;
 const PACK = EMBED ? '' : store.get('pack', '');
 let CUSTOM = !!EMBED || !!PACK, packNote = '';
 let overlay = EMBED || (PACK && store.get('pack-cache', null)) || store.get('overlay', null) || { keys:{}, items:{} }, overlaySha = null;
+const overlayPoses = () => { try { posesFrom(overlay.poses); } catch(e){} };
+overlayPoses();
 // 今動いている原本の版。追加分（overlay.json）には、これを base として書いておく（原本が変わったときに、どの版に合わせて作ったかが分かるように）
 const baseNow = () => ({ ver:TEST_BUILD || CUSTOM && EMBED ? null : APP_VERSION, build:TEST_BUILD ? BUILD : APP_VERSION, at:Date.now() });
 // いま公開されている原本の版（テスト版からは、公開版のページを読んで調べる）
 async function publicVer(){ try { const t = await (await fetch(siteRoot() + 'index.html', { cache:'no-store' })).text(), m = t.match(/const APP_VERSION = '(v[A-Za-z0-9._-]+)'/); return m ? m[1] : null; } catch(e){ return null; } }
 async function packDataPublic(){ const d = packData(), ver = TEST_BUILD ? await publicVer() : APP_VERSION; d.base = { ...d.base, ver:ver || d.base.ver || null }; return d; }
-const packData = () => ({ v:1, base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{} });
+const packData = () => ({ v:1, base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{}, poses:overlay.poses || {} });
 // リポジトリの名前を、「持ち主/リポジトリ」の形にそろえる（URL を貼っても通る）
 const repoSlug = t => (String(t || '').trim().replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/^github\.com\//, '').replace(/\.git$/, '').match(/^[\w.-]+\/[\w.-]+/) || [''])[0];
 // 配るリンク：公開版の番地に、リポジトリの名前（と、非公開のときは読むだけのトークン）を付ける
@@ -5274,7 +5316,7 @@ async function loadPack(){
       : await fetch('https://raw.githubusercontent.com/' + PACK + '/HEAD/book/overlay.json?t=' + Date.now());
     if(!r.ok) throw r.status;
     const o = clean(JSON.parse(await r.text()));
-    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{} }; store.set('pack-cache', overlay);
+    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{}, poses:(o && o.poses) || {} }; store.set('pack-cache', overlay); overlayPoses();
     if(await pinToBase()) return;
     render();
   } catch(e){ packNote = 'カスタム版の中身（' + PACK + '）を、読めませんでした。' + (store.get('pack-cache', null) ? '前に読んだものを使っています。' : 'もとの版のまま出しています。'); render(); }
@@ -5331,7 +5373,7 @@ async function repoSync(){
   for(const d of ['m', 'own']) if(!top.some(f => f.type === 'dir' && f.name === d)) delete repoSeen.dirs[d];
   // 採用されたものを読む
   const bk = await list('book'), of = (bk || []).find(f => f.name === 'overlay.json');
-  if(of && of.sha !== overlaySha && !CUSTOM){ const r = await ghApi('book/overlay.json', { raw:true }); if(r.ok){ try { const o = clean(JSON.parse(await r.text())); overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:(o && o.items) || {} }; overlaySha = of.sha; store.set('overlay', overlay); } catch(e){} } }
+  if(of && of.sha !== overlaySha && !CUSTOM){ const r = await ghApi('book/overlay.json', { raw:true }); if(r.ok){ try { const o = clean(JSON.parse(await r.text())); overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:(o && o.items) || {}, poses:(o && o.poses) || {} }; overlaySha = of.sha; overlayPoses(); store.set('overlay', overlay); } catch(e){} } }
   repoOk = true; repoAt = Date.now();
 }
 // 読んだものと自分の分から、部屋の中身を組み立てる
@@ -6542,7 +6584,7 @@ async function overlayWrite(change){
   ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
   const r = await ghWrite(path, meta => { o = Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null); change(o); o.base = baseNow(); return { message:'本に採用する', content:b64(JSON.stringify(o)) }; }); // この版の原本に合わせて、採用した
   if(r.status !== 200) throw r.status;
-  const c = clean(o); overlay = { base:c.base || null, keys:c.keys || {}, items:c.items || {} }; overlaySha = r.sha; store.set('overlay', overlay);
+  const c = clean(o); overlay = { base:c.base || null, keys:c.keys || {}, items:c.items || {}, poses:c.poses || {} }; overlaySha = r.sha; store.set('overlay', overlay);
   liveChanged();
 }
 // 採用したものを、公開用のリポジトリへ出す（部屋のリポジトリは非公開のまま。出すのは book/overlay.json だけ）
@@ -6569,7 +6611,7 @@ async function exportCustom(){
     const src = await (await fetch(location.href.split('#')[0], { cache:'no-store' })).text();
     if(!src.includes(mark) || !src.includes(verMark) || src.includes('<scr' + 'ipt src="book-')) throw 0;
     const d = new Date(), ver = 'custom-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
-    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{} }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
+    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:overlay.keys || {}, items:{}, poses:overlay.poses || {} }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
     const out = src.replace(mark, () => '/*EMB' + 'ED*/' + json + '/*EMB' + 'ED*/').replace(verMark, () => "'" + ver + "'");
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type:'text/html' })); a.download = 'joining-the-living-dead-' + ver + '.html';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
@@ -6619,6 +6661,7 @@ async function missSave(){
 const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲーム「Joining the Living Dead」への追加と変更が入る。ゲームの画面で「採用する」を押すと、ここに書かれる。ゲーム本体（原本）のコードは、ここにはない。\n\n'
   + '- overlay.json … 採用したもの。base は、合わせて作った原本の版。keys は、場面ごとの直し（場面の名前は「本:段落の番号」。「本:*」は、どの場面でも使える隠し選択肢。「…>番号」は、足した選択肢の先の場面）\n'
   + '  - paras … 文の直し（before がもとの段落、after が直した段落。after が空なら、その段落を消す）\n  - ins … 足した段落（afterOf の段落のあとに置く。@top は冒頭）\n  - labels … 選択肢の文の直し（もとの文 → 直した文）\n  - del・off … 消した選択肢・いつも選べなくした選択肢（もとの文）\n  - cond … もとの選択肢に付けた、選べる条件\n  - add … 足した選択肢（label 文、result 選んだら出る文、to そのあと、fx 主人公に起きること・条件・演出・隠し番号）\n'
+  + '  - poses … 足したしぐさ。overlay.json のいちばん上に { "poses": { "salute": { "name":"敬礼する", "words":"敬礼", "armR":[2.2, 2.0] } } } のように書くと、演出の「しぐさ」に出て、文に words の言葉があれば、自動で選ばれる。名前は、小文字の英数字。数字は、関節の角度（ラジアン、-4〜4）：hip 腰の高さ（立った高さを1として）、leg ももを前へ上げる、knee 膝を曲げる、body 上体を前へ倒す、head うつむく、armL・armR [肩を前へ上げる（1.5 で水平、3 で真上）, ひじを曲げる]、lie 体ごと後ろへ倒す、y 体を浮かせる高さ、wave 振る腕（"L" か "R"）、shake 小刻みに動かす（1）。もとからあるしぐさ（crouch・kneel・sit・lie・bend・aim・fend・handsup・wave・point・phone・knock・cross・down・cover・hide）と同じ名前は、使えない\n'
   + '- report.json … 当たらなかった直しの一覧（ホストが、ゲームの画面から書く）\n\n'
   + '## 原本が変わって、直しが当たらなくなったとき\n\n直しは、もとの文（before・afterOf・選択肢の文）が、原本の文と1字も違わず同じときにだけ当たる。原本の文が変わると、当たらなくなる（ゲームは動く。その直しが出ないだけ）。\n\n'
   + '1. overlay.json の base.ver（合わせて作った版）と、report.json を読む。\n2. 原本は、公開のリポジトリ kyunkyunpeachdisco-maker/joining-the-living-dead にある（本の文は book-*.js）。base.ver の版と、いちばん新しい版を取ってきて、見比べる（リリースごとに、コミットがある）。\n3. 当たらなくなった直しごとに、前の版でのもとの文が、新しい版でどの文になったかを探し、overlay.json の before・afterOf・選択肢の文を、新しい文に書き換える。直した中身（after・足した文・条件）は、変えない。\n4. もとの場面や選択肢が、新しい版でなくなっていて、当て直せないものは、消さずに残して、一覧にして人に聞く。\n5. 書き換えたら、base.ver を新しい版にする。\n\n'
@@ -6640,7 +6683,7 @@ const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : 
 // ===== 演出：足した選択肢の文と、その先の文から、映像の動きを決める。手で選び直したものがあれば、そちらを使う =====
 const STAGE_NAMES = {
   gait:{ walk:'歩く', run:'走る', sneak:'忍び足' },
-  pose:{ none:'立っている', hide:'物陰に隠れる', crouch:'その場でしゃがむ', aim:'銃を構えて撃つ', fend:'襲われて、押し返す' },
+  get pose(){ return Object.fromEntries(Object.entries(POSES).map(([k, p]) => [k, p.name])); }, // しぐさは、表（POSES）から
   pos:{ you:'いつもの所', hide:'物陰のそば', door:'戸口のそば' },
   z:{ 0:'変えない', 1:'1人増える', 2:'2人増える' },
 };
@@ -6650,7 +6693,7 @@ function stageAuto(text){
   const t = String(text || ''), hit = words => new RegExp('(?:' + words + ')(?![^。、]{0,5}な[いか])').test(t); // 「走らなかった」のような打ち消しは拾わない
   return {
     gait:hit('走っ|走る|走り|走ら|駆け|逃げ') ? 'run' : hit('忍び足|そっと|息を殺|音を立てず|陰をつたって') ? 'sneak' : 'walk',
-    pose:hit('撃っ|撃つ|撃ち|引き金|発砲') ? 'aim' : hit('つかまれ|噛まれ|襲われ|組みつかれ|引っかかれ') ? 'fend' : hit('隠れ|身をひそめ|陰に') ? 'hide' : hit('しゃが|かがん|かがむ|腰を落と|膝をつ') ? 'crouch' : 'none',
+    pose:(Object.entries(POSES).reverse().find(([k, p]) => !POSES_BASE.includes(k) && p.words && hit(p.words)) || ['aim', 'fend', 'lie', 'hide', 'kneel', 'crouch', 'sit', 'bend', 'handsup', 'wave', 'point', 'phone', 'knock', 'cross', 'cover', 'down'].map(k => [k, POSES[k]]).find(([, p]) => hit(p.words)) || ['none'])[0], // 足されたしぐさを先に見て、次に、もとからあるものを、強い順に
     pos:hit('戸口|扉の前|ドアの前|玄関先|入口の前|入り口の前') ? 'door' : hit('物陰|車の後ろ|車の陰|柱の陰|壁ぎわ|壁際') ? 'hide' : 'you',
     z:hit('現れ|増え|集まって|出てき') ? 1 : 0,
   };
