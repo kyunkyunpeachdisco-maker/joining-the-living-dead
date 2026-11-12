@@ -411,7 +411,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 13:15 2f2a5bf';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 13:39 7a4d211';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -433,7 +433,7 @@ let room = (() => {
   } catch(e){ return null; }
 })();
 if(room && !/^[A-Z2-9]{8}$/.test(room)) room = null;
-const GLOBAL_KEYS = new Set(['room-local', 'pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'room', 'room-kind', 'dev', 'dev-key', 'gh-repo', 'gh-pat', 'overlay', 'fb-token', 'fb-name', 'video', 'send-at']);
+const GLOBAL_KEYS = new Set(['sound', 'room-local', 'pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'room', 'room-kind', 'dev', 'dev-key', 'gh-repo', 'gh-pat', 'overlay', 'fb-token', 'fb-name', 'video', 'send-at']);
 const keyOf = key => BASE + (room && !GLOBAL_KEYS.has(key) ? 'room-' + room + '-' : '') + key;
 let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
@@ -3717,6 +3717,7 @@ const shotHere = (s, w, sp) => w.events.some(e => e.type === 'shot' && e.at === 
 // more：銃声でもう1人出てくる割合。aim：当たる割合（署長は訓練を受けているので、外さない。ほかの人は 4 発に 3 発）。close：撃ったあと、まだ2人より多く残っているときに、詰められてかまれる割合（残り1人ごとに）
 const GUN = { more:.3, cap:6, aim:{ chief:1, police:1 }, aimOther:.75, close:.05 };
 function cutShot(){
+  sndShot();
   Cut.aimUntil = performance.now() + 900; // 映像：しばらく、腕を前へ構える。画面が一瞬、白く飛ぶ
   const wrap = document.getElementById('cutscene');
   if(wrap){ wrap.classList.add('flash'); setTimeout(() => wrap.classList.remove('flash'), 110); }
@@ -5647,10 +5648,10 @@ function soloDistHtml(){
       : '<button class="go" id="soloExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、開くだけで遊べます。</p>'
         + (ghLinked()
           ? '<button class="go" id="soloSave">リポジトリに保存する</button><p style="margin-top:10px">作業用のリポジトリ（' + escText(ghRepo()) + '）に保存します。端末のデータが消えても残ります。別の端末で続きをするときは、上の「もらった版で遊ぶ」に、このリポジトリの名前とトークンを入れて読みこみます。</p>'
-            + '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/jtld-my-version" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><button class="go" id="soloPublish">リンクで配る</button><p style="margin-top:10px">直した内容と絵を公開リポジトリに写して、配るリンクを作ります。直したあとにもう一度押すと、同じリンクのまま新しくなります。</p>'
+            + '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><button class="go" id="soloPublish">リンクで配る</button><p style="margin-top:10px">直した内容と絵を公開リポジトリに写して、配るリンクを作ります。直したあとにもう一度押すと、同じリンクのまま新しくなります。</p>'
           : '<p>リポジトリを連携すると、ネット上への保存と、ボタン1つでのリンク配布ができます。</p><button class="sm" id="toLink">リポジトリを連携する</button>')
         + (ghLinked() ? '<span hidden>' : '') + '<details class="scr-more"><summary>連携せずに、リンクで配る</summary>'
-        + '<p>リポジトリを連携しないときは、次のように手で置きます。</p><p>1. <a href="https://github.com/new?name=jtld-my-version&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
+        + '<p>リポジトリを連携しないときは、次のように手で置きます。</p><p>1. <a href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
         + '2.「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
         + '3. この画面の上の「もらった版で遊ぶ」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
         + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">中身をファイルにする</button></details>' + (ghLinked() ? '</span>' : ''))
@@ -5676,7 +5677,7 @@ async function ghSaveClick(){
     try {
       const u = await api('user'); if(!u.ok) throw u.status;
       const login = String((await u.json()).login || ''); if(!/^[\w.-]+$/.test(login)) throw 0;
-      const work = login + '/joining-the-living-dead-rooms', dist = login + '/jtld-my-version';
+      const work = login + '/joining-the-living-dead-work', dist = login + '/joining-the-living-dead-share';
       if(!(await api('repos/' + work)).ok){ ghNote = '作業用のリポジトリ（' + work + '）が見つかりません。STEP 1 で作ってあるか、STEP 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下に名前を入れます。'; ghNameOpen = true; render(); return; }
       slug = work; if(!pub && (await api('repos/' + dist)).ok) pub = dist;
     } catch(e){ ghNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
@@ -5691,20 +5692,20 @@ function linkPanelHtml(){
     + '<p class="scr-lead">自分の GitHub のリポジトリを連携すると、直したものの保存、絵の追加、チャット、リンクでの配布が使えます。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは、GitHub の上のファイル置き場です。トークンは、ゲームがそこへ書きこむための鍵です。GitHub は無料で使えます。</p>'
     + '<div class="scr-state' + (on ? ' on' : '') + '">' + (on ? '連携しています<b>作業用：' + escText(repo) + '</b><b>配る用：' + (pub ? escText(pub) : 'まだ決めていません') + '</b>' : 'まだ連携していません') + '</div>'
     + '<div class="step"><div class="n">STEP 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開・非公開が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作ります。すでにあるなら、飛ばします。</p>'
-      + '<p><b>作業用（非公開）</b>　直したもの、絵、チャットの記録が入ります。見られるのは、あなたと、トークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-rooms&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
-      + '<p style="margin-top:16px"><b>配る用（公開）</b>　リンクで配るときに使います。誰でも見られますが、入るのは直した内容と絵だけです。あとからでも作れます。</p><a class="go" href="https://github.com/new?name=jtld-my-version&visibility=public" target="_blank" rel="noopener">GitHub で配る用を作る</a></div>'
+      + '<p><b>作業用（非公開）</b>　直したもの、絵、チャットの記録が入ります。見られるのは、あなたと、トークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
+      + '<p style="margin-top:16px"><b>配る用（公開）</b>　リンクで配るときに使います。誰でも見られますが、入るのは直した内容と絵だけです。あとからでも作れます。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で配る用を作る</a></div>'
     + '<div class="step"><div class="n">STEP 2</div><h3>トークンを作る</h3><p>下の「GitHub でトークンを作る」を押して、開いた画面で次のように選びます。</p>'
-      + pick([['Token name', 'joining-the-living-dead-rooms'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → STEP 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
+      + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → STEP 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
       + '<p>「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
-      + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-rooms" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
+      + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
     + '<div class="step"><div class="n">STEP 3</div><h3>トークンを貼る</h3>'
       + '<p>コピーしたトークンを貼って、「連携する」を押します。STEP 1 で作ったリポジトリを、自動で探して連携します。</p>'
       + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'github_pat_…') + '" value="' + esc(ghPatDraft) + '" autocomplete="off">'
       + '<button class="go" id="ghSave">' + (on ? '入れ直す' : '連携する') + '</button>'
       + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
       + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>STEP 1 で、名前を変えて作った人は</summary><p>ここに、リポジトリの名前を入れます。空のままなら、自動で探します。</p>'
-        + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-rooms" value="' + esc(repo) + '" autocomplete="off">'
-        + '<label class="lab">配る用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/jtld-my-version" value="' + esc(pub) + '" autocomplete="off"></details>'
+        + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-work" value="' + esc(repo) + '" autocomplete="off">'
+        + '<label class="lab">配る用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/joining-the-living-dead-share" value="' + esc(pub) + '" autocomplete="off"></details>'
       + (on ? '<button class="quiet" id="ghForget">この端末から連携を消す</button>' : '') + '</div>'
     + '</div>';
 }
@@ -5716,6 +5717,160 @@ async function pinToBase(){
   try { const r = await fetch(siteRoot() + 'v/' + want + '/index.html', { method:'HEAD', cache:'no-store' }); if(!r.ok) return false; } catch(e){ return false; }
   location.replace(siteRoot() + 'v/' + want + '/');
   return true;
+}
+// ===== 音 =====
+// 音のファイルは使わない。ブラウザの中で、その場で音を作る（Web Audio）。画面を1回押すまでは鳴らない（スマホの決まり）。
+// 音楽：1970年代のイタリアのホラー映画の音楽（Goblin）の「作り」を借りる。繰り返す低いベース、鈴のような高い分散和音、合唱のような和音、三全音。旋律と音の並びは、このゲームのために書いたもの。
+// 監視カメラの映像には音がないので、場面の声や足音は付けない。付けるのは、映像を見ている部屋の音（電源のうなり、機械の風、カメラの切り替えの音）と、銃声だけ。
+const Snd = { ctx:null, on:store.get('sound', true), mode:'', next:'', step:0, t:0, timer:0, z:0, cam:'', noise:null };
+const N2F = n => 440 * Math.pow(2, (n - 69) / 12); // MIDI の番号 → 周波数
+function sndInit(){
+  if(Snd.ctx || !Snd.on) return;
+  const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+  try {
+    const c = Snd.ctx = new AC();
+    Snd.master = c.createGain(); Snd.master.gain.value = .9;
+    const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 6;
+    Snd.an = c.createAnalyser(); Snd.an.fftSize = 2048;
+    Snd.master.connect(comp); comp.connect(Snd.an); Snd.an.connect(c.destination);
+    Snd.mus = c.createGain(); Snd.mus.gain.value = .5; Snd.mus.connect(Snd.master);
+    Snd.sfx = c.createGain(); Snd.sfx.gain.value = .9; Snd.sfx.connect(Snd.master);
+    const len = c.sampleRate, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    Snd.noise = buf;
+    Snd.t = c.currentTime + .1; Snd.step = 0;
+    sndRoom();
+    Snd.timer = setInterval(sndTick, 80);
+  } catch(e){ Snd.ctx = null; }
+}
+function sndGesture(){ if(!Snd.on) return; sndInit(); if(Snd.ctx && Snd.ctx.state === 'suspended') Snd.ctx.resume().catch(() => {}); }
+addEventListener('pointerdown', sndGesture, true); addEventListener('keydown', sndGesture, true);
+function sndToggle(){
+  Snd.on = !Snd.on; store.set('sound', Snd.on);
+  if(!Snd.on && Snd.ctx){ clearInterval(Snd.timer); try { Snd.ctx.close(); } catch(e){} Snd.ctx = null; Snd.mode = ''; }
+  else if(Snd.on){ sndInit(); sndScene(); }
+}
+// --- 音色 ---
+function sndEnv(g, t, a, peak, d, end){ g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(Math.max(.0001, end || .0001), t + a + d); }
+function sndBass(n, t, dur, vol){
+  const c = Snd.ctx, o = c.createOscillator(), o2 = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+  o.type = 'sawtooth'; o2.type = 'square'; o.frequency.value = N2F(n); o2.frequency.value = N2F(n - 12);
+  f.type = 'lowpass'; f.Q.value = 6; f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(180, t + dur);
+  sndEnv(g, t, .005, vol, dur * .95);
+  o.connect(f); o2.connect(f); f.connect(g); g.connect(Snd.mus); o.start(t); o2.start(t); o.stop(t + dur + .05); o2.stop(t + dur + .05);
+}
+function sndBell(n, t, vol, len){ // 鈴・チェレスタのような音（FM）
+  const c = Snd.ctx, car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain(), f = N2F(n);
+  car.frequency.value = f; mod.frequency.value = f * 3.5; mg.gain.setValueAtTime(f * 2.2, t); mg.gain.exponentialRampToValueAtTime(f * .05, t + .5);
+  sndEnv(g, t, .003, vol, len || 1.1);
+  mod.connect(mg); mg.connect(car.frequency); car.connect(g); g.connect(Snd.mus); car.start(t); mod.start(t); car.stop(t + (len || 1.1) + .1); mod.stop(t + (len || 1.1) + .1);
+}
+function sndPad(notes, t, dur, vol){ // 合唱のような和音：少しずらした鋸波を、母音の響きの帯に通す
+  const c = Snd.ctx, g = c.createGain(), f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), lp = c.createBiquadFilter();
+  f1.type = 'bandpass'; f1.frequency.value = 650; f1.Q.value = 2.5; f2.type = 'bandpass'; f2.frequency.value = 1150; f2.Q.value = 3; lp.type = 'lowpass'; lp.frequency.value = 700;
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * .3); g.gain.setValueAtTime(vol, t + dur * .75); g.gain.linearRampToValueAtTime(.0001, t + dur + .4);
+  for(const n of notes) for(const det of [-7, 6]){ const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = N2F(n); o.detune.value = det; o.connect(f1); o.connect(f2); o.connect(lp); o.start(t); o.stop(t + dur + .5); }
+  f1.connect(g); f2.connect(g); lp.connect(g); g.connect(Snd.mus);
+}
+function sndNoise(t, dur, type, freq, q, vol, dest){
+  const c = Snd.ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = Snd.noise; s.loop = true; f.type = type; f.frequency.value = freq; f.Q.value = q || 1; sndEnv(g, t, .002, vol, dur);
+  s.connect(f); f.connect(g); g.connect(dest || Snd.mus); s.start(t, Math.random() * .5); s.stop(t + dur + .05);
+  return f;
+}
+function sndDrum(kind, t, vol){
+  const c = Snd.ctx;
+  if(kind === 'hat') return sndNoise(t, .04, 'highpass', 7000, 1, vol);
+  const o = c.createOscillator(), g = c.createGain(), hi = kind === 'kick' ? 130 : 190, lo = kind === 'kick' ? 42 : 95;
+  o.frequency.setValueAtTime(hi, t); o.frequency.exponentialRampToValueAtTime(lo, t + (kind === 'kick' ? .12 : .22)); sndEnv(g, t, .003, vol, kind === 'kick' ? .22 : .3);
+  o.connect(g); g.connect(Snd.mus); o.start(t); o.stop(t + .4);
+}
+// --- 音楽の並び（16分音符が1歩。16歩で1小節） ---
+const SND_MUSIC = {
+  // タイトル：ゆっくり。ニ短調。和音は Dm → B♭ → Gm → A。鈴が8分で和音をなぞり、4小節目だけ半音上（E♭）をかすめる
+  title:{ bpm:72, vol:.5, bars:4, play(bar, st, t, d){
+    const ch = [[50, 53, 57], [46, 50, 53], [43, 46, 50], [45, 49, 52]][bar], root = [38, 34, 31, 33][bar];
+    if(st === 0){ sndPad(ch, t, d * 16, .05); sndBass(root, t, d * 8, .22); sndDrum('kick', t, .25); }
+    if(st === 8) sndBass(root + 12, t, d * 6, .12);
+    if(st % 2 === 0){ const k = [0, 1, 2, 1, 3, 2, 1, 2][st / 2], n = k === 3 ? ch[0] + 24 : ch[k] + 12; sndBell(bar === 3 && st === 14 ? 75 : n, t, .07, 1.4); }
+  } },
+  // 読んでいるあいだ：ホ短調。16分で刻むベースの繰り返し（三全音の B♭ を通る）。小さく鳴らす
+  play:{ bpm:100, vol:.3, bars:4, play(bar, st, t, d){
+    const pat = [0, 0, 12, 0, 3, 0, 12, 0, 5, 0, 12, 0, 6, 5, 3, 0], base = [28, 28, 24, 23][bar];
+    sndBass(base + pat[st], t, d * .9, st % 4 === 0 ? .2 : .13);
+    if(st === 0) sndPad([[52, 55, 59], [52, 55, 59], [48, 52, 55], [47, 51, 54]][bar], t, d * 16, .035);
+    if(st % 4 === 2) sndDrum('hat', t, .03);
+    if(bar === 3 && st === 12) sndBell(70, t, .04, 1.6);
+  } },
+  // ゾンビがいる場所：同じベースを速く。4つ打ち、16分の鈴（E と B♭ を行き来する）、小節の終わりにタム
+  danger:{ bpm:114, vol:.4, bars:4, play(bar, st, t, d){
+    const pat = [0, 0, 12, 0, 3, 0, 12, 0, 5, 0, 12, 0, 6, 5, 3, 0], base = [28, 28, 29, 28][bar];
+    sndBass(base + pat[st], t, d * .9, st % 4 === 0 ? .22 : .15);
+    if(st % 4 === 0) sndDrum('kick', t, .3);
+    if(st % 2 === 1) sndDrum('hat', t, .04);
+    sndBell([76, 70, 76, 79, 76, 70, 75, 70][st % 8] - (bar % 2 ? 12 : 0), t, .035, .35);
+    if(st === 0) sndPad(bar < 2 ? [52, 58, 64] : [53, 59, 64], t, d * 16, .04);
+    if(bar === 3 && st >= 12) sndDrum('tom', t, .22 - (st - 12) * .02);
+  } },
+  // 化け物になったあと：低いうなりだけ
+  monster:{ bpm:54, vol:.4, bars:2, play(bar, st, t, d){
+    if(st === 0){ sndBass(26, t, d * 16, .2); sndPad(bar ? [38, 44] : [38, 45], t, d * 16, .05); }
+    if(bar === 1 && st === 10) sndBell(50, t, .05, 2.5);
+  } },
+  // 結末：和音だけ
+  end:{ bpm:60, vol:.4, bars:2, play(bar, st, t, d){ if(st === 0){ sndPad(bar ? [46, 50, 53, 57] : [50, 53, 57], t, d * 16, .06); sndBass(bar ? 34 : 38, t, d * 14, .15); } if(st === 8 && !bar) sndBell(74, t, .05, 2); } },
+};
+function sndTick(){
+  const c = Snd.ctx; if(!c || c.state !== 'running') return;
+  if(Snd.next && Snd.next !== Snd.mode && Snd.step % 16 === 0){ Snd.mode = Snd.next; Snd.step = 0; if(Snd.t < c.currentTime) Snd.t = c.currentTime + .05; }
+  const M = SND_MUSIC[Snd.mode];
+  if(M){
+    const d = 60 / M.bpm / 4;
+    if(Snd.t < c.currentTime - .5) Snd.t = c.currentTime + .05; // 画面を離れていたあと
+    Snd.mus.gain.setTargetAtTime(M.vol, c.currentTime, .4);
+    while(Snd.t < c.currentTime + .25){
+      try { M.play(Math.floor(Snd.step / 16) % M.bars, Snd.step % 16, Snd.t, d); } catch(e){}
+      Snd.t += d; Snd.step++;
+      if(Snd.next && Snd.next !== Snd.mode && Snd.step % 16 === 0) break;
+    }
+  }
+}
+function sndMode(m){ if(m === Snd.next) return; Snd.next = m; if(!Snd.mode) Snd.mode = m; }
+// いまの画面と場面から、鳴らす音楽を決める
+function sndScene(){
+  try {
+    let m = 'play';
+    if(front) m = 'title';
+    else { const s = loadPlayer(current); Snd.z = 0;
+      if(s.book === 'monster') m = 'monster';
+      else if(s.status !== 'active') m = 'end';
+      else { const sp = spotOf(s); Snd.z = sp && !sp.calm ? spotZ(s, loadWorld(), sp) : 0; if(Snd.z > 0) m = 'danger'; } }
+    sndMode(m);
+    const cut = document.getElementById('cutscene'), cam = !front && cut && !cut.hidden && !cut.classList.contains('tucked') ? (document.getElementById('camName') || {}).textContent : '';
+    if(cam && Snd.cam && cam !== Snd.cam) sndSwitch();
+    if(cam) Snd.cam = cam;
+  } catch(e){}
+}
+// --- 場面の音 ---
+const sndReady = () => Snd.on && Snd.ctx && Snd.ctx.state === 'running';
+function sndShot(){ // 銃声：破裂の音、低い衝撃、遠くの反響
+  if(!sndReady()) return; const c = Snd.ctx, t = c.currentTime + .02;
+  const f = sndNoise(t, .28, 'lowpass', 7000, .7, .5, Snd.sfx); f.frequency.exponentialRampToValueAtTime(500, t + .25);
+  const o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(38, t + .16); sndEnv(g, t, .002, .45, .2); o.connect(g); g.connect(Snd.sfx); o.start(t); o.stop(t + .3);
+  for(const [dt, v] of [[.19, .16], [.41, .08], [.7, .04]]) sndNoise(t + dt, .3, 'lowpass', 1400, .7, v, Snd.sfx);
+  Snd.mus.gain.setTargetAtTime(.08, t, .01);
+}
+// 部屋の音：監視カメラの映像を見ている部屋。電源のうなり（60Hz とその倍の音）と、機械の風の音が、ずっと小さく鳴っている
+function sndRoom(){
+  const c = Snd.ctx, g = Snd.room = c.createGain(); g.gain.value = 0; g.connect(Snd.master);
+  for(const [f, v] of [[60, .016], [120, .009], [180, .004]]){ const o = c.createOscillator(), og = c.createGain(); o.frequency.value = f; og.gain.value = v; o.connect(og); og.connect(g); o.start(); }
+  const s = c.createBufferSource(), lp = c.createBiquadFilter(), ng = c.createGain(); s.buffer = Snd.noise; s.loop = true; lp.type = 'lowpass'; lp.frequency.value = 520; ng.gain.value = .022; s.connect(lp); lp.connect(ng); ng.connect(g); s.start();
+  g.gain.setTargetAtTime(1, c.currentTime, 1.5);
+}
+// 映像が別のカメラに切り替わったとき：切り替え器の「カチッ」と、一瞬の砂嵐
+function sndSwitch(){
+  if(!sndReady()) return; const t = Snd.ctx.currentTime + .01;
+  sndNoise(t, .012, 'highpass', 3000, 1, .35, Snd.sfx); sndNoise(t + .02, .11, 'bandpass', 4200, .8, .1, Snd.sfx);
 }
 // ===== タイトル・始める前のメニュー・操作説明 =====
 // front：'title'（タイトル）・'menu'（本を選ぶ）・'how'（操作説明）・null（出さない）。自動の試し（webdriver）では、初めから出さない
@@ -5740,13 +5895,13 @@ function howPages(kind){
     ];
   }
   const P = [
-    { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本と、その時刻・体力・持ち物です。', '戻す：1つ前の場面に戻ります。時刻と体力も、元に戻ります。', room ? '☰：別の人物の本を開きます。' : '☰：別の人物の本に替えます。', '「映像」と「地図」を開きます。もう一度押すと閉じます。', '主人公です。監視カメラの映像に、いまいる場所が映ります。'] },
+    { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本と、その時刻・体力・持ち物です。', '戻す：1つ前の場面に戻ります。時刻と体力も、元に戻ります。', room ? '☰：メニューを開きます。別の本を開く、部屋、遊び方、音の入・切などがあります。' : '☰：メニューを開きます。本の切り替え、部屋、遊び方、音の入・切などがあります。', '「映像」と「地図」を開きます。もう一度押すと閉じます。', '主人公です。監視カメラの映像に、いまいる場所が映ります。'] },
     { t:'物語の決まり', list:[
       ['1人の一日が、1冊の本', 'どの本も、同じ街の同じ一日を、その人の立場から書いたものです。'],
       ['街は1つ', room ? 'ほかの人が自分の本でゾンビを倒したり物を取ったりすると、あなたの本の街でもそうなっています。' : 'ある本でゾンビを倒したり物を取ったりすると、別の本を開いたときも、そのままになっています。'],
       ['投票は朝7時から夜8時まで', '選択肢を選ぶたびに時刻が進みます。一日が終わると開票の結果が出て、それぞれのしたことで結果が変わります。'],
       ['ゾンビになっても話は続く', 'ゾンビに襲われると、3つある体力が1つ減り、傷から感染することもあります。体力がなくなるか、感染してしばらくたつとゾンビになりますが、そのまま読み進められます。'],
-      ...(room ? [] : [['本を替えるとき', '進められる本は、一度に1冊です。☰ を開いて「保存して交代」を押し、読みたい本を選んで「ロックして進める」を押します。'], ['続きから読める', '進み具合は、この端末に残ります。次に開いたときは「つづきから」で続けられます。']]),
+      ...(room ? [['ロック', '本をロックすると、その本を進められます。1冊をロックできるのは、1人だけです。']] : [['ロック', '本をロックすると、その本を進められます。進められる本は、一度に1冊です。別の本に替えるときは、☰ を開いて「保存して交代」を押し、読みたい本を選んで「ロックして進める」を押します。'], ['続きから読める', '進み具合は、この端末に残ります。次に開いたときは「つづきから」で続けられます。']]),
     ] },
   ];
   if(false) P.push({ img:'how-play-4', t:'人を招待する', text:'☰ の「部屋」から招待リンクをコピーして送ります。' + (roomLocal() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手は、開くだけで入れます。') + reach });
@@ -5788,6 +5943,7 @@ function frontHtml(){
 function frontRender(){
   const el = document.getElementById('front');
   if(!el) return;
+  sndScene();
   el.hidden = !front; document.body.style.overflow = front ? 'hidden' : '';
   if(!front){ el.innerHTML = ''; return; }
   el.innerHTML = frontHtml(); el.scrollTop = 0;
@@ -5818,12 +5974,12 @@ function packPanelHtml(){
         + '<div class="step"><div class="n">この版</div><h3>配る・やめる</h3><button class="go" id="packCopy">この版のリンクをコピーする</button>'
         + (key ? '<p style="margin-top:10px">このリンクにはトークンが入ります。渡した相手は、そのリポジトリの中身を読めます。</p>' : '')
         + '<button class="quiet" id="packOff">もとの版に戻す</button></div>'
-      : '<div class="step"><div class="n">遊ぶ人</div><h3>もらった版で遊ぶ</h3><p>リンクやファイルをもらった人は、それを開くだけです。「someone/jtld-my-version」のような名前をもらった人は、下に入れます。</p>'
-        + '<input id="packRepo" placeholder="someone/jtld-my-version" autocomplete="off"><button class="go" id="packOn">この版で遊ぶ</button>'
+      : '<div class="step"><div class="n">遊ぶ人</div><h3>もらった版で遊ぶ</h3><p>リンクやファイルをもらった人は、それを開くだけです。「someone/joining-the-living-dead-share」のような名前をもらった人は、下に入れます。</p>'
+        + '<input id="packRepo" placeholder="someone/joining-the-living-dead-share" autocomplete="off"><button class="go" id="packOn">この版で遊ぶ</button>'
         + '<details class="scr-more"><summary>入れても読みこめないとき（非公開の版）</summary><p>読むだけのトークンを作って、下に貼ってから「この版で遊ぶ」を押します。</p>'
         + '<input id="packKey" type="password" placeholder="github_pat_…" autocomplete="off">'
-        + pick([['Token name', 'jtld-read'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 読みこみたいリポジトリ'], ['Repository permissions', 'Contents を Read-only']])
-        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=jtld-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p></details></div>')
+        + pick([['Token name', 'joining-the-living-dead-read'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 読みこみたいリポジトリ'], ['Repository permissions', 'Contents を Read-only']])
+        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p></details></div>')
     + (missList().length ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + (mine ? soloDistHtml() : '')
     + (packNote ? '<div class="note">' + escText(packNote) + '</div>' : '') + '</div>';
@@ -6115,11 +6271,11 @@ const GUIDE_MD = '# Joining the Living Dead の部屋の記録\n\nこのリポ�
 function ghPanelHtml(){
   const repo = ghRepo(), esc = t => escText(t).replace(/"/g, '&quot;');
   return '<div id="ghSet">'
-    + '<p><b>1. リポジトリを作る</b><br><a href="https://github.com/new?name=joining-the-living-dead-rooms&visibility=private" target="_blank" rel="noopener">リポジトリを作る画面を開く（github.com）</a><br>名前と「非公開」は入力済みです。「Add a README file」にチェックを入れて、「Create repository」を押します。すでにあるリポジトリを使うなら、ここは飛ばします。</p>'
-    + '<p><b>2. トークンを作る</b><br><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-rooms" target="_blank" rel="noopener">トークンを作る画面を開く（github.com）</a><br>次のように選びます。<br>'
-    + '・Token name：joining-the-living-dead-rooms<br>・Expiration：90 days か、Custom で1年後<br>・Repository access：Only select repositories → 1 のリポジトリ（リンクで配るなら、配る用の公開リポジトリも）<br>・Repository permissions：Contents を Read and write<br>「Generate token」を押して、出てきた github_pat_… をコピーします。この画面を閉じると、トークンは二度と表示されません。</p>'
+    + '<p><b>1. リポジトリを作る</b><br><a href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">リポジトリを作る画面を開く（github.com）</a><br>名前と「非公開」は入力済みです。「Add a README file」にチェックを入れて、「Create repository」を押します。すでにあるリポジトリを使うなら、ここは飛ばします。</p>'
+    + '<p><b>2. トークンを作る</b><br><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">トークンを作る画面を開く（github.com）</a><br>次のように選びます。<br>'
+    + '・Token name：joining-the-living-dead-work<br>・Expiration：90 days か、Custom で1年後<br>・Repository access：Only select repositories → 1 のリポジトリ（リンクで配るなら、配る用の公開リポジトリも）<br>・Repository permissions：Contents を Read and write<br>「Generate token」を押して、出てきた github_pat_… をコピーします。この画面を閉じると、トークンは二度と表示されません。</p>'
     + '<p><b>3. ここに入れる</b></p>'
-    + '<input id="ghRepoIn" placeholder="例: yourname/joining-the-living-dead-rooms（URL でも可）" value="' + esc(repo) + '" autocomplete="off">'
+    + '<input id="ghRepoIn" placeholder="例: yourname/joining-the-living-dead-work（URL でも可）" value="' + esc(repo) + '" autocomplete="off">'
     + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'トークン（github_pat_…）') + '" autocomplete="off">'
     + '<div class="row"><button id="ghSave">覚える</button>' + (ghLinked() ? '<button id="ghForget">この端末から消す</button>' : '') + '</div>'
     + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
@@ -6409,7 +6565,7 @@ function roomPanelHtml(){
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
         + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、開くだけで遊べます。</p>'
-        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/jtld-my-version" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>')
+        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>')
         + '<details class="scr-more"><summary>中身だけをファイルにする</summary><p>採用したもの（overlay.json）だけを書き出します。リポジトリに手で置くときに使います。</p><button class="sm" id="roomPackFile">中身をファイルにする</button></details></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
@@ -6578,7 +6734,7 @@ function render(){
   tabs.hidden = !menuOpen;
   tabs.innerHTML =
     CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${room ? (own[id] ? '（' + ownerName(own[id]) + '）' : '') : id === w.lock ? '（ロック中）' : ''}</button>`).join('')
-    + `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>')
+    + `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
     + (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button>' : '')
     + (room ? '' : '<button class="mapbtn' + (packPanel ? ' on' : '') + '" id="packbtn">カスタム版' + (PACK ? '（' + escText(PACK) + '）' : '') + '</button>')
     + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの連携' + (ghLinked() ? '（済み）' : '') + '</button>')
@@ -6660,6 +6816,7 @@ function render(){
   if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます。ロックは本ごとなので、ほかの人は、ほかの本を同時に進められます。ほかの人がロックしている本は、読むことだけできます。☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます（直近 100 手まで）。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (TEST_BUILD ? '<br>編集版では、選んだ選択肢と結末が、名前を付けずに記録されます。' : '') + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + html;
 
   document.getElementById('main').innerHTML = html;
+  sndScene();
   { const scr = document.getElementById('screen'), was = !scr.hidden, at = scr.scrollTop;
     scr.hidden = !screenHtml;
     scr.innerHTML = screenHtml ? '<div class="scr-in"><div class="scr-bar"><button id="screenClose">← 戻る</button></div>' + joinBannerHtml() + screenHtml + '</div>' : '';
@@ -6820,6 +6977,7 @@ function render(){
   on('packCopy', () => { navigator.clipboard.writeText(packLink(PACK, store.get('pack-key', ''))).then(() => { packNote = 'リンクをコピーしました。'; render(); }, () => { packNote = 'コピーできませんでした。'; render(); }); });
   on('helpbtn', () => { menuOpen = false; howPage = 0; howBack = null; howKind = 'play'; front = 'how'; frontRender(); });
   on('makebtn', () => { menuOpen = false; howPage = 0; howBack = null; howKind = 'make'; front = 'how'; frontRender(); });
+  on('sndbtn', () => { sndToggle(); render(); });
   on('titlebtn', () => { menuOpen = false; front = 'title'; frontRender(); });
   on('mapbtn', () => { showMap = !showMap; render(); window.scrollTo(0, 0); });
   on('reset', () => {
