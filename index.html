@@ -270,9 +270,43 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 #cutscene.slidein{animation:cut-in .22s ease-out}
 #cutscene.slideout{transform:translateX(105%);transition:transform .22s ease-in}
 @keyframes cut-in{from{transform:translateX(105%)}to{transform:none}}
+/* タイトル・メニュー・操作説明（画面いっぱいに重ねる） */
+#front{position:fixed;inset:0;z-index:40;background:#050607;color:var(--text);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+#front[hidden]{display:none}
+#front::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.75) 100%)}
+.fr-osd{position:relative;display:flex;justify-content:space-between;padding:12px 14px 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;color:#b9c4b0}
+.fr-osd .rec{color:#ff4a3a;animation:cctv-blink 1s steps(2) infinite}
+.fr-in{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:560px;margin:0 auto;padding:20px 22px 28px;box-sizing:border-box}
+.fr-title{font-family:var(--f-mincho);font-size:clamp(30px,9vw,46px);line-height:1.15;letter-spacing:.04em;margin:0 0 14px;font-weight:600}
+.fr-title small{display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.3em;color:var(--red);margin-bottom:14px;font-weight:400}
+.fr-sub{font-family:var(--f-mincho);font-size:15px;line-height:1.9;color:#bdb6a8;margin:0 0 30px}
+.fr-btns{display:flex;flex-direction:column;gap:10px}
+#front button{font-family:var(--f-goth);font-size:16px;line-height:1.5;text-align:left;padding:14px 16px;background:rgba(22,22,26,.92);color:var(--text);border:1px solid #4a4436;border-radius:6px;cursor:pointer}
+#front button.main{border-color:var(--gold);color:var(--gold)}
+#front button small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+#front button.plain{background:none;border:0;color:var(--dim);font-size:13px;padding:10px 0;text-align:center}
+.fr-foot{position:relative;text-align:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#5d5a54;padding:0 14px 14px;letter-spacing:.06em}
+.fr-h{font-family:var(--f-mincho);font-size:22px;margin:0 0 6px;font-weight:600}
+.fr-lead{font-size:13px;color:var(--dim);line-height:1.8;margin:0 0 18px}
+.fr-sec{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--dim);margin:22px 0 8px}
+.fr-page{border:1px solid var(--line);border-radius:8px;background:rgba(22,22,26,.92);padding:18px 18px 8px;min-height:300px}
+.fr-page h3{font-family:var(--f-mincho);font-size:20px;margin:0 0 4px;font-weight:600}
+.fr-page .no{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--red);margin-bottom:8px}
+.fr-page .need{display:inline-block;font-size:12px;color:var(--gold);border:1px solid #5a4a22;border-radius:99px;padding:1px 10px;margin:4px 0 12px}
+.fr-page dl{margin:0}
+.fr-page dt{font-size:14px;color:var(--gold);margin:14px 0 2px}
+.fr-page dd{margin:0 0 12px;font-size:15px;line-height:1.85;color:#d9d3c7}
+.fr-page a{color:var(--gold);word-break:break-all}
+.fr-nav{display:flex;gap:10px;margin-top:12px}
+.fr-nav button{flex:1;text-align:center!important}
+.fr-nav button:disabled{opacity:.3}
+.fr-dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 4px}
+.fr-dots button{width:30px;height:30px;padding:0!important;text-align:center!important;font-size:12px!important;border-radius:99px!important;color:var(--dim)!important}
+.fr-dots button.on{border-color:var(--gold)!important;color:var(--gold)!important}
 </style>
 </head>
 <body>
+<div id="front" hidden></div>
 <div id="top">
 <header>
   <div class="bar"><div class="stat" id="stat"></div><div class="barbtns" id="barbtns"></div></div>
@@ -326,7 +360,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.2.2';
+const APP_VERSION = 'v0.2.3';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4378,38 +4412,114 @@ async function pinToBase(){
   location.replace(siteRoot() + 'v/' + want + '/');
   return true;
 }
-// 「遊び方」の下に出す：できることと、その操作。要るものは、リポジトリを連携しているか、いないかで決まる
-function guideHtml(){
-  const box = (title, rows) => '<div class="help"><b>' + title + '</b><br>' + rows.join('<br>') + '</div>';
-  const play = box('遊ぶ（用意は、要りません）', [
-    '・<b>1人で</b>：このページを開いて、本をロックして進めます。',
-    '・<b>1台を回して、何人かで</b>：1冊を進めたら「保存して交代」。次の人が、ほかの本をロックします。',
-    '・<b>もらった版で</b>：もらったリンクを開きます。リポジトリの名前をもらったときは、☰ の「カスタム版」に入れて、「このリポジトリを付けて遊ぶ」。',
-    '・<b>それぞれの端末で、何人かで</b>：☰ の「部屋」。部屋を作る人だけ、リポジトリを連携します（「部屋」の欄に、手順があります）。ほかの人は、招待リンクを開くだけです。',
-  ]);
-  if(!TEST_BUILD) return play + (CUSTOM && EMBED ? '' : box('直す・足す・配る', ['・編集版でできます：<a href="' + siteRoot() + 'test/" target="_blank" rel="noopener">' + siteRoot() + 'test/</a>', '・編集版は、このゲームに、直す・足すの機能が付いたものです。遊び方は、同じです。']));
-  return play
-    + box('自分の手で直す・足す（用意は、要りません）', [
-      '・<b>文</b>：本文の下の「✎ 編集する」を押して、直したい段落を押します。',
-      '・<b>選択肢</b>：「✎ 編集する」のあいだに選択肢を押すと、直す・消す・選べなくする。「＋ 選択肢を足す」で、足します。起きること（体力・持ち物・時刻・条件・演出）も、そこで決めます。',
-      '・<b>場所・部屋・階</b>：右端の「地図」を開きます。通りでは「ここに、歩ける場所を作る」、建物の中では「となりに、部屋を足す」。',
-      '・<b>カメラ</b>：「✎ 編集する」のあいだに「カメラを足す」。',
-      '・<b>本</b>：☰ の「本を足す」。',
-      '・直したものは、この端末の中に残ります。点線の印が付きます。',
-    ])
-    + box('リポジトリを連携すると、できること', [
-      '・<b>連携のしかた</b>：☰ の「カスタム版」→「リポジトリの連携」。GitHub のリポジトリとトークンを、欄の手順どおりに作って、入れます。1回だけです。',
-      '・<b>保存する</b>：☰ の「カスタム版」→「リポジトリに保存する」。端末のデータが消えても、残ります。',
-      '・<b>絵を付ける</b>：足す選択肢や、足す場所の「絵を付ける」。',
-      '・<b>チャットと、Claude への頼みごと</b>：☰ の「部屋」→「部屋を作る」（1人でも作れます）。右端の「意見」に書きます。「Claude に頼む」に印を付けると、頼みごとになります。',
-      '・<b>Claude Code で直す</b>：連携したリポジトリを、Claude Code で開いて頼みます。直し方の案内（book/README.md）が、リポジトリに入っています。',
-      '・<b>何人かで直す</b>：部屋の招待リンクを渡します。みんなの案は「意見」に出て、部屋を作った人が「採用する」を押すと、全員の本に入ります。',
-    ])
-    + box('配る', [
-      '・<b>ファイルで</b>：☰ の「カスタム版」→「配布用のファイルを作る」。1つのファイルができます。受け取った人は、開くだけです。連携は、要りません。',
-      '・<b>リンクで</b>：リポジトリに保存したあと、☰ の「カスタム版」のいちばん上に、そのリポジトリの名前を入れて付け、「この版のリンクをコピーする」。直して保存し直すと、同じリンクのまま新しくなります。',
-      '・部屋の中では、☰ の「部屋」の欄から配ります（採用したものが入ります）。',
-    ]);
+// ===== タイトル・始める前のメニュー・操作説明 =====
+// front：'title'（タイトル）・'menu'（本を選ぶ）・'how'（操作説明）・null（出さない）。自動の試し（webdriver）では、初めから出さない
+let front = room || navigator.webdriver ? null : 'title', howPage = 0, howBack = 'title';
+const hasProgress = () => { const w = loadWorld(); return !!w.lock || CHAR_IDS.some(id => (loadPlayer(id).history || []).length > 0); };
+// 操作説明のページ。1ページに、1つのこと
+function howPages(){
+  const P = [
+    { t:'本を選んで進める', need:'用意は要りません', rows:[
+      ['本を選ぶ', '4冊は、同じ街の同じ投票日を、4人それぞれの立場から書いたものです。右上の ☰ から読む本を選びます。'],
+      ['ロックして進める', '「ロックして進める」を押すと、その本を進められます。' + (room ? 'ロックは本ごとなので、ほかの人は別の本を同時に進められます。ほかの人がロックしている本は、読むだけになります。' : '進められるのは一度に1冊です。')],
+      ['選択肢を押す', '本文を読んで選択肢を押すと、話が進んで時刻も進みます。'],
+      room ? ['ロックを外す', '☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。'] : ['本を替える', '☰ の「保存して交代」を押してから、別の本をロックします。前の本でしたことは街に残ります。'],
+    ] },
+    { t:'映像・地図・時刻', need:'用意は要りません', rows:[
+      ['映像と地図', '画面右端の「映像」「地図」を押すと開きます。もう一度押すと閉じます。'],
+      ['上の帯', '時刻、体力、持ち物が出ます。'],
+      ['時間帯', '一日は朝・午前・昼・午後・夕方・夜に分かれています。先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。'],
+      ['戻す', '上の「戻す」で前の手まで戻せます（' + (room ? '10手まで' : '直近100手まで') + '）。'],
+      ...(room ? [] : [['最初から', '☰ の「最初から」を押すと、全員が朝からやり直しになります。']]),
+    ] },
+    { t:'何人かで遊ぶ', need:'1台なら用意は要りません', rows:[
+      ['1台を回す', '1冊を進めたら「保存して交代」を押して、次の人に渡します。次の人は別の本をロックします。'],
+      ['それぞれの端末で', '☰ の「部屋」を使います。部屋を作る人だけ、GitHub のリポジトリの連携が必要です（手順は「部屋」の欄にあります）。ほかの人は招待リンクを開くだけです。'],
+    ] },
+    { t:'もらった版で遊ぶ', need:'用意は要りません', rows:[
+      ['リンクをもらったら', 'そのリンクを開きます。'],
+      ['リポジトリ名をもらったら', '☰ の「カスタム版」に入力して、「このリポジトリを付けて遊ぶ」を押します。'],
+      ['元に戻す', '☰ の「カスタム版」で「付けるのをやめる」を押します。'],
+    ] },
+  ];
+  if(!TEST_BUILD){
+    if(!(CUSTOM && EMBED)) P.push({ t:'直す・足す・配る', need:'編集版でできます', rows:[
+      ['編集版', 'このゲームに、直す・足すための機能が付いた版です。遊び方は同じです。<br><a href="' + siteRoot() + 'test/" target="_blank" rel="noopener">' + siteRoot() + 'test/</a>'],
+    ] });
+    return P;
+  }
+  P.push(
+    { t:'自分の手で直す・足す', need:'用意は要りません', rows:[
+      ['文', '本文の下の「✎ 編集する」を押し、直したい段落を押します。'],
+      ['選択肢', '編集中に選択肢を押すと、直す・消す・選べなくする、ができます。「＋ 選択肢を足す」で新しい選択肢を足せます。選んだときに起きること（体力、持ち物、時刻、条件、演出）もここで決めます。'],
+      ['場所・部屋・階', '右端の「地図」を開きます。通りでは「ここに、歩ける場所を作る」、建物の中では「となりに、部屋を足す」を押します。'],
+      ['カメラ・本', 'カメラは編集中の「カメラを足す」から、本は ☰ の「本を足す」から足します。'],
+      ['直したものの保存先', 'この端末の中です。直した所には点線の印が付きます。'],
+    ] },
+    { t:'リポジトリを連携する', need:'GitHub のアカウントが必要です', rows:[
+      ['連携のしかた', '☰ の「カスタム版」にある「リポジトリの連携」を開き、手順どおりにリポジトリとトークンを作って入力します。最初の1回だけです。'],
+      ['保存する', '☰ の「カスタム版」で「リポジトリに保存する」を押します。端末のデータが消えても残ります。'],
+      ['絵を付ける', '選択肢や場所を足すときに「絵を付ける」を押します。'],
+    ] },
+    { t:'チャットと Claude への依頼', need:'リポジトリの連携が必要です', rows:[
+      ['チャット', '☰ の「部屋」で「部屋を作る」を押します（1人でも作れます）。画面右端の「意見」がチャットになります。'],
+      ['Claude に頼む', '「意見」に書くときに「Claude に頼む」にチェックを入れます。'],
+      ['Claude Code で直す', '連携したリポジトリを Claude Code で開いて頼みます。直し方の案内（book/README.md）がリポジトリに入っています。'],
+      ['何人かで直す', '部屋の招待リンクを渡します。出た案は「意見」に並び、部屋を作った人が「採用する」を押すと全員の本に反映されます。'],
+    ] },
+    { t:'配る', need:'ファイルなら用意は要りません', rows:[
+      ['ファイルで配る', '☰ の「カスタム版」で「配布用のファイルを作る」を押すと、ファイルが1つできます。受け取った人は開くだけで遊べます。'],
+      ['リンクで配る', 'リポジトリに保存したあと、☰ の「カスタム版」のいちばん上にそのリポジトリ名を入れて付け、「この版のリンクをコピーする」を押します。直して保存し直せば、同じリンクのまま新しくなります。'],
+      ['部屋の中では', '☰ の「部屋」の欄から配ります。入るのは採用したものです。'],
+    ] });
+  return P;
+}
+function frontHtml(){
+  const osd = '<div class="fr-osd"><span>CAM-01　GLENFORD</span><span class="rec">● REC</span></div>';
+  const foot = '<div class="fr-foot">' + escText(TEST_BUILD ? BUILD : APP_VERSION) + (PACK ? '　／　カスタム版 ' + escText(PACK) : CUSTOM ? '　／　カスタム版' : '') + '</div>';
+  if(front === 'title'){
+    const go = hasProgress();
+    return osd + '<div class="fr-in"><h1 class="fr-title"><small>ELECTION DAY</small>Joining<br>the Living Dead</h1>'
+      + '<p class="fr-sub">ゾンビのいる街の、州知事選挙の投票日。<br>有権者・州知事・警察署長・病院長の4冊を読み進める。</p>'
+      + '<div class="fr-btns">'
+      + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
+      + '<button id="frHow">遊び方' + (TEST_BUILD ? '・作り方' : '') + '</button>'
+      + '</div></div>' + foot;
+  }
+  if(front === 'menu'){
+    return osd + '<div class="fr-in"><h2 class="fr-h">どの本から読みますか</h2><p class="fr-lead">4冊は、同じ街の同じ投票日を、4人それぞれの立場から書いたものです。あとから別の本にも替えられます。</p><div class="fr-btns">'
+      + CHAR_IDS.map(id => '<button data-frbook="' + id + '">' + escText(CHARS[id].name) + 'の本<small>' + escText(CHARS[id].osd || '') + '　' + fmt(CHARS[id].clock) + '　' + escText(PLACES[CHARS[id].place] || '') + '</small></button>').join('')
+      + '</div><div class="fr-sec">ほかの遊び方</div><div class="fr-btns">'
+      + '<button id="frRoom">それぞれの端末で、何人かで遊ぶ<small>部屋を作る・部屋に入る</small></button>'
+      + '<button id="frPack">もらった版で遊ぶ<small>リポジトリの名前を入れる</small></button>'
+      + '</div><button class="plain" id="frBack">タイトルへ戻る</button></div>' + foot;
+  }
+  const P = howPages(), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i];
+  return osd + '<div class="fr-in" style="justify-content:flex-start"><div class="fr-page"><div class="no">' + (i + 1) + ' / ' + P.length + '</div><h3>' + q.t + '</h3><span class="need">' + q.need + '</span><dl>'
+    + q.rows.map(r => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl></div>'
+    + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' disabled') + '>← 前へ</button><button id="frNext" class="main"' + (i < P.length - 1 ? '' : ' disabled') + '>次へ →</button></div>'
+    + '<div class="fr-dots">' + P.map((_, k) => '<button data-frpage="' + k + '" class="' + (k === i ? 'on' : '') + '" aria-label="' + (k + 1) + 'ページ">' + (k + 1) + '</button>').join('') + '</div>'
+    + '<button class="plain" id="frClose">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button></div>' + foot;
+}
+function frontRender(){
+  const el = document.getElementById('front');
+  if(!el) return;
+  el.hidden = !front; document.body.style.overflow = front ? 'hidden' : '';
+  if(!front){ el.innerHTML = ''; return; }
+  el.innerHTML = frontHtml(); el.scrollTop = 0;
+  const on = (id, fn) => { const e = document.getElementById(id); if(e) e.onclick = fn; }, go = f => { front = f; frontRender(); if(!f) render(); };
+  on('frStart', () => go('menu'));
+  on('frResume', () => go(null));
+  on('frNew', () => { if(!confirm('全員の進み具合を消して、最初からやり直しますか？')) return; store.remove('world'); store.remove('undo'); CHAR_IDS.forEach(id => store.remove('player-' + id)); histIndex = null; go('menu'); });
+  on('frHow', () => { howPage = 0; howBack = 'title'; go('how'); });
+  on('frBack', () => go('title'));
+  on('frRoom', () => { menuOpen = false; roomPanel = true; packPanel = false; go(null); window.scrollTo(0, 0); });
+  on('frPack', () => { menuOpen = false; packPanel = true; roomPanel = false; go(null); window.scrollTo(0, 0); });
+  on('frPrev', () => { howPage--; frontRender(); });
+  on('frNext', () => { howPage++; frontRender(); });
+  on('frClose', () => go(howBack));
+  el.querySelectorAll('[data-frpage]').forEach(q => { q.onclick = () => { howPage = +q.dataset.frpage; frontRender(); }; });
+  el.querySelectorAll('[data-frbook]').forEach(q => { q.onclick = () => { selectedBlock = null; histIndex = null; current = q.dataset.frbook; store.set('current', current); front = null; frontRender(); if(!loadWorld().lock) takeLock(); else render(); window.scrollTo(0, 0); }; });
 }
 function packPanelHtml(){
   const key = store.get('pack-key', ''), esc = t => escText(t).replace(/"/g, '&quot;');
@@ -5074,7 +5184,7 @@ function render(){
   tabs.hidden = !menuOpen;
   tabs.innerHTML =
     CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${room ? (own[id] ? '（' + ownerName(own[id]) + '）' : '') : id === w.lock ? '（ロック中）' : ''}</button>`).join('')
-    + `<button class="mapbtn${helpOpen ? ' on' : ''}" id="helpbtn">遊び方</button>`
+    + `<button class="mapbtn" id="helpbtn">遊び方</button>` + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>')
     + (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button>' : '')
     + '<button class="mapbtn' + (packPanel ? ' on' : '') + '" id="packbtn">カスタム版' + (PACK ? '（' + escText(PACK) + '）' : '') + '</button>'
     + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
@@ -5152,7 +5262,7 @@ function render(){
   else if(packNote) html = '<p class="help">' + escText(packNote) + '</p>' + html;
   if(flowOpen && TEST_BUILD) html = flowHtml() + html;
   if(bookPanel && TEST_BUILD) html = bookPanelHtml() + html;
-  if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます。ロックは本ごとなので、ほかの人は、ほかの本を同時に進められます。ほかの人がロックしている本は、読むことだけできます。☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます（直近 100 手まで）。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (TEST_BUILD ? '<br>編集版では、選んだ選択肢と結末が、名前を付けずに記録されます。' : '') + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + guideHtml() + html;
+  if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます。ロックは本ごとなので、ほかの人は、ほかの本を同時に進められます。ほかの人がロックしている本は、読むことだけできます。☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます（直近 100 手まで）。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (TEST_BUILD ? '<br>編集版では、選んだ選択肢と結末が、名前を付けずに記録されます。' : '') + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + html;
 
   document.getElementById('main').innerHTML = html;
   const drawer = document.getElementById('drawer');
@@ -5305,7 +5415,8 @@ function render(){
   on('packOff', () => { store.remove('pack-latest'); store.remove('pack'); store.remove('pack-cache'); store.remove('pack-key'); location.reload(); });
   on('packOn', () => { const slug = repoSlug(document.getElementById('packRepo').value), key = document.getElementById('packKey').value.trim(); if(!slug){ packNote = 'リポジトリの名前を、「持ち主/リポジトリ」の形で入れてください。'; render(); return; } store.set('pack', slug); if(key) store.set('pack-key', key); else store.remove('pack-key'); store.remove('pack-cache'); location.reload(); });
   on('packCopy', () => { navigator.clipboard.writeText(packLink(PACK, store.get('pack-key', ''))).then(() => { packNote = 'リンクをコピーしました。'; render(); }, () => { packNote = 'コピーできませんでした。'; render(); }); });
-  on('helpbtn', () => { helpOpen = !helpOpen; menuOpen = false; render(); window.scrollTo(0, 0); });
+  on('helpbtn', () => { menuOpen = false; howPage = 0; howBack = null; front = 'how'; frontRender(); });
+  on('titlebtn', () => { menuOpen = false; front = 'title'; frontRender(); });
   on('mapbtn', () => { showMap = !showMap; render(); window.scrollTo(0, 0); });
   on('reset', () => {
     if(!confirm('全員の進み具合を消して、最初からやり直しますか？')) return;
@@ -6614,6 +6725,7 @@ function resultHtml(){
 
 overlayPoses();
 render();
+frontRender();
 loadPack();
 // 送るのを待っているものは、開いたときと、1分ごとに、時刻を過ぎていれば送る
 if(TEST_BUILD && !room){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
