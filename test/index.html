@@ -345,7 +345,10 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .fr-page dt{font-size:14px;color:var(--gold);margin:14px 0 2px}
 .fr-page dd{margin:0 0 12px;font-size:15px;line-height:1.85;color:#d9d3c7}
 .fr-page a{color:var(--gold);word-break:break-all}
-.fr-nav{display:flex;gap:10px;margin-top:12px}
+.fr-nav{display:flex;gap:10px;margin-top:12px;position:sticky;bottom:0;background:#050607;padding:10px 0 14px;z-index:2}
+.fr-top{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;background:#050607;padding:10px 0 8px}
+.fr-top .no{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.2em;color:var(--red)}
+#front .fr-top button{font-size:14px;padding:8px 12px;text-align:center}
 .fr-nav button{flex:1;text-align:center!important}
 .fr-nav button:disabled{opacity:.3}
 .fr-dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 4px}
@@ -411,7 +414,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 13:39 7a4d211';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 15:17 a7aff4e';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -751,7 +754,7 @@ const SPOTS = {
           : s.clock < 420 ? '正面玄関はまだ閉まっていて、その前に10人ばかり並んでいる。投票所が開くのは7時だ。'
           : '正面玄関はもう開いていて、列が駐車場の脇まで伸びている。')
         + (s.flags.lineDone ? '' : '駐車場の車のあいだを、3人が歩いていた。並んでいる人たちは、ときどきそっちへ目をやる。')
-        + '\n\n入口の30メートルほど手前に、黄色い立て札が出ている。「これより先、選挙運動禁止」。運動員たちはその外側に固まって、見本の投票用紙を配っていた。青い上着が2人、赤い上着が2人。少し離れて、上着を着ていない女の人がひとり。\n\n校舎の壁に、保健局の貼り紙がある。「入場の前に、係員が両腕と首を確認します。ご協力ください」'),
+        + '\n\n入口の30メートルほど手前に、黄色い立て札が出ている。「これより先、選挙運動禁止」。運動員たちはその外側に固まって、見本の投票用紙を配っていた。青い上着が2人、赤い上着が2人。少し離れて、上着を着ていない女の人がひとり。\n\n立て札の脇に、係員がひとり立っている。胸に青いバッジを付けた男が呼び止められて、バッジを外し、上着のポケットに入れてから先へ進んだ。\n\n校舎の壁に、保健局の貼り紙がある。「入場の前に、係員が両腕と首を確認します。ご協力ください」'),
     extra:s => [
       c('見本の投票用紙をもらっていく', 0, 49, { cond:s => !evening(s) && !s.flags.cards }),
       c('列に並ぶ', 0, 0, { cond:s => !evening(s) && !voted(s), run(s){ if(s.clock > 420) s.flags.late = 1; return s.flags.lineDone ? 52 : 51; } }),
@@ -3717,7 +3720,7 @@ const shotHere = (s, w, sp) => w.events.some(e => e.type === 'shot' && e.at === 
 // more：銃声でもう1人出てくる割合。aim：当たる割合（署長は訓練を受けているので、外さない。ほかの人は 4 発に 3 発）。close：撃ったあと、まだ2人より多く残っているときに、詰められてかまれる割合（残り1人ごとに）
 const GUN = { more:.3, cap:6, aim:{ chief:1, police:1 }, aimOther:.75, close:.05 };
 function cutShot(){
-  sndShot();
+  sndLaugh(); // 撃つと、映像を見ている側から、笑い声が起きる
   Cut.aimUntil = performance.now() + 900; // 映像：しばらく、腕を前へ構える。画面が一瞬、白く飛ぶ
   const wrap = document.getElementById('cutscene');
   if(wrap){ wrap.classList.add('flash'); setTimeout(() => wrap.classList.remove('flash'), 110); }
@@ -5721,7 +5724,7 @@ async function pinToBase(){
 // ===== 音 =====
 // 音のファイルは使わない。ブラウザの中で、その場で音を作る（Web Audio）。画面を1回押すまでは鳴らない（スマホの決まり）。
 // 音楽：1970年代のイタリアのホラー映画の音楽（Goblin）の「作り」を借りる。繰り返す低いベース、鈴のような高い分散和音、合唱のような和音、三全音。旋律と音の並びは、このゲームのために書いたもの。
-// 監視カメラの映像には音がないので、場面の声や足音は付けない。付けるのは、映像を見ている部屋の音（電源のうなり、機械の風、カメラの切り替えの音）と、銃声だけ。
+// 監視カメラの映像には音がないので、場面の音（声・足音・銃声）は付けない。付けるのは、音楽と、映像を見ている部屋の音（電源のうなり、機械の風、カメラの切り替えの音）だけ。
 const Snd = { ctx:null, on:store.get('sound', true), mode:'', next:'', step:0, t:0, timer:0, z:0, cam:'', noise:null };
 const N2F = n => 440 * Math.pow(2, (n - 69) / 12); // MIDI の番号 → 周波数
 function sndInit(){
@@ -5853,12 +5856,22 @@ function sndScene(){
 }
 // --- 場面の音 ---
 const sndReady = () => Snd.on && Snd.ctx && Snd.ctx.state === 'running';
-function sndShot(){ // 銃声：破裂の音、低い衝撃、遠くの反響
-  if(!sndReady()) return; const c = Snd.ctx, t = c.currentTime + .02;
-  const f = sndNoise(t, .28, 'lowpass', 7000, .7, .5, Snd.sfx); f.frequency.exponentialRampToValueAtTime(500, t + .25);
-  const o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(38, t + .16); sndEnv(g, t, .002, .45, .2); o.connect(g); g.connect(Snd.sfx); o.start(t); o.stop(t + .3);
-  for(const [dt, v] of [[.19, .16], [.41, .08], [.7, .04]]) sndNoise(t + dt, .3, 'lowpass', 1400, .7, v, Snd.sfx);
-  Snd.mus.gain.setTargetAtTime(.08, t, .01);
+// 観客の笑い声（テレビのバラエティ番組に入るような）。何人かが、少しずつずれて「ハハハ」と笑う。録音は使わず、その場で作る
+function sndLaugh(){
+  if(!sndReady()) return; const c = Snd.ctx, t0 = c.currentTime + .25, out = c.createGain(); out.gain.value = 3; out.connect(Snd.sfx);
+  for(let v = 0; v < 9; v++){
+    const f0 = 150 + Math.random() * 190, n = 4 + Math.floor(Math.random() * 5); let t = t0 + Math.random() * .45, gap = .17 + Math.random() * .06, dest = out;
+    if(c.createStereoPanner){ const pan = c.createStereoPanner(); pan.pan.value = Math.random() * 1.6 - .8; pan.connect(out); dest = pan; }
+    for(let k = 0; k < n; k++){
+      const o = c.createOscillator(), b1 = c.createBiquadFilter(), b2 = c.createBiquadFilter(), g = c.createGain(), d = .09 + Math.random() * .04, f = f0 * (1 - k * .035) * (1 + (Math.random() - .5) * .06), vol = .16 * Math.pow(.86, k);
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(f * 1.12, t); o.frequency.exponentialRampToValueAtTime(f * .9, t + d);
+      b1.type = 'bandpass'; b1.frequency.value = 780 + Math.random() * 160; b1.Q.value = 4; b2.type = 'bandpass'; b2.frequency.value = 1250 + Math.random() * 250; b2.Q.value = 5;
+      sndEnv(g, t, .012, vol, d);
+      o.connect(b1); o.connect(b2); b1.connect(g); b2.connect(g); g.connect(dest); o.start(t); o.stop(t + d + .05);
+      sndNoise(t, d, 'bandpass', 1700, 1.2, vol * .5, dest); // 息
+      t += gap; gap *= 1.07;
+    }
+  }
 }
 // 部屋の音：監視カメラの映像を見ている部屋。電源のうなり（60Hz とその倍の音）と、機械の風の音が、ずっと小さく鳴っている
 function sndRoom(){
@@ -5884,27 +5897,33 @@ function howPages(kind){
   const host = !!room && isHost(), guest = !!room && !isHost();
   const reach = roomLocal() ? '部屋を作った人がゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は、自動で共有されます。';
   if(kind === 'make'){
+    const keys = ['本文の下の「✎ 編集する」を押してから、直したい文章を押します。', '選択肢の右の「✎」を押すと、その選択肢を直したり消したりできます。', '「＋ 選択肢を足す」を押すと、新しい選択肢と、それを選んだときに起きることを書けます。'];
     if(guest) return [
-      { img:'how-make-1', t:'直す案を出す', text:'GitHub のアカウントは要りません。本文の下の「✎ 編集する」で文や選択肢を直し、「＋ 選択肢を足す」で新しい選択肢を足します。直したものは、案として部屋のみんなに見えます。部屋を作った人が「採用する」を押すと、全員の本に入ります。' },
-      { img:'', t:'意見を書く', text:'画面の右端の「意見」を開くと、部屋のみんなと話せます。「Claude に頼む」にチェックを入れて送ると、AI の Claude への頼みごと（作ってほしいもの・直してほしいもの）になります。返事は、同じ「意見」に出ます。' },
+      { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、その場で文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋を作った人が「採用する」を押すと、全員の本に入ります。GitHub のアカウントは要りません。' },
+      { img:'how-make-1', full:true, t:'直す', legend:keys },
+      { t:'話す・AI に頼む', text:'画面の右端の「意見」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', '「Claude に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。部屋を作った人が、その頼みごとを AI の道具（Claude Code）に渡すと、Claude が直して、同じ「意見」に返事を書きます。']] },
     ];
     return [
-      { img:'how-make-1', t:'画面で直す', text:'本文の下の「✎ 編集する」から、段落や選択肢を直せます。「＋ 選択肢を足す」で、新しい選択肢も作れます。' + (host ? '部屋のみんなが出した案は、右端の「意見」に並びます。「採用する」を押すと、全員の本に入ります。' : '直したものは、この端末に保存されます。') },
-      ...(room ? [] : [{ img:'how-make-2', t:'リポジトリを連携する', text:'☰ の「リポジトリの連携」で、自分の GitHub のリポジトリを連携します。直したものを保存でき、選択肢や場所に絵を付けられ、リンクで配れるようになります。<br>Claude Code に直してもらうときは、次のリンクを渡して「準備して」と頼みます。リポジトリの用意から直し方までの手順が、そこに書いてあります。<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>' }]),
-      { img:'how-make-3', t:'配る', text:host ? '☰ の「部屋」から、採用したものをファイルかリンクにして配れます。' : '☰ の「カスタム版」から、ファイルかリンクにして配れます。' },
+      { t:'遊びながら作る', text:'この編集版では、ゲームを遊びながら、その場で文章や選択肢を書き換えられます。新しい選択肢や、場所、建物の中の部屋、主人公の本も足せます。まずは気になるところを直し、保存して、人に配る、という順番で進めます。' },
+      { img:'how-make-1', full:true, t:'直す', legend:keys, text:host ? '部屋のみんなが書き換えたものは、右端の「意見」に案として並びます。「採用する」を押すと、全員の本に入ります。' : '直したものは、自動でこの端末の中に保存されます。画面では点線で表示され、それだけでも自分では遊べます。' },
+      ...(room ? [] : [{ t:'リポジトリを連携する', text:'GitHub は、無料で使えるネット上のファイル置き場です。その中の、自分用の置き場所を「リポジトリ」と呼びます。リポジトリを作ってこのゲームと連携すると、次のことができるようになります。連携は、最初の1回だけです。', list:[['ネットに保存する', '端末のデータが消えても残ります。'], ['絵を付ける', '選択肢や場所に絵を付けられます。'], ['リンクで配る', '友だちにリンクを送るだけで、遊んでもらえます。'], ['友だちと作る', '部屋を作って、一緒に直したりチャットで話したりできます。']], btn:['howLinkBtn', ghLinked() ? '連携の画面を開く（連携済み）' : 'リポジトリを連携する'] }]),
+      { t:'配る', list:[['ファイルで配る', 'ファイルが1つできます。それをメールやチャットで送ります。受け取った人は、開くだけで遊べます。' + (host ? '' : 'リポジトリの連携は要りません。')], ['リンクで配る', (host && roomLocal() ? 'リポジトリを連携して作った部屋で使えます。' : host ? '' : 'リポジトリの連携が要ります。') + 'あとから直しても、同じリンクのまま、新しい中身になります。']], btn:['howPackBtn', '配る画面を開く'] },
+      { t:'AI に頼む', text:'自分で書き換えるだけでなく、文章を書くのを AI に任せることもできます。', after:howBack === 'title' ? '始めるには、タイトルへ戻って「はじめる」を押し、本文の下の「✎ 編集する」を押します。' : '始めるには、この説明を閉じて、本文の下の「✎ 編集する」を押します。', list:[['部屋のチャットで頼む', '「Claude に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。部屋を作った人が、その頼みごとを AI の道具（Claude Code）に渡すと、Claude が直して、チャットに返事を書きます。'], ['自分の Claude Code に頼む', 'Claude Code は、AI に作業を頼める Anthropic の道具です。使っている人は、次のリンクを Claude Code に渡して「準備して」と頼みます。用意のしかたと直し方が、リンク先に書いてあります。<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>']] },
     ];
   }
   const P = [
     { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本と、その時刻・体力・持ち物です。', '戻す：1つ前の場面に戻ります。時刻と体力も、元に戻ります。', room ? '☰：メニューを開きます。別の本を開く、部屋、遊び方、音の入・切などがあります。' : '☰：メニューを開きます。本の切り替え、部屋、遊び方、音の入・切などがあります。', '「映像」と「地図」を開きます。もう一度押すと閉じます。', '主人公です。監視カメラの映像に、いまいる場所が映ります。'] },
-    { t:'物語の決まり', list:[
-      ['1人の一日が、1冊の本', 'どの本も、同じ街の同じ一日を、その人の立場から書いたものです。'],
-      ['街は1つ', room ? 'ほかの人が自分の本でゾンビを倒したり物を取ったりすると、あなたの本の街でもそうなっています。' : 'ある本でゾンビを倒したり物を取ったりすると、別の本を開いたときも、そのままになっています。'],
-      ['投票は朝7時から夜8時まで', '選択肢を選ぶたびに時刻が進みます。一日が終わると開票の結果が出て、それぞれのしたことで結果が変わります。'],
+    { t:'この話のしくみ', list:[
+      ['州知事選挙の投票日', '今日は、州知事選挙の投票日です。どの本も、この街でのその一日を、1人の立場から書いたものです。'],
+      ['本どうしがつながっている', room ? 'ほかの人が自分の本でしたことが、あなたの本の街を変えます。倒されたゾンビはいなくなり、取られた物はもうありません。一日の終わりに出る開票の結果も、それぞれのしたことで変わります。' : 'ある本でしたことが、別の本の街を変えます。倒したゾンビはいなくなり、取った物はもうありません。一日の終わりに出る開票の結果も、それぞれのしたことで変わります。'],
+      ['時間帯で足並みをそろえる', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : '1冊だけ先の時間帯へ進むと、ほかの本が追いつくまで、その本は進められません。')],
+    ] },
+    { t:'遊ぶうえでの決まり', list:[
+      ['投票は朝7時から夜8時まで', '選択肢を選ぶたびに時刻が進みます。'],
       ['ゾンビになっても話は続く', 'ゾンビに襲われると、3つある体力が1つ減り、傷から感染することもあります。体力がなくなるか、感染してしばらくたつとゾンビになりますが、そのまま読み進められます。'],
-      ...(room ? [['ロック', '本をロックすると、その本を進められます。1冊をロックできるのは、1人だけです。']] : [['ロック', '本をロックすると、その本を進められます。進められる本は、一度に1冊です。別の本に替えるときは、☰ を開いて「保存して交代」を押し、読みたい本を選んで「ロックして進める」を押します。'], ['続きから読める', '進み具合は、この端末に残ります。次に開いたときは「つづきから」で続けられます。']]),
+      ...(room ? [['ロック', '本をロックすると、その本を進められます。1冊をロックできるのは、1人だけです。ロックしていない本も、開けばこれまでの話を読めます。']] : [['ロック', '本をロックすると、その本を進められます。進められる本は、一度に1冊です。別の本に替えるときは、☰ を開いて「保存して交代」を押し、読みたい本を選んで「ロックして進める」を押します。ロックしていない本も、開けばこれまでの話を読めます。'], ['続きから読める', '進み具合は、この端末に残ります。次に開いたときは「つづきから」で続けられます。']]),
     ] },
   ];
-  if(false) P.push({ img:'how-play-4', t:'人を招待する', text:'☰ の「部屋」から招待リンクをコピーして送ります。' + (roomLocal() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手は、開くだけで入れます。') + reach });
   if(room) P.push({ img:'how-play-3', t:'自分の本を進める', text:'☰ の「部屋」で、自分が進める本をロックします。進められるのは自分がロックした本だけで、ほかの人の本は読むことができます。' + reach });
   return P;
 }
@@ -5922,7 +5941,7 @@ function frontHtml(){
       + (TEST_BUILD ? '<button id="frMake">作り方<small>直す・足す・配る</small></button>' : '')
       + '</div>'
       + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>リポジトリの連携（あとでもできます）</b><br>直すだけなら、連携は要りません。「はじめる」から始められます。自分の GitHub のリポジトリを連携すると、直したものの保存、絵の追加、チャット、リンクでの配布も使えます。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリを連携する</button></div></div>' : '')
-      + (EMBED ? '' : '<a class="fr-switch" href="' + siteRoot() + (TEST_BUILD ? '' : 'test/') + '">' + (TEST_BUILD ? '公開版へ（遊ぶだけの版）' : '編集版へ（文や選択肢を直す・足す）') + '</a>')
+      + (EMBED ? '' : '<a class="fr-switch" href="' + siteRoot() + (TEST_BUILD ? '' : 'test/') + '">' + (TEST_BUILD ? '公開版へ' : '編集版へ') + '</a>')
       + '</div>' + foot;
   }
   if(front === 'menu'){
@@ -5930,15 +5949,18 @@ function frontHtml(){
       + CHAR_IDS.map(id => '<button data-frbook="' + id + '">' + escText(CHARS[id].name) + 'の本<small>' + escText(CHARS[id].osd || '') + '　' + fmt(CHARS[id].clock) + ' に、' + escText(PLACES[CHARS[id].place] || '') + 'から始まる</small></button>').join('')
       + '</div><button class="plain" id="frBack">タイトルへ戻る</button></div>';
   }
-  const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i];
-  return osd + '<div class="fr-in" style="justify-content:flex-start"><div class="fr-page"><div class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</div>'
-    + '<h3>' + q.t + '</h3>'
+  const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i], closeLabel = howBack === 'title' ? 'タイトルへ' : '閉じる';
+  return '<div class="fr-in" style="justify-content:flex-start;padding-top:0">'
+    + '<div class="fr-top"><span class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</span><button data-frclose="1">× ' + closeLabel + '</button></div>'
+    + '<div class="fr-page"><h3>' + q.t + '</h3>'
     + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg" alt="" onerror="this.remove()">' : '')
     + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + t + '</li>').join('') + '</ol>' : '')
+    + (q.text ? '<p class="fr-text">' + q.text + '</p>' : '')
     + (q.list ? '<dl>' + q.list.map(r => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl>' : '')
-    + (q.text ? '<p class="fr-text">' + q.text + '</p>' : '') + '</div>'
-    + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' style="visibility:hidden"') + '>← 前へ</button>' + (i < P.length - 1 ? '<button id="frNext" class="main">次へ →</button>' : '<button id="frClose" class="main">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button>') + '</div>'
-    + (i < P.length - 1 ? '<button class="plain" id="frClose">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button>' : '') + '</div>';
+    + (q.btn ? '<button class="main" id="' + q.btn[0] + '" style="display:block;width:100%;text-align:center;margin:6px 0 12px">' + q.btn[1] + '</button>' : '')
+    + (q.after ? '<p class="fr-text" style="border-top:1px solid var(--line);padding-top:12px">' + q.after + '</p>' : '')
+    + '</div>'
+    + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' style="visibility:hidden"') + '>← 前へ</button>' + (i < P.length - 1 ? '<button id="frNext" class="main">次へ →</button>' : '<button data-frclose="1" class="main">' + closeLabel + '</button>') + '</div></div>';
 }
 function frontRender(){
   const el = document.getElementById('front');
@@ -5960,7 +5982,9 @@ function frontRender(){
   on('frLink', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'title'; go(null); });
   on('frPrev', () => { howPage--; frontRender(); });
   on('frNext', () => { howPage++; frontRender(); });
-  on('frClose', () => go(howBack));
+  el.querySelectorAll('[data-frclose]').forEach(q => { q.onclick = () => go(howBack); });
+  on('howLinkBtn', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'how'; go(null); });
+  on('howPackBtn', () => { menuOpen = false; if(room){ roomPanel = true; packPanel = false; } else { packPanel = true; roomPanel = false; } linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
   el.querySelectorAll('[data-frpage]').forEach(q => { q.onclick = () => { howPage = +q.dataset.frpage; frontRender(); }; });
   el.querySelectorAll('[data-frbook]').forEach(q => { q.onclick = () => { selectedBlock = null; histIndex = null; current = q.dataset.frbook; store.set('current', current); front = null; frontRender(); if(!loadWorld().lock) takeLock(); else render(); window.scrollTo(0, 0); }; });
 }
