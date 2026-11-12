@@ -39,7 +39,7 @@
 1. **作業用のリポジトリ（非公開）を作る**
 
    ```
-   gh repo create <user>/joining-the-living-dead-rooms --private --add-readme
+   gh repo create <user>/joining-the-living-dead-work --private --add-readme
    ```
 
    直したもの、絵、部屋の記録（チャット）が入ります。
@@ -49,7 +49,7 @@
    公開してよいかを、先にユーザーに確かめます。
 
    ```
-   gh repo create <user>/jtld-my-version --public --add-readme
+   gh repo create <user>/joining-the-living-dead-share --public --add-readme
    ```
 
    入れるのは、配る中身（`book/overlay.json` と `book/assets/`）だけです。部屋の記録は入れません。
@@ -67,13 +67,13 @@
 
    トークンを作るのも、ゲームに貼るのも、ユーザー本人です。AI は、トークンを受け取りませんし、入力もしません。次のリンクと項目を伝えます。
 
-   - 作る画面：https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-rooms
+   - 作る画面：https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-work
    - Expiration：90 days か、Custom で1年後
    - Repository access：Only select repositories → 作業用と、配る用の、2つを選ぶ
    - Repository permissions：Contents を Read and write（これだけ）
    - 「Generate token」を押して、出てきた `github_pat_…` をコピーする。この画面を閉じると、二度と出ない
 
-   貼る場所：編集版を開く → 右上の ☰ →「カスタム版」→「リポジトリの連携」。リポジトリの名前（`<user>/joining-the-living-dead-rooms`）とトークンを入れて、「覚える」。
+   貼る場所：編集版を開く → 右上の ☰ →「カスタム版」→「リポジトリの連携」。リポジトリの名前（`<user>/joining-the-living-dead-work`）とトークンを入れて、「覚える」。
 
    トークンは、ゲームの画面から保存する・絵を付ける・チャットを使うときに要ります。AI がリポジトリを直接書き換えるだけなら、なくても進められます。
 
@@ -98,7 +98,7 @@
 2. 配るリンクは、次の形。開いた人は、何も用意せずに、その版を遊べる。
 
    ```
-   https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/#pack=<user>/jtld-my-version
+   https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/#pack=<user>/joining-the-living-dead-share
    ```
 
 ### 守ること
