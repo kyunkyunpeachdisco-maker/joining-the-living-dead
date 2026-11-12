@@ -289,7 +289,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-11 17:35 4b21fbe';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 00:11 0506d65';
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
 
@@ -305,9 +305,6 @@ let room = (() => {
 })();
 if(room && !/^[A-Z2-9]{8}$/.test(room)) room = null;
 const GLOBAL_KEYS = new Set(['room', 'room-kind', 'dev', 'fb-token', 'fb-name', 'video', 'send-at']);
-// 部屋の種類。'test' は、各自が自分の一日を遊び、意見や直しだけを部屋にためる。それ以外は、全員で1つの一日を交代で進める
-let roomKind = (() => { try { return room ? JSON.parse(localStorage.getItem(BASE + 'room-kind') || 'null') : null; } catch(e){ return null; } })();
-const testRoom = () => !!room && roomKind === 'test';
 const keyOf = key => BASE + (room && !GLOBAL_KEYS.has(key) ? 'room-' + room + '-' : '') + key;
 let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
@@ -324,7 +321,7 @@ const store = {
   set(key, value){
     const k = keyOf(key);
     memory[k] = JSON.stringify(value);
-    if(room && !testRoom() && (key === 'world' || key.startsWith('player-'))) roomDirty();
+    if(room && (key === 'world' || key.startsWith('player-'))) roomDirty();
     try { localStorage.setItem(k, memory[k]); }
     catch(e){ if(!saveWarned){ saveWarned = true; const note = 'この端末では進み具合を保存できません。ページを閉じると進み具合は消えます。'; console.warn(note); setTimeout(() => alert(note)); } }
   },
@@ -349,7 +346,7 @@ function fmt(m){ const h = Math.floor(m / 60) % 24, mm = m % 60; return `${h}:${
 function has(s, item, n = 1){ return (s.items[item] || 0) >= n; }
 function addItem(s, item, n = 1){ s.items[item] = (s.items[item] || 0) + n; if(s.items[item] <= 0) delete s.items[item]; }
 function addEvent(w, s, type, place, extra = {}){
-  w.events.push({ id:w.nextId++, by:s.char, t:s.clock, type, place, ...extra });
+  w.events.push({ id:s.char + ':' + w.nextId++, by:s.char, t:s.clock, type, place, ...extra });
 }
 function shoot(s, w){
   addItem(s, '弾', -1); addEvent(w, s, 'shot', s.place);
@@ -1677,7 +1674,7 @@ for(const id of [...CHAR_IDS, 'monster']){
 const PERIODS = [510, 690, 810, 960, 1140], PERIOD_NAMES = ['朝', '午前', '昼', '午後', '夕方', '夜'];
 function periodOf(t){ return PERIODS.filter(b => t >= b).length; }
 // まだ前の時間帯にいる人（本を開いたことのない人と、結末まで行った人は数えない）
-function behind(s){ const mine = periodOf(s.clock); return others(s.char).filter(o => o.status === 'active' && (o.history || []).length && periodOf(o.clock) < mine); }
+function behind(s){ const mine = periodOf(s.clock); if(s.skip === mine) return []; return others(s.char).filter(o => o.status === 'active' && (o.history || []).length && periodOf(o.clock) < mine); }
 function bookOf(s){ return BOOKS[s.book]; }
 function paraOf(s){ return bookOf(s).paras[s.para]; }
 function hubNo(s, place){ return bookOf(s).hubs[place]; }
@@ -5041,30 +5038,21 @@ if(store.get('ver', 0) !== SAVE_VER){ ['world', 'undo', 'me', 'current', ...CHAR
 let me = store.get('me', CHAR_IDS[0]); if(!CHARS[me]) me = CHAR_IDS[0];
 let histIndex = null; // 履歴を見ているときの位置（null は最新）
 let lastView = null;  // いま画面に出している内容（選んだときに履歴へ残す）
-function canAct(){ return loadWorld().lock === me && current === me && lockMine(); }
-function takeLock(){ if(room && !testRoom()) return roomTakeLock(); const w = loadWorld(); if(w.lock) return; me = current; store.set('me', me); w.lock = me; store.set('world', w); store.remove('undo'); undoOpen = false; histIndex = null; render(); }
-function releaseLock(){ const w = loadWorld(); if(w.lock !== me || !lockMine()) return; w.lock = null; w.lockDev = null; store.set('world', w); store.remove('undo'); undoOpen = false; if(room && !testRoom()){ clearTimeout(roomTimer); roomPush(); } render(); }
+function canAct(){ return room ? roomOpen && mine(current) : loadWorld().lock === me && current === me; }
+function takeLock(){ if(room) return roomClaim(current); const w = loadWorld(); if(w.lock) return; me = current; store.set('me', me); w.lock = me; store.set('world', w); store.remove('undo'); undoOpen = false; histIndex = null; render(); }
+function releaseLock(){ const w = loadWorld(); if(room || w.lock !== me) return; w.lock = null; store.set('world', w); store.remove('undo'); undoOpen = false; render(); }
 
 // ===== 部屋（各自の端末で、同じ一日を進める）。進み具合は Firebase の Realtime Database に預ける =====
+// 1人が1冊を受け持つ。本を書き換えられるのは受け持った端末だけなので、全員が好きな時に同時に進められる
 const ROOM_DB = 'https://my-movie-reviews-b8b70-default-rtdb.asia-southeast1.firebasedatabase.app/jtld/rooms/';
 const DEV = (() => { let d = store.get('dev', ''); if(!d){ d = Math.random().toString(36).slice(2, 10); store.set('dev', d); } return d; })();
-const STALE = 30 * 60000; // ロックしたまま30分動きがなければ、ほかの人が引き継げる
-let roomNote = '', roomPanel = false, roomBusy = false, roomSeen = 0;
-const lockMine = () => !room || testRoom() || loadWorld().lockDev === DEV;
-let roomOpen = true; // テスト用の部屋が、開いているか（ホストが閉じると、書いたものを送れなくなる）
+const STALE = 30 * 60000; // 30分動きのない人は、待たずに先へ進める
+let roomNote = '', roomPanel = false, roomBusy = false, roomSig = '';
+// この端末が受け持っている本か
+const mine = c => { const o = store.get('own', {})[c]; return !!o && o.dev === DEV; };
+let roomOpen = true; // 部屋が開いているか（ホストが閉じると、本を進められず、書いたものも送れない）
 const itemKey = id => { let x = 5381; for(const c of String(id)) x = ((x << 5) + x + c.charCodeAt(0)) >>> 0; return DEV + '-' + x.toString(36); };
 const roomPath = path => ROOM_DB + room + '/' + path + '.json';
-// テスト用の部屋：開いているかどうかを確かめ、自分の名前を名簿に載せる
-async function testPull(){
-  if(!testRoom()) return;
-  try {
-    const open = await (await fetch(roomPath('open'))).json(), was = roomOpen;
-    roomOpen = open === true;
-    const name = store.get('fb-name', '');
-    if(roomOpen && name) fetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify({ name:name.slice(0, 30) }) }).catch(() => {});
-    if(was !== roomOpen) render();
-  } catch(e){}
-}
 // テスト用の部屋：書いたものを、部屋にためる。書いた時刻は残さず、「この時刻より後に見せてよい」という印だけを付ける
 async function roomSendItems(){
   if(flushing) return;
@@ -5101,87 +5089,120 @@ function clean(v, d = 0){
 }
 // 預けるときは、読み返し用の本文を抜く（読み返しは、読んだ端末の中にだけ残る）
 const slim = p => ({ ...p, history:(p.history || []).map(h => ({ char:h.char, para:h.para, place:h.place, clock:h.clock, chosen:h.chosen })) });
-function roomPayload(){ return { v:1, world:JSON.stringify(loadWorld()), ['p_' + me]:JSON.stringify(slim(loadPlayer(me))), updated:Date.now() }; }
+// 預けるのは、自分が受け持っている本の分だけ：その本の進み具合と、その本が街に残した出来事
+function roomPayload(){
+  const w = loadWorld(), now = Date.now(), out = { updated:now };
+  for(const c of CHAR_IDS.filter(mine)){
+    const once = {}; for(const [k, who] of Object.entries(w.once || {})) if(who === c) once[k] = c;
+    out['w_' + c] = JSON.stringify({ events:w.events.filter(e => e.by === c), once, vote:(w.votes || {})[c] || null });
+    out['p_' + c] = JSON.stringify(slim(loadPlayer(c)));
+    out['at_' + c] = now;
+  }
+  return out;
+}
+// 読みこんだものが、前と同じかを見る印（自分の本の分は数えない）
+const roomSigOf = d => JSON.stringify([d.open, d.own || null, CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
+// 街を組み直す：自分の本の出来事はこの端末のもの、ほかの本の出来事は部屋のもの
 function roomApply(data){
-  if(!data || typeof data.world !== 'string') return false;
-  let w; try { w = clean(JSON.parse(data.world)); } catch(e){ return false; }
-  if(!w || typeof w !== 'object' || Array.isArray(w) || !Array.isArray(w.events || [])) return false;
+  if(!data || data.v !== 2) return false;
+  const own = {}, rawOwn = clean(data.own || {}) || {};
+  for(const c of CHAR_IDS){ const o = rawOwn[c]; if(o && typeof o.dev === 'string') own[c] = { dev:o.dev, name:String(o.name || '') }; }
+  const w = loadWorld(), isMine = c => !!own[c] && own[c].dev === DEV;
+  const events = w.events.filter(e => isMine(e.by)), once = {}, votes = {}, ats = {}, players = {};
+  for(const [k, who] of Object.entries(w.once || {})) if(isMine(who)) once[k] = who;
+  for(const c of CHAR_IDS){
+    if(isMine(c)){ if((w.votes || {})[c]) votes[c] = w.votes[c]; continue; }
+    ats[c] = Number(data['at_' + c]) || 0;
+    let r = null; try { r = clean(JSON.parse(data['w_' + c])); } catch(e){}
+    if(r && Array.isArray(r.events)) for(const e of r.events) if(e && typeof e === 'object' && !Array.isArray(e) && typeof e.t === 'number' && typeof e.type === 'string') events.push({ ...e, by:c });
+    if(r && r.once && typeof r.once === 'object') for(const k of Object.keys(r.once)) if(!once[k]) once[k] = c;
+    if(r && typeof r.vote === 'string') votes[c] = r.vote;
+    let p = null; try { p = clean(JSON.parse(data['p_' + c])); } catch(e){}
+    if(p && p.char === c && BOOKS[p.book] && BOOKS[p.book].paras[p.para]) players[c] = p;
+  }
+  events.sort((x, y) => x.t - y.t);
   roomApplying = true;
   try {
-    store.set('world', Object.assign(newWorld(), w));
-    for(const id of CHAR_IDS){
-      const raw = data['p_' + id];
-      if(typeof raw !== 'string') continue;
-      let p; try { p = clean(JSON.parse(raw)); } catch(e){ continue; }
-      if(!p || p.char !== id || !BOOKS[p.book] || !BOOKS[p.book].paras[p.para]) continue;
+    store.set('world', { ...w, events, once, votes, lock:null });
+    store.set('own', own); store.set('ats', ats);
+    for(const [id, p] of Object.entries(players)){
       const local = store.get('player-' + id, null), hist = Array.isArray(p.history) ? p.history : [];
       const history = local && (local.history || []).length === hist.length ? local.history : hist.map(h => ({ ...h, text:'（この端末では読んでいない場面）', msg:'', labels:[], items:'' }));
       store.set('player-' + id, Object.assign(newPlayer(id), p, { history }));
     }
   } finally { roomApplying = false; }
-  roomSeen = Number(data.updated) || 0;
+  roomOpen = data.open === true;
   return true;
 }
-// 自分がロックしているあいだは、手を打つたびに少し待ってから預ける
+// 手を打つたびに、少し待ってから預ける
 function roomDirty(){
   if(roomApplying || !room) return;
   clearTimeout(roomTimer);
-  roomTimer = setTimeout(() => { const w = loadWorld(); if(w.lock && w.lockDev === DEV) roomPush(); }, 4000);
+  roomTimer = setTimeout(roomPush, 4000);
 }
 async function roomPush(){
-  if(!room) return;
-  const w = loadWorld();
-  if(w.lock && w.lockDev === DEV){ w.lockAt = Date.now(); roomApplying = true; store.set('world', w); roomApplying = false; }
+  if(!room || !CHAR_IDS.some(mine)) return;
   try {
-    const payload = roomPayload(), r = await fetch(roomUrl(), { method:'PATCH', body:JSON.stringify(payload) });
+    const r = await fetch(roomUrl(), { method:'PATCH', body:JSON.stringify(roomPayload()) });
     if(!r.ok) throw 0;
-    roomSeen = payload.updated;
     if(roomNote){ roomNote = ''; render(); }
-  } catch(e){ roomNote = '部屋へ届いていません。電波のよい所で、もう一度「保存して交代」を押してください。進み具合は、この端末には残っています。'; render(); }
+  } catch(e){ roomNote = '部屋へ届いていません。進み具合は、この端末に残っています。次に何か選んだときに、もう一度送ります。'; render(); }
 }
-// ほかの人の進み具合を読みこむ（自分がロックしているあいだは読まない）
+// ほかの人の進み具合を読みこむ
 async function roomPull(force){
   if(!room || roomBusy) return;
-  const w = loadWorld();
-  if(w.lock && w.lockDev === DEV) return;
   try {
     const data = await (await fetch(roomUrl())).json();
-    if(data === null){ roomNote = 'この部屋は、もうありません。☰ の「部屋」から出てください。'; render(); return; }
-    if(!force && Number(data.updated) === roomSeen) return;
-    if(roomApply(data)){ roomNote = ''; render(); }
+    if(data === null){ roomNote = 'この部屋は、もうありません。☰ の「部屋」から出てください。'; roomOpen = false; render(); return; }
+    if(data.v !== 2){ roomNote = 'この部屋は、前の作りのものです。☰ の「部屋」から出て、新しく作ってください。'; roomOpen = false; render(); return; }
+    const name = store.get('fb-name', '').slice(0, 30);
+    if(data.open === true && name && !(data.members && data.members[DEV] && data.members[DEV].name === name)) fetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify({ name }) }).catch(() => {});
+    const sig = roomSigOf(data);
+    if(!force && sig === roomSig) return;
+    if(roomApply(data)){ roomSig = sig; if(force) roomNote = ''; render(); }
   } catch(e){ if(force){ roomNote = '部屋につながりません。電波のよい所で開き直してください。'; render(); } }
 }
-async function roomTakeLock(){
+// 本を受け持つ。同時に押した人がいれば、先に届いたほうのものになる
+async function roomClaim(c){
   if(roomBusy) return;
-  roomBusy = true; roomNote = 'ロックしています…'; render();
+  roomSig = ''; await roomPull(true);
+  if(!roomOpen || mine(c)) return;
+  roomBusy = true;
+  let note = '';
   try {
-    const r = await fetch(roomUrl(), { headers:{ 'X-Firebase-ETag':'true' } }), etag = r.headers.get('ETag'), data = await r.json();
-    if(data === null) throw 'gone';
-    if(!roomApply(data)) throw 'bad';
-    const w = loadWorld();
-    if(w.lock && w.lockDev !== DEV && Date.now() - (w.lockAt || 0) < STALE) roomNote = CHARS[w.lock].name + 'の本を、ほかの人が進めています。';
+    const r = await fetch(roomPath('own/' + c), { headers:{ 'X-Firebase-ETag':'true' } }), etag = r.headers.get('ETag'), cur = await r.json();
+    if(cur && cur.dev !== DEV) note = CHARS[c].name + 'の本は、ほかの人が受け持っています。';
     else {
-      me = current; store.set('me', me);
-      const next = { ...w, lock:me, lockDev:DEV, lockAt:Date.now() };
-      const put = await fetch(roomUrl(), { method:'PUT', headers:{ 'if-match':etag }, body:JSON.stringify({ ...data, world:JSON.stringify(next), updated:Date.now() }) });
-      if(put.ok){ roomApplying = true; store.set('world', next); roomApplying = false; store.remove('undo'); undoOpen = false; histIndex = null; roomNote = ''; }
-      else { roomBusy = false; roomNote = 'ほかの人が、先にロックしました。'; await roomPull(true); return; }
+      const put = await fetch(roomPath('own/' + c), { method:'PUT', headers:{ 'if-match':etag }, body:JSON.stringify({ dev:DEV, name:store.get('fb-name', '').slice(0, 30) }) });
+      if(!put.ok) note = 'ほかの人が、先に受け持ちました。';
     }
-  } catch(e){ roomNote = e === 'gone' ? 'この部屋は、もうありません。' : '部屋につながりません。電波のよい所で、もう一度押してください。'; }
-  roomBusy = false; render();
+  } catch(e){ note = '部屋につながりません。電波のよい所で、もう一度押してください。'; }
+  roomBusy = false; roomSig = ''; await roomPull(true);
+  if(mine(c)){ me = c; store.set('me', c); histIndex = null; roomPush(); }
+  if(note) roomNote = note;
+  render();
 }
-function roomEnter(code, kind){ try { localStorage.setItem(BASE + 'room', JSON.stringify(code)); localStorage.setItem(BASE + 'room-kind', JSON.stringify(kind || 'day')); } catch(e){} location.reload(); }
-async function roomCreate(kind){
+// 本を手放す（ホストは、ほかの人の本も空けられる）。進み具合は部屋に残り、次に受け持った人が続きから進める
+async function roomRelease(c){
+  if(roomBusy) return;
+  try {
+    if(mine(c)){ clearTimeout(roomTimer); await roomPush(); }
+    const r = await fetch(roomPath('own/' + c), { method:'DELETE' });
+    if(!r.ok) throw 0;
+  } catch(e){ roomNote = '部屋につながりません。'; render(); return; }
+  roomSig = ''; await roomPull(true);
+}
+function roomEnter(code){ try { localStorage.setItem(BASE + 'room', JSON.stringify(code)); } catch(e){} location.reload(); }
+async function roomCreate(){
   if(roomBusy) return;
   roomBusy = true; roomNote = '部屋を作っています…'; render();
   const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', rnd = crypto.getRandomValues(new Uint8Array(8));
   const code = Array.from(rnd, n => abc[n % 32]).join('');
   try {
-    const init = kind === 'test' ? { v:1, kind:'test', open:true, host:DEV } : { v:1, kind:'day', world:JSON.stringify(newWorld()), updated:Date.now() };
-    const r = await fetch(roomUrl(code), { method:'PUT', body:JSON.stringify(init) });
+    const r = await fetch(roomUrl(code), { method:'PUT', body:JSON.stringify({ v:2, open:true, host:DEV, updated:Date.now() }) });
     if(!r.ok) throw 0;
     try { localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code)); } catch(e){}
-    roomEnter(code, kind === 'test' ? 'test' : 'day');
+    roomEnter(code);
   } catch(e){ roomBusy = false; roomNote = '部屋を作れませんでした。電波のよい所で、もう一度押してください。'; render(); }
 }
 async function roomJoin(text){
@@ -5191,38 +5212,35 @@ async function roomJoin(text){
   try {
     const data = await (await fetch(roomUrl(code))).json();
     if(data === null){ roomBusy = false; roomNote = 'その番号の部屋は、ありません。'; render(); return; }
-    roomEnter(code, data.kind === 'test' ? 'test' : 'day');
+    if(data.v !== 2){ roomBusy = false; roomNote = 'その部屋は、前の作りのものです。新しく作ってください。'; render(); return; }
+    roomEnter(code);
   } catch(e){ roomBusy = false; roomNote = '部屋につながりません。電波のよい所で、もう一度押してください。'; render(); }
 }
 async function roomClose(open){
-  try { const r = await fetch(roomPath('open'), { method:'PUT', body:JSON.stringify(!!open) }); if(!r.ok) throw 0; roomOpen = !!open; roomNote = open ? '部屋を開けました。' : '部屋を閉じました。メンバーは、遊べますが、書いたものを送れなくなります。'; }
+  try { const r = await fetch(roomPath('open'), { method:'PUT', body:JSON.stringify(!!open) }); if(!r.ok) throw 0; roomOpen = !!open; roomNote = open ? '部屋を開けました。' : '部屋を閉じました。開けるまで、誰も本を進められず、書いたものも送れません。'; }
   catch(e){ roomNote = '部屋につながりません。'; }
   render();
 }
-function roomLeave(){ const w = loadWorld(); if(!testRoom() && w.lock && w.lockDev === DEV) releaseLock(); try { localStorage.removeItem(BASE + 'room'); localStorage.removeItem(BASE + 'room-kind'); } catch(e){} setTimeout(() => location.reload(), 600); }
+function roomLeave(){ try { localStorage.removeItem(BASE + 'room'); } catch(e){} setTimeout(() => location.reload(), 300); }
 const roomHost = () => store.get('host-of', '') === room;
+const ownerName = o => o.dev === DEV ? 'あなた' : escText(o.name || '名前なし');
 function roomPanelHtml(){
-  const w = loadWorld();
-  if(testRoom()) return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">'
-    + '<p><b>テスト用の部屋 ' + room + '</b>　' + (roomOpen ? 'それぞれが自分の一日を、好きな時に遊べます。直した文・足した選択肢・意見・指示は、この部屋に届きます。' : 'この部屋は、ホストが閉じました。遊べますが、書いたものは送れません。') + '</p>'
+  const head = '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
+  if(!room) return head + '<p><b>部屋</b>　それぞれが自分の端末で、同じ一日を進めるときに使います。1人が1冊を受け持ち、好きな時に進められます。1人で遊ぶときは、要りません。</p>'
+    + '<div class="row"><button id="roomNew">部屋を作る</button></div>'
+    + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><div class="row"><button id="roomJoinBtn">この番号の部屋に入る</button></div>' + note + '</div>';
+  const own = store.get('own', {});
+  return head + '<p><b>部屋 ' + room + '</b>　' + (roomOpen ? '1人が1冊を受け持って、同じ一日を進めます。好きな時に進められます。ほかの人のしたことは、届いた分から自分の本に出ます。' : 'この部屋は、ホストが閉じています。開くまで、本は進められません。') + '</p>'
+    + CHAR_IDS.map(c => { const o = own[c]; return '<div class="row" style="align-items:center"><span style="flex:1">' + CHARS[c].name + 'の本　' + (o ? ownerName(o) : 'まだ誰も受け持っていない') + '</span>'
+      + (o ? (o.dev === DEV || roomHost() ? '<button data-free="' + c + '">' + (o.dev === DEV ? '手放す' : '空ける') + '</button>' : '') : roomOpen ? '<button data-claim="' + c + '">受け持つ</button>' : '') + '</div>'; }).join('')
+    + '<p>手放した本は、進み具合が部屋に残ります。次に受け持った人が、続きから進めます。</p>'
     + '<input id="roomName" placeholder="名前（最初に1回だけ）" maxlength="30">'
-    + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomLeave">部屋を出る</button>' + (roomHost() ? '<button id="roomToggle">' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '</button>' : '') + '</div>'
-    + (roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '') + '</div>';
-  return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">'
-    + (room
-      ? '<p><b>部屋 ' + room + '</b>　この部屋に入っている人どうしで、同じ一日を進めます。進められるのは、ロックした人だけです。「保存して交代」を押すと、ほかの人の端末に届きます。</p>'
-        + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomReload">ほかの人の進み具合を読みこむ</button><button id="roomLeave">部屋を出る</button></div>'
-        + '<p>' + (w.lock ? CHARS[w.lock].name + 'の本を、' + (w.lockDev === DEV ? 'この端末' : 'ほかの人') + 'がロックしています。' : '今は、誰もロックしていません。') + '</p>'
-      : '<p><b>部屋</b>　それぞれが自分の端末で、同じ一日を進めるときに使います。1人で遊ぶときは、要りません。</p>'
-        + '<div class="row">' + (TEST_BUILD ? '<button id="roomNewTest">テスト用の部屋を作る</button>' : '') + '<button id="roomNew">いっしょに進める部屋を作る</button></div>'
-        + '<p>テスト用の部屋は、それぞれが自分の一日を好きな時に遊び、直しや意見だけを集めます。いっしょに進める部屋は、全員で1つの一日を、交代で進めます。</p>'
-        + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><div class="row"><button id="roomJoinBtn">この番号の部屋に入る</button></div>')
-    + (roomNote ? '<div class="note">' + roomNote + '</div>' : '') + '</div>';
+    + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomLeave">部屋を出る</button>' + (roomHost() ? '<button id="roomToggle">' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '</button>' : '') + '</div>' + note + '</div>';
 }
 // 巻き戻し：ロックを取ってから「保存して交代」を押すまでの自分の手は、何手でも取り消せる。
 // 手を打つたびに、打つ前の街と自分の状態を積んでおく（履歴は増えるだけなので、長さだけ覚える）
 function undoCount(){ return store.get('undo', []).length; }
-function pushUndo(w, s){ const u = store.get('undo', []), { history, ...rest } = s; u.push({ w, s:rest, h:(history || []).length }); store.set('undo', u); }
+function pushUndo(w, s){ const u = store.get('undo', []), { history, ...rest } = s; u.push({ w, s:rest, h:(history || []).length }); if(room && u.length > 10) u.shift(); store.set('undo', u); }
 // i 番目の手を打つ前まで戻す（それより後の手は、すべてなかったことになる）
 let undoOpen = false;
 function undoTo(i){
@@ -5235,6 +5253,7 @@ function undoTo(i){
   store.set('player-' + current, s);
   store.set('undo', u.slice(0, i));
   undoOpen = false; selectedBlock = null; render(); window.scrollTo(0, 0);
+  if(room){ roomSig = ''; roomPull(true); }
 }
 // 戻れるところの一覧（新しい手が上）
 function undoListHtml(s){
@@ -5321,14 +5340,8 @@ let fbNote = '', fbBusy = false, fbKeyOpen = false;
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
 })();
 const fbToken = () => store.get('fb-token', '');
-const FB_MODES = { opinion:'意見', prompt:'指示' };
 // その場で直している所：{ kind:'text'（本文）|'msg'（出来事の文）|'choice'（選択肢の文）|'add'（選択肢を足す）, i, value, orig }
 let fbSetOpen = false, fbe = null, editOn = false, draftShown = null, flushing = false;
-const FB_HELP = {
-  edit:'下の文と選択肢を、直したい形に書き換えてください。変えた行だけが、前と後を並べて送られます。',
-  opinion:'気になったこと、直してほしいこと、足してほしいものを書いてください。',
-  prompt:'Claude への指示を書いてください。例：「この通りに、犬の引き綱だけ持った人を1人足す」「この選択肢の先に、隣の家へ逃げこむ出来事を作る」。ホストが確かめてから反映されます。',
-};
 // 今の場面の文（出来事の文・本文・選択肢）
 function sceneText(){ const v = lastView; return v ? (v.msg ? v.msg + '\n\n' : '') + v.text + '\n\n【選択肢】\n' + v.labels.map(l => '・' + l).join('\n') : ''; }
 function fbStart(){
@@ -5355,20 +5368,21 @@ let menuOpen = false; // 右上の ☰ で開くメニュー
 
 function render(){
   const w = loadWorld(), s = loadPlayer(current);
-  if(w.lock && CHARS[w.lock] && lockMine()) me = w.lock; // ロックしている本が、いま進めている本
+  const own = room ? store.get('own', {}) : {};
+  if(room){ if(mine(current)) me = current; } else if(w.lock && CHARS[w.lock]) me = w.lock; // ロックしている本（部屋では、受け持っている本）が、いま進めている本
   const histLen = (s.history || []).length;
-  const mode = w.lock === current && lockMine() ? 'live' : histIndex !== null && histIndex < histLen ? 'history' : 'readonly';
+  const mode = (room ? canAct() : w.lock === current) ? 'live' : histIndex !== null && histIndex < histLen ? 'history' : 'readonly';
 
   // 上の帯は状況と小さなボタンだけ。切り替えや設定は ☰ の中に畳む
   document.getElementById('barbtns').innerHTML = (mode === 'live' && undoCount() ? `<button class="${undoOpen ? 'on' : ''}" id="undobtn">戻す</button>` : '') + `<button class="${menuOpen ? 'on' : ''}" id="menubtn" aria-label="メニュー">☰</button>`;
   const tabs = document.getElementById('tabs');
   tabs.hidden = !menuOpen;
   tabs.innerHTML =
-    CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${id === w.lock ? '（ロック中）' : ''}</button>`).join('')
+    CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${room ? (own[id] ? '（' + ownerName(own[id]) + '）' : '') : id === w.lock ? '（ロック中）' : ''}</button>`).join('')
     + `<button class="mapbtn${helpOpen ? ' on' : ''}" id="helpbtn">遊び方</button>`
     + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
-    + (w.lock && lockMine() ? '<button id="saveBtn">保存して交代</button>' : '')
-    + (room && !testRoom() ? '' : '<button class="reset" id="reset">最初から</button>')
+    + (!room && w.lock ? '<button id="saveBtn">保存して交代</button>' : '')
+    + (room ? '' : '<button class="reset" id="reset">最初から</button>')
     + (TEST_BUILD ? '' : `<span style="font-size:11px;color:#6a6458;margin-left:auto;align-self:center">${APP_VERSION}</span>`); // テスト版では出さない（どの版かは、意見を送るときに自動で付く）
   const whose = `<span><b>${CHARS[current].name}</b></span>`;
 
@@ -5379,7 +5393,7 @@ function render(){
     const last = hist.length;
     const idx = histIndex === null ? last : Math.max(0, Math.min(last, histIndex));
     const owner = CHARS[current].name;
-    const lockNote = w.lock === current ? `${owner}がロック中` : w.lock ? `${CHARS[w.lock].name}がロック中` : '誰もロックしていない';
+    const lockNote = room ? (own[current] ? ownerName(own[current]) + 'が受け持っている' : 'まだ誰も受け持っていない') : w.lock === current ? `${owner}がロック中` : w.lock ? `${CHARS[w.lock].name}がロック中` : '誰もロックしていない';
     html += `<div class="lockbar"><b>${owner}の本（履歴）</b>　${lockNote}<div class="histnav">`
       + `<button id="histFirst" ${idx === 0 ? 'disabled' : ''}>⏮</button><button id="histPrev" ${idx === 0 ? 'disabled' : ''}>◀ 前へ</button>`
       + `<span>${!last ? 'まだ何も選んでいない' : idx === last ? `いまここ（${last} 手のあと）` : `${idx + 1} / ${last} 手目`}</span>`
@@ -5407,12 +5421,15 @@ function render(){
     lastView = v;
     document.getElementById('stat').innerHTML = whose + statHtml(v);
     if(mode === 'live'){ if(undoOpen && undoCount()) html += undoListHtml(s); } // 自分が進めている間は帯を出さない（保存して交代は ☰ の中）
+    else if(room) html += own[current]
+      ? `<div class="lockbar other">${own[current].dev === DEV ? '部屋が閉じているあいだは、本を進められません' : '<b>' + ownerName(own[current]) + 'が受け持っている本</b>です。読むことだけできます'}${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`
+      : `<div class="lockbar"><b>${CHARS[current].name}の本</b>　まだ誰も受け持っていません${roomOpen ? '<button id="lockBtn">この本を受け持つ</button>' : ''}${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     else if(!w.lock) html += `<div class="lockbar"><b>${CHARS[current].name}の本</b>　ロックすると、この本を進められます<button id="lockBtn">ロックして進める</button>${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
-    else html += `<div class="lockbar other"><b>${CHARS[w.lock].name}がロック中</b>のため、この本は進められません${room && !lockMine() && Date.now() - (w.lockAt || 0) >= STALE ? '<button id="lockBtn">30分動きがないので、引き継ぐ</button>' : ''}${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
+    else html += `<div class="lockbar other"><b>${CHARS[w.lock].name}がロック中</b>のため、この本は進められません${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     if(showMap && planOf(s)) html += planMapSvg(s, planOf(s).plan);
     if(showMap) html += mode === 'live' ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
-    if(wait.length) html += `<div class="lockbar other"><b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません${mode === 'live' ? '<button id="endSave">保存して交代</button>' : ''}</div>`;
+    if(wait.length) html += `<div class="lockbar other"><b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません${mode !== 'live' ? '' : !room ? '<button id="endSave">保存して交代</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと前の時間帯でしたことは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
     let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length });
     const spNow = s.status === 'active' ? spotOf(s) : null;
     if(spNow){
@@ -5434,7 +5451,7 @@ function render(){
   html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb" style="margin-top:0;border-top:0;padding-top:0"><div class="note">' + roomNote + '</div></div>' + html;
   if(roomPanel) html = roomPanelHtml() + html;
-  if(helpOpen) html = '<p class="help">右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます。<br>画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。<br>☰ の「最初から」で、全員が朝からやり直します。</p>' + html;
+  if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「この本を受け持つ」を押すと、その本はあなたが進める本になります。好きな時に進められます。ほかの人の本は、読むことだけできます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して交代」。<br>上の「戻す」で、この番に打った手の前まで戻せます。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + html;
 
   document.getElementById('main').innerHTML = html;
   const drawer = document.getElementById('drawer');
@@ -5460,13 +5477,15 @@ function render(){
   on('lockBtn', takeLock);
   on('saveBtn', () => { menuOpen = false; releaseLock(); });
   on('endSave', releaseLock);
+  on('skipWait', () => { const p = loadPlayer(current); p.skip = periodOf(p.clock); store.set('player-' + current, p); render(); });
+  document.querySelectorAll('[data-claim]').forEach(el => { el.onclick = () => { current = el.dataset.claim; store.set('current', current); roomClaim(current); }; });
+  document.querySelectorAll('[data-free]').forEach(el => { el.onclick = () => roomRelease(el.dataset.free); });
   const fbSet = document.getElementById('fbSet'); if(fbSet) fbSet.ontoggle = () => { fbSetOpen = fbSet.open; };
   on('fbTab', () => { fbOpen = !fbOpen; if(fbOpen) mapOpen = false; else fbNote = ''; render(); });
   on('fbAtSet', () => { const t = document.getElementById('fbAt').value; if(/^\d\d:\d\d$/.test(t)){ store.set('send-at', t); fbNote = ''; render(); } });
   on('fbAtClear', () => { store.remove('send-at'); render(); });
-  on('fbFlush', () => { if(testRoom()) roomSendItems(); else if(fbToken()) flushOutbox(true); else outboxToGithub(); });
+  on('fbFlush', () => { if(room) roomSendItems(); else if(fbToken()) flushOutbox(true); else outboxToGithub(); });
   on('fbReset', () => { fbDrafts.edit = fbOrig; render(); });
-  document.querySelectorAll('[data-fbmode]').forEach(el => { el.onclick = () => { fbMode = el.dataset.fbmode; fbStart(); render(); }; });
   on('fbCancel', () => { fbOpen = false; fbNote = ''; render(); });
   on('fbKeyBtn', e => { e.preventDefault(); fbKeyOpen = !fbKeyOpen; render(); });
   on('fbKeySave', () => { const k = document.getElementById('fbKey').value.trim(); if(!k) return; store.set('fb-token', k); fbKeyOpen = false; fbNote = '合言葉を覚えました。'; render(); });
@@ -5513,13 +5532,11 @@ function render(){
   });
   on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
   on('roombtn', () => { roomPanel = !roomPanel; menuOpen = false; if(!roomPanel) roomNote = ''; render(); window.scrollTo(0, 0); });
-  on('roomNew', () => roomCreate('day'));
-  on('roomNewTest', () => roomCreate('test'));
+  on('roomNew', () => roomCreate());
   on('roomToggle', () => roomClose(!roomOpen));
   const rn = document.getElementById('roomName');
-  if(rn){ rn.value = store.get('fb-name', ''); rn.onchange = () => { store.set('fb-name', rn.value.trim()); testPull(); }; }
+  if(rn){ rn.value = store.get('fb-name', ''); rn.onchange = () => { const name = rn.value.trim().slice(0, 30); store.set('fb-name', name); for(const c of CHAR_IDS.filter(mine)) fetch(roomPath('own/' + c), { method:'PUT', body:JSON.stringify({ dev:DEV, name }) }).catch(() => {}); roomSig = ''; roomPull(); }; }
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
-  on('roomReload', () => roomPull(true));
   on('roomLeave', roomLeave);
   on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room).then(() => { roomNote = '招待リンクをコピーしました。このリンクから開いた人は、この部屋に入ります。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
   on('helpbtn', () => { helpOpen = !helpOpen; menuOpen = false; render(); window.scrollTo(0, 0); });
@@ -5582,9 +5599,8 @@ function tallyResult(){
 // 意見を、意見用のリポジトリの投稿画面へ渡す。どの場面かは自動で付ける
 function fbPanelHtml(){
   const box = store.get('outbox', []), at = store.get('send-at', '');
-  return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">この場面について<div class="modes">' + Object.entries(FB_MODES).map(([k, name]) => '<button data-fbmode="' + k + '"' + (k === fbMode ? ' class="on"' : '') + '>' + name + '</button>').join('') + '</div>'
-    + '<p>' + FB_HELP[fbMode] + '</p>'
-    + (fbMode === 'opinion' ? '<select id="fbKind">' + FEEDBACK_KINDS.map(k => '<option' + (k === fbKind ? ' selected' : '') + '>' + k + '</option>').join('') + '</select>' : '')
+  return '<div class="fb" style="margin-top:0;border-top:0;padding-top:0">この場面について'
+    + '<p>気になったこと、直してほしいこと、足してほしいもの。Claude への頼みごとも、ここに書けます。</p>'
     + '<textarea id="fbText"></textarea>'
     + '<div class="row"><button id="fbSend">送る</button><button id="fbCancel">閉じる</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
@@ -5602,11 +5618,10 @@ function fbPanelHtml(){
 }
 // 右端の「意見」から送る
 function sendFeedback(){
-  const text = fbDrafts[fbMode].trim();
+  const text = fbDrafts.opinion.trim();
   if(!text) return;
-  const main = (fbMode === 'prompt' ? '### 指示\n\n' : '') + text;
-  queueIssue('op|' + Date.now(), fbMode === 'prompt' ? '指示' : fbKind, (fbMode === 'prompt' ? '指示：' : '') + text, main, true);
-  fbDrafts[fbMode] = ''; render();
+  queueIssue('op|' + Date.now(), 'その他', text, text, true);
+  fbDrafts.opinion = ''; render();
 }
 
 // ===== 送るのを待つ箱。書いたものはまずここへ入り、送る時刻を過ぎたものから送る =====
@@ -5627,7 +5642,7 @@ function queueIssue(id, label, head, main, auto){
   const m = issueMeta(), after = sendAfter(), box = store.get('outbox', []).filter(x => x.id !== id);
   box.push({ id, label, title:'[' + m.name + ' ' + m.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40), body:main + m.tail, after });
   store.set('outbox', box);
-  if(testRoom()) roomSendItems();
+  if(room) roomSendItems();
   else if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
   else if(fbToken()) flushOutbox();
   else if(auto) outboxToGithub();
@@ -5636,7 +5651,7 @@ function queueIssue(id, label, head, main, auto){
 function unqueue(id){
   store.set('outbox', store.get('outbox', []).filter(x => x.id !== id));
   const sent = store.get('sent', {});
-  if(testRoom() && sent[id]){ fetch(roomPath('items/' + sent[id]), { method:'DELETE' }).catch(() => {}); delete sent[id]; store.set('sent', sent); }
+  if(room && sent[id]){ fetch(roomPath('items/' + sent[id]), { method:'DELETE' }).catch(() => {}); delete sent[id]; store.set('sent', sent); }
 }
 // 合言葉のある端末：時刻を過ぎたものを、1件ずつ意見用のリポジトリへ届ける
 async function flushOutbox(force){
@@ -5794,7 +5809,7 @@ function decorateForEdit(mode){
     q.innerHTML = escText(a.label) + '<span class="tag">足した選択肢（下書き）' + (a.result ? '' : '。選んだ先は、まだ書かれていない') + '</span>';
     q.onclick = () => {
       if(editOn){ fbe = { kind:'add', id:a.id, label:a.label, result:a.result, to:a.to }; fbNote = ''; render(); return; }
-      if(!live){ fbNote = '足した選択肢は、本をロックして進めているときに試せます。'; render(); return; }
+      if(!live){ fbNote = '足した選択肢は、自分が進めている本で試せます。'; render(); return; }
       const j = a.to === 'stay' ? -1 : v.labels.indexOf(a.to);
       const text = a.result || '（「' + a.label + '」の先は、まだ書かれていない）';
       if(j >= 0 && !v.disabled[j]){ act(v.choices[j]); draftShown = { key:viewKey(), text }; render(); }
@@ -5841,21 +5856,13 @@ function resultHtml(){
 
 render();
 // 送るのを待っているものは、開いたときと、1分ごとに、時刻を過ぎていれば送る
-if(TEST_BUILD && !testRoom()){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
-if(testRoom()){
-  testPull().then(() => { if(store.get('outbox', []).length) roomSendItems(); if(!store.get('fb-name', '')){ roomPanel = true; roomNote = '最初に、名前を入れてください。'; render(); } });
-  setInterval(() => { if(document.visibilityState === 'visible') testPull(); }, 60000);
-}
+if(TEST_BUILD && !room){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
 // 部屋に入っていれば、開いたとき・画面に戻ったとき・30秒ごとに、ほかの人の進み具合を読みこむ
-// 招待リンクから入ったばかりで、部屋の種類がまだ分からないときは、部屋に聞いてから開き直す
-if(room && !roomKind){
-  fetch(roomUrl()).then(r => r.json()).then(d => {
-    try { if(d === null){ localStorage.removeItem(BASE + 'room'); } else localStorage.setItem(BASE + 'room-kind', JSON.stringify(d.kind === 'test' ? 'test' : 'day')); } catch(e){}
-    location.reload();
-  }).catch(() => { roomNote = '部屋につながりません。電波のよい所で開き直してください。'; roomPanel = true; render(); });
-}
-if(room && roomKind && !testRoom()){
-  roomPull(true);
+if(room){
+  roomPull(true).then(() => {
+    if(TEST_BUILD && store.get('outbox', []).length) roomSendItems();
+    if(!store.get('fb-name', '')){ roomPanel = true; roomNote = '最初に、名前を入れてください。誰がどの本を受け持っているかが、ほかの人に分かります。'; render(); }
+  });
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') roomPull(); });
   setInterval(() => { if(document.visibilityState === 'visible') roomPull(); }, 30000);
 }
