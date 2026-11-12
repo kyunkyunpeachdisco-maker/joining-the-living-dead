@@ -316,7 +316,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 03:41 b849d3c';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = 'テスト版 2026-11-12 03:46 5122d40';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -1952,7 +1952,7 @@ function act(choice){
   }
   pushUndo(w, s);
   record(s, choice.label);
-  s.offcam = false; s.pose = null;
+  s.offcam = false; s.pose = null; s.spos = null;
   // 出ていくときの足の運び：選択肢に決まりがなければ、その場の様子で決める（気づかれていれば走る、気づかれていないゾンビがいれば忍び足）
   const spB = s.book !== 'monster' ? spotOf(s) : null, zB = spB && !spB.calm ? spotZ(s, w, spB) : 0;
   const exitGait = gaitOf(choice) || (zB ? (s.aware === paraOf(s).spot ? 'run' : 'sneak') : null);
@@ -3963,7 +3963,7 @@ function cctvState(s, w){
   const killsIn = rm => { const q = Object.values(bookOf(s).spots).find(x => x.place === s.place && x.room === rm); return q ? killsAt(s, w, q) : 0; };
   const zgroups = pz ? pz(s, w, planOf(s).room).map(g => [g[0] - killsIn(g[1]), g[1]]).filter(g => g[0] > 0) : null;
   return {
-    zgroups, pose:s.pose || null,
+    zgroups, pose:s.pose || null, spos:s.spos || null,
     place:s.place, cam:camFor(s), plan:planOf(s), offscreen:inBlindSpot(s), you:s.char, monster:s.book === 'monster', ended,
     zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? spotZ(s, w, sp) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? p.zombies : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
     hideOk:sp ? !!sp.hide : p.zombies == null || !!p.hide, inDoor:p.inside === 'door',
@@ -4701,15 +4701,17 @@ function gaitRun(g, dist, dt, sneak){
   g.position.y = Math.abs(c) * (.025 + .03 * run) * m; u.shadow.position.y = .02 - g.position.y;
 }
 // 人：立ち止まる。息をして、ときどき辺りを見回す。fend は襲われて両手で押し返す
-function gaitRest(g, t, fend){
+function gaitRest(g, t, fend, crouch){
   const u = g.userData, to = (o, p, v) => { o[p] += (v - o[p]) * .45; };
   u.spd = (u.spd || 0) * .5;
-  for(const l of [u.LL, u.LR]){ to(l.hip.rotation, 'x', 0); to(l.kn.rotation, 'x', 0); to(l.hip.position, 'y', u.HIP); }
-  to(u.body.position, 'y', u.HIP);
+  // しゃがむ：腰を落として、膝を深く曲げる
+  const hipY = crouch ? u.HIP * .52 : u.HIP;
+  for(const l of [u.LL, u.LR]){ to(l.hip.rotation, 'x', crouch ? -1.25 : 0); to(l.kn.rotation, 'x', crouch ? 2.2 : 0); to(l.hip.position, 'y', hipY); }
+  to(u.body.position, 'y', hipY);
   const sx = fend ? -1.15 + Math.sin(t * 11) * .1 : 0, ex = fend ? -.95 : -.08;
   to(u.AL.sh.rotation, 'x', sx); to(u.AR.sh.rotation, 'x', sx); to(u.AL.el.rotation, 'x', ex); to(u.AR.el.rotation, 'x', ex);
   to(u.chest.rotation, 'y', 0);
-  to(u.body.rotation, 'x', fend ? -.1 : .02 + Math.sin(t * 1.2 + u.phase) * .012);
+  to(u.body.rotation, 'x', fend ? -.1 : crouch ? .35 : .02 + Math.sin(t * 1.2 + u.phase) * .012);
   const n = Math.sin(t * .6 + u.phase) + Math.sin(t * .37 + u.phase * 2);
   to(u.neck.rotation, 'y', !fend && Math.abs(n) > 1.2 ? Math.sign(n) * .6 : 0); to(u.neck.rotation, 'x', 0);
   to(g.position, 'y', 0); u.shadow.position.y = .02 - g.position.y;
@@ -4817,7 +4819,7 @@ function makeActors(T, scene, built, st0){
           you.position.x = built.you[0] + ex * ek; you.position.z = built.you[1] + ez * ek; this.goal = null;
         }
         const wantH = !Cut.exitStart && !inside && wantHide(st, built);
-        base = wantH ? built.hide : built.you;
+        base = st.spos === 'door' && built.door ? built.door : st.spos === 'hide' && built.hide ? built.hide : wantH ? built.hide : built.you; // 演出で決めた位置が、先
         const tgt = Cut.exitStart ? (Cut.exitTo || built.door || built.you) : inside ? gate : base;
         const px = you.position.x, pz = you.position.z, td = Math.hypot(tgt[0] - px, tgt[1] - pz);
         if(td > .06){
@@ -4841,7 +4843,7 @@ function makeActors(T, scene, built, st0){
         moving = exitK !== null || (enterK !== null && enterK < 1);
         sneak = exitK !== null && Cut.gait === 'sneak';
         hiding = !moving && wantHide(st, built);
-        base = hiding ? built.hide : built.you;
+        base = st.spos === 'door' && built.door ? built.door : st.spos === 'hide' && built.hide ? built.hide : hiding ? built.hide : built.you;
         if(moving){
           // 場面の組み立てと出ていく合図が前後しても止まらないように
           const [ax, az] = (exitK !== null ? this.exitFrom : this.enterFrom) || built.you;
@@ -4859,7 +4861,7 @@ function makeActors(T, scene, built, st0){
       if(st.monster){ U.lunge = false; U.hunt = false; gaitShamble(you, moving ? dist : 0, dt, t); }
       else if(moving){ U.k = 0; gaitRun(you, dist, dt, sneak); }
       else {
-        gaitRest(you, t, st.encounter || st.pose === 'fend' || performance.now() < (Cut.aimUntil || 0));
+        gaitRest(you, t, st.encounter || st.pose === 'fend' || st.pose === 'aim' || performance.now() < (Cut.aimUntil || 0), st.pose === 'crouch');
         U.k = (U.k || 0) + ((hiding ? 1 : 0) - (U.k || 0)) * .35;
         if(U.k > .02) U.crouch(U.k);
       }
@@ -6636,21 +6638,39 @@ async function adoptItem(k, on){
 const toText = to => to === 'stay' ? 'この場面にとどまる' : to === 'off' ? 'カメラの外へ出る（まだ映像のない場所）' : String(to).startsWith('spot:') ? '「' + ((bookOf(loadPlayer(current)).spots[String(to).slice(5)] || {}).name || String(to).slice(5)) + '」へ移る' : '「' + to + '」と同じ先へ進む';
 const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose'].map(k => fx && fx[k] && fx[k].length ? fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす' }[k] : ''), ].filter(Boolean).join('、');
 // ===== 演出：足した選択肢の文と、その先の文から、映像の動きを決める。手で選び直したものがあれば、そちらを使う =====
-const STAGE_NAMES = { gait:{ walk:'歩く', run:'走る', sneak:'忍び足' }, pose:{ none:'立っている', hide:'物陰に隠れる', fend:'襲われて、押し返す' }, z:{ 0:'変えない', 1:'1人増える', 2:'2人増える' } };
+const STAGE_NAMES = {
+  gait:{ walk:'歩く', run:'走る', sneak:'忍び足' },
+  pose:{ none:'立っている', hide:'物陰に隠れる', crouch:'その場でしゃがむ', aim:'銃を構えて撃つ', fend:'襲われて、押し返す' },
+  pos:{ you:'いつもの所', hide:'物陰のそば', door:'戸口のそば' },
+  z:{ 0:'変えない', 1:'1人増える', 2:'2人増える' },
+};
+const STAGE_KEYS = ['gait', 'pose', 'pos', 'z'], STAGE_LABEL = { gait:'足の運び', pose:'しぐさ（とどまるとき）', pos:'立つ位置（とどまるとき）', z:'ゾンビ' };
+// 文から、演出を決める
 function stageAuto(text){
   const t = String(text || ''), hit = words => new RegExp('(?:' + words + ')(?![^。、]{0,5}な[いか])').test(t); // 「走らなかった」のような打ち消しは拾わない
   return {
     gait:hit('走っ|走る|走り|走ら|駆け|逃げ') ? 'run' : hit('忍び足|そっと|息を殺|音を立てず|陰をつたって') ? 'sneak' : 'walk',
-    pose:hit('つかまれ|噛まれ|襲われ|組みつかれ|引っかかれ') ? 'fend' : hit('隠れ|身をひそめ|しゃがみ|しゃがん|陰に') ? 'hide' : 'none',
+    pose:hit('撃っ|撃つ|撃ち|引き金|発砲') ? 'aim' : hit('つかまれ|噛まれ|襲われ|組みつかれ|引っかかれ') ? 'fend' : hit('隠れ|身をひそめ|陰に') ? 'hide' : hit('しゃが|かがん|かがむ|腰を落と|膝をつ') ? 'crouch' : 'none',
+    pos:hit('戸口|扉の前|ドアの前|玄関先|入口の前|入り口の前') ? 'door' : hit('物陰|車の後ろ|車の陰|柱の陰|壁ぎわ|壁際') ? 'hide' : 'you',
     z:hit('現れ|増え|集まって|出てき') ? 1 : 0,
   };
 }
 const stagePick = a => (a.fx && a.fx.st) || {};
+const stageTextOf = a => (a.label || '') + '。' + (a.result || '');
+// 今の演出：手で選んだもの（fx.st）があればそれ、なければ文から
 function stageOf(a){
-  const au = stageAuto((a.label || '') + '。' + (a.result || '')), st = stagePick(a);
-  return { gait:st.gait || au.gait, pose:st.pose || au.pose, z:st.z != null && st.z !== '' ? +st.z : au.z };
+  const au = stageAuto(stageTextOf(a)), st = stagePick(a), out = {};
+  for(const k of STAGE_KEYS) out[k] = st[k] != null && st[k] !== '' ? (k === 'z' ? +st[k] : st[k]) : au[k];
+  return out;
 }
-const stageText = a => { const s = stageOf(a); return [s.gait !== 'walk' ? STAGE_NAMES.gait[s.gait] : '', s.pose !== 'none' ? STAGE_NAMES.pose[s.pose] : '', s.z ? 'ゾンビが' + STAGE_NAMES.z[s.z] : ''].filter(Boolean).join('、'); };
+// 書き直したときの演出：文の変わり方で、決まり方が変わった所は、新しい文から。変わらなかった所は、前の演出のまま（前の人が手で直したものも、そのまま残る）
+function stageDerive(prev, textNow){
+  const au = stageAuto(textNow), out = {};
+  if(!prev) return au;
+  for(const k of STAGE_KEYS) out[k] = String(au[k]) !== String(prev.auto[k]) ? au[k] : prev.eff[k];
+  return out;
+}
+const stageText = a => { const s = stageOf(a); return [s.gait !== 'walk' ? STAGE_NAMES.gait[s.gait] : '', s.pose !== 'none' ? STAGE_NAMES.pose[s.pose] : '', s.pos !== 'you' ? STAGE_NAMES.pos[s.pos] + 'に立つ' : '', s.z ? 'ゾンビが' + STAGE_NAMES.z[s.z] : ''].filter(Boolean).join('、'); };
 // 足の運び：手で選んだものがあればそれ。文から「歩く」と出ただけなら、その場の様子に任せる
 const stageGait = a => stagePick(a).gait || (stageOf(a).gait !== 'walk' ? stageOf(a).gait : null);
 function applyStage(s, a){
@@ -6768,7 +6788,9 @@ function runDraft(a, key, child, v){
     pushUndo(w, s); record(s, a.label);
     const wasOut = inBlindSpot(s);
     applyFx(s, a.fx, key, a.label); applyStage(s, a); s.offcam = to === 'off';
-    s.pose = !s.offcam && stageOf(a).pose !== 'none' ? stageOf(a).pose : null;
+    const sg = stageOf(a);
+    s.pose = !s.offcam && sg.pose !== 'none' ? sg.pose : null; s.spos = !s.offcam && sg.pos !== 'you' ? sg.pos : null;
+    if(s.pose === 'aim') cutShot();
     if(s.offcam && !wasOut && videoOn && Cut.built && Cut.raf && !Cut.built.plan){ const sc = Cut.built; Cut.exitTo = sc.door || Object.values(sc.exits || {})[0] || [0, -4]; Cut.exitStart = performance.now(); setExitGait(stageGait(a)); }
     store.set('player-' + current, s);
     draftShown = { key, text, scene:child };
@@ -6810,7 +6832,7 @@ function flowJump(no){
   const w = loadWorld(), s = loadPlayer(current);
   if(s.status !== 'active' || !bookOf(s).paras[no]) return;
   pushUndo(w, s); record(s, '（流れから ' + no + ' へ移る）');
-  s.msg = ''; s.menu = null; s.aware = null; s.follow = null; s.offcam = false; s.pose = null; s.after = null;
+  s.msg = ''; s.menu = null; s.aware = null; s.follow = null; s.offcam = false; s.pose = null; s.spos = null; s.after = null;
   go(s, w, no);
   const p = paraOf(s); if(p.spot){ s.spots = s.spots || []; if(!s.spots.includes(p.spot)) s.spots.push(p.spot); }
   markRoom(s); if(!inBlindSpot(s)) s.lastCam = camFor(s);
@@ -6968,17 +6990,25 @@ function decorateForEdit(mode){
       + '<input data-hide inputmode="numeric" maxlength="4" placeholder="隠し選択肢にするなら、番号（打ちこんだ人だけが選べる）">'
       + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select>'
       + '<details open style="margin:0 0 8px"><summary>演出（文から自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">'
-      + [['gait', '足の運び'], ['pose', 'しぐさ（とどまるとき）'], ['z', 'ゾンビ']].map(([k, n]) => '<label>' + n + '<select data-st="' + k + '"><option value="">自動</option>' + Object.entries(STAGE_NAMES[k]).map(([val, t]) => '<option value="' + val + '">' + t + '</option>').join('') + '</select></label>').join('') + '</div></details>'
+      + STAGE_KEYS.map(k => '<label>' + STAGE_LABEL[k] + '<select data-st="' + k + '"><option value="">自動</option>' + Object.entries(STAGE_NAMES[k]).map(([val, t]) => '<option value="' + val + '">' + t + '</option>').join('') + '</select></label>').join('') + '</div></details>'
       + '<details' + (['get', 'lose'].some(k => (fbe.fx && fbe.fx[k] || []).length) ? ' open' : '') + ' style="margin:0 0 8px"><summary>持ち物</summary>'
       + '<input data-fxi="get" maxlength="60" placeholder="手に入れる物（いくつかあれば、「、」で区切る）"><input data-fxi="lose" maxlength="60" placeholder="なくす物"></details>'
       + condHtml(fbe.fx || {}, [...v.labels, ...shownOf(fbe.scene || key).add.filter(q => q.id !== fbe.id).map(q => q.label)].filter((l, i, arr) => arr.indexOf(l) === i))
       + btns([['save', fbe.id ? '直す' : '足す'], ...(fbe.id ? [['drop', 'この選択肢を消す']] : []), ['cancel', 'やめる']]));
     const [f1, f2, f3] = [e.children[0], e.children[1], e.children[2]];
     f1.value = fbe.label || ''; f2.value = fbe.result || ''; f3.value = fbe.to || 'stay';
-    fbe.fx = fbe.fx || {}; fbe.fx.st = { ...fbe.fx.st };
-    // 「自動」のところに、文から決まった演出を出す。文を打つたびに変わる
-    const autoShow = () => { const au = stageAuto((fbe.label || '') + '。' + (fbe.result || '')); e.querySelectorAll('[data-st]').forEach(q => { q.options[0].textContent = '自動：' + STAGE_NAMES[q.dataset.st][au[q.dataset.st]]; }); };
-    e.querySelectorAll('[data-st]').forEach(q => { const k = q.dataset.st; q.value = fbe.fx.st[k] == null ? '' : String(fbe.fx.st[k]); q.onchange = () => { if(q.value === '') delete fbe.fx.st[k]; else fbe.fx.st[k] = q.value; }; });
+    fbe.fx = fbe.fx || {};
+    // 書き直すとき：前の演出（手で直してあれば、それ）と、前の文から決まっていた演出を、覚えておく。この欄を開いたあとに手で選んだものだけが、fbe.pick に入る
+    if(!fbe.stageInit){ fbe.stageInit = true; fbe.pick = {}; fbe.prev = fbe.id ? { eff:stageOf({ label:fbe.label, result:fbe.result, fx:fbe.fx }), auto:stageAuto(stageTextOf(fbe)) } : null; }
+    // 「自動」のところに、決まった演出を出す。文を打つたびに変わる。前の演出を引き継いでいる所は、そう書く
+    const autoShow = () => {
+      const au = stageAuto(stageTextOf(fbe)), dv = stageDerive(fbe.prev, stageTextOf(fbe));
+      e.querySelectorAll('[data-st]').forEach(q => { const k = q.dataset.st; q.options[0].textContent = (String(dv[k]) === String(au[k]) ? '自動：' : '前の演出のまま：') + STAGE_NAMES[k][dv[k]]; });
+      // 保存する形：手で選んだもの → なければ、決まった演出。文から決まるものと同じなら、書かない
+      const st = {}; for(const k of STAGE_KEYS){ const val = fbe.pick[k] != null ? fbe.pick[k] : dv[k]; if(String(val) !== String(au[k])) st[k] = val; }
+      fbe.fx.st = st;
+    };
+    e.querySelectorAll('[data-st]').forEach(q => { const k = q.dataset.st; q.value = fbe.pick[k] == null ? '' : String(fbe.pick[k]); q.onchange = () => { if(q.value === '') delete fbe.pick[k]; else fbe.pick[k] = q.value; autoShow(); }; });
     autoShow();
     f1.oninput = () => { fbe.label = f1.value; autoShow(); }; f2.oninput = () => { fbe.result = f2.value; autoShow(); }; f3.onchange = () => { fbe.to = f3.value; };
     e.querySelectorAll('[data-fx]').forEach(q => { const k = q.dataset.fx; q.value = String(fbe.fx[k] == null ? (k === 'inf' ? '' : 0) : fbe.fx[k]); q.onchange = () => { fbe.fx[k] = k === 'inf' ? q.value : +q.value; }; });
@@ -7023,7 +7053,7 @@ function decorateForEdit(mode){
     }
     if(fbe && fbe.kind === 'add' && fbe.scene === sk && !fbe.id) sub.appendChild(addEditor());
     else if(TEST_BUILD){ const more = document.createElement('button'); more.className = 'pending'; more.textContent = '＋ この先に、選択肢を足す'; more.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay', scene:sk }; fbNote = ''; render(); }; sub.appendChild(more); }
-    const back = document.createElement('button'); back.className = 'pending'; back.textContent = '足した場面を閉じる'; back.onclick = () => { const p = loadPlayer(current); if(p.offcam || p.pose){ p.offcam = false; p.pose = null; store.set('player-' + current, p); } draftShown = null; render(); }; sub.appendChild(back);
+    const back = document.createElement('button'); back.className = 'pending'; back.textContent = '足した場面を閉じる'; back.onclick = () => { const p = loadPlayer(current); if(p.offcam || p.pose || p.spos){ p.offcam = false; p.pose = null; p.spos = null; store.set('player-' + current, p); } draftShown = null; render(); }; sub.appendChild(back);
     const dm = main.querySelector('.draftmsg'); if(dm) dm.after(sub);
   }
   const okSet = d.ok.add;
