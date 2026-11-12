@@ -1,0 +1,2689 @@
+{
+ "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
+ "version": "v0.3.8",
+ "books": {
+  "voter": {
+   "file": "book-voter.js",
+   "name": "有権者",
+   "who": "モーガン",
+   "start": {
+    "place": "home",
+    "clock": 360,
+    "items": {}
+   },
+   "flags": [
+    "backClear",
+    "blocked",
+    "cards",
+    "corridorClear",
+    "dChurch",
+    "dHosp",
+    "dMain",
+    "diner",
+    "dockClear",
+    "fetch",
+    "flyer",
+    "front",
+    "frontClear",
+    "greeted",
+    "guide",
+    "gun",
+    "hallClear",
+    "heard",
+    "hendersonDown",
+    "hidWound",
+    "late",
+    "lineDone",
+    "lured",
+    "luredHit",
+    "nurseUp",
+    "provisional",
+    "reported",
+    "sawDir",
+    "sawJanitor",
+    "sched",
+    "told",
+    "treated",
+    "van",
+    "vote",
+    "waited",
+    "yellow"
+   ],
+   "spots": {
+    "home": {
+     "no": 2,
+     "name": "自宅",
+     "place": "home",
+     "cam": "v_home",
+     "at": [
+      118,
+      232
+     ],
+     "adj": [
+      "oak2",
+      "back"
+     ]
+    },
+    "back": {
+     "no": 35,
+     "name": "自宅の裏",
+     "place": "oak",
+     "cam": "v_back",
+     "at": [
+      130,
+      258
+     ],
+     "adj": [
+      "oak2",
+      "home"
+     ]
+    },
+    "oak2": {
+     "no": 12,
+     "name": "オーク通り2丁目",
+     "place": "oak",
+     "cam": "v_oak",
+     "at": [
+      104,
+      214
+     ],
+     "adj": [
+      "home",
+      "oak3",
+      "maple",
+      "back"
+     ]
+    },
+    "oak3": {
+     "no": 33,
+     "name": "オーク通り3丁目",
+     "place": "oak",
+     "cam": "v_oak3",
+     "at": [
+      190,
+      214
+     ],
+     "adj": [
+      "oak2",
+      "yard",
+      "oak4"
+     ]
+    },
+    "yard": {
+     "no": 34,
+     "name": "角の家の裏庭",
+     "place": "oak",
+     "cam": "v_yard",
+     "at": [
+      238,
+      190
+     ],
+     "adj": [
+      "oak3",
+      "oak4"
+     ]
+    },
+    "oak4": {
+     "no": 36,
+     "name": "オーク通り4丁目",
+     "place": "oak",
+     "cam": "v_oak4",
+     "at": [
+      282,
+      214
+     ],
+     "adj": [
+      "oak3",
+      "yard",
+      "gate"
+     ]
+    },
+    "maple": {
+     "no": 18,
+     "name": "メープル通り",
+     "place": "maple",
+     "cam": "v_maple",
+     "at": [
+      150,
+      109
+     ],
+     "adj": [
+      "oak2",
+      "gate"
+     ]
+    },
+    "gate": {
+     "no": 50,
+     "name": "リンカーン小学校の前",
+     "place": "school",
+     "cam": "v_school",
+     "at": [
+      284,
+      160
+     ],
+     "adj": [
+      "oak4",
+      "maple"
+     ]
+    },
+    "lobby": {
+     "no": 63,
+     "name": "玄関ホール",
+     "place": "school",
+     "room": "lobby",
+     "adj": [
+      "corridor",
+      "gate"
+     ]
+    },
+    "corridor": {
+     "no": 64,
+     "name": "廊下",
+     "place": "school",
+     "room": "corridor",
+     "adj": [
+      "lobby",
+      "classroom",
+      "nurse",
+      "gym"
+     ]
+    },
+    "classroom": {
+     "no": 67,
+     "name": "1年2組",
+     "place": "school",
+     "room": "classroom",
+     "adj": [
+      "corridor"
+     ]
+    },
+    "nurse": {
+     "no": 66,
+     "name": "保健室",
+     "place": "school",
+     "room": "nurse",
+     "adj": [
+      "corridor"
+     ]
+    },
+    "gym": {
+     "no": 65,
+     "name": "体育館",
+     "place": "school",
+     "room": "gym",
+     "adj": [
+      "corridor"
+     ]
+    },
+    "depot": {
+     "no": 79,
+     "name": "リバーサイド配送センター",
+     "place": "depot",
+     "cam": "v_depot",
+     "map": "city",
+     "at": [
+      350,
+      224
+     ],
+     "adj": [
+      "bridge"
+     ]
+    },
+    "bridge": {
+     "no": 81,
+     "name": "ケスラー橋",
+     "place": "bridge",
+     "cam": "v_bridge",
+     "map": "city",
+     "at": [
+      316,
+      186
+     ],
+     "adj": [
+      "depot",
+      "main"
+     ]
+    },
+    "main": {
+     "no": 88,
+     "name": "メインストリート",
+     "place": "mainst",
+     "cam": "v_main",
+     "map": "city",
+     "at": [
+      176,
+      186
+     ],
+     "adj": [
+      "bridge",
+      "hospF",
+      "church",
+      "alley"
+     ]
+    },
+    "alley": {
+     "no": 90,
+     "name": "メインストリートの裏の路地",
+     "place": "mainst",
+     "cam": "v_alley",
+     "map": "city",
+     "at": [
+      206,
+      212
+     ],
+     "adj": [
+      "main"
+     ]
+    },
+    "church": {
+     "no": 94,
+     "name": "聖マルコ教会",
+     "place": "church",
+     "cam": "v_church",
+     "map": "city",
+     "at": [
+      182,
+      272
+     ],
+     "adj": [
+      "main"
+     ]
+    },
+    "hospF": {
+     "no": 78,
+     "name": "州立病院の正面",
+     "place": "hosp",
+     "cam": "v_hosp",
+     "map": "city",
+     "at": [
+      100,
+      112
+     ]
+    },
+    "hospR": {
+     "no": 80,
+     "name": "州立病院の搬入口",
+     "place": "hosp",
+     "cam": "v_dock",
+     "map": "city",
+     "at": [
+      143,
+      72
+     ]
+    },
+    "h_lobby": {
+     "no": 37,
+     "name": "受付",
+     "place": "hosp",
+     "room": "lobby",
+     "adj": [
+      "hospF",
+      "h_hall"
+     ]
+    },
+    "h_hall": {
+     "no": 38,
+     "name": "1階廊下",
+     "place": "hosp",
+     "room": "hall",
+     "adj": [
+      "h_lobby",
+      "h_er",
+      "h_supply",
+      "h_dock"
+     ]
+    },
+    "h_er": {
+     "no": 40,
+     "name": "救急",
+     "place": "hosp",
+     "room": "er",
+     "adj": [
+      "h_hall"
+     ]
+    },
+    "h_supply": {
+     "no": 39,
+     "name": "用度係",
+     "place": "hosp",
+     "room": "supply",
+     "adj": [
+      "h_hall"
+     ]
+    },
+    "h_dock": {
+     "no": 41,
+     "name": "荷受け場",
+     "place": "hosp",
+     "room": "dock",
+     "adj": [
+      "h_hall",
+      "hospR"
+     ]
+    }
+   },
+   "paras": {
+    "1": {
+     "place": "home",
+     "head": "火曜日。目覚ましは6時に鳴った。 台所のラジオは、さっきから"
+    },
+    "5": {
+     "head": "同じ封筒に、市民有権者連盟の「有権者の手引き」という薄い冊子"
+    },
+    "8": {
+     "head": "電話台の引き出しは、いつも途中で引っかかる。運転免許証を出し"
+    },
+    "19": {
+     "head": "チラシは国民進歩党のものだった。 「4年前、この地区を回る警"
+    },
+    "27": {
+     "head": "職場は川向こうのリバーサイド配送センターで、始業は8時半。橋"
+    },
+    "28": {
+     "place": "oak"
+    },
+    "46": {
+     "head": "「ヘンダーソンさん、おはようございます」 返事はない。ヘンダ"
+    },
+    "49": {
+     "head": "断る理由もないので、3枚とももらった。どれも本物の投票用紙そ"
+    },
+    "51": {},
+    "52": {
+     "place": "school"
+    },
+    "53": {},
+    "54": {},
+    "55": {
+     "head": "係員は免許証の住所を名簿と見くらべてから、署名の欄を指でたた"
+    },
+    "56": {
+     "head": "宣誓書に名前と住所と生年月日を書いた。「私はこの投票区の登録"
+    },
+    "58": {
+     "head": "係員は傷を見ると、用紙に時刻を書き入れた。 「噛まれたんです"
+    },
+    "59": {
+     "head": "片方の袖だけまくって、腕を出した。係員がもう片方へ目を移しか"
+    },
+    "60": {
+     "head": "列は進まない。男は最後尾のあたりで立ち止まって、並んでいる人"
+    },
+    "61": {},
+    "62": {
+     "head": "入口の机まで行って、係員に話した。 「ありがとうございます。"
+    },
+    "69": {},
+    "70": {
+     "head": "折りたたみ式の台で、三方に目隠しの板が立ててある。黒いペンは"
+    },
+    "71": {},
+    "72": {
+     "head": "用紙を白い封筒に入れて封をし、それを緑の封筒に入れた。選挙管"
+    },
+    "76": {
+     "place": "bridge",
+     "head": "バスがケスラー橋にさしかかる。たもとに測量の杭が打ってあって"
+    },
+    "77": {
+     "place": "depot"
+    },
+    "84": {},
+    "85": {
+     "head": "救急の待合で20分待たされた。看護師が傷を洗って、注射を1本"
+    },
+    "87": {},
+    "91": {
+     "head": "事務所の中では、20人ほどが長机に並んで電話をかけていた。壁"
+    },
+    "92": {},
+    "93": {
+     "head": "カウンターに座って、日替わりを頼んだ。 テレビでは、先週やっ"
+    },
+    "95": {},
+    "96": {
+     "place": "church"
+    },
+    "97": {
+     "place": "bridge",
+     "head": "ケスラー橋の手前で、車が動かなくなった。街を出るほうの車線が"
+    },
+    "98": {
+     "place": "depot"
+    },
+    "99": {
+     "place": "road"
+    },
+    "100": {
+     "place": "bridge"
+    },
+    "106": {},
+    "107": {},
+    "111": {
+     "place": "home"
+    }
+   }
+  },
+  "governor": {
+   "file": "book-governor.js",
+   "name": "州知事",
+   "who": "ホイットモア知事",
+   "start": {
+    "place": "res",
+    "clock": 420,
+    "items": {}
+   },
+   "flags": [
+    "answer",
+    "back",
+    "briefing",
+    "called",
+    "done",
+    "env",
+    "gardener",
+    "gate",
+    "hid",
+    "lateSpeech",
+    "line",
+    "mainSeen",
+    "notice",
+    "queued",
+    "radio",
+    "roof",
+    "sgtHurt",
+    "shook",
+    "skipFactory",
+    "skipped",
+    "stayed",
+    "told3",
+    "treated",
+    "waiterGone",
+    "yellow"
+   ],
+   "spots": {
+    "res": {
+     "no": 230,
+     "name": "知事公邸",
+     "place": "res",
+     "cam": "v_res",
+     "at": [
+      238,
+      38
+     ],
+     "adj": [
+      "resF",
+      "resB"
+     ]
+    },
+    "resF": {
+     "no": 231,
+     "name": "公邸の正門",
+     "place": "res",
+     "cam": "v_res",
+     "at": [
+      214,
+      58
+     ],
+     "adj": [
+      "res",
+      "hq"
+     ]
+    },
+    "resB": {
+     "no": 232,
+     "name": "公邸の裏門",
+     "place": "res",
+     "cam": "v_resb",
+     "at": [
+      262,
+      58
+     ],
+     "adj": [
+      "res",
+      "radio",
+      "hq"
+     ]
+    },
+    "hq": {
+     "no": 233,
+     "name": "選挙事務所",
+     "place": "hq",
+     "cam": "v_hq",
+     "at": [
+      171,
+      92
+     ],
+     "adj": [
+      "resF",
+      "resB",
+      "hosp",
+      "mainx"
+     ]
+    },
+    "mainx": {
+     "no": 234,
+     "name": "メインストリート",
+     "place": "mainst",
+     "cam": "v_main",
+     "at": [
+      176,
+      186
+     ],
+     "adj": [
+      "hq",
+      "hosp",
+      "church",
+      "radio",
+      "hotelF"
+     ]
+    },
+    "hosp": {
+     "no": 235,
+     "name": "州立病院の正面",
+     "place": "hosp",
+     "cam": "v_hosp",
+     "at": [
+      100,
+      112
+     ],
+     "adj": [
+      "hq",
+      "mainx"
+     ]
+    },
+    "church": {
+     "no": 236,
+     "name": "聖マルコ教会",
+     "place": "church",
+     "cam": "v_church",
+     "at": [
+      182,
+      272
+     ],
+     "adj": [
+      "mainx",
+      "hotelF",
+      "radio"
+     ]
+    },
+    "radio": {
+     "no": 237,
+     "name": "WGLNの局舎",
+     "place": "radio",
+     "cam": "v_radio",
+     "at": [
+      272,
+      236
+     ],
+     "adj": [
+      "mainx",
+      "church",
+      "resB",
+      "factory"
+     ]
+    },
+    "factory": {
+     "no": 238,
+     "name": "ケスラー製鋼の正門",
+     "place": "factory",
+     "cam": "v_factory",
+     "at": [
+      346,
+      84
+     ],
+     "adj": [
+      "radio"
+     ]
+    },
+    "hotelF": {
+     "no": 239,
+     "name": "ホテル・グレンフォードの車寄せ",
+     "place": "hotel",
+     "cam": "v_hotel",
+     "at": [
+      104,
+      232
+     ],
+     "adj": [
+      "mainx",
+      "church",
+      "hotelB",
+      "t_lobby"
+     ]
+    },
+    "hotelB": {
+     "no": 240,
+     "name": "ホテルの搬入口",
+     "place": "hotel",
+     "cam": "v_hotelb",
+     "at": [
+      76,
+      256
+     ],
+     "adj": [
+      "hotelF",
+      "t_kitchen"
+     ]
+    },
+    "t_lobby": {
+     "no": 241,
+     "name": "ロビー",
+     "place": "hotel",
+     "room": "lobby",
+     "adj": [
+      "hotelF",
+      "t_hall"
+     ]
+    },
+    "t_kitchen": {
+     "no": 242,
+     "name": "厨房",
+     "place": "hotel",
+     "room": "kitchen",
+     "adj": [
+      "hotelB",
+      "t_hall"
+     ]
+    },
+    "t_hall": {
+     "no": 243,
+     "name": "1階廊下",
+     "place": "hotel",
+     "room": "hall",
+     "adj": [
+      "t_lobby",
+      "t_kitchen",
+      "t_ball"
+     ]
+    },
+    "t_ball": {
+     "no": 244,
+     "name": "宴会場",
+     "place": "hotel",
+     "room": "ball",
+     "adj": [
+      "t_hall"
+     ]
+    }
+   },
+   "paras": {
+    "200": {
+     "place": "res",
+     "head": "火曜日、午前7時。公邸の食堂のコーヒーは、もう冷めかけている"
+    },
+    "204": {
+     "place": "church"
+    },
+    "205": {
+     "place": "church"
+    },
+    "206": {
+     "place": "church",
+     "head": "集会室を出ると、記者たちが半円に並んで待っていた。マイクが6"
+    },
+    "207": {
+     "place": "hq",
+     "head": "事務所の中は、60人ぶんの電話の声で暖かい。選対本部長のグレ"
+    },
+    "208": {
+     "place": "hq",
+     "head": "机の上に立った。受話器を置く音が、端から順に続く。60人に向"
+    },
+    "209": {
+     "place": "car",
+     "head": "車は、メインストリートに入ったところで止まった。前で、配達の"
+    },
+    "210": {
+     "place": "hosp"
+    },
+    "211": {},
+    "212": {
+     "place": "hosp",
+     "head": "玄関から、白衣の男が出てきた。院長だ。握手をして、並んでカメ"
+    },
+    "213": {
+     "place": "car",
+     "head": "車の中で、サンドイッチを食べた。落ちたパンくずを、ペイジが紙"
+    },
+    "214": {},
+    "216": {
+     "place": "radio",
+     "head": "スタジオの赤い灯がついた。司会者は税の話から始め、橋の通行料"
+    },
+    "217": {},
+    "218": {
+     "place": "hosp",
+     "head": "講堂の扉を開けると、院長が壇上で、統合の日程を読み上げていた"
+    },
+    "219": {
+     "place": "car"
+    },
+    "220": {
+     "place": "factory",
+     "head": "5時のサイレンが鳴って、門が開いた。外はもう暗い。 出てくる"
+    },
+    "221": {
+     "head": "年かさの工員が1人、列を離れてこちらへ来た。弁当箱を脇に抱え"
+    },
+    "222": {
+     "place": "car"
+    },
+    "224": {
+     "place": "hotel"
+    }
+   }
+  },
+  "chief": {
+   "file": "book-chief.js",
+   "name": "警察署長",
+   "who": "ブレナン署長",
+   "start": {
+    "place": "ps",
+    "clock": 390,
+    "items": {
+     "拳銃": 1,
+     "弾": 15
+    }
+   },
+   "flags": [
+    "back",
+    "caged",
+    "cells",
+    "cleared",
+    "clerk",
+    "crowd",
+    "d304",
+    "d305",
+    "d308",
+    "d311",
+    "guard",
+    "hotel",
+    "lights",
+    "lit",
+    "lunch",
+    "neutral",
+    "pulled",
+    "removed",
+    "rode",
+    "route",
+    "sch1",
+    "sch2",
+    "sent",
+    "spare",
+    "swept",
+    "upheld",
+    "waited"
+   ],
+   "spots": {
+    "p_roll": {
+     "no": 320,
+     "name": "点呼室",
+     "place": "ps",
+     "room": "roll",
+     "adj": [
+      "p_hall"
+     ]
+    },
+    "p_hall": {
+     "no": 321,
+     "name": "1階廊下",
+     "place": "ps",
+     "room": "hall",
+     "adj": [
+      "p_roll",
+      "p_office",
+      "p_cells",
+      "p_lobby"
+     ]
+    },
+    "p_office": {
+     "no": 322,
+     "name": "署長室",
+     "place": "ps",
+     "room": "office",
+     "adj": [
+      "p_hall"
+     ]
+    },
+    "p_cells": {
+     "no": 323,
+     "name": "留置場",
+     "place": "ps",
+     "room": "cells",
+     "adj": [
+      "p_hall"
+     ]
+    },
+    "p_lobby": {
+     "no": 324,
+     "name": "玄関",
+     "place": "ps",
+     "room": "lobby",
+     "adj": [
+      "p_hall",
+      "lot"
+     ]
+    },
+    "lot": {
+     "no": 325,
+     "name": "グレンフォード警察署の駐車場",
+     "place": "ps",
+     "cam": "v_ps",
+     "at": [
+      172,
+      140
+     ],
+     "adj": [
+      "p_lobby",
+      "school",
+      "hospc",
+      "north",
+      "bridgec",
+      "county"
+     ]
+    },
+    "school": {
+     "no": 326,
+     "name": "リンカーン小学校",
+     "place": "school",
+     "cam": "v_school",
+     "at": [
+      258,
+      164
+     ],
+     "adj": [
+      "lot",
+      "hospc",
+      "north",
+      "bridgec",
+      "county"
+     ]
+    },
+    "hospc": {
+     "no": 327,
+     "name": "州立病院の正面",
+     "place": "hosp",
+     "cam": "v_hosp",
+     "at": [
+      100,
+      112
+     ],
+     "adj": [
+      "lot",
+      "school",
+      "north",
+      "bridgec",
+      "county"
+     ]
+    },
+    "north": {
+     "no": 328,
+     "name": "ノースエンドのエルム通り",
+     "place": "north",
+     "cam": "v_north",
+     "at": [
+      70,
+      34
+     ],
+     "adj": [
+      "lot",
+      "school",
+      "hospc",
+      "bridgec",
+      "county"
+     ]
+    },
+    "bridgec": {
+     "no": 329,
+     "name": "ケスラー橋",
+     "place": "bridge",
+     "cam": "v_bridge",
+     "at": [
+      316,
+      186
+     ],
+     "adj": [
+      "lot",
+      "school",
+      "hospc",
+      "north",
+      "county"
+     ]
+    },
+    "county": {
+     "no": 330,
+     "name": "マーロウ郡庁舎",
+     "place": "county",
+     "cam": "v_county",
+     "at": [
+      44,
+      234
+     ],
+     "adj": [
+      "lot",
+      "school",
+      "hospc",
+      "north",
+      "bridgec"
+     ]
+    }
+   },
+   "paras": {
+    "300": {
+     "place": "ps",
+     "head": "火曜日、午前6時半。点呼室の椅子は、22脚で足りた。 夜勤の"
+    },
+    "303": {
+     "head": "駐車場の3人のうち、1人が向きを変えた。列のほうへ歩き出す。"
+    },
+    "304": {
+     "place": "car",
+     "head": "走っている途中で、無線が入った。通信係のノヴァクが、待ちの件"
+    },
+    "305": {
+     "place": "hosp",
+     "head": "知事の演説が始まった。演台には背を向けて、聴衆のほうを見てい"
+    },
+    "306": {
+     "head": "拍手がやんで、聴衆が駐車場のほうへ流れていく。ルイス巡査部長"
+    },
+    "307": {
+     "place": "ps",
+     "head": "紙袋の中身は、ハムのサンドイッチだった。半分食べたところで、"
+    },
+    "309": {
+     "place": "north"
+    },
+    "312": {
+     "place": "bridge",
+     "head": "街を出る車線に沿って歩いていると、1台の窓が下りた。運転席の"
+    },
+    "314": {
+     "place": "school"
+    },
+    "315": {
+     "place": "county"
+    }
+   }
+  },
+  "director": {
+   "file": "book-director.js",
+   "name": "病院長",
+   "who": "ハーラン院長",
+   "start": {
+    "place": "hosp",
+    "clock": 390,
+    "items": {}
+   },
+   "flags": [
+    "d401",
+    "d403",
+    "d404",
+    "d405",
+    "d406",
+    "dockIn",
+    "gun",
+    "hallClear",
+    "letVote",
+    "report",
+    "spoke",
+    "stood",
+    "wardClear"
+   ],
+   "spots": {
+    "d_office": {
+     "no": 420,
+     "name": "院長室",
+     "place": "hosp",
+     "room": "office",
+     "adj": [
+      "d_ward"
+     ]
+    },
+    "d_ward": {
+     "no": 421,
+     "name": "3階病棟の廊下",
+     "place": "hosp",
+     "room": "ward",
+     "adj": [
+      "d_office",
+      "d_aud",
+      "d_hall"
+     ]
+    },
+    "d_aud": {
+     "no": 422,
+     "name": "講堂",
+     "place": "hosp",
+     "room": "aud",
+     "adj": [
+      "d_ward"
+     ]
+    },
+    "d_hall": {
+     "no": 423,
+     "name": "1階廊下",
+     "place": "hosp",
+     "room": "hall",
+     "adj": [
+      "d_ward",
+      "d_lobby",
+      "d_er",
+      "d_supply",
+      "d_dock"
+     ]
+    },
+    "d_lobby": {
+     "no": 424,
+     "name": "受付",
+     "place": "hosp",
+     "room": "lobby",
+     "adj": [
+      "d_hall",
+      "d_front"
+     ]
+    },
+    "d_er": {
+     "no": 425,
+     "name": "救急",
+     "place": "hosp",
+     "room": "er",
+     "adj": [
+      "d_hall"
+     ]
+    },
+    "d_supply": {
+     "no": 426,
+     "name": "用度係",
+     "place": "hosp",
+     "room": "supply",
+     "adj": [
+      "d_hall"
+     ]
+    },
+    "d_dock": {
+     "no": 427,
+     "name": "荷受け場",
+     "place": "hosp",
+     "room": "dock",
+     "adj": [
+      "d_hall",
+      "d_rear"
+     ]
+    },
+    "d_front": {
+     "no": 428,
+     "name": "病院の正面",
+     "place": "hosp",
+     "cam": "v_hosp",
+     "adj": [
+      "d_lobby"
+     ]
+    },
+    "d_rear": {
+     "no": 429,
+     "name": "病院の搬入口",
+     "place": "hosp",
+     "cam": "v_dock",
+     "adj": [
+      "d_dock"
+     ]
+    }
+   },
+   "paras": {
+    "400": {
+     "place": "hosp",
+     "head": "火曜日、午前6時半。州立グレンフォード病院、3階の院長室。 "
+    },
+    "401": {
+     "head": "主任は、声を落とした。 「院長。噛まれた傷は全部、保健局へ届"
+    },
+    "403": {
+     "place": "hosp"
+    },
+    "404": {
+     "place": "hosp"
+    },
+    "405": {
+     "place": "hosp",
+     "head": "師長は、詰所の時計を見てから言った。 「院長。日勤の者が、投"
+    },
+    "406": {
+     "place": "hosp",
+     "head": "巡査は、書類ばさみを出した。 「署のフェンスにつないであった"
+    },
+    "407": {
+     "place": "hosp"
+    }
+   }
+  }
+ },
+ "plans": {
+  "school": {
+   "name": "リンカーン小学校",
+   "floors": [
+    "1F"
+   ],
+   "hub": "lobby",
+   "stairsTo": {},
+   "rooms": {
+    "lobby": {
+     "floor": "1F",
+     "name": "玄関ホール",
+     "rect": [
+      0,
+      0,
+      8,
+      6
+     ],
+     "h": 3.2,
+     "floorT": "linoleum",
+     "wall": "beige",
+     "cams": [
+      {
+       "no": "24",
+       "name": "玄関ホール"
+      }
+     ],
+     "props": [
+      [
+       "table",
+       2.2,
+       4.6
+      ],
+      [
+       "standing",
+       1.3,
+       4.6
+      ],
+      [
+       "bench",
+       6.9,
+       3
+      ],
+      [
+       "plant",
+       0.7,
+       0.7
+      ],
+      [
+       "papers",
+       5,
+       4.4
+      ]
+     ]
+    },
+    "corridor": {
+     "floor": "1F",
+     "name": "廊下",
+     "rect": [
+      0,
+      -3,
+      28,
+      0
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "beige",
+     "cams": [
+      {
+       "no": "25",
+       "name": "廊下 西"
+      },
+      {
+       "no": "27",
+       "name": "廊下 東"
+      }
+     ],
+     "props": [
+      [
+       "locker",
+       11.6,
+       -0.35
+      ],
+      [
+       "bench",
+       24.5,
+       -0.5
+      ],
+      [
+       "plant",
+       27.3,
+       -0.6
+      ]
+     ]
+    },
+    "classroom": {
+     "floor": "1F",
+     "name": "1年2組",
+     "rect": [
+      0,
+      -10,
+      7,
+      -3
+     ],
+     "h": 3,
+     "floorT": "wood",
+     "wall": "white",
+     "cams": [
+      {
+       "no": "26",
+       "name": "1年2組"
+      }
+     ],
+     "props": [
+      [
+       "desk",
+       5.2,
+       -8.8
+      ],
+      [
+       "desk",
+       3.4,
+       -8.8
+      ],
+      [
+       "desk",
+       5.2,
+       -9.4
+      ],
+      [
+       "chair",
+       1.5,
+       -7.4
+      ],
+      [
+       "standing",
+       1.5,
+       -7.4
+      ],
+      [
+       "standing",
+       2.9,
+       -6.6
+      ],
+      [
+       "shelf",
+       0.5,
+       -4.6
+      ]
+     ]
+    },
+    "nurse": {
+     "floor": "1F",
+     "name": "保健室",
+     "rect": [
+      7,
+      -10,
+      12,
+      -3
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "white",
+     "cams": [],
+     "props": [
+      [
+       "bed",
+       11,
+       -8.4
+      ],
+      [
+       "bed",
+       11,
+       -5.6
+      ],
+      [
+       "cabinet",
+       7.6,
+       -8
+      ],
+      [
+       "desk",
+       8.6,
+       -9.3
+      ]
+     ]
+    },
+    "gym": {
+     "floor": "1F",
+     "name": "体育館",
+     "rect": [
+      14,
+      -17,
+      28,
+      -3
+     ],
+     "h": 5,
+     "floorT": "wood",
+     "wall": "concrete",
+     "cams": [
+      {
+       "no": "23",
+       "name": "体育館"
+      }
+     ],
+     "props": [
+      [
+       "polldesk",
+       16.8,
+       -7.2
+      ],
+      [
+       "polldesk",
+       16.8,
+       -10.2
+      ],
+      [
+       "standing",
+       15.9,
+       -7.2
+      ],
+      [
+       "standing",
+       15.9,
+       -10.2
+      ],
+      [
+       "standing",
+       17.9,
+       -9.8
+      ],
+      [
+       "voterow",
+       18.4,
+       -15.4
+      ],
+      [
+       "standing",
+       19.55,
+       -14.8
+      ],
+      [
+       "standing",
+       21.85,
+       -14.8
+      ],
+      [
+       "scanner",
+       25.6,
+       -8.6
+      ],
+      [
+       "standing",
+       26.5,
+       -9.4
+      ],
+      [
+       "table",
+       25.8,
+       -5.4
+      ],
+      [
+       "bleachers",
+       25.2,
+       -16.3
+      ],
+      [
+       "papers",
+       21,
+       -8
+      ]
+     ]
+    }
+   },
+   "doors": [
+    {
+     "a": "lobby",
+     "b": "@street",
+     "at": [
+      4,
+      6
+     ]
+    },
+    {
+     "a": "lobby",
+     "b": "corridor",
+     "at": [
+      4,
+      0
+     ]
+    },
+    {
+     "a": "corridor",
+     "b": "classroom",
+     "at": [
+      3.5,
+      -3
+     ]
+    },
+    {
+     "a": "corridor",
+     "b": "nurse",
+     "at": [
+      9.5,
+      -3
+     ]
+    },
+    {
+     "a": "corridor",
+     "b": "gym",
+     "at": [
+      20,
+      -3
+     ]
+    }
+   ]
+  },
+  "hosp": {
+   "name": "州立グレンフォード病院",
+   "floors": [
+    "3F",
+    "1F"
+   ],
+   "hub": "lobby",
+   "stairsTo": {
+    "1F": {
+     "3F": "stairs1"
+    },
+    "3F": {
+     "1F": "stairs3"
+    }
+   },
+   "rooms": {
+    "lobby": {
+     "floor": "1F",
+     "name": "受付",
+     "rect": [
+      0,
+      0,
+      10,
+      7
+     ],
+     "h": 3.4,
+     "floorT": "linoleum",
+     "wall": "white",
+     "cams": [
+      {
+       "no": "52",
+       "name": "受付"
+      }
+     ],
+     "props": [
+      [
+       "counter",
+       3,
+       5.2
+      ],
+      [
+       "standing",
+       3,
+       6
+      ],
+      [
+       "bench",
+       8.8,
+       4
+      ],
+      [
+       "bench",
+       8.8,
+       1.6
+      ],
+      [
+       "plant",
+       0.7,
+       0.7
+      ],
+      [
+       "papers",
+       6,
+       2
+      ]
+     ]
+    },
+    "hall": {
+     "floor": "1F",
+     "name": "1階廊下",
+     "rect": [
+      0,
+      -3,
+      26,
+      0
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "white",
+     "cams": [
+      {
+       "no": "53",
+       "name": "1階廊下 西"
+      },
+      {
+       "no": "55",
+       "name": "1階廊下 東"
+      }
+     ],
+     "props": [
+      [
+       "stretcher",
+       17,
+       -0.6
+      ],
+      [
+       "bench",
+       8,
+       -0.5
+      ],
+      [
+       "plant",
+       25.3,
+       -0.6
+      ]
+     ]
+    },
+    "er": {
+     "floor": "1F",
+     "name": "救急",
+     "rect": [
+      0,
+      -10,
+      8,
+      -3
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "white",
+     "cams": [
+      {
+       "no": "56",
+       "name": "救急"
+      }
+     ],
+     "props": [
+      [
+       "bed",
+       6.4,
+       -8.6
+      ],
+      [
+       "bed",
+       6.4,
+       -6
+      ],
+      [
+       "cabinet",
+       0.6,
+       -8
+      ],
+      [
+       "bench",
+       1,
+       -4
+      ],
+      [
+       "standing",
+       4.6,
+       -7.4
+      ],
+      [
+       "monitors",
+       7.4,
+       -7.3
+      ]
+     ]
+    },
+    "supply": {
+     "floor": "1F",
+     "name": "用度係",
+     "rect": [
+      11,
+      -10,
+      18,
+      -3
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "beige",
+     "cams": [
+      {
+       "no": "57",
+       "name": "用度係"
+      }
+     ],
+     "props": [
+      [
+       "desk",
+       13.2,
+       -8.4
+      ],
+      [
+       "standing",
+       13.2,
+       -9.2
+      ],
+      [
+       "shelf",
+       17.5,
+       -7
+      ],
+      [
+       "shelf",
+       11.5,
+       -5.4
+      ],
+      [
+       "crates",
+       16.4,
+       -9
+      ],
+      [
+       "papers",
+       14,
+       -6.6
+      ]
+     ]
+    },
+    "dock": {
+     "floor": "1F",
+     "name": "荷受け場",
+     "rect": [
+      19,
+      -10,
+      26,
+      -3
+     ],
+     "h": 3.4,
+     "floorT": "concrete",
+     "wall": "concrete",
+     "cams": [],
+     "props": [
+      [
+       "crates",
+       20.4,
+       -8.4
+      ],
+      [
+       "crate",
+       24.8,
+       -8.6
+      ],
+      [
+       "cart",
+       24.4,
+       -4.6
+      ],
+      [
+       "barrel",
+       19.8,
+       -4
+      ]
+     ]
+    },
+    "stairs1": {
+     "floor": "1F",
+     "name": "階段",
+     "rect": [
+      26,
+      -4,
+      30,
+      1
+     ],
+     "h": 3,
+     "floorT": "concrete",
+     "wall": "concrete",
+     "cams": [],
+     "props": [
+      [
+       "stairs",
+       28.6,
+       -2.8
+      ]
+     ]
+    },
+    "stairs3": {
+     "floor": "3F",
+     "name": "階段",
+     "rect": [
+      26,
+      -4,
+      30,
+      1
+     ],
+     "h": 3,
+     "floorT": "concrete",
+     "wall": "concrete",
+     "cams": [],
+     "props": [
+      [
+       "stairs",
+       28.6,
+       -2.8
+      ]
+     ]
+    },
+    "ward": {
+     "floor": "3F",
+     "name": "3階病棟の廊下",
+     "rect": [
+      0,
+      -3,
+      26,
+      0
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "green",
+     "cams": [
+      {
+       "no": "58",
+       "name": "3階病棟 西"
+      },
+      {
+       "no": "59",
+       "name": "3階病棟 東"
+      }
+     ],
+     "props": [
+      [
+       "cart",
+       12,
+       -0.6
+      ],
+      [
+       "bench",
+       6,
+       -0.5
+      ],
+      [
+       "plant",
+       0.7,
+       -2.4
+      ]
+     ]
+    },
+    "office": {
+     "floor": "3F",
+     "name": "院長室",
+     "rect": [
+      0,
+      0,
+      8,
+      6
+     ],
+     "h": 3,
+     "floorT": "carpet",
+     "wall": "wood",
+     "cams": [
+      {
+       "no": "60",
+       "name": "院長室"
+      }
+     ],
+     "props": [
+      [
+       "desk",
+       3,
+       4.4
+      ],
+      [
+       "cabinet",
+       0.6,
+       3
+      ],
+      [
+       "plant",
+       7.3,
+       5.3
+      ],
+      [
+       "papers",
+       3.4,
+       3.2
+      ]
+     ]
+    },
+    "aud": {
+     "floor": "3F",
+     "name": "講堂",
+     "rect": [
+      10,
+      0,
+      24,
+      9
+     ],
+     "h": 3.6,
+     "floorT": "linoleum",
+     "wall": "beige",
+     "cams": [
+      {
+       "no": "61",
+       "name": "講堂"
+      }
+     ],
+     "props": [
+      [
+       "counter",
+       17,
+       7.8
+      ],
+      [
+       "bench",
+       13,
+       4
+      ],
+      [
+       "bench",
+       17,
+       4
+      ],
+      [
+       "bench",
+       21,
+       4
+      ],
+      [
+       "bench",
+       13,
+       5.6
+      ],
+      [
+       "bench",
+       17,
+       5.6
+      ],
+      [
+       "bench",
+       21,
+       5.6
+      ]
+     ]
+    }
+   },
+   "doors": [
+    {
+     "a": "lobby",
+     "b": "@street",
+     "at": [
+      5,
+      7
+     ]
+    },
+    {
+     "a": "lobby",
+     "b": "hall",
+     "at": [
+      5,
+      0
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "er",
+     "at": [
+      4,
+      -3
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "supply",
+     "at": [
+      14.5,
+      -3
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "dock",
+     "at": [
+      22.5,
+      -3
+     ]
+    },
+    {
+     "a": "dock",
+     "b": "@rear",
+     "at": [
+      22.5,
+      -10
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "stairs1",
+     "at": [
+      26,
+      -1.5
+     ]
+    },
+    {
+     "a": "stairs3",
+     "b": "ward",
+     "at": [
+      26,
+      -1.5
+     ]
+    },
+    {
+     "a": "ward",
+     "b": "office",
+     "at": [
+      4,
+      0
+     ]
+    },
+    {
+     "a": "ward",
+     "b": "aud",
+     "at": [
+      17,
+      0
+     ]
+    }
+   ]
+  },
+  "hotel": {
+   "name": "ホテル・グレンフォード",
+   "floors": [
+    "1F"
+   ],
+   "hub": "lobby",
+   "stairsTo": {},
+   "rooms": {
+    "lobby": {
+     "floor": "1F",
+     "name": "ロビー",
+     "rect": [
+      0,
+      0,
+      12,
+      8
+     ],
+     "h": 3.8,
+     "floorT": "marble",
+     "wall": "wood",
+     "cams": [
+      {
+       "no": "92",
+       "name": "ロビー"
+      }
+     ],
+     "props": [
+      [
+       "counter",
+       2.6,
+       6.4
+      ],
+      [
+       "standing",
+       2.6,
+       7.2
+      ],
+      [
+       "bench",
+       10.6,
+       5
+      ],
+      [
+       "plant",
+       0.7,
+       0.7
+      ],
+      [
+       "plant",
+       11.3,
+       7.3
+      ],
+      [
+       "balloons",
+       8.6,
+       6.6
+      ]
+     ]
+    },
+    "hall": {
+     "floor": "1F",
+     "name": "1階廊下",
+     "rect": [
+      0,
+      -3,
+      24,
+      0
+     ],
+     "h": 3,
+     "floorT": "carpet",
+     "wall": "wood",
+     "cams": [
+      {
+       "no": "93",
+       "name": "1階廊下 西"
+      },
+      {
+       "no": "94",
+       "name": "1階廊下 東"
+      }
+     ],
+     "props": [
+      [
+       "plant",
+       23.3,
+       -0.6
+      ],
+      [
+       "bench",
+       15,
+       -0.5
+      ]
+     ]
+    },
+    "ball": {
+     "floor": "1F",
+     "name": "宴会場",
+     "rect": [
+      2,
+      -15,
+      16,
+      -3
+     ],
+     "h": 4.6,
+     "floorT": "carpet",
+     "wall": "paper",
+     "cams": [
+      {
+       "no": "95",
+       "name": "宴会場"
+      }
+     ],
+     "props": [
+      [
+       "screen",
+       9,
+       -14.8
+      ],
+      [
+       "table",
+       5,
+       -8
+      ],
+      [
+       "table",
+       9,
+       -8
+      ],
+      [
+       "table",
+       13,
+       -8
+      ],
+      [
+       "table",
+       7,
+       -11
+      ],
+      [
+       "table",
+       11,
+       -11
+      ],
+      [
+       "standing",
+       4.4,
+       -7
+      ],
+      [
+       "standing",
+       8.4,
+       -7
+      ],
+      [
+       "standing",
+       12.6,
+       -7
+      ],
+      [
+       "standing",
+       6.4,
+       -10
+      ],
+      [
+       "standing",
+       11.6,
+       -10
+      ],
+      [
+       "balloons",
+       3,
+       -14
+      ],
+      [
+       "balloons",
+       15,
+       -14
+      ]
+     ]
+    },
+    "kitchen": {
+     "floor": "1F",
+     "name": "厨房",
+     "rect": [
+      17,
+      -12,
+      24,
+      -3
+     ],
+     "h": 3,
+     "floorT": "tile",
+     "wall": "tile",
+     "cams": [
+      {
+       "no": "96",
+       "name": "厨房"
+      }
+     ],
+     "props": [
+      [
+       "counter",
+       20.5,
+       -7.6
+      ],
+      [
+       "fridge",
+       17.6,
+       -9.6
+      ],
+      [
+       "fridge",
+       17.6,
+       -8
+      ],
+      [
+       "standing",
+       20.6,
+       -8.6
+      ],
+      [
+       "standing",
+       22.6,
+       -6.2
+      ],
+      [
+       "cart",
+       22.6,
+       -10.6
+      ]
+     ]
+    }
+   },
+   "doors": [
+    {
+     "a": "lobby",
+     "b": "@street",
+     "at": [
+      6,
+      8
+     ]
+    },
+    {
+     "a": "lobby",
+     "b": "hall",
+     "at": [
+      6,
+      0
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "ball",
+     "at": [
+      9,
+      -3
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "kitchen",
+     "at": [
+      20.5,
+      -3
+     ]
+    },
+    {
+     "a": "kitchen",
+     "b": "@rear",
+     "at": [
+      20.5,
+      -12
+     ]
+    }
+   ]
+  },
+  "ps": {
+   "name": "グレンフォード警察署",
+   "floors": [
+    "1F"
+   ],
+   "hub": "lobby",
+   "stairsTo": {},
+   "rooms": {
+    "lobby": {
+     "floor": "1F",
+     "name": "玄関",
+     "rect": [
+      12,
+      0,
+      22,
+      7
+     ],
+     "h": 3.4,
+     "floorT": "tile",
+     "wall": "gray",
+     "cams": [
+      {
+       "no": "04",
+       "name": "玄関"
+      }
+     ],
+     "props": [
+      [
+       "counter",
+       14.6,
+       5.2
+      ],
+      [
+       "standing",
+       14.6,
+       6
+      ],
+      [
+       "bench",
+       20.8,
+       4
+      ],
+      [
+       "standing",
+       16.4,
+       4.2
+      ],
+      [
+       "standing",
+       17.4,
+       4.2
+      ],
+      [
+       "plant",
+       12.7,
+       0.7
+      ]
+     ]
+    },
+    "hall": {
+     "floor": "1F",
+     "name": "1階廊下",
+     "rect": [
+      0,
+      -3,
+      22,
+      0
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "gray",
+     "cams": [
+      {
+       "no": "05",
+       "name": "1階廊下 西"
+      },
+      {
+       "no": "06",
+       "name": "1階廊下 東"
+      }
+     ],
+     "props": [
+      [
+       "locker",
+       8.6,
+       -0.35
+      ],
+      [
+       "bench",
+       19,
+       -0.5
+      ]
+     ]
+    },
+    "roll": {
+     "floor": "1F",
+     "name": "点呼室",
+     "rect": [
+      0,
+      0,
+      9,
+      7
+     ],
+     "h": 3,
+     "floorT": "linoleum",
+     "wall": "gray",
+     "cams": [
+      {
+       "no": "08",
+       "name": "点呼室"
+      }
+     ],
+     "props": [
+      [
+       "desk",
+       2,
+       5.6
+      ],
+      [
+       "chair",
+       3,
+       3.6
+      ],
+      [
+       "chair",
+       4.4,
+       3.6
+      ],
+      [
+       "chair",
+       5.8,
+       3.6
+      ],
+      [
+       "chair",
+       3,
+       2.4
+      ],
+      [
+       "chair",
+       5.8,
+       2.4
+      ],
+      [
+       "standing",
+       3.4,
+       5.6
+      ],
+      [
+       "papers",
+       7,
+       5
+      ]
+     ]
+    },
+    "office": {
+     "floor": "1F",
+     "name": "署長室",
+     "rect": [
+      0,
+      -9,
+      7,
+      -3
+     ],
+     "h": 3,
+     "floorT": "carpet",
+     "wall": "wood",
+     "cams": [
+      {
+       "no": "09",
+       "name": "署長室"
+      }
+     ],
+     "props": [
+      [
+       "desk",
+       3,
+       -7.4
+      ],
+      [
+       "chair",
+       3,
+       -8.2
+      ],
+      [
+       "cabinet",
+       0.6,
+       -6
+      ],
+      [
+       "radio",
+       4.6,
+       -7.4
+      ],
+      [
+       "plant",
+       6.3,
+       -8.3
+      ]
+     ]
+    },
+    "cells": {
+     "floor": "1F",
+     "name": "留置場",
+     "rect": [
+      9,
+      -10,
+      18,
+      -3
+     ],
+     "h": 3,
+     "floorT": "concrete",
+     "wall": "concrete",
+     "cams": [
+      {
+       "no": "10",
+       "name": "留置場"
+      }
+     ],
+     "props": [
+      [
+       "bars",
+       13.5,
+       -7
+      ],
+      [
+       "standing",
+       10.6,
+       -8.6
+      ],
+      [
+       "standing",
+       13,
+       -9
+      ],
+      [
+       "standing",
+       15.6,
+       -8.4
+      ],
+      [
+       "desk",
+       16.6,
+       -4.4
+      ],
+      [
+       "papers",
+       11,
+       -5
+      ]
+     ]
+    }
+   },
+   "doors": [
+    {
+     "a": "lobby",
+     "b": "@street",
+     "at": [
+      17,
+      7
+     ]
+    },
+    {
+     "a": "lobby",
+     "b": "hall",
+     "at": [
+      17,
+      0
+     ]
+    },
+    {
+     "a": "roll",
+     "b": "hall",
+     "at": [
+      4.5,
+      0
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "office",
+     "at": [
+      3.5,
+      -3
+     ]
+    },
+    {
+     "a": "hall",
+     "b": "cells",
+     "at": [
+      13.5,
+      -3
+     ]
+    }
+   ]
+  }
+ },
+ "props": [
+  "desk",
+  "chair",
+  "shelf",
+  "locker",
+  "bed",
+  "stretcher",
+  "counter",
+  "bars",
+  "crate",
+  "crates",
+  "car",
+  "bench",
+  "table",
+  "cabinet",
+  "fridge",
+  "blood",
+  "papers",
+  "monitors",
+  "window",
+  "door",
+  "plant",
+  "barrel",
+  "stairs",
+  "safe",
+  "radio",
+  "switchboard",
+  "clock",
+  "boat",
+  "cart",
+  "seats",
+  "screen",
+  "pump",
+  "phone",
+  "barrier",
+  "floodlight",
+  "soldier",
+  "lying",
+  "standing",
+  "gate",
+  "ship",
+  "cityLights",
+  "dumpster",
+  "hut",
+  "booth",
+  "scanner",
+  "sign",
+  "mailbox",
+  "house",
+  "school",
+  "tree",
+  "hedge",
+  "pole",
+  "sedan",
+  "bus",
+  "railing",
+  "tower",
+  "warehouse",
+  "hospital",
+  "stage",
+  "shops",
+  "church",
+  "graves",
+  "banner",
+  "mast",
+  "ironfence",
+  "balloons",
+  "hoop",
+  "court",
+  "bleachers",
+  "voterow",
+  "polldesk",
+  "hydrant",
+  "bins",
+  "leaves",
+  "fence",
+  "roadline",
+  "crosswalk",
+  "stalls",
+  "busstop",
+  "signal",
+  "flagpole",
+  "aframe",
+  "yardsign",
+  "lamp",
+  "coffin",
+  "vats"
+ ],
+ "floors": [
+  "tile",
+  "hosp",
+  "wood",
+  "concrete",
+  "carpet",
+  "metal",
+  "marble",
+  "dirt",
+  "linoleum",
+  "asphalt"
+ ],
+ "walls": [
+  "gray",
+  "green",
+  "beige",
+  "brick",
+  "wood",
+  "white",
+  "concrete",
+  "tile",
+  "steel",
+  "paper"
+ ],
+ "poses": {
+  "none": "立っている",
+  "hide": "物陰に隠れる",
+  "crouch": "その場でしゃがむ",
+  "kneel": "ひざまずく",
+  "sit": "地面に座る",
+  "lie": "倒れている",
+  "bend": "かがんで、手を伸ばす",
+  "aim": "銃を構えて撃つ",
+  "fend": "襲われて、押し返す",
+  "handsup": "両手を上げる",
+  "wave": "手を振る",
+  "point": "指をさす",
+  "phone": "電話か無線で話す",
+  "knock": "戸をたたく",
+  "cross": "腕を組む",
+  "down": "うなだれる",
+  "cover": "頭を抱える"
+ }
+}
