@@ -309,6 +309,14 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .step{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:16px 16px 18px;margin:14px 0}
 .step .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--red)}
 .step h3{font-family:var(--f-mincho);font-size:19px;font-weight:600;margin:4px 0 8px}
+.rowl{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:15px;color:var(--text)}
+.rowl span{flex:1}
+.rowl small{display:block;font-size:12px;color:var(--dim);margin-top:1px}
+.sm{font-family:var(--f-goth);font-size:14px;padding:9px 13px;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-radius:6px;cursor:pointer}
+.step select{display:block;width:100%;box-sizing:border-box;font-size:16px;padding:13px 12px;margin:0 0 10px;background:#0f1013;color:var(--text);border:1px solid #4a4436;border-radius:6px}
+.step .go + .go,.step p + .go,.step input + .go{margin-top:6px}
+.scr .note{border:1px solid #5a4a22;border-radius:6px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.7;color:#e8e2d2}
+.scr-more button{margin-top:6px}
 .lab{display:block;font-size:12px;color:var(--dim);margin:8px 0 4px}
 .step p b{color:var(--text)}
 .step p{font-size:14px;line-height:1.8;color:#cfc8ba;margin:0 0 10px}
@@ -324,6 +332,11 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .fr-note b{color:var(--gold);font-size:14px}
 .fr-switch{display:block;margin-top:18px;text-align:center;font-size:13px;color:var(--dim)}
 .fr-shot{display:block;width:100%;max-height:46vh;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:6px;margin:0 0 14px;background:#000}
+.fr-shot.full{max-height:50vh;object-fit:contain;border:0;background:none}
+.fr-page h3{margin-bottom:12px}
+.fr-legend{list-style:none;counter-reset:lg;margin:0 0 10px;padding:0;display:grid;grid-template-columns:1fr;gap:8px}
+.fr-legend li{counter-increment:lg;position:relative;padding-left:34px;font-size:15px;line-height:1.6;color:#d9d3c7}
+.fr-legend li::before{content:counter(lg);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:99px;background:var(--gold);color:#111;font:700 14px/24px sans-serif;text-align:center}
 .fr-text{font-size:16px;line-height:1.9;color:#d9d3c7;margin:6px 0 12px}
 .fr-page h3{font-family:var(--f-mincho);font-size:20px;margin:0 0 4px;font-weight:600}
 .fr-page .no{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--red);margin-bottom:8px}
@@ -398,7 +411,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 12:23 b8cde1a';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 12:46 0048a33';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -5629,18 +5642,19 @@ async function packFileSave(){ const a = document.createElement('a'); a.href = U
 // 部屋に入っていないときの、配る欄（☰ の「カスタム版」の中。編集版だけ）
 function soloDistHtml(){
   const n = soloCount(), has = n || Object.keys(overlay.keys || {}).length, esc = t => escText(t).replace(/"/g, '&quot;');
-  return '<p style="margin-top:16px"><b>自分で直した版</b>　この端末で直したもの：' + n + ' 件</p>'
+  return '<div class="step"><div class="n">作る人</div><h3>自分で直した版を配る</h3><p>この端末で直したもの：<b>' + n + ' 件</b></p>'
     + (!has ? '<p>まだ直したものがありません。本文の下の「✎ 編集する」か「＋ 選択肢を足す」から始めます。</p>'
-      : '<div class="row"><button id="soloExport">ファイルにして配る</button></div><p>ファイルが1つできます。受け取った人は、開くだけで遊べます。</p>'
+      : '<button class="go" id="soloExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、開くだけで遊べます。</p>'
         + (ghLinked()
-          ? '<div class="row"><button id="soloSave">リポジトリに保存する</button></div><p>連携しているリポジトリ（' + escText(ghRepo()) + '）に保存します。端末のデータが消えても残ります。</p>'
-            + '<input id="soloPubRepo" placeholder="配る用の公開リポジトリ（例: yourname/jtld-my-version）" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><div class="row"><button id="soloPublish">リンクで配る</button></div><p>直した中身と絵だけを公開リポジトリへ写して、配るリンクを作ります。</p>'
-          : '<p>リポジトリを連携すると、保存と、リンクでの配布ができます。☰ の「リポジトリの連携」から始めます。</p>')
-        + '<details style="margin-top:8px"><summary>連携せずに、リンクで配る</summary>'
-        + '<p>1. <a href="https://github.com/new?name=jtld-my-version&visibility=public" target="_blank" rel="noopener">公開のリポジトリを作る（github.com）</a>。「Add a README file」にチェックを入れて、「Create repository」を押します。<br>'
-        + '2. 下の「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
-        + '3. この画面のいちばん上にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
-        + '<div class="row"><button id="soloCopy">中身をコピーする</button><button id="soloPackFile">中身をファイルにする</button></div></details>');
+          ? '<button class="go" id="soloSave">リポジトリに保存する</button><p style="margin-top:10px">作業用のリポジトリ（' + escText(ghRepo()) + '）に保存します。端末のデータが消えても残ります。</p>'
+            + '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/jtld-my-version" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><button class="go" id="soloPublish">リンクで配る</button><p style="margin-top:10px">直した中身と絵だけを公開リポジトリへ写して、配るリンクを作ります。</p>'
+          : '<p>リポジトリを連携すると、保存と、リンクでの配布ができます。</p><button class="sm" id="toLink">リポジトリを連携する</button>')
+        + '<details class="scr-more"><summary>連携せずに、リンクで配る</summary>'
+        + '<p>1. <a href="https://github.com/new?name=jtld-my-version&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
+        + '2.「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
+        + '3. この画面の上の「もらった版で遊ぶ」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
+        + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">中身をファイルにする</button></details>')
+    + '</div>';
 }
 // リポジトリの名前を、「持ち主/リポジトリ」の形にそろえる（URL を貼っても通る）
 const repoSlug = t => (String(t || '').trim().replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/^github\.com\//, '').replace(/\.git$/, '').match(/^[\w.-]+\/[\w.-]+/) || [''])[0];
@@ -5649,6 +5663,27 @@ const packBase = () => location.href.split('#')[0].split('?')[0].replace(/\/test
 const packLink = (repo, key) => packBase() + '#pack=' + repo + (key ? '&pk=' + key : '');
 let packPanel = false, linkPanel = false, screenBack = null; // screenBack：タイトルやメニューから開いた画面を閉じたときに、戻る先
 // リポジトリの連携だけの画面（☰ の「リポジトリの連携」、始める前のメニューの「リポジトリを連携する」から開く）
+// 連携する：トークンを貼るだけでよい。リポジトリの名前が空なら、トークンから GitHub の名前を調べて、決まった名前のリポジトリ（作業用・配る用）を探して入れる
+let ghNameOpen = false, ghPatDraft = ''; // ghPatDraft：貼ったトークンを、連携が済むまで、画面の描き直しをまたいで持っておく（保存はしない）
+async function ghSaveClick(){
+  const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const pat = val('ghPatIn') || ghPatDraft || ghPat(); ghPatDraft = val('ghPatIn') || ghPatDraft; let slug = repoSlug(val('ghRepoIn')), pub = repoSlug(val('ghPubIn'));
+  if(!pat){ ghNote = 'トークンを貼ってください。'; render(); return; }
+  if(pub && pub === slug){ ghNote = '配る用には、作業用とは別のリポジトリを入れてください。'; ghNameOpen = true; render(); return; }
+  if(!slug){
+    ghNote = '確かめています…'; render();
+    const api = path => fetch('https://api.github.com/' + path, { headers:{ Authorization:'Bearer ' + pat, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+    try {
+      const u = await api('user'); if(!u.ok) throw u.status;
+      const login = String((await u.json()).login || ''); if(!/^[\w.-]+$/.test(login)) throw 0;
+      const work = login + '/joining-the-living-dead-rooms', dist = login + '/jtld-my-version';
+      if(!(await api('repos/' + work)).ok){ ghNote = '作業用のリポジトリ（' + work + '）が見つかりません。STEP 1 で作ってあるか、STEP 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下の「リポジトリの名前を変える」に入れます。'; ghNameOpen = true; render(); return; }
+      slug = work; if(!pub && (await api('repos/' + dist)).ok) pub = dist;
+    } catch(e){ ghNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
+  }
+  store.set('gh-repo', slug); store.set('gh-pat', pat); if(pub) store.set('pub-repo', pub); else store.remove('pub-repo');
+  ghNameOpen = false; ghPatDraft = ''; ghNote = '連携しました。'; render();
+}
 function linkPanelHtml(){
   const repo = ghRepo(), pub = store.get('pub-repo', ''), esc = t => escText(t).replace(/"/g, '&quot;'), on = ghLinked();
   const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
@@ -5662,15 +5697,15 @@ function linkPanelHtml(){
       + pick([['Token name', 'joining-the-living-dead-rooms'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → STEP 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
       + '<p>「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
       + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-rooms" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
-    + '<div class="step"><div class="n">STEP 3</div><h3>ここに入れる</h3>'
-      + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-rooms" value="' + esc(repo) + '" autocomplete="off">'
-      + '<label class="lab">配る用のリポジトリ（なければ空のまま）</label><input id="ghPubIn" placeholder="yourname/jtld-my-version" value="' + esc(pub) + '" autocomplete="off">'
-      + '<label class="lab">トークン</label>'
-      + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'github_pat_…') + '" autocomplete="off">'
+    + '<div class="step"><div class="n">STEP 3</div><h3>トークンを貼る</h3>'
+      + '<p>トークンを貼って「連携する」を押します。リポジトリの名前は、自動で入ります。</p>'
+      + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'github_pat_…') + '" value="' + esc(ghPatDraft) + '" autocomplete="off">'
       + '<button class="go" id="ghSave">' + (on ? '入れ直す' : '連携する') + '</button>'
       + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
+      + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>リポジトリの名前を変える</summary><p>STEP 1 で、名前を変えて作ったときだけ入れます。空のままなら、自動で探します。</p>'
+        + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-rooms" value="' + esc(repo) + '" autocomplete="off">'
+        + '<label class="lab">配る用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/jtld-my-version" value="' + esc(pub) + '" autocomplete="off"></details>'
       + (on ? '<button class="quiet" id="ghForget">この端末から連携を消す</button>' : '') + '</div>'
-    + '<details class="scr-more"><summary>部屋を作る人へ</summary><p>連携したまま部屋を作ると、トークンは招待リンクに入って、部屋の人に渡ります。リンクを持っている人は、このリポジトリの中身を書き換えられます。入れたい人にだけ渡してください。</p></details>'
     + '</div>';
 }
 // 公開版は、リリースのたびに、版の番号つきの番地（v/<版>/）にも残してある。付けた追加分が、今と違う版に合わせて作ってあれば、その版の番地へ移る（原本が新しくなっても、追加分は、合わせた版の上で動き続ける）
@@ -5705,12 +5740,16 @@ function howPages(kind){
     ];
   }
   const P = [
-    { img:'how-play-1', t:'読んで、選ぶ', text:'本文を読んで、下の選択肢を押します。押すたびに話が進み、時刻も進みます。上の映像は、その場所の監視カメラです。' },
-    { img:'how-play-2', t:'地図を見る', text:'画面の右端の「地図」を押すと、地図が開きます。もう一度押すと閉じます。「映像」も同じように開け閉めできます。' },
+    { img:'how-play-0', full:true, t:'画面の見方', legend:['いまの人物・時刻・体力・持ち物', '戻す：選ぶ前に戻ります。時刻も体力も戻ります', '☰：別の人物の本に替えます', '映像と地図を、開く・閉じる', '映像：主人公がいまいる場所が映ります'] },
+    { t:'この街で起きること', list:[
+      ['本', CHAR_IDS.map(id => CHARS[id].name).join('、') + '。それぞれの一日が、1冊の本になっています。街は1つなので、' + (room ? 'ほかの人が自分の本でしたことは、あなたの本の街にも起きています。' : 'ある本でしたことは、別の本を開いたときにも残っています。')],
+      ['時刻と投票', '選ぶたびに時刻が進みます。投票するなら、朝7時から夜8時のあいだに投票所へ行きます。一日が終わると、開票の結果が出ます。それぞれのしたことで、結果が変わります。'],
+      ['体力と感染', 'ゾンビに襲われると、体力が1つ減ります。傷から感染することがあります。体力がなくなるか、感染してしばらくたつと、その人は化け物になります。化け物になっても、話は続きます。'],
+      ...(room ? [] : [['本を替える', '☰ を開いて「保存して交代」を押し、読みたい本を選んで「ロックして進める」を押します。']]),
+    ] },
   ];
   if(host) P.push({ img:'how-play-4', t:'人を招待する', text:'☰ の「部屋」で「招待リンクをコピーする」を押して、入れたい人に送ります。' + (roomLocal() ? '入りたい人が来ると、画面の上に知らせが出ます。「許可する」を押すと、その人が入れます。' : '') + reach });
   if(room) P.push({ img:'how-play-3', t:'自分の本を進める', text:'☰ の「部屋」で、進めたい本をロックします。進められるのは、自分がロックした本だけです。ほかの人の本は、読むことができます。' + (guest ? reach : '') });
-  else P.push({ img:'how-play-3', t:'ほかの人物の本を読む', text:'右上の ☰ で本を替えられます。替える前に「保存して交代」を押します。前の本でしたことは、街に残っています。' });
   return P;
 }
 function frontHtml(){
@@ -5738,10 +5777,13 @@ function frontHtml(){
   }
   const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i];
   return osd + '<div class="fr-in" style="justify-content:flex-start"><div class="fr-page"><div class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</div>'
-    + (q.img ? '<img class="fr-shot" src="' + siteRoot() + 'icons/' + q.img + '.jpg" alt="" onerror="this.remove()">' : '')
-    + '<h3>' + q.t + '</h3><p class="fr-text">' + q.text + '</p></div>'
-    + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' disabled') + '>← 前へ</button><button id="frNext" class="main"' + (i < P.length - 1 ? '' : ' disabled') + '>次へ →</button></div>'
-    + '<button class="plain" id="frClose">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button></div>' + foot;
+    + '<h3>' + q.t + '</h3>'
+    + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg" alt="" onerror="this.remove()">' : '')
+    + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + t + '</li>').join('') + '</ol>' : '')
+    + (q.list ? '<dl>' + q.list.map(r => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl>' : '')
+    + (q.text ? '<p class="fr-text">' + q.text + '</p>' : '') + '</div>'
+    + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' style="visibility:hidden"') + '>← 前へ</button>' + (i < P.length - 1 ? '<button id="frNext" class="main">次へ →</button>' : '<button id="frClose" class="main">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button>') + '</div>'
+    + (i < P.length - 1 ? '<button class="plain" id="frClose">' + (howBack === 'title' ? 'タイトルへ戻る' : '閉じる') + '</button>' : '') + '</div>' + foot;
 }
 function frontRender(){
   const el = document.getElementById('front');
@@ -5766,22 +5808,23 @@ function frontRender(){
   el.querySelectorAll('[data-frbook]').forEach(q => { q.onclick = () => { selectedBlock = null; histIndex = null; current = q.dataset.frbook; store.set('current', current); front = null; frontRender(); if(!loadWorld().lock) takeLock(); else render(); window.scrollTo(0, 0); }; });
 }
 function packPanelHtml(){
-  const key = store.get('pack-key', '');
-  return '<div class="fb panel"><p><b>カスタム版</b>　ほかの人が作った版を読みこんで遊べます。' + (TEST_BUILD && !room && !EMBED ? '自分で直した版を配るのも、ここからです。' : '') + '</p>'
-    + (PACK && overlay.base ? '<p>この版は、もとのゲームの ' + escText(overlay.base.ver || overlay.base.build || '') + ' に合わせて作られています。今動いているのは ' + escText(APP_VERSION.startsWith('__') ? BUILD : APP_VERSION) + ' です。'
-        + (overlay.base.ver && overlay.base.ver !== APP_VERSION && !TEST_BUILD ? (store.get('pack-latest', false) ? '<br>いちばん新しいゲームの上で動かしています。合わなくなった直しは出ません。<button class="mini" id="packPin">合わせた版に戻す</button>' : '') : overlay.base.ver && !TEST_BUILD ? '<br><button class="mini" id="packLatest">いちばん新しいゲームの上で動かしてみる</button>' : '') + '</p>' : '')
-    + (PACK ? '<p>今は <b>' + escText(PACK) + '</b> の版で遊んでいます。</p>'
-        + '<div class="row"><button id="packCopy">この版のリンクをコピーする</button><button id="packOff">もとの版に戻す</button></div>'
-        + (key ? '<p>このリンクにはトークンが入ります。渡した相手は、そのリポジトリの中身を読めます。</p>' : '')
-      : '<p><b>もらった版で遊ぶ</b>　リンクをもらったときは、そのリンクを開くだけです。リポジトリの名前をもらったときは、下に入れます。</p>'
-        + '<input id="packRepo" placeholder="例: someone/jtld-my-version（URL でも可）" autocomplete="off">'
-        + '<div class="row"><button id="packOn">この版で遊ぶ</button></div>'
-        + '<details style="margin-top:8px"><summary>非公開のリポジトリのとき</summary><p>読むだけのトークンが必要です。作ったら、下に貼ってから「この版で遊ぶ」を押します。</p>'
-        + '<input id="packKey" type="password" placeholder="読むだけのトークン（github_pat_…）" autocomplete="off">'
-        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=jtld-read" target="_blank" rel="noopener">トークンを作る画面を開く（github.com）</a><br>'
-        + '・Token name：jtld-read<br>・Expiration：90 days か、Custom で1年後<br>・Repository access：Only select repositories → 読みこみたいリポジトリ<br>・Repository permissions：Contents を Read-only<br>「Generate token」を押して、出てきた github_pat_… をコピーします。この画面を閉じると、トークンは二度と表示されません。</p></details>')
-    + missHtml()
-    + (TEST_BUILD && !room && !EMBED ? soloDistHtml() : '')
+  const key = store.get('pack-key', ''), mine = TEST_BUILD && !room && !EMBED;
+  const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
+  return '<div class="scr"><h2 class="scr-h">カスタム版</h2><p class="scr-lead">ほかの人が作った版を読みこんで遊べます。' + (mine ? '自分で直した版を配るのも、ここからです。' : '') + '</p>'
+    + (PACK ? '<div class="scr-state on">今は、この版で遊んでいます<b>' + escText(PACK) + '</b></div>'
+        + (overlay.base ? '<p class="scr-lead" style="font-size:13px;margin-top:10px">この版は、もとのゲームの ' + escText(overlay.base.ver || overlay.base.build || '') + ' に合わせて作られています。今動いているのは ' + escText(APP_VERSION.startsWith('__') ? BUILD : APP_VERSION) + ' です。'
+            + (overlay.base.ver && overlay.base.ver !== APP_VERSION && !TEST_BUILD ? (store.get('pack-latest', false) ? '<br>いちばん新しいゲームの上で動かしています。合わなくなった直しは出ません。<button class="sm" id="packPin">合わせた版に戻す</button>' : '') : overlay.base.ver && !TEST_BUILD ? '<br><button class="sm" id="packLatest">いちばん新しいゲームの上で動かしてみる</button>' : '') + '</p>' : '')
+        + '<div class="step"><div class="n">この版</div><h3>配る・やめる</h3><button class="go" id="packCopy">この版のリンクをコピーする</button>'
+        + (key ? '<p style="margin-top:10px">このリンクにはトークンが入ります。渡した相手は、そのリポジトリの中身を読めます。</p>' : '')
+        + '<button class="quiet" id="packOff">もとの版に戻す</button></div>'
+      : '<div class="step"><div class="n">遊ぶ人</div><h3>もらった版で遊ぶ</h3><p>リンクをもらったときは、そのリンクを開くだけです。リポジトリの名前をもらったときは、下に入れます。</p>'
+        + '<input id="packRepo" placeholder="someone/jtld-my-version" autocomplete="off"><button class="go" id="packOn">この版で遊ぶ</button>'
+        + '<details class="scr-more"><summary>非公開のリポジトリのとき</summary><p>読むだけのトークンを作って、下に貼ってから「この版で遊ぶ」を押します。</p>'
+        + '<input id="packKey" type="password" placeholder="github_pat_…" autocomplete="off">'
+        + pick([['Token name', 'jtld-read'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 読みこみたいリポジトリ'], ['Repository permissions', 'Contents を Read-only']])
+        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=jtld-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p></details></div>')
+    + (missList().length ? '<div class="fb panel">' + missHtml() + '</div>' : '')
+    + (mine ? soloDistHtml() : '')
     + (packNote ? '<div class="note">' + escText(packNote) + '</div>' : '') + '</div>';
 }
 // 公開のリポジトリから、採用したもの（book/overlay.json）を読む。トークンは要らない
@@ -6347,24 +6390,34 @@ function roomPanelHtml(){
       + '<p>もらった招待リンクを開くだけです。部屋番号をもらったときは、下に入れます。</p>'
       + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><button class="go" id="roomJoinBtn">この番号の部屋に入る</button></div>'
     + note + '</div>';
-  const own = store.get('own', {});
-  return head + '<p><b>部屋 ' + room + '</b>　' + (roomOpen ? '本をロックした人が、その本を進めます。ロックは本ごとなので、ほかの本は、ほかの人が同時に進められます。進めた分は、ほかの人の端末にも、そのまま届きます。' : 'この部屋は、ホストが閉じています。開くまで、本は進められません。') + '</p>'
-    + '<p>' + (isHost() ? 'あなたが、この部屋を作った人です。' + (liveOn() ? '今、' + hostConns.size + '台とつながっています。' : roomLocal() ? 'このページを開いているあいだ、ほかの人とつながります。閉じているあいだは、ほかの人の進みが届きません。' : 'このページを開いているあいだは、ほかの人の進みがすぐ届きます。')
-        : liveOn() ? '部屋を作った人とつながっています。進めた分は、すぐ届きます。' : joinState === 'wait' ? '部屋を作った人の許可を待っています。' : joinState === 'denied' ? '部屋を作った人が、入るのを断りました。' : roomLocal() ? '部屋を作った人につながっていません。その人がこのページを開くと、つながります。自分がロックした本は、そのまま進められます。' : '部屋を作った人が開いていないあいだは、30秒ごとに届きます。') + '</p>'
-    + (roomLocal() ? '<p>呼び名と進み具合は、部屋を作った人の端末に残ります。' + (isHost() ? '入りたい人が来ると、画面の上に知らせが出ます。許可した人だけが入れます。' : '') + '</p>'
-      : '<p>呼び名・書いた話・付けた画像・進み具合は、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '<br>今は、リポジトリにつながっていません。自分がロックした本は進められ、進めた分はつながったときに書きます。') + '</p>')
-    + CHAR_IDS.map(c => { const o = own[c]; return '<div class="row" style="align-items:center"><span style="flex:1">' + CHARS[c].name + 'の本　' + (o ? ownerName(o) : '誰もロックしていない') + '</span>'
-      + (o ? (o.dev === DEV || roomHost() ? '<button data-free="' + c + '">' + 'ロックを外す' + '</button>' : '') : roomOpen ? '<button data-claim="' + c + '">ロックする</button>' : '') + '</div>'; }).join('')
-    + '<p>ロックを外した本は、ほかの人がロックして、続きから進められます。</p>'
-    + '<p><b>追い抜ける幅</b>　' + (roomGap() ? 'いちばん遅れている人より' + roomGap() + '分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
-    + (roomHost() ? '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む。食い違いは、まず起きない）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' : '')
-    + '<input id="roomName" placeholder="呼び名（本名は入れない。最初に1回だけ）" maxlength="30">'
-    + '<div class="row"><button id="roomCopy">招待リンクをコピーする</button><button id="roomLeave">部屋を出る</button>' + (roomHost() ? '<button id="roomToggle">' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '</button>' : '') + '</div>'
-    + (roomHost() ? '<div class="row" style="margin-top:8px">' + (roomDelAsk ? '<span>この部屋を使えなくします。全員が入れなくなります。' + (roomLocal() ? '' : '記録は、リポジトリの rooms/' + room + ' に残ります（要らなければ、GitHub の画面で消せます）。') + '</span><button id="roomDelYes">消す</button><button id="roomDelNo">やめる</button>' : '<button id="roomDel">部屋を終わりにする</button>') + '</div>'
-      + missHtml()
-      + (TEST_BUILD ? '<p style="margin-top:12px"><b>配布用のファイル</b>　採用したものを入れた、編集の機能のない版を、1つのファイルにして書き出します。そのまま開いて遊べ、どこかに置いて配れます。部屋の記録やトークンは、入りません。</p><div class="row"><button id="roomExport">配布用のファイルを作る</button><button id="roomPackFile">採用したものだけを、ファイルにする</button></div><p style="margin-top:12px"><b>リンクで配る</b>　採用したものを、公開用のリポジトリへ出すと、リンク1つで、誰でもその版を遊べます。部屋のリポジトリは、非公開のままです。本体が新しくなると、その版にも反映されます。<br>先に、公開のリポジトリを1つ作り（<a href="https://github.com/new?name=jtld-my-version&visibility=public" target="_blank" rel="noopener">https://github.com/new?name=jtld-my-version&amp;visibility=public</a>。「Add a README file」に印）、部屋のトークンの「Repository access」に、そのリポジトリも足します。</p>'
-      + '<input id="pubRepo" placeholder="公開用のリポジトリ（例: yourname/jtld-my-version）" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><div class="row"><button id="roomPublish">公開用のリポジトリへ出す</button></div>' : '') : '')
-    + note + '</div>';
+  const own = store.get('own', {}), host = roomHost();
+  const state = !roomOpen ? 'この部屋は閉じています。開くまで、本は進められません。'
+    : isHost() ? (liveOn() ? '今、' + hostConns.size + '台とつながっています。' : roomLocal() ? 'このページを開いているあいだ、ほかの人とつながります。' : 'このページを開いているあいだは、みんなの進みがすぐ届きます。')
+    : liveOn() ? '部屋を作った人とつながっています。' : joinState === 'wait' ? '部屋を作った人の許可を待っています。' : joinState === 'denied' ? '部屋を作った人が、入るのを断りました。' : roomLocal() ? '部屋を作った人につながっていません。その人がページを開くと、つながります。自分の本は、そのまま進められます。' : 'みんなの進みは、30秒ごとに届きます。';
+  return '<div class="scr"><h2 class="scr-h">部屋 ' + room + '</h2>'
+    + '<div class="scr-state' + (liveOn() ? ' on' : '') + '">' + (isHost() ? 'あなたが、この部屋を作った人です。' : '') + state + '</div>'
+    + note
+    + '<div class="step"><div class="n">呼び名</div><h3>自分の呼び名</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
+    + '<div class="step"><div class="n">本</div><h3>誰が、どの本を進めるか</h3>'
+      + CHAR_IDS.map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
+        + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">ロックを外す</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>'; }).join('')
+      + '<p style="margin-top:12px">進められるのは、自分がロックした本です。ロックを外すと、ほかの人が続きから進められます。</p></div>'
+    + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクを送ります。相手は、開くだけです。' + (roomLocal() ? (isHost() ? '入りたい人が来ると、画面の上に知らせが出ます。「許可する」を押すと入れます。' : '') : 'このリンクには、リポジトリに書きこむためのトークンが入ります。入れたい人にだけ渡してください。') + '</p>'
+      + '<button class="go" id="roomCopy">招待リンクをコピーする</button></div>'
+    + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅</h3><p>' + (roomGap() ? 'いちばん遅れている人より ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
+        + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
+        + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、開くだけで遊べます。</p>'
+        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/jtld-my-version" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した中身と絵だけを公開リポジトリへ写して、配るリンクを作ります。トークンに、そのリポジトリも入れておきます。</p>')
+        + '<details class="scr-more"><summary>中身だけをファイルにする</summary><p>採用したもの（overlay.json）だけを書き出します。</p><button class="sm" id="roomPackFile">中身をファイルにする</button></details></div>' : '')
+    + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
+    + '<div class="step"><div class="n">部屋</div><h3>部屋を出る・閉じる</h3>'
+      + '<div class="rowl"><span>部屋を出る<small>自分だけが出ます</small></span><button class="sm" id="roomLeave">出る</button></div>'
+      + (host ? '<div class="rowl"><span>' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '<small>閉じているあいだ、誰も本を進められません</small></span><button class="sm" id="roomToggle">' + (roomOpen ? '閉じる' : '開ける') + '</button></div>'
+        + '<div class="rowl"><span>部屋を終わりにする<small>全員が入れなくなります' + (roomLocal() ? '' : '。記録はリポジトリの rooms/' + room + ' に残ります') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終わりにする</button>') + '</div>' : '')
+      + '</div>'
+    + '<details class="scr-more"><summary>部屋に残るもの</summary><p>' + (roomLocal() ? '呼び名と進み具合が、部屋を作った人の端末に残ります。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
+    + '</div>';
 }
 // 巻き戻し：ロックを取ってから「保存して交代」を押すまでの自分の手は、直近 100 手まで取り消せる（部屋の中では 10 手まで。端末の保存の枠を、使いすぎないため）。
 // 手を打つたびに、打つ前の街と自分の状態を積んでおく（履歴は増えるだけなので、長さだけ覚える）
@@ -6739,13 +6792,7 @@ function render(){
   on('soloPublish', soloPublish);
   on('soloCopy', async () => { try { await navigator.clipboard.writeText(JSON.stringify(await packDataPublic())); packNote = '追加分をコピーしました。リポジトリの book/overlay.json に貼ってください。'; } catch(e){ packNote = 'コピーできませんでした。「追加分をファイルにする」を使ってください。'; } render(); });
   const ghS = document.getElementById('ghSet'); if(ghS) ghS.ontoggle = () => { ghSetOpen = ghS.open; };
-  on('ghSave', () => {
-    const slug = (document.getElementById('ghRepoIn').value.trim().replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/^github\.com\//, '').replace(/\.git$/, '').match(/^[\w.-]+\/[\w.-]+/) || [''])[0], pat = document.getElementById('ghPatIn').value.trim();
-    if(!slug){ ghNote = 'リポジトリの名前を、「ユーザー名/リポジトリ名」の形で入れてください。'; render(); return; }
-    store.set('gh-repo', slug); if(pat) store.set('gh-pat', pat);
-    const pubIn = document.getElementById('ghPubIn'); if(pubIn){ const ps = repoSlug(pubIn.value); if(ps && ps === slug){ ghNote = '配る用には、作業用とは別のリポジトリを入れてください。'; render(); return; } if(ps) store.set('pub-repo', ps); else store.remove('pub-repo'); }
-    ghNote = ghPat() ? '覚えました。' : 'トークンを入れてください。'; render();
-  });
+  on('ghSave', ghSaveClick);
   on('ghForget', () => { store.remove('gh-repo'); store.remove('gh-pat'); ghNote = 'この端末から、リポジトリの名前とトークンを消しました。'; render(); });
   on('roomDelNo', () => { roomDelAsk = false; render(); });
   on('roomDelYes', roomDelete);
@@ -6761,6 +6808,7 @@ function render(){
   on('packbtn', () => { packPanel = true; roomPanel = linkPanel = bookPanel = false; menuOpen = false; render(); });
   on('linkbtn', () => { linkPanel = true; roomPanel = packPanel = bookPanel = false; menuOpen = false; render(); });
   on('roomLeave2', roomLeave);
+  on('toLink', () => { linkPanel = true; roomPanel = packPanel = bookPanel = false; render(); });
   document.querySelectorAll('[data-joinok]').forEach(q => { q.onclick = () => joinAnswer(q.dataset.joinok, true); });
   document.querySelectorAll('[data-joinno]').forEach(q => { q.onclick = () => joinAnswer(q.dataset.joinno, false); });
   on('linkClose', () => { linkPanel = false; ghNote = ''; render(); });
@@ -7653,16 +7701,17 @@ function runDraft(a, key, child, v){
 let bookPanel = false, bookForm = { name:'', osd:'', like:'voter', start:'', clock:'07:00' }, bookNote = '';
 function bookPanelHtml(){
   const f = bookForm, bases = CHAR_IDS.filter(c => !CHARS[c].dyn), L = BOOKS[f.like] || BOOKS.voter, mine = store.get('draft-books', {});
-  return '<div class="fb panel"><p><b>本を足す</b>　新しいキャラの本を作ります。街の歩き方（場所・道・ゾンビのいる所）と、映像に出る姿は、もとにする本から借ります。出来事は、できた本を開いて、「＋ 選択肢を足す」で書いていきます。</p>'
-    + Object.entries(mine).map(([id, x]) => '<div class="row" style="align-items:center"><span style="flex:1">足した本（下書き）：' + escText(x.name) + '</span><button class="mini" data-bookdel="' + id + '">消す</button></div>').join('')
-    + '<input id="bkName" maxlength="12" placeholder="名前（例：新聞記者）">'
-    + '<input id="bkOsd" maxlength="16" placeholder="映像に出る呼び名（例：ペレス記者。空なら、名前と同じ）">'
-    + '<label style="flex-direction:column;align-items:stretch;gap:0">もとにする本<select id="bkLike">' + bases.map(c => '<option value="' + c + '"' + (c === f.like ? ' selected' : '') + '>' + CHARS[c].name + 'の本</option>').join('') + '</select></label>'
-    + '<label style="flex-direction:column;align-items:stretch;gap:0">始まる場所<select id="bkStart">' + Object.entries(L.spots || {}).filter(([, sp]) => !sp.dyn).map(([id, sp]) => '<option value="' + id + '"' + (id === f.start ? ' selected' : '') + '>' + escText(sp.name) + '</option>').join('') + '</select></label>'
-    + '<label style="flex-direction:column;align-items:stretch;gap:0">始まる時刻<input id="bkClock" type="time" value="' + f.clock + '"></label>'
-    + '<div class="row"><button id="bkSave">この本を足す</button></div>'
-    + '<p>足すと、ページを開き直して、☰ の本の並びに出ます。この端末では、すぐ遊べます。ホストが採用すると、部屋の全員の本に入ります。足せるのは、10冊までです。</p>'
-    + (bookNote ? '<div class="note">' + escText(bookNote) + '</div>' : '') + '</div>';
+  return '<div class="scr"><h2 class="scr-h">本を足す</h2><p class="scr-lead">新しい人物の本を作ります。街の歩き方と映像の姿は、もとにする本から借ります。出来事は、できた本を開いて「＋ 選択肢を足す」で書いていきます。</p>'
+    + (Object.keys(mine).length ? '<div class="step"><div class="n">足した本</div>' + Object.entries(mine).map(([id, x]) => '<div class="rowl"><span>' + escText(x.name) + 'の本<small>下書き</small></span><button class="sm" data-bookdel="' + id + '">消す</button></div>').join('') + '</div>' : '')
+    + '<div class="step"><div class="n">新しい本</div><h3>どんな人の本か</h3>'
+    + '<label class="lab">名前</label><input id="bkName" maxlength="12" placeholder="新聞記者">'
+    + '<label class="lab">映像に出る呼び名（空なら、名前と同じ）</label><input id="bkOsd" maxlength="16" placeholder="ペレス記者">'
+    + '<label class="lab">もとにする本</label><select id="bkLike">' + bases.map(c => '<option value="' + c + '"' + (c === f.like ? ' selected' : '') + '>' + CHARS[c].name + 'の本</option>').join('') + '</select>'
+    + '<label class="lab">始まる場所</label><select id="bkStart">' + Object.entries(L.spots || {}).filter(([, sp]) => !sp.dyn).map(([id, sp]) => '<option value="' + id + '"' + (id === f.start ? ' selected' : '') + '>' + escText(sp.name) + '</option>').join('') + '</select>'
+    + '<label class="lab">始まる時刻</label><input id="bkClock" type="time" value="' + f.clock + '">'
+    + '<button class="go" id="bkSave">この本を足す</button>'
+    + '<p style="margin-top:10px">足すと、ページを開き直して、☰ の本の並びに出ます。10冊まで足せます。' + (room ? '部屋を作った人が採用すると、全員の本に入ります。' : '') + '</p>'
+    + (bookNote ? '<div class="note">' + escText(bookNote) + '</div>' : '') + '</div></div>';
 }
 function bookPanelWire(){
   const $ = id => document.getElementById(id), f = bookForm;
