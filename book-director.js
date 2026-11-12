@@ -27,6 +27,8 @@ const SPOTS = {
       + '机の上には、夜勤の報告と、統合の日程表。日程表の表紙には、理事会の判が3つ並んでいる。'
       + (s.clock >= COUNT ? '\n\nラジオは、開票の速報をやっている。' : '\n\n壁の時計は' + fmt(s.clock) + '。'),
     extra:s => [
+      c('机の引き出しの拳銃を、白衣のポケットに入れる', 0, 420, { cond:s => !has(s, '拳銃') && !s.flags.gun, run(s){ s.flags.gun = 1; addItem(s, '拳銃'); addItem(s, '弾', 5);
+        s.msg = '引き出しの奥、理事会の封筒の下に、小さな拳銃がある。前の院長が置いていったものだ。弾は5発、入ったままになっている。\n\n白衣のポケットに入れた。聴診器と同じ側は、やめた。'; return 420; } }),
       c('机で書類を片づけて、次の予定を待つ', 0, 420, { cond:s => !!nextWait(s), run(s){ s.clock = nextWait(s); s.msg = '決裁の判を押した。押すたびに、内線が鳴った。救急からが4回、病棟からが2回。'; return 420; } }),
       c('ラジオの音を上げて、椅子に座る', 0, 407, { cond:s => s.clock >= COUNT }),
     ] },
@@ -99,8 +101,11 @@ BOOKS.director = {
   start:400,
   hubs:{},
   noJump:true,
+  lines:{ shot:'撃った。ひとりが、床に倒れた。音が、廊下の端まで行って戻ってくる。', shotLast:'撃った。最後のひとりが倒れた。消毒液のにおいに、火薬のにおいが混じる。',
+    shotAware:'残りが、こちらを向いた。', shotMiss:'撃った。弾は、壁の掲示板に当たった。誰も倒れない。', shotGrab:'次を狙うより先に、白衣の袖をつかまれた。引いた拍子に、手首に歯が当たった。', shotMore:'音を聞いて、角から、もうひとり出てきた。', noticed:'ひとりが、こちらを向いた。カルテで名前を見たことのある顔だ。歩いてくる。', grabbed:'白衣の裾をつかまれた。引いた拍子に、手首に歯が当たった。',
+    follow:n => n + '人が、あとをついてくる。看護師が、ワゴンを壁へ寄せて道を空けた。', shake:'戸を閉めた。ついてきた者は、小窓の向こうに立っている。', lost:'ついてきた者は、途中で足を止めた。' },
   spots:SPOTS, wound:() => WOUND,
-  planZ:{ hosp:(s, w, room) => (room === 'lobby' ? [3, 'lobby'] : room === 'er' ? [3, 'er'] : room === 'ward' ? (wardZ(s) ? [3, 'ward'] : 0) : room === 'hall' && risen(s) ? 2 : 0) },
+  planZ:{ hosp:s => [[3, 'lobby'], [3, 'er'], [wardZ(s), 'ward'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ hosp:{ office:[400, 407], er:[401], aud:[404], ward:[405] } },
   paras:{
     // ===== 朝：夜勤の報告 =====

@@ -42,6 +42,8 @@ const SPOTS = {
       c('案内と一緒に届いた、候補者の一覧を読む', 0, 5, { cond:s => !s.flags.guide }),
       c('仕事の予定を確かめる', 0, 27, { cond:s => !s.flags.sched }),
       c('引き出しの運転免許証を、財布に入れておく', 0, 8, { cond:s => !has(s, '運転免許証') }),
+      c('寝室の戸棚から、拳銃を出していく', 0, 2, { cond:s => !has(s, '拳銃') && !s.flags.gun, run(s){ s.flags.gun = 1; addItem(s, '拳銃'); addItem(s, '弾', 6);
+        s.msg = '戸棚の上の段から、靴の箱を下ろした。布にくるんだ回転式の拳銃と、弾の紙箱。父が置いていったものだ。\n\n6発こめて、上着の内ポケットに入れた。上着の片側だけが、少し下がる。'; return 2; } }),
       c('傘立てから、傘を1本持っていく', 0, 2, { cond:s => !has(s, '傘'), run(s){ addItem(s, '傘'); s.msg = '傘立てから黒い傘を抜いた。骨が1本曲がっているが、開くことは開く。'; return 2; } }),
     ] },
   back:{ no:35, name:'自宅の裏', short:'裏口', place:'oak', cam:'v_back', at:[130, 258], label:[0, 15], adj:['oak2', 'home'], go:{ oak2:'隣の庭を抜けて、表の歩道へ出る', home:'勝手口から、家に入る' },
@@ -152,7 +154,7 @@ const SPOTS = {
       + '\n\n手前の左に「1年2組」、その先に「保健室」の札が出ている。',
     runLabel:{ gym:'ほかの人たちと同じように、壁に寄って3人の後ろを通る' },
     run:{ ok:'壁に背中をつけて、3人の後ろを抜けた。男は窓から額を離さなかった。白衣の2人は、食缶の中をのぞいている。', hit:'台車の脇を抜けかけたとき、白衣のひとりが顔を上げた。配膳の手袋をはめた手が、袖をつかんでくる。振りほどいて、体育館の扉を押した。' } },
-  classroom:{ no:67, name:'1年2組', place:'school', room:'classroom', adj:['corridor'], go:{ corridor:'廊下へ戻る' }, z:4,
+  classroom:{ no:67, name:'1年2組', place:'school', room:'classroom', adj:['corridor'], go:{ corridor:'廊下へ戻る' }, z:4, calm:true,
     text:'机は後ろへ寄せてあって、黒板に「保健局　待機室」と書いた紙が貼ってある。\n\n机を並べた囲いの中に、4人が入れてあった。3人は囲いに沿ってゆっくり歩いている。もうひとりは子ども用の椅子に座らされていて、首には長い柄のついた輪が掛かったままだ。膝が、机の天板より高いところにある。\n\n用紙に何か書き込んでいた黄色いベストの係員が、顔を上げた。\n「ご家族の方ですか」\n「いえ」\n「でしたら、すみませんが」' },
   nurse:{ no:66, name:'保健室', place:'school', room:'nurse', adj:['corridor'], go:{ corridor:'廊下へ戻る' },
     z:s => (s.flags.nurseUp ? 1 : 0), block:s => (s.flags.nurseUp ? ['corridor'] : []),
@@ -185,7 +187,7 @@ const SPOTS = {
     arrive(s){ drive(s); if(allDone(s) && s.from === 'main') return 97; },
     text:'車はふつうに流れていて、継ぎ目を踏むたびにハンドルが小さく跳ねる。歩道には4人。そろって欄干のほうを向いていて、車には目もくれない。\n\n西のたもとから先はオーク通りで、その突き当たりがメインストリートだ。東へ渡りきれば、配送センターに戻る。' },
   main:{ no:88, name:'メインストリート', short:'メインストリート', map:'city', place:'mainst', cam:'v_main', at:[176, 186], label:[40, -8], adj:['bridge', 'hospF', 'church', 'alley'], go:{ bridge:'オーク通りを東へ、ケスラー橋へ向かう', hospF:'北へ走って、州立病院の正面へ', church:'南へ走って、聖マルコ教会へ', alley:'車を、一本裏の路地へ入れる' },
-    z:5, path:{ alley:[] },
+    z:5, hide:true, path:{ alley:[] },
     arrive(s){ if(s.from !== 'alley') drive(s); },
     text:s => '金物屋と薬局にはさまれた空き店舗に、窓いっぱいの赤い幕。カーヴァーの選挙事務所だ。\n\nその前の歩道を、5人が行ったり来たりしている。配達の制服、学生ふうの若いの、買い物袋を提げた女が2人、それに杖を持った年寄り。杖は、もう地面についていない。\n買い物の客は慣れたもので、5人が背中を向けたすきに、店から店へさっと渡っていく。'
       + (s.flags.dMain ? '' : '\n\n荷台には、印刷所から預かった5箱。「投票所まで車でお送りします」というチラシだそうだ。事務所には、裏の路地に面した裏口もある。')
@@ -320,8 +322,11 @@ BOOKS.voter = {
   hubs:{},
   noJump:true,
   spots:SPOTS, map:MAP, maps:{ city:CITY }, wound,
+  lines:{ shot:'引き金は、思っていたより軽かった。ひとりが、膝から崩れた。耳の奥で、まだ音が鳴っている。', shotLast:'撃った。最後のひとりが、歩道に倒れた。通りに、動くものはない。',
+    shotAware:'残りが、音のしたほうへ顔を向けた。', shotMiss:'撃った。銃が、手の中で跳ねた。誰も倒れない。向かいの家の窓が、1枚割れた。', shotGrab:'狙いをつけ直しているうちに、横から袖をつかまれた。銃の台尻で払って、振りほどいた。', shotMore:'銃声を聞いて、角の向こうから、もうひとり出てきた。', noticed:'ひとりが、こっちを向いた。歩いてくる。', grabbed:'気がつくと、すぐ後ろまで来ていた。袖をつかまれる。振りほどいた。',
+    follow:n => n + '人が、あとをついてくる。足は遅いが、止まらない。', shake:'戸を閉めた。ついてきたのは、外に残った。ガラスに、手のひらの跡がつく。', lost:'振り返ると、ついてきたのは、角の手前で足を止めていた。' },
   // 建物の中にいるあいだ、映像に映るゾンビの数（小学校は廊下の用務員）
-  planZ:{ school:(s, w, room) => (room === 'nurse' ? (s.flags.nurseUp ? [1, 'nurse'] : 0) : room === 'classroom' ? [4, 'classroom'] : room === 'gym' ? [2, 'gym'] : janitorGone(s) ? 0 : 3), hosp:(s, w, room) => (room === 'er' ? [3, 'er'] : room === 'lobby' ? [3, 'lobby'] : risen(s) ? 2 : 0) },
+  planZ:{ school:s => [[janitorGone(s) ? 0 : 3, 'corridor'], [4, 'classroom'], [2, 'gym'], [s.flags.nurseUp ? 1 : 0, 'nurse']], hosp:s => [[3, 'lobby'], [3, 'er'], [risen(s) ? 2 : 0, 'hall']] },
   planParas:{ school:{ gym:[53, 54, 55, 56, 69, 70, 71, 72] }, hosp:{ supply:[84], er:[85] } },
   paras:{
     // ===== 朝：自宅 =====

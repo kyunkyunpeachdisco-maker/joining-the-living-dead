@@ -111,8 +111,10 @@ BOOKS.governor = {
   start:200,
   hubs:{},
   noJump:true,
+  lines:{ noticed:'1人が、こちらを向いた。ルイス巡査部長が、半歩前に出た。カメラは、まだ気づいていない。', grabbed:'巡査部長の腕の下から、手が伸びてきた。袖をつかまれる。巡査部長が引きはがした。シャッターの音が、2回した。',
+    follow:n => n + '人が、車のあとを歩いてくる。ペイジが、後ろの窓から目を離さない。', shake:'扉が閉まった。ついてきた者は、ガラスの向こうに残った。', lost:'ついてきた者は、角の手前で足を止めた。巡査部長が、無線を下ろした。' },
   spots:SPOTS, map:MAP, wound:() => WOUND,
-  planZ:{ hotel:(s, w, room) => (room === 'lobby' ? [3, 'lobby'] : room === 'ball' ? [4, 'ball'] : s.flags.waiterGone ? 0 : 3) },
+  planZ:{ hotel:s => [[3, 'lobby'], [4, 'ball'], [s.flags.waiterGone ? 0 : 3, 'hall']] },
   planParas:{ hotel:{ ball:[224] } },
   paras:{
     // ===== 朝：公邸 =====

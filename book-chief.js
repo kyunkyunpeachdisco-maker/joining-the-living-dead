@@ -58,7 +58,7 @@ const SPOTS = {
 
   // ===== 巡回で回る現場 =====
   lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[30, 4], adj:['p_lobby', ...others('lot')], go:{ p_lobby:'署の玄関へ入る', ...go('lot') },
-    z:s => (s.clock >= FENCE ? (s.flags.sent ? 0 : 4) : s.flags.cells ? 0 : 2), arrive:arr(325),
+    z:s => (s.clock >= FENCE ? (s.flags.sent ? 0 : 4) : s.flags.cells ? 0 : 2), calm:true, arrive:arr(325),
     text:s => (s.clock >= FENCE
         ? (s.flags.sent ? '駐車場の金網のフェンスに、外した手錠が8つ下がっている。風が来ると、端から順に鳴る。' : '駐車場の金網のフェンスに、8人が手錠でつないである。朝は2人だった。保健局の車は、まだ1台も来ていない。' + (s.flags.lit ? '投光器が2台、8人を照らしている。' : ''))
           + (s.flags.sent || s.flags.lit ? '' : '\n\nドイル副署長が玄関から出てきて、フェンスを端から端まで目で数えた。\n「署長。日が暮れたら、フェンスの者は外から見えなくなります。州立病院なら、救急で預かってくれるかもしれません」')
@@ -134,8 +134,11 @@ BOOKS.chief = {
   start:300,
   hubs:{},
   noJump:true,
+  lines:{ shot:'拳銃を抜いて、撃った。1人が倒れた。薬莢が、足もとで鳴った。', shotLast:'撃った。最後の1人が倒れた。薬莢を拾って、ポケットに入れた。',
+    shotAware:'残りが、こちらへ向きを変えた。', shotGrab:'次の1人に銃口を向けたとき、横から手首をつかまれた。ねじって外した。', shotMore:'銃声で、もう1人が通りへ出てきた。', noticed:'1人が、こちらを向いた。距離は、車2台ぶん。歩いてくる。', grabbed:'警棒を抜くより先に、手首をつかまれた。ねじって外した。',
+    follow:n => n + '人が、パトカーのあとを歩いてくる。ケインが、鏡を見ている。', shake:'扉を閉めた。ついてきた者は、外に残った。', lost:'ついてきた者は、途中で足を止めた。鏡の中で、小さくなっていく。' },
   spots:SPOTS, map:MAP, wound:() => WOUND,
-  planZ:{ ps:(s, w, room) => (room === 'lobby' ? [2, 'lobby'] : loose(s) ? 2 : 0) },
+  planZ:{ ps:s => [[2, 'lobby'], [loose(s) ? 2 : 0, 'hall']] },
   planParas:{ ps:{ roll:[300], office:[307] } },
   paras:{
     // ===== 朝：点呼 =====
