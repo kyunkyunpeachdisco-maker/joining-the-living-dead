@@ -14,6 +14,7 @@ const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v), arr = v =>
   let o; try { o = JSON.parse(fs.readFileSync(file, 'utf8')); } catch(e){ console.log('× JSON として読めません：' + e.message); process.exit(1); }
   const src = {}, spots = {}, paras = {};
   const main = await get('index.html');
+  let cat = null; try { cat = JSON.parse(await get('catalog.json')); } catch(e){} // 部品の一覧表（あれば、見取り図と突き合わせる）
   for(const [book, f] of Object.entries(BOOK_FILES)){
     src[book] = await get(f);
     spots[book] = {}; for(const m of src[book].matchAll(/^\s{2}([A-Za-z_][\w]*):\{ no:(\d+), name:'([^']*)'/gm)) spots[book][m[1]] = { no:+m[2], name:m[3] };
@@ -59,10 +60,39 @@ const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v), arr = v =>
         else if(!Array.isArray(r.door) || r.door.length !== 2 || !r.door.every(Number.isFinite)) err(w, 'room.door は [x, z]');
         if(r.props != null && (!Array.isArray(r.props) || r.props.length > 16 || !r.props.every(q => Array.isArray(q) && typeof q[0] === 'string' && Number.isFinite(q[1]) && Number.isFinite(q[2])))) err(w, 'room.props は [[名前, x, z, 向き], …]（16個まで）');
         else for(const q of r.props || []){ if(!main.includes('\n  ' + q[0] + '(T, g')) err(w, 'room.props の「' + q[0] + '」という家具は、ない'); else if(Array.isArray(r.rect) && (q[1] < r.rect[0] || q[1] > r.rect[2] || q[2] < r.rect[1] || q[2] > r.rect[3])) err(w, 'room.props の「' + q[0] + '」が、部屋の四角の外'); }
-        if(r.fromRoom && !Object.values(list).some(y => y && y.room && y.room.id === r.fromRoom) && !new RegExp('\\b' + r.fromRoom + ':\\{ floor:').test(main)) warn(w, 'room.fromRoom「' + r.fromRoom + '」が、見取り図に見つからない');
+        if(!cat && r.fromRoom && !Object.values(list).some(y => y && y.room && y.room.id === r.fromRoom) && !new RegExp('\\b' + r.fromRoom + ':\\{ floor:').test(main)) warn(w, 'room.fromRoom「' + r.fromRoom + '」が、見取り図に見つからない');
       } else if(!Array.isArray(x.at) || x.at.length !== 2 || !x.at.every(Number.isFinite)) err(w, 'at は [x, y]（地図の上の位置）');
       if(x.img && !fs.existsSync(path.join(path.dirname(file), 'assets', x.img + '.jpg'))) err(w, '絵 assets/' + x.img + '.jpg が、ない');
       if(x.z != null && !(x.z >= 0 && x.z <= 6)) err(w, 'z（ゾンビの数）は、0〜6');
+    }
+  }
+  // ===== 見取り図との突き合わせ（一覧表 catalog.json があるとき）：部屋の重なり、戸の位置、つながる部屋 =====
+  const addedFloors = new Set();
+  for(const list of Object.values(isObj(o.spots) ? o.spots : {})) for(const x of Object.values(isObj(list) ? list : {})) if(isObj(x) && isObj(x.room) && x.room.stairs) addedFloors.add(x.room.plan + ':' + x.room.floor);
+  if(cat){
+    const norm = r => [Math.min(r[0], r[2]), Math.min(r[1], r[3]), Math.max(r[0], r[2]), Math.max(r[1], r[3])];
+    const added = [];
+    for(const [book, list] of Object.entries(isObj(o.spots) ? o.spots : {})) for(const [id, x] of Object.entries(isObj(list) ? list : {}))
+      if(isObj(x) && isObj(x.room) && Array.isArray(x.room.rect) && x.room.rect.length === 4 && x.room.rect.every(Number.isFinite)) added.push({ w:'spots.' + book + '.' + id, book, x, r:x.room });
+    const roomOf = (plan, id) => { const c = ((cat.plans[plan] || {}).rooms || {})[id]; if(c) return { floor:c.floor, rect:norm(c.rect), name:c.name }; const a = added.find(q => q.r.plan === plan && q.r.id === id); return a ? { floor:a.r.floor, rect:norm(a.r.rect), name:a.x.name } : null; };
+    // 点 p が、四角 q の壁の上にあるか
+    const onEdge = (p, q) => ((Math.abs(p[0] - q[0]) < .15 || Math.abs(p[0] - q[2]) < .15) && p[1] > q[1] - .15 && p[1] < q[3] + .15) || ((Math.abs(p[1] - q[1]) < .15 || Math.abs(p[1] - q[3]) < .15) && p[0] > q[0] - .15 && p[0] < q[2] + .15);
+    for(const { w, book, x, r } of added){
+      const P = cat.plans[r.plan]; if(!P) continue;
+      const from = roomOf(r.plan, r.fromRoom), me = norm(r.rect);
+      if(!from){ err(w, 'room.fromRoom「' + r.fromRoom + '」という部屋は、その建物にない（ある部屋：' + Object.keys(P.rooms).join('・') + '）'); continue; }
+      if(!r.stairs){
+        if(from.floor !== r.floor) err(w, 'room.floor「' + r.floor + '」が、fromRoom「' + from.name + '」の階（' + from.floor + '）と違う（同じ階にしか、戸でつなげない）');
+        if(Array.isArray(r.door) && r.door.length === 2 && r.door.every(Number.isFinite)){
+          if(!onEdge(r.door, me)) err(w, 'room.door が、足す部屋の壁の上にない');
+          else if(!onEdge(r.door, from.rect)) err(w, 'room.door が、fromRoom「' + from.name + '」の壁の上にない（2つの部屋が、戸の位置で接していない）');
+        }
+      }
+      const same = [...Object.entries(P.rooms).map(([id, c]) => ({ id, floor:c.floor, rect:norm(c.rect), name:c.name })), ...added.filter(q => q.r !== r && q.r.plan === r.plan).map(q => ({ id:q.r.id, floor:q.r.floor, rect:norm(q.r.rect), name:q.x.name }))].filter(q => q.floor === r.floor);
+      for(const q of same) if(me[0] < q.rect[2] - .05 && me[2] > q.rect[0] + .05 && me[1] < q.rect[3] - .05 && me[3] > q.rect[1] + .05) err(w, '部屋の四角が、「' + q.name + '」（' + q.id + '）と重なっている');
+      const base = ((cat.books[likeOf(book)] || {}).spots || {})[x.from], near = ((o.spots[book] || {})[x.from] || {}).room;
+      if(base && base.place !== r.plan) warn(w, 'from「' + x.from + '」は、建物「' + r.plan + '」の中の場所ではない');
+      else { const at = base ? base.room : near && near.id; if(at && at !== r.fromRoom) warn(w, 'from「' + x.from + '」のある部屋（' + at + '）と、fromRoom（' + r.fromRoom + '）が違う（歩いて行ける先と、戸のつながる先が、食い違う）'); }
     }
   }
   const spotOk = (book, id) => !!((spots[likeOf(book)] || {})[id] || (dynSpots[book] || {})[id]);
@@ -80,11 +110,17 @@ const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v), arr = v =>
     const w = 'cams.' + scene + '.' + id; camIds.add(id);
     if(!/^c[a-z0-9]{2,20}$/.test(id)) err(w, '名前は、c で始まる小文字の英数字');
     if(!isObj(c) || !Array.isArray(c.pos) || c.pos.length !== 3 || !c.pos.every(Number.isFinite)) err(w, 'pos は [x, y, z]');
+    if(scene.startsWith('plan:')){ const pl = scene.split(':')[1], fl = scene.split(':')[2]; if(!plans.has(pl)) err(w, '場面「' + scene + '」の建物「' + pl + '」は、ない'); else if(cat && cat.plans[pl] && !cat.plans[pl].floors.includes(fl) && !addedFloors.has(pl + ':' + fl)) err(w, '場面「' + scene + '」の階「' + fl + '」は、その建物にない（ある階：' + cat.plans[pl].floors.join('・') + '）'); }
     if(!scene.startsWith('plan:') && !main.includes("cam:'" + scene + "'") && !Object.values(src).some(s => s.includes("cam:'" + scene + "'"))) warn(w, '場面「' + scene + '」が、原本に見つからない');
   }
   // ===== 場面ごとの直し =====
+  // 持ち物の名前：追加分のどこかで手に入るか、原本に出てくる名前か（打ち間違いを見つける）
+  const gotten = new Set();
+  for(const d of Object.values(isObj(o.keys) ? o.keys : {})) for(const a of arr(d && d.add)) if(isObj(a.fx)) for(const n of [...arr(a.fx.get), ...arr(a.fx.once)]) gotten.add(n);
+  const itemOk = n => gotten.has(n) || main.includes(n) || Object.values(src).some(s => s.includes(n));
   const checkFx = (w, book, fx) => {
     if(!isObj(fx)) return;
+    for(const n of [...arr(fx.lose), ...arr(fx.need), ...[fx.cond, ...arr(fx.cor)].filter(isObj).flatMap(g => [...arr(g.have), ...arr(g.lack)])]) if(typeof n === 'string' && !itemOk(n)) warn(w, '持ち物「' + n + '」は、追加分のどこでも手に入らず、原本にも出てこない（名前の打ち間違いかもしれない）');
     for(const k of ['get', 'lose', 'once', 'flag']) if(fx[k] != null && !Array.isArray(fx[k]) && !(k === 'once' && fx[k] === true)) err(w, 'fx.' + k + ' は、名前の並び');
     if(fx.hp != null && !(Math.abs(fx.hp) <= 3)) err(w, 'fx.hp は、-3〜3');
     if(fx.inf && !['on', 'off'].includes(fx.inf)) err(w, 'fx.inf は、on か off');

@@ -326,7 +326,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.2.0';
+const APP_VERSION = 'v0.2.1';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4824,10 +4824,11 @@ function roomPanelHtml(){
       + '<input id="pubRepo" placeholder="公開用のリポジトリ（例: yourname/jtld-my-version）" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><div class="row"><button id="roomPublish">公開用のリポジトリへ出す</button></div>' : '') : '')
     + note + '</div>';
 }
-// 巻き戻し：ロックを取ってから「保存して交代」を押すまでの自分の手は、何手でも取り消せる。
+// 巻き戻し：ロックを取ってから「保存して交代」を押すまでの自分の手は、直近 100 手まで取り消せる（部屋の中では 10 手まで。端末の保存の枠を、使いすぎないため）。
 // 手を打つたびに、打つ前の街と自分の状態を積んでおく（履歴は増えるだけなので、長さだけ覚える）
+const UNDO_MAX = 100;
 function undoCount(){ return store.get('undo', []).length; }
-function pushUndo(w, s){ const u = store.get('undo', []), { history, ...rest } = s; u.push({ w, s:rest, h:(history || []).length }); if(room && u.length > 10) u.shift(); store.set('undo', u); }
+function pushUndo(w, s){ const u = store.get('undo', []), { history, ...rest } = s; u.push({ w, s:rest, h:(history || []).length, n:(u.length ? (u[u.length - 1].n || u.length) : 0) + 1 }); if(u.length > (room ? 10 : UNDO_MAX)) u.shift(); store.set('undo', u); }
 // i 番目の手を打つ前まで戻す（それより後の手は、すべてなかったことになる）
 let undoOpen = false;
 function undoTo(i){
@@ -4846,7 +4847,7 @@ function undoTo(i){
 function undoListHtml(s){
   const u = store.get('undo', []), hist = s.history || [];
   return '<div class="undolist"><b>どこまで戻しますか</b>'
-    + u.map((e, i) => `<div><span>${i + 1}手目　${fmt(e.s.clock)}　${PLACES[e.s.place]}<br><b>${hist[e.h] ? `「${hist[e.h].chosen}」を選ぶ前` : 'この手を打つ前'}</b></span><button data-undo="${i}">ここへ戻す</button></div>`).reverse().join('')
+    + u.map((e, i) => `<div><span>${e.n || i + 1}手目　${fmt(e.s.clock)}　${PLACES[e.s.place]}<br><b>${hist[e.h] ? `「${hist[e.h].chosen}」を選ぶ前` : 'この手を打つ前'}</b></span><button data-undo="${i}">ここへ戻す</button></div>`).reverse().join('')
     + '<button id="undoClose">閉じる</button></div>';
 }
 // 本の文・出来事の文・選択肢は、画面に出すときに記号を文字として出す（文の中のタグは働かない）
