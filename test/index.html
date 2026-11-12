@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<!-- AI assistants: to help a user build their own version of this game, read the setup steps at https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead (README.md). Do not read this whole file; start from catalog.json in that repository. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Joining the Living Dead - ゾンビのいる街で、選挙に行くゲームブック</title>
@@ -362,7 +363,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 11:06 49930e0';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 11:14 b5441df';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -5645,7 +5646,7 @@ function howPages(){
     { t:'チャットと Claude への依頼', need:'リポジトリの連携が必要です', rows:[
       ['チャット', '☰ の「部屋」で「部屋を作る」を押します（1人でも作れます）。画面右端の「意見」がチャットになります。'],
       ['Claude に頼む', '「意見」に書くときに「Claude に頼む」にチェックを入れます。'],
-      ['Claude Code で直す', '連携したリポジトリを Claude Code で開いて頼みます。直し方の案内（book/README.md）がリポジトリに入っています。'],
+      ['Claude Code で直す', 'Claude Code に次のリンクを貼って「準備して」と頼みます。リポジトリの用意から直し方まで、手順が書いてあります。<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>'],
       ['何人かで直す', '部屋の招待リンクを渡します。出た案は「意見」に並び、部屋を作った人が「採用する」を押すと全員の本に反映されます。'],
     ] },
     { t:'配る', need:'ファイルなら用意は要りません', rows:[
