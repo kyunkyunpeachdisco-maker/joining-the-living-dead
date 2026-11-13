@@ -204,7 +204,11 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .th.me{border-color:#a8780a}
 .choices button .tag{display:block;font-size:11px;color:#8a8270;margin-top:3px}
 .fxrow label{flex:1 1 42%;min-width:9em;flex-direction:column;align-items:stretch;gap:0;font-size:11px}
+select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e8e2d2;border:1px solid #4a4436;border-radius:6px;font-size:16px;padding-right:30px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23cfc7b4'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 11px center!important}
 .fxrow select{margin:2px 0 8px;text-overflow:ellipsis}
+.lk{font-family:inherit;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin-left:6px;color:var(--dim);background:none;white-space:nowrap}.lk.on{color:#f0d890;border-color:#a8780a}button.lk{color:var(--text);border-color:#6a6458}
+.fb .row button[data-k]{padding:10px 16px;font-size:15px}.fb .row button[data-k="save"]{border-color:var(--gold);color:#f0d890}.fb .row button[data-k="drop"]{margin-left:auto;color:#d08a80;border-color:#6a3a34}
+.fbe.tgl{border:1px solid #4a4436;border-radius:8px;color:#cfc7b4;padding:8px 14px;font-size:14px}
 @media (max-width:520px){.fxrow label{flex:1 1 100%}}
 .fl{border-bottom:1px solid #26241f;padding:6px 0;font-size:13px;color:var(--dim)}
 .fl.seen b{color:#e8e2d2}
@@ -217,8 +221,8 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .flowmap .cur rect{fill:#231f14;stroke:#c8a030;stroke-width:2}
 .flowmap .here rect{stroke:#b0281b;stroke-width:2}
 .flowmap .draft rect{stroke-dasharray:4 3}
-.flowmap text{fill:#cfc7b4;font-size:10px}
-.flowmap .t2{fill:#8a8270;font-size:9px}
+.flowmap text{fill:#cfc7b4;font-size:11px}
+.flowmap .t2{fill:#8a8270;font-size:10px}
 .flowmap path{stroke:#6a6458;fill:none}
 .flowmap g[data-flowat]{cursor:pointer}
 .th.new{border-left:3px solid #c8a030}
@@ -236,6 +240,8 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 #fbDrawer.max{left:0;width:100vw;top:0!important;z-index:30}
 #fbDrawer.max #fbBody{max-height:100dvh;height:100dvh;box-sizing:border-box;border:0;border-radius:0}
 #fbDrawer.max .edgetab{display:none}
+.edgetab .tabn{position:absolute;left:-8px;top:-8px;writing-mode:horizontal-tb;font-style:normal;font-size:10px;letter-spacing:0;background:#a8780a;color:#111;border-radius:8px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px;box-sizing:border-box}
+#fbDrawer.max .fb.panel{padding:16px!important;margin:0!important;border:0!important}
 .fb label{display:flex;gap:6px;align-items:center}
 .fb input[type=checkbox]{width:auto;margin:0}
 .text .para,.msg .para{white-space:pre-line;margin-bottom:1.9em}
@@ -267,7 +273,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .tally{border-collapse:collapse;margin:8px 0 10px;width:100%;max-width:420px}.tally td{padding:3px 6px;border-bottom:1px solid #3a3528}.tally .num{text-align:right;font-variant-numeric:tabular-nums}
 .help{margin:0 0 16px;font-size:12px;color:var(--dim);line-height:1.7;border:1px solid var(--line);border-radius:4px;padding:10px 12px}
 /* 画面の右端のつまみ：押すと、映像・地図が横から出入りする */
-.edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;white-space:nowrap;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1}
+.edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;white-space:nowrap;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1;text-orientation:upright}
 .edgetab.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
 #videoTab{top:58px}
 #drawer,#fbDrawer{position:fixed;right:0;top:112px;z-index:8;width:min(94vw,560px);transform:translateX(100%);transition:transform .22s ease-out}
@@ -359,7 +365,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .scr-state.on{border-color:#3d6b45;color:#9fd3a6}
 .scr-state b{display:block;color:var(--text);font-size:15px;margin-top:2px;word-break:break-all}
 .step{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:16px 16px 18px;margin:14px 0}
-.step .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--red)}
+.step .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.2em;color:var(--gold)}
 .step h3{font-family:var(--f-mincho);font-size:19px;font-weight:600;margin:4px 0 8px}
 .rowl{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:15px;color:var(--text)}
 .rowl span{flex:1}
@@ -466,7 +472,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 13:50 3f7fab5';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 14:40 9b09ecc';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -5878,7 +5884,7 @@ async function ghSaveClick(){
       const u = await api('user'); if(!u.ok) throw u.status;
       const login = String((await u.json()).login || ''); if(!/^[\w.-]+$/.test(login)) throw 0;
       const work = login + '/joining-the-living-dead-work', dist = login + '/joining-the-living-dead-share';
-      if(!(await api('repos/' + work)).ok){ ghNote = '作業用のリポジトリ（' + work + '）が見つかりません。STEP 1 で作ってあるか、STEP 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下に名前を入れます。'; ghNameOpen = true; render(); return; }
+      if(!(await api('repos/' + work)).ok){ ghNote = '作業用のリポジトリ（' + work + '）が見つかりません。手順 1 で作ってあるか、手順 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下に名前を入れます。'; ghNameOpen = true; render(); return; }
       slug = work; if(!pub && (await api('repos/' + dist)).ok) pub = dist;
     } catch(e){ ghNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
   }
@@ -5891,19 +5897,19 @@ function linkPanelHtml(){
   return '<div class="scr"><h2 class="scr-h">リポジトリの設定</h2>'
     + '<p class="scr-lead">設定すると、書き換えたものが自動で保存され、画像を付ける、リンクで配る、AI に書かせる、といったことができるようになります。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは、GitHub の上のファイル置き場です。トークンは、ゲームがそこへ書きこむための鍵です。GitHub は無料で使えます。</p>'
     + '<div class="scr-state' + (on ? ' on' : '') + '">' + (on ? '連携しています<b>作業用：' + escText(repo) + '</b><b>配る用：' + (pub ? escText(pub) : 'まだ決めていません') + '</b>' : 'まだ連携していません') + '</div>'
-    + '<div class="step"><div class="n">STEP 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開・非公開が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作ります。すでにあるなら、飛ばします。</p>'
+    + '<div class="step"><div class="n">手順 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開・非公開が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作ります。すでにあるなら、飛ばします。</p>'
       + '<p><b>作業用（非公開）</b>　書き換えたもの、画像、部屋の記録が入ります。見られるのは、自分とトークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
       + '<p style="margin-top:16px"><b>配る用（公開）</b>　リンクで配るときに使います。誰でも見られますが、入るのは書き換えた内容と画像だけです。あとからでも作れます。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で配る用を作る</a></div>'
-    + '<div class="step"><div class="n">STEP 2</div><h3>トークンを作る</h3><p>下の「GitHub でトークンを作る」を押して、開いた画面で次のように選びます。</p>'
-      + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → STEP 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
+    + '<div class="step"><div class="n">手順 2</div><h3>トークンを作る</h3><p>下の「GitHub でトークンを作る」を押して、開いた画面で次のように選びます。</p>'
+      + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 手順 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
       + '<p>「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
       + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
-    + '<div class="step"><div class="n">STEP 3</div><h3>トークンを貼る</h3>'
-      + '<p>コピーしたトークンを貼って、「連携する」を押します。STEP 1 で作ったリポジトリを、自動で探して連携します。</p>'
+    + '<div class="step"><div class="n">手順 3</div><h3>トークンを貼る</h3>'
+      + '<p>コピーしたトークンを貼って、「連携する」を押します。手順 1 で作ったリポジトリを、自動で探して連携します。</p>'
       + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'github_pat_…') + '" value="' + esc(ghPatDraft) + '" autocomplete="off">'
       + '<button class="go" id="ghSave">' + (on ? '入れ直す' : '連携する') + '</button>'
       + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
-      + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>STEP 1 で、名前を変えて作った人は</summary><p>ここに、リポジトリの名前を入れます。空のままなら、自動で探します。</p>'
+      + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>手順 1 で、名前を変えて作った人は</summary><p>ここに、リポジトリの名前を入れます。空のままなら、自動で探します。</p>'
         + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-work" value="' + esc(repo) + '" autocomplete="off">'
         + '<label class="lab">配る用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/joining-the-living-dead-share" value="' + esc(pub) + '" autocomplete="off"></details>'
       + (on ? '<button class="quiet" id="ghForget">リポジトリの設定を消す</button>' : '') + '</div>'
@@ -6157,7 +6163,7 @@ function frontHtml(){
       + '<p class="fr-sub">ゾンビのいる街の、州知事選挙の投票日。<br>' + CHAR_IDS.map(id => escText(CHARS[id].name)).join('、') + '。<br>同じ一日を、それぞれの本で読み進める。</p>'
       + '<div class="fr-btns">'
       + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
-      + '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・一緒に作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>'
+      + '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>'
       + '<button id="frHow">遊び方</button>'
       + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・配る・みんなで作る</small></button>' : '')
       + '</div>'
@@ -6168,7 +6174,7 @@ function frontHtml(){
   if(front === 'menu'){
     return osd + '<div class="fr-in"><h2 class="fr-h">どの本から読みますか</h2><p class="fr-lead">あとから別の本にも替えられます。</p><div class="fr-btns">'
       + CHAR_IDS.map(id => '<button data-frbook="' + id + '">' + escText(CHARS[id].name) + 'の本<small>' + escText(CHARS[id].osd || '') + '　' + fmt(CHARS[id].clock) + ' に、' + escText(PLACES[CHARS[id].place] || '') + 'から始まる</small></button>').join('')
-      + '</div><button class="plain" id="frBack">タイトルへ戻る</button></div>';
+      + '</div><button class="plain" id="frBack">タイトルへ</button></div>';
   }
   const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i], closeLabel = howBack === 'title' ? 'タイトルへ' : '閉じる';
   return '<div class="fr-in" style="justify-content:flex-start;padding-top:0">'
@@ -6794,7 +6800,7 @@ async function roomDelete(){
 const ownerName = o => o.dev === DEV ? 'あなた' : escText(o.name || '名前なし');
 function roomPanelHtml(){
   const head = '<div class="fb panel">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
-  if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・一緒に作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人が1冊ずつ進めます。それぞれの端末から、同時に遊べます。' + (TEST_BUILD ? '部屋の中では、一緒に書き換えることもできます。' : '') + '</p>'
+  if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人が1冊ずつ進めます。それぞれの端末から、同時に遊べます。' + (TEST_BUILD ? '部屋の中では、一緒に書き換えることもできます。' : '') + '</p>'
     + '<div class="step"><div class="n">部屋を作る人</div><h3>部屋を作って、招待する</h3>'
       + '<p>部屋を作ると、この画面に「招待リンクをコピーする」が出ます。それを送って人を呼びます。相手は、登録なしで入れます。' + (ghLinked() ? '' : '入りたい人が来たら、「許可する」を押します。') + '</p>'
       + '<p>' + (ghLinked() ? 'リポジトリを設定してあるので、部屋の記録（進み具合と話）はリポジトリに残ります。あなたがゲームを閉じているあいだも、ほかの人は続けられます。' : 'あなたがゲームを開いているあいだ、全員の進み具合が共有されます。閉じているあいだも、それぞれ自分の本は読み進められ、開き直すと共有されます。') + '</p>'
@@ -7015,7 +7021,8 @@ function render(){
       + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>')
       + (room ? '' : '<button class="reset" id="reset">最初から</button>'))
     + (TEST_BUILD ? '' : `<div style="font-size:11px;color:#6a6458;text-align:right;padding-top:6px">${APP_VERSION}</div>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
-  const whose = `<span><b>${CHARS[current].name}</b></span>`;
+  const lkReal = room ? null : realIO(() => loadWorld().lock), lkOn = room ? mine(current) : lkReal === current;
+  const whose = `<span><b>${CHARS[current].name}</b>${lkOn ? '<span class="lk on">ロック中</span>' : !room && !lkReal ? '<button class="lk" id="lockAsk">ロックなし</button>' : '<span class="lk">ロックなし</span>'}</span>`;
 
   let html = '', drawerHtml = '';
   if(mode === 'history'){
@@ -7110,7 +7117,7 @@ function render(){
   fbD.hidden = !fbCan; fbD.classList.toggle('open', fbOpen && fbCan);
   document.getElementById('fbBody').innerHTML = fbOpen && fbCan ? (room || !cmOld ? commHtml() : fbPanelHtml()) : '';
   document.getElementById('fbTab').classList.toggle('on', fbOpen);
-  fbD.classList.toggle('max', (fbMax || !!room || !cmOld) && fbOpen && fbCan);
+  fbD.classList.toggle('max', fbOpen && fbCan);
   if(room && fbOpen && cmThread && cmScroll){ const fb = document.getElementById('fbBody'); fb.scrollTop = fb.scrollHeight; cmScroll = false; }
   chatBadge();
   syncTuck();
@@ -7205,6 +7212,7 @@ function render(){
   decorateForEdit(mode);
   placePosters();
   on('undobtn', () => { undoOpen = !undoOpen; render(); window.scrollTo(0, 0); });
+  on('lockAsk', () => askLock());
   on('undoClose', () => { undoOpen = false; render(); });
   document.querySelectorAll('.undolist button[data-undo]').forEach(b => b.onclick = () => undoTo(+b.dataset.undo));
   on('menubtn', () => { menuOpen = !menuOpen; render(); });
@@ -7396,7 +7404,7 @@ function cmListHtml(){
       + '<span class="w">' + cmTime(cmWhen(it)) + (un ? '<br><i class="cm-n">' + (itemCallsMe(x) ? '@' : '') + un + '</i>' : '') + '</span></button>';
   };
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
-    + '<input id="fbFind" class="cm-find" placeholder="スレッドを探す" maxlength="40">'
+    + '<input id="fbFind" class="cm-find" placeholder="' + (room ? 'スレッドを探す' : 'メモを探す') + '" maxlength="40">'
     + (room ? '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
     + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : '') + '</p>') + '</div>'
     + (room ? '' : '<button class="cm-new" id="cmOldBtn" style="border-color:#3a3a40;color:#c9c2b3">作者へ意見を送る' + (store.get('outbox', []).length ? '（待ち ' + store.get('outbox', []).length + '）' : '') + '</button>')
@@ -7641,9 +7649,9 @@ function markSeen(){
 // つまみの数字：まだ読んでいない話の数（名指しされていれば @ を付ける）
 function chatBadge(){
   const tab = document.getElementById('fbTab');
-  if(!room){ if(tab) tab.textContent = '通信' + (TEST_BUILD && store.get('outbox', []).length || ''); return 0; }
+  if(!room){ if(tab){ const n0 = TEST_BUILD && store.get('outbox', []).length || ''; tab.innerHTML = '通信' + (n0 ? '<i class="tabn">' + n0 + '</i>' : ''); } return 0; }
   const un = itemList().filter(isUnread), n = un.length;
-  if(tab) tab.textContent = '通信' + (un.some(itemCallsMe) ? '@' : '') + (n || '');
+  if(tab){ const n0 = (un.some(itemCallsMe) ? '@' : '') + (n || ''); tab.innerHTML = '通信' + (n0 ? '<i class="tabn">' + n0 + '</i>' : ''); }
   document.title = (n ? '(' + n + ') ' : '') + PAGE_TITLE;
   return n;
 }
@@ -7927,6 +7935,8 @@ function sendAfter(){
   return Date.now() >= d.getTime() ? 0 : d.getTime();
 }
 function queueIssue(id, label, head, main, auto, extra){
+  // リポジトリを設定した人が1人で書き換えたものは、自分のリポジトリに保存される。作者へ送る待ちには積まない（意見・地図の印・数の案は積む）
+  if(!room && TEST_BUILD && ghLinked() && !/^(op|mark|tune)[|]/.test(id)){ fbeUnit = null; return; }
   const m = issueMeta(), after = sendAfter(), box = store.get('outbox', []).filter(x => x.id !== id);
   box.push({ id, label, title:'[' + m.name + ' ' + m.para + '] ' + head.replace(/\s+/g, ' ').slice(0, 40), body:main + m.tail, after, at:current + ':' + m.para, text:main, ...(fbeUnit ? { draft:fbeUnit } : {}), ...extra });
   fbeUnit = null;
@@ -8396,7 +8406,7 @@ function flowHtml(){
     const p = B.paras[no]; if(!p) return '';
     if(p.spot) return B.spots[p.spot].name;
     let t = ''; try { t = typeof p.text === 'function' ? p.text(copy(), w) : p.text; } catch(e){}
-    return String(t || '').replace(/\s+/g, ' ').slice(0, 18) + (p.end ? '（結末）' : '');
+    const t1 = String(t || '').replace(/\s+/g, ' ').trim(), s1 = t1.split('。')[0]; return (s1.length > 18 ? s1.slice(0, 17) + '…' : s1 + (t1.includes('。') ? '。' : '')) + (p.end ? '（結末）' : '');
   };
   const outsOf = (no, p) => {
     let list = [];
@@ -8415,7 +8425,7 @@ function flowHtml(){
     const rowsN = Math.max(1, ins.length, outs.length), H = rowsN * 44 + 20, cy = H / 2, W = 360, bw = 104, bh = 34;
     const y = (i, n) => H / 2 + (i - (n - 1) / 2) * 44;
     const cut = (t, n) => { t = String(t || ''); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
-    const box = (x, yy, l1, l2, cls, no) => '<g' + (no != null ? ' data-flowat="' + no + '"' : '') + ' class="' + cls + '"><rect x="' + (x - bw / 2) + '" y="' + (yy - bh / 2) + '" width="' + bw + '" height="' + bh + '" rx="4"/><text x="' + (x - bw / 2 + 5) + '" y="' + (yy - 3) + '">' + esc(cut(l1, 10)) + '</text><text class="t2" x="' + (x - bw / 2 + 5) + '" y="' + (yy + 10) + '">' + esc(cut(l2, 11)) + '</text></g>';
+    const box = (x, yy, l1, l2, cls, no) => '<g' + (no != null ? ' data-flowat="' + no + '"' : '') + ' class="' + cls + '"><rect x="' + (x - bw / 2) + '" y="' + (yy - bh / 2) + '" width="' + bw + '" height="' + bh + '" rx="4"/><text x="' + (x - bw / 2 + 5) + '" y="' + (yy - 3) + '">' + esc(cut(l1, 9)) + '</text><text class="t2" x="' + (x - bw / 2 + 5) + '" y="' + (yy + 10) + '">' + esc(cut(l2, 10)) + '</text></g>';
     const link = (x1, y1, x2, y2) => '<path d="M' + x1 + ',' + y1 + ' C' + (x1 + 22) + ',' + y1 + ' ' + (x2 - 22) + ',' + y2 + ' ' + x2 + ',' + y2 + '"/>';
     let g = '';
     ins.forEach((e, i) => { g += link(8 + bw, y(i, ins.length), 180 - bw / 2, cy) + box(8 + bw / 2, y(i, ins.length), e.from + ' ' + name(e.from), '「' + e.l + '」', (e.from === s.para ? 'here' : ''), e.from); });
@@ -8491,7 +8501,7 @@ function changesHtml(){
   return '<div class="scr"><h2 class="scr-h">変えた所</h2><p class="scr-lead">' + (list.length ? '自分が書き換えたものの一覧です。1件ずつ、取り消せます。' + (room ? 'ほかの人が書き換えたものは、「通信」の「採用待ち」と、採用済みのスレッドで見られます。' : '') : 'まだ、書き換えたものがありません。') + '</p>'
     + list.map((c, i) => '<div class="step chg"><div class="n">' + escText(c.key ? chgPlace(c.key) : c.place) + '</div><h3>' + c.kind + '</h3>'
       + (c.a ? '<p class="chg-a">' + cut(c.a) + '</p>' : '') + (c.b ? '<p class="chg-b">' + cut(c.b) + '</p>' : '')
-      + '<div class="row"><button class="sm" data-chgundo="' + i + '">取り消す</button>' + (c.key && /^[a-z]+:\d+/.test(c.key) ? '<button class="sm" data-chggo="' + escAttr(c.key.split('>')[0]) + '">この場面へ行く</button>' : '') + '</div></div>').join('')
+      + '<div class="row" style="display:flex;gap:8px">' + (c.key && /^[a-z]+:\d+/.test(c.key) ? '<button class="sm" data-chggo="' + escAttr(c.key.split('>')[0]) + '">この場面へ行く</button>' : '') + '<button class="sm" data-chgundo="' + i + '" style="margin-left:auto">取り消す</button></div></div>').join('')
     + '</div>';
 }
 function draftSet(key, d){ const all = store.get('draft', {}); all[key] = d; store.set('draft', all); }
@@ -8567,7 +8577,7 @@ function decorateForEdit(mode){
     const withStage = fbe.kind === 'para' && fbe.pk === 'text' && !fbe.insId;
     if(withStage){
       fbe.pick = fbe.pick || {};
-      const row = document.createElement('details'); row.open = true; row.style.margin = '0 0 8px';
+      const row = document.createElement('details'); row.style.margin = '0 0 8px';
       row.innerHTML = '<summary>演出（書き直した文から、自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">' + SCENE_KEYS.map(k => '<label>' + STAGE_LABEL[k].replace('（とどまるとき）', '') + '<select data-pst="' + k + '"><option value="">自動</option>' + Object.entries(STAGE_NAMES[k]).map(([val, t]) => '<option value="' + val + '">' + t + '</option>').join('') + '</select></label>').join('') + '</div>';
       f.after(row);
       row.querySelectorAll('[data-pst]').forEach(q => { const k = q.dataset.pst; q.value = fbe.pick[k] == null ? '' : String(fbe.pick[k]); q.onchange = () => { if(q.value === '') delete fbe.pick[k]; else fbe.pick[k] = q.value; }; });
@@ -8605,7 +8615,7 @@ function decorateForEdit(mode){
     }
     if(pk === 'text' && TEST_BUILD){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
-      const t = document.createElement('button'); t.className = 'fbe'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
+      const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
       t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。直したものは、自分の画面にすぐ出ます。' : ''; render(); };
       wrap.appendChild(t); el.after(wrap);
     }
@@ -8661,13 +8671,13 @@ function decorateForEdit(mode){
       + '<option value="stay">そのあとは、この場面にとどまる</option><option value="off">そのあとは、カメラの外へ出る（まだ映像のない場所）</option>'
       + '<optgroup label="今ある選択肢に合流する">' + v.labels.map(l => '<option value="' + escText(l).replace(/"/g, '&quot;') + '">「' + escText(l.slice(0, 24)) + '」と同じ先へ進む</option>').join('') + '</optgroup>'
       + '<optgroup label="ほかの場所へ移る">' + Object.entries(bookOf(loadPlayer(current)).spots || {}).map(([id, sp]) => '<option value="spot:' + id + '">' + escText(sp.name) + 'へ移る</option>').join('') + '</optgroup></select>'
-      + '<div class="row fxrow"><label>体力<select data-fx="hp">' + [[0, '変えない'], [1, '+1（回復）'], [2, '+2'], [-1, '−1（傷を負う）'], [-2, '−2']].map(([n, t]) => '<option value="' + n + '">' + t + '</option>').join('') + '</select></label>'
+      + '<details' + (fbe.fx && (fbe.fx.hp || fbe.fx.inf || fbe.fx.min) ? ' open' : '') + ' style="margin:0 0 8px"><summary>体力・感染・時間</summary><div class="row fxrow"><label>体力<select data-fx="hp">' + [[0, '変えない'], [1, '+1（回復）'], [2, '+2'], [-1, '−1（傷を負う）'], [-2, '−2']].map(([n, t]) => '<option value="' + n + '">' + t + '</option>').join('') + '</select></label>'
       + '<label>感染<select data-fx="inf"><option value="">変えない</option><option value="on">感染する</option><option value="off">感染が消える</option></select></label>'
-      + '<label>時間<select data-fx="min">' + [0, 5, 10, 30, 60, 120].map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div>'
+      + '<label>時間<select data-fx="min">' + [0, 5, 10, 30, 60, 120].map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div></details>'
       + '<div class="row" style="margin:0 0 8px"><button data-k="img">' + (fbe.fx && fbe.fx.img ? '絵を付けました（選び直す）' : '絵を付ける') + '</button>' + (fbe.fx && fbe.fx.img ? '<select data-imgas style="width:auto;flex:1;margin:0"><option value="cam">監視カメラの映像として出す</option><option value="text">文の下に出す</option></select><button data-k="imgdrop">絵を外す</button>' : '') + '</div>'
-      + '<input data-hide inputmode="numeric" maxlength="4" placeholder="隠し選択肢にするなら、番号（打ちこんだ人だけが選べる）">'
-      + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select>'
-      + '<details open style="margin:0 0 8px"><summary>演出（文から自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">'
+      + '<details' + (fbe.fx && fbe.fx.hide ? ' open' : '') + ' style="margin:0 0 8px"><summary>隠し選択肢（番号を打ちこんだ人だけが選べる）</summary><input data-hide inputmode="numeric" maxlength="4" placeholder="番号">'
+      + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select></details>'
+      + '<details style="margin:0 0 8px"><summary>演出（文から自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">'
       + STAGE_KEYS.map(k => '<label>' + STAGE_LABEL[k] + '<select data-st="' + k + '"><option value="">自動</option>' + Object.entries(STAGE_NAMES[k]).map(([val, t]) => '<option value="' + val + '">' + t + '</option>').join('') + '</select></label>').join('') + '</div></details>'
       + '<details' + (['get', 'lose', 'once'].some(k => (fbe.fx && fbe.fx[k] || []).length) ? ' open' : '') + ' style="margin:0 0 8px"><summary>持ち物</summary>'
       + '<input data-fxi="get" maxlength="60" placeholder="手に入れる物（いくつかあれば、「、」で区切る）"><input data-fxi="lose" maxlength="60" placeholder="なくす物">'
