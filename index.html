@@ -206,6 +206,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .fxrow label{flex:1 1 42%;min-width:9em;flex-direction:column;align-items:stretch;gap:0;font-size:11px}
 select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e8e2d2;border:1px solid #4a4436;border-radius:6px;font-size:16px;padding-right:30px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23cfc7b4'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 11px center!important}
 .fxrow select{margin:2px 0 8px;text-overflow:ellipsis}
+.la-shade{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60}.la-box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:61;width:min(86vw,360px);box-sizing:border-box;background:#17171c;border:1px solid #4a4436;border-radius:14px;padding:18px 16px 14px;display:grid;gap:10px;color:#e8e2d6;font-size:15px;line-height:1.6}.la-box p{margin:0}.la-box .la-s{font-size:13px;color:#8d8778}.la-box button{font-family:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid #4a4436;background:#15171c;color:#e8e2d6}.la-box button.go{border-color:var(--gold);color:#f0d890}
 .lk{font-family:inherit;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:0 7px;margin-left:6px;color:var(--dim);background:none;white-space:nowrap}.lk.on{color:#f0d890;border-color:#a8780a}button.lk{color:var(--text);border-color:#6a6458}
 .fb .row button[data-k]{padding:10px 16px;font-size:15px}.fb .row button[data-k="save"]{border-color:var(--gold);color:#f0d890}.fb .row button[data-k="drop"]{margin-left:auto;color:#d08a80;border-color:#6a3a34}
 .fbe.tgl{border:1px solid #4a4436;border-radius:8px;color:#cfc7b4;padding:8px 14px;font-size:14px}
@@ -472,7 +473,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.20';
+const APP_VERSION = 'v0.3.21';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4505,7 +4506,14 @@ async function dropLock(){
 function askLock(){
   const own = store.get('own', {});
   const free = room ? roomOpen && !own[current] && !CHAR_IDS.some(c => own[c] && own[c].dev === DEV) : !loadWorld().lock;
-  if(free) setTimeout(() => { if(confirm(CHARS[current].name + 'の本をロックして進めますか？\n「キャンセル」を押すと、保存せずに試せます。')) takeLock(); }, 50);
+  const old = document.getElementById('lockAskBox'); if(old) old.remove();
+  if(!free) return;
+  const c = current, box = document.createElement('div'); box.id = 'lockAskBox';
+  box.innerHTML = '<div class="la-shade"></div><div class="la-box" role="dialog" aria-modal="true"><p><b>' + escText(CHARS[c].name) + 'の本</b>を、ロックしますか。</p><p class="la-s">ロックしないと、進んだ分は保存されません。</p><button class="go" id="laYes">ロックする</button><button id="laNo">ロックしない</button></div>';
+  document.body.appendChild(box);
+  const close = () => box.remove();
+  box.querySelector('#laYes').onclick = () => { close(); if(current === c) takeLock(); };
+  box.querySelector('#laNo').onclick = close; box.querySelector('.la-shade').onclick = close;
 }
 function releaseLock(){ trialEnd(); const w = loadWorld(); if(room || w.lock !== me) return; store.remove('lockbase-' + me); w.lock = null; store.set('world', w); store.remove('undo'); undoOpen = false; render(); }
 
@@ -4966,38 +4974,38 @@ function howPages(kind){
   const host = !!room && isHost(), guest = !!room && !isHost();
   const reach = roomLocal() ? '部屋を作った人がゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は、自動で共有されます。';
   if(kind === 'make'){
-    const keys = ['「✎ 編集する」：編集を開始します。', '「✎」：その選択肢を書き換えたり、消したりします。', '「＋ 選択肢を足す」：新しい選択肢と、選んだときに起きることを書きます。'];
+    const keys = ['［✎ 編集する］：本文を編集します。', '［✎］：左の選択肢を書き換えるか、消します。', '［＋ 選択肢を足す］：新しい選択肢と、その選択肢を選んだときに起きることを書きます。'];
     if(guest) return [
-      { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋の設定によって、すぐ全員のゲームに入るか、誰かの賛成か、部屋を作った人の採用を待ちます。' },
+      { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えた文章や選択肢は、部屋の全員に見えます。全員のゲームに入るのは、部屋の設定によって、すぐか、誰かが賛成したあとか、部屋を作った人が採用したあとです。' },
       { img:'how-make-1', full:true, t:'書き換える', legend:keys },
-      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '「通信」の書く欄で「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、AI に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
+      { t:'話す・AI に頼む', text:'画面の右端の［通信］を押すと、部屋の人と話す画面が開きます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。部屋を作った人がリポジトリを設定して部屋を作ると、AI に頼めます。' : '通信の画面で［AI に頼む］にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに保存されます。部屋のリポジトリを Claude Code で開ける人が AI に対応させると、同じスレッドに返事が表示されます。Claude Code は、AI に作業を頼める道具です。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面で、部屋のリポジトリを使える人に加えてもらいます。加えてもらったら、部屋のリポジトリを Claude Code で開きます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
-    const linkWay = ['リンクで配る', (room ? '部屋の画面で「リンクで配る」' : '「配る」の画面で「リンクを作る」') + 'を押して、できたリンクを送ります。あとで書き換えたときは、' + (room ? '同じボタンをもう一度押します' : '「配っている版を新しくする」を押します') + '。リンクは変わらないので、送り直さなくてかまいません。'];
+    const linkWay = ['リンクで配る', (room ? '部屋の画面で［リンクで配る］' : '配る画面で［リンクを作る］') + 'を押して、できたリンクを送ります。あとでゲームを書き換えたときは、' + (room ? '［リンクで配る］をもう一度押します' : '［配っている版を新しくする］を押します') + '。リンクは変わりません。'];
     return [
       { t:'編集版でできること', list:[
-        ['書き換える', '文章や選択肢を書き換えられます。選択肢、場所、建物の中の一室、主人公の本を新しく足すこともできます。'],
-        ['配る', '書き換えたゲームを、人に配れます。受け取った人は、リンクかファイルを開けば遊べます。'],
-        ['みんなで作る', '何人かで「部屋」に入って、1つのゲームを一緒に書き換えられます。'],
+        ['書き換える', '文章や選択肢を書き換えられます。選択肢、場所、建物の中の一室、本を足せます。'],
+        ['配る', '書き換えたゲームを、人に配れます。受け取った人は、リンクかファイルを開くと遊べます。'],
+        ['みんなで作る', '何人かで部屋に入って、1つのゲームを一緒に書き換えられます。'],
         ['AI に書かせる', '文章や選択肢を、AI に書かせられます。'],
       ] },
-      ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る自分用のファイル置き場です。自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。設定は最初の1回だけです。', list:[
-        ['自動で保存される', '書き換えたものは、作業用のリポジトリに自動で保存されます。'],
-        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。'],
-        ['リンクで配る', 'リンクを送ると、書き換えたゲームを遊んでもらえます。'],
+      ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る、自分用のファイル置き場です。GitHub は、無料で使える外のサービスです。リポジトリは、自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。リポジトリの設定は、最初の1回で済みます。リポジトリを設定すると、次のことができます。', list:[
+        ['書き換えを自動で保存する', '書き換えた文章や選択肢が、作業用のリポジトリに自動で保存されます。'],
+        ['画像を使う', '自分の画像を、ゲームに入れられます。'],
+        ['リンクで配る', '書き換えたゲームを、リンクで配れます。'],
         ['部屋をいつでも使う', '部屋を作った人がゲームを閉じていても、ほかの人は部屋を使えます。'],
-        ['AI に書かせる', '文章や選択肢を、AI に書かせられます（7ページ目）。'],
-      ], after:'リポジトリを作らなくても、書き換えることと、ファイルで配ることはできます。部屋も作れますが、作った人がゲームを閉じているあいだは、ほかの人は部屋を使えません。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['場所を足す', '「地図」を開いて、「ここに、歩ける場所を作る」を押します。建物の中では、「となりに、一室を足す」を押します。'], ['本を足す', '☰ の「本を足す」を押します。']] },
-      { t:'配る', text:room ? '配るのは、採用したものが入ったゲームです。' : '', list:[
+        ['AI に書かせる', '文章や選択肢を、AI に書かせられます。'],
+      ], after:'リポジトリを設定しなくても、文章や選択肢を書き換えられます。書き換えたゲームを、ファイルで配れます。部屋も作れます。ただし、部屋を作った人がゲームを閉じているあいだは、ほかの人は部屋を使えません。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
+      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['場所を足す', '［地図］を押して、［地図に印を置く］を押します。地図の上で、場所を足したい所を押します。［歩ける場所を作る］を押します。'], ['建物の中に一室を足す', '主人公が建物の中にいるときは、［地図］を押して、［となりに一室を足す］を押します。'], ['本を足す', '［☰］の［本を足す］を押します。']] },
+      { t:'配る', text:room ? '配るのは、採用した書き換えが入ったゲームです。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
-        ['ファイルで配る', (room ? '部屋の画面で「ファイルにして配る」' : '「配る」の画面で「ファイルを作る」') + 'を押して、できたファイルをメールやチャットで送ります。'],
-      ], btn:['howPackBtn', room ? '部屋の画面を開く' : '「配る」の画面を開く'] },
-      { t:'みんなで作る', text:(room ? '招待リンクを送って、人を呼びます。' : '部屋を作って、招待リンクを送ります。') + '部屋に入った人が書き換えると、全員のゲームに反映されます。', list:[['反映のしかた', 'すぐ反映されます。部屋の画面で、誰か1人が賛成してから、または部屋を作った人が採用してから反映するように替えられます。']], btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
-      { img:'how-make-2', full:true, t:'通信', lead:'部屋の人と話す画面です。部屋の中で、画面の右端の「通信」を押すと開きます。', legend:['書く欄：書いて送ると、新しいスレッドが始まります。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに反映されていない書き換えだけを並べます。'] },
-      { t:'AI に書かせる', text:'リポジトリを開いて作業できる AI なら、どれでも使えます（Claude Code、Codex、Antigravity など）。ここでは、Claude Code（claude.ai/code）を例に説明します。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
-        ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。AI が書いたものは、☰ の「更新」を押すと、ゲームに出ます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
-        ['部屋で作る人', '部屋の「通信」の書く欄で、「AI に頼む」にチェックを入れて、頼みごとを書きます。部屋を作った人が、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書くと、AI が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
+        ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルをメールやチャットで送ります。'],
+      ], btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
+      { t:'みんなで作る', text:(room ? '招待リンクを送って、人を呼びます。' : '部屋を作って、招待リンクを送ります。') + '部屋の人が書き換えた文章や選択肢は、全員のゲームに入ります。', list:[['書き換えが全員のゲームに入るタイミングを変える', 'はじめは、書き換えた文章や選択肢が、すぐ全員のゲームに入ります。部屋の画面で、［誰か1人が賛成したら入る］か［部屋を作った人が採用する］を選べます。']], btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。部屋の中で、画面の右端の［通信］を押すと、通信の画面が開きます。話題ごとのまとまりを、「スレッド」と言います。', legend:['ここに文を書いて［送る］を押すと、新しいスレッドが始まります。', 'スレッドです。押すと、スレッドの中で話せます。', '部屋の人の書き換えも、スレッドとして並びます。', '［採用待ち］：まだ全員のゲームに入っていない書き換えのスレッドを表示します。スレッドを押して、［採用する］か［賛成］を押します。'] },
+      { t:'AI に書かせる', text:'AI には、Claude Code を使います。Claude Code は、claude.ai/code で使える AI です。Codex や Antigravity など、GitHub のリポジトリを扱える AI にも書かせられます。Claude Code には、先に自分の GitHub のアカウントをつないでおきます。', list:[
+        ['1人で作るとき', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。AI が書いた文章や選択肢は、［☰］の［更新］を押すと、ゲームに入ります。リポジトリをまだ設定していない人は、下のリンクを Claude Code に貼って、「準備して」と書きます。Claude Code が、リポジトリの設定を手伝います。' + guide],
+        ['部屋で作るとき', '通信の画面で［AI に頼む］にチェックを入れて、頼みごとを書きます。部屋を作った人は、Claude Code で作業用のリポジトリを選んで、「頼みごとに対応して」と書きます。AI が文章や選択肢を書き換えて、通信の画面に返事を書きます。'],
       ] },
     ];
   }
@@ -5005,17 +5013,18 @@ function howPages(kind){
   const P = [
     { t:'どんなゲームか', list:[
       ['舞台', 'アメリカ中西部の架空の州、ウィノア州の州都グレンフォードです。今日は、州知事選挙の投票日です。街には、ゾンビがいます。'],
-      ['主人公と「本」', '主人公は' + names + 'で、それぞれに1冊ずつ「本」があります。'],
-      ['本どうしがつながっている', 'どの本も、同じ街の同じ一日の話です。' + (room ? 'ほかの人が本の中でしたことは、あなたの本にもそのまま残ります。' : 'ある本でしたことは、別の本にもそのまま残ります。') + '倒したゾンビはいなくなり、取った物はもうありません。'],
+      ['主人公と「本」', '主人公は' + names + 'の' + CHAR_IDS.length + '人です。主人公ごとに、1冊の「本」があります。本の文章を読んで選択肢を選ぶと、話が進みます。'],
+      ['ロック', (room ? '1人が、1冊ずつ本を受け持ちます。受け持つ本を決めることを、「ロックする」と言います。' : '読み進めた分が保存される本は、一度に1冊です。その本を決めることを、「ロックする」と言います。')],
+      ['本どうしのつながり', 'どの本も、同じ街の同じ一日の話です。' + (room ? 'ほかの人がしたことは、あなたの本にも残ります。' : 'ある本でしたことは、ほかの本にも残ります。') + '倒されたゾンビは、どの本でもいなくなります。取られた物は、どの本でも取れなくなります。'],
       ['開票', '一日の終わりに、選挙の開票結果が出ます。結果は、それぞれの本でしたことによって変わります。'],
     ] },
-    { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本の主人公と、話の中の時刻、体力、持ち物です。', '「戻す」：直前の選択を取り消します。時刻と体力も元に戻ります。', '「☰」：別の本に替える、みんなで遊ぶための「部屋」、音の入・切。', '「映像」「地図」：監視カメラの映像と、街の地図です。', '主人公です。街の監視カメラが、主人公のいる場所を映しています。'] },
+    { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本の主人公と、ロックの状態が表示されます。その右に、話の中の時刻、体力、持ち物が表示されます。', '［戻す］：直前の選択を取り消します。時刻と体力も元に戻ります。', '［☰］：メニューを開きます。本を替えるときに押します。', '［映像］［地図］：街の監視カメラの映像と、街の地図を表示します。', '主人公です。監視カメラの映像には、主人公のいる場所が映ります。'] },
     { t:'遊ぶうえでの決まり', list:[
       ['時刻', '選択肢を選ぶたびに、話の中の時刻が進みます。投票所が開いているのは、朝7時から夜8時までです。'],
-      ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : '先の時間帯に入った本は、ほかの本が追いつくまで進められません。')],
-      ['持ち物', '持っているときだけ選べる選択肢があります。'],
-      ['体力と感染', '体力は最大3です。ゾンビに襲われると1減り、傷から感染することもあります。体力がなくなるか、感染してしばらくたつと、主人公はゾンビになります。'],
-      ...(room ? [['ロック', '☰ の「部屋」の画面で、進めたい本の「ロックする」を押します。進められるのは、自分がロックした本だけです。1冊をロックできるのは1人だけです。ロックしていない本も、開けばこれまでの話を読めます。' + reach]] : [['別の本に替える', '本は、ロックして進めます。ロックできる本は、一度に1冊です。本を選ぶと、ロックするかを聞かれます。別の本を進めるときは、☰ の「保存して、ロックを外す」を押してから、本を選びます。進めた分をなかったことにするときは、「保存せずに、ロックを外す」を押します。'], ['みんなで遊ぶ', '☰ の「部屋」で部屋を作り、招待リンクを送ります。一度に進められるのは、1人1冊です。']]),
+      ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで読み進められません。' : '先の時間帯に入った本は、ほかの本が追いつくまで読み進められません。')],
+      ['持ち物', '決まった物を持っているときにだけ選べる選択肢があります。'],
+      ['体力と感染', '体力は最大3です。主人公がゾンビに襲われると、体力が1減ります。そのとき、主人公が感染することもあります。体力がなくなるか、感染してしばらくたつと、主人公はゾンビになります。'],
+      ...(room ? [['本をロックする', '［☰］の［部屋］を押して、部屋の画面を開きます。進めたい本の［ロックする］を押します。1冊をロックできるのは、1人です。ロックしていない本も、開くとこれまでの話を読めます。' + reach]] : [['本を替える', '［☰］を押して本を選ぶと、その本をロックするかを聞かれます。ほかの本をロックしているときは、先に［☰］の［保存してロックを外す］を押します。ロックしてから読み進めた分を取り消すときは、［保存せずにロックを外す］を押します。ロックしていない本も読み進められますが、読み進めた分は保存されません。'], ['みんなで遊ぶ', '何人かで一緒に遊ぶ場所を、「部屋」と言います。［☰］の［部屋］を押して、部屋を作ります。一緒に遊ぶ人へ、招待リンクを送ります。部屋では、1人につき1冊の本をロックします。']]),
     ] },
   ];
   return P;
@@ -5033,7 +5042,7 @@ function frontHtml(){
       + '<button id="frHow">遊び方</button>'
       + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・配る・みんなで作る</small></button>' : '')
       + '</div>'
-      + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>リポジトリの作成を推奨しています</b><br>設定するとできることは、「作り方」の2ページ目にあります。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリの設定を開く</button></div></div>' : '')
+      + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>リポジトリの作成を推奨しています</b><br>リポジトリを設定するとできることは、作り方の2ページ目に書いてあります。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリの設定を開く</button></div></div>' : '')
       + (EMBED ? '' : '<a class="fr-switch" href="' + siteRoot() + (TEST_BUILD ? '' : 'test/') + '">' + (TEST_BUILD ? '公開版へ' : '編集版へ') + '</a>')
       + '</div>' + foot;
   }
@@ -5689,7 +5698,7 @@ function roomPanelHtml(){
     + '<div class="step"><div class="n">呼び名</div><h3>みんなに見える名前</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
     + '<div class="step"><div class="n">本</div><h3>誰が、どの本を進めるか</h3>'
       + CHAR_IDS.map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
-        + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">' + (o.dev === DEV ? '保存して、ロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>' + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずに、ロックを外す</button></div>' : ''); }).join('')
+        + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">' + (o.dev === DEV ? '保存してロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>' + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずにロックを外す</button></div>' : ''); }).join('')
       + '<p style="margin-top:12px">進められるのは、自分がロックした本だけです。ロックしたら、左上の「← 戻る」で本に戻って読み進めます。</p><p>ロックを外せば、別の本に替えられます。外した本は、ほかの人が続きから進められます。ゲームを閉じても、ロックは残ります。</p></div>'
     + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手が入るには、部屋を作った人の許可が要ります。') : isHost() ? '相手は、開くだけで入れます。リンクには、リポジトリに書きこむためのトークンが入ります。部屋に入れたい人にだけ渡してください。ほかの人に渡ってしまったときは、GitHub でそのトークンを消すと止められます。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
       + '<button class="go" id="roomCopy">招待リンクをコピーする</button></div>'
@@ -5881,7 +5890,7 @@ function render(){
   const grp = (t, inner) => (inner ? '<div class="mg"><div class="mh">' + t + '</div><div class="mb">' + inner + '</div></div>' : '');
   tabs.innerHTML =
     grp('本を選ぶ', CHAR_IDS.map(id => { const st = room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
-    + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存して、ロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずに、ロックを外す</button>' : '') : '')
+    + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存してロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずにロックを外す</button>' : '') : '')
     + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
     + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
       + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
@@ -5941,7 +5950,7 @@ function render(){
     if(showMap && planOf(s)) html += planMapSvg(s, planOf(s).plan);
     if(showMap) html += mode === 'live' ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
-    if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存して、ロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
+    if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
     let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length });
     const spNow = s.status === 'active' ? spotOf(s) : null;
     if(spNow){
@@ -5956,7 +5965,7 @@ function render(){
       html += `<div class="jump"><label>番号へ進む</label><input id="jumpNo" type="number" inputmode="numeric" placeholder="場面の番号"><button id="jumpGo">進む</button></div>`;
     }
     // 結末まで来たら選ぶものがないので、交代のボタンを本文の下にも出す
-    if(ended && mode === 'live') html += '<div class="choices"><button id="endSave">保存して、ロックを外す</button></div>';
+    if(ended && mode === 'live') html += '<div class="choices"><button id="endSave">保存してロックを外す</button></div>';
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
     setCutscene(cctvState(s, w));
   }
@@ -5968,7 +5977,7 @@ function render(){
   if(!packPanel && packNote) html = '<p class="help">' + escText(packNote) + '</p>' + html;
   html = joinBannerHtml() + html;
   if(flowOpen && TEST_BUILD) html = flowHtml() + html;
-  if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます。ロックは本ごとなので、ほかの人は、ほかの本を同時に進められます。ほかの人がロックしている本は、読むことだけできます。☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存して、ロックを外す」。<br>上の「戻す」で、この番に打った手の前まで戻せます（直近 100 手まで）。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (TEST_BUILD ? '<br>編集版では、選んだ選択肢と結末が、名前を付けずに記録されます。' : '') + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + html;
+  if(helpOpen) html = '<p class="help">' + (room ? '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます。ロックは本ごとなので、ほかの人は、ほかの本を同時に進められます。ほかの人がロックしている本は、読むことだけできます。☰ の「部屋」でロックを外すと、ほかの人がその本の続きを進められます。<br>上の「戻す」で、打った手の前まで戻せます（10手まで）。<br>' : '右上の ☰ で、開く本を選びます。「ロックして進める」を押すと、その本を進められます（一度に1冊）。進め終わったら ☰ の「保存してロックを外す」。<br>上の「戻す」で、この番に打った手の前まで戻せます（直近 100 手まで）。<br>') + '画面の右端の「映像」「地図」を押すと、映像と地図が出たり引っ込んだりします。<br>一日は 朝・午前・昼・午後・夕方・夜 に分かれていて、先に次の時間帯へ入った人は、ほかの人が追いつくまで待ちます。' + (TEST_BUILD ? '<br>編集版では、選んだ選択肢と結末が、名前を付けずに記録されます。' : '') + (room ? '' : '<br>☰ の「最初から」で、全員が朝からやり直します。') + '</p>' + html;
 
   document.getElementById('main').innerHTML = html;
   sndScene();
@@ -6627,7 +6636,7 @@ function decorateMap(){
     + marks.map((it, i) => '<div>' + (i + 1) + '　' + escText(it.text || '') + (it.by ? '（' + escText(it.by) + '）' : '') + '</div>').join('')
     + (mapMark === true ? '<p>地図の上の、印を置きたい所を押してください。</p><div class="row"><button id="markNo">やめる</button></div>'
       : mapMark && mapMark.place ? placeFormHtml(s)
-      : mapMark ? '<input id="markText" maxlength="80" placeholder="ここに、何がほしいか"><div class="row"><button id="markYes">印を置く</button><button id="markPlace">ここに、歩ける場所を作る</button><button id="markNo">やめる</button></div>'
+      : mapMark ? '<input id="markText" maxlength="80" placeholder="ここに、何がほしいか"><div class="row"><button id="markYes">印を置く</button><button id="markPlace">歩ける場所を作る</button><button id="markNo">やめる</button></div>'
       : '<div class="row"><button id="markGo">地図に印を置く</button></div>');
   body.appendChild(box);
   const on = (id, fn) => { const e = document.getElementById(id); if(e) e.onclick = fn; };
@@ -6678,7 +6687,7 @@ function roomBox(body, s, sp){
   const P = PLANS[sp.place], f = roomForm, box = document.createElement('div'); box.className = 'fb'; box.style.cssText = 'margin:8px 12px;padding-top:0;border-top:0';
   const mine = Object.entries(shownSpots(s.book)).filter(([, x]) => !x.ok && x.room);
   box.innerHTML = mine.map(([id, x]) => '<div class="row" style="align-items:center"><span style="flex:1">足した部屋（下書き）：' + escText(x.name) + '</span><button class="mini" data-spotdel="' + id + '">消す</button></div>').join('')
-    + (!f ? '<div class="row"><button id="rmGo">「' + escText(P.rooms[sp.room].name) + '」のとなりに、一室を足す</button></div>'
+    + (!f ? '<div class="row"><button id="rmGo">となりに一室を足す</button></div>'
       : '<b>「' + escText(P.rooms[sp.room].name) + '」のとなりに、一室を足す</b>'
         + '<input id="rmName" maxlength="20" placeholder="部屋の名前（例：用務員室）">'
         + '<textarea id="rmText" placeholder="その部屋に入ったときの文" style="min-height:100px"></textarea>'
@@ -6723,7 +6732,7 @@ function roomBox(body, s, sp){
 function placeFormHtml(s){
   const B = bookOf(s), p = mapMark.place, here = B.spots[paraOf(s).spot], mapId = here.map || '';
   const near = Object.entries(B.spots).filter(([, sp]) => sp.at && !sp.dyn && (sp.map || '') === mapId);
-  return '<b>ここに、歩ける場所を作る</b>'
+  return '<b>歩ける場所を作る</b>'
     + '<input id="plName" maxlength="30" placeholder="場所の名前（例：金物屋の前）">'
     + '<textarea id="plText" placeholder="その場所に着いたときの文" style="min-height:110px"></textarea>'
     + '<label style="flex-direction:column;align-items:stretch;gap:0">つながる場所<select id="plFrom">' + near.map(([id, sp]) => '<option value="' + id + '"' + (id === p.from ? ' selected' : '') + '>' + escText(sp.name) + '</option>').join('') + '</select></label>'
@@ -6731,7 +6740,7 @@ function placeFormHtml(s){
     + '<div class="row fxrow"><label>ゾンビ<select id="plZ">' + [0, 1, 2, 3, 4, 5, 6].map(n => '<option value="' + n + '"' + (n === p.z ? ' selected' : '') + '>' + (n ? n + '人' : 'いない') + '</option>').join('') + '</select></label>'
     + '<label>映像<select id="plCam"><option value="">映像なし（カメラの外）</option><option value="same"' + (p.cam === 'same' ? ' selected' : '') + '>つながる場所と同じ映像</option></select></label></div>'
     + '<label style="margin:6px 0"><input type="checkbox" id="plHide"' + (p.hide ? ' checked' : '') + '>隠れられる（気づかれにくい）</label>'
-    + '<div class="row" style="margin:6px 0"><button id="plImg">' + (p.img ? '絵を付けました（選び直す）' : '映像の代わりに、絵を1枚出す') + '</button>' + (p.img ? '<button id="plImgDrop">絵を外す</button>' : '') + '</div>'
+    + '<div class="row" style="margin:6px 0"><button id="plImg">' + (p.img ? '絵を付けました（選び直す）' : '映像の代わりに絵を1枚出す') + '</button>' + (p.img ? '<button id="plImgDrop">絵を外す</button>' : '') + '</div>'
     + '<div class="row"><button id="plSave">この場所を足す</button><button id="markNo">やめる</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '');
 }
@@ -6987,7 +6996,7 @@ function missHtml(){
   if(!list.length) return '';
   return '<details style="margin-top:12px" open><summary>当たらなかった直し（' + list.length + '件）</summary><p>採用したもののうち、今の原本に当てはまらなかったものです。原本の文が変わったか、その場面が、状況で違う文を出しているかのどちらかです。原本が変わったときは、Claude Code に、リポジトリの book/README.md のとおりに直してもらえます。</p>'
     + list.map(x => '<div class="th"><div class="who">' + escText(x.key) + '　' + escText(x.what) + '</div><div class="tx">' + escText(x.text) + '</div></div>').join('')
-    + (isHost() && room ? '<div class="row"><button id="missSave">この一覧を、リポジトリに書く（book/report.json）</button></div>' : '') + '</details>';
+    + (isHost() && room ? '<div class="row"><button id="missSave">この一覧をリポジトリに書く（book/report.json）</button></div>' : '') + '</details>';
 }
 async function missSave(){
   try {
@@ -7634,7 +7643,7 @@ function decorateForEdit(mode){
       sub.appendChild(q);
     }
     if(fbe && fbe.kind === 'add' && fbe.scene === sk && !fbe.id) sub.appendChild(addEditor());
-    else if(TEST_BUILD){ const more = document.createElement('button'); more.className = 'pending'; more.textContent = '＋ この先に、選択肢を足す'; more.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay', scene:sk }; fbNote = ''; render(); }; sub.appendChild(more); }
+    else if(TEST_BUILD){ const more = document.createElement('button'); more.className = 'pending'; more.textContent = '＋ この先に選択肢を足す'; more.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay', scene:sk }; fbNote = ''; render(); }; sub.appendChild(more); }
     const back = document.createElement('button'); back.className = 'pending'; back.textContent = '足した場面を閉じる'; back.onclick = () => { const p = loadPlayer(current); if(p.offcam || p.pose || p.spos || p.scam){ p.offcam = false; p.pose = null; p.spos = null; p.scam = null; store.set('player-' + current, p); } draftShown = null; render(); }; sub.appendChild(back);
     const dm = main.querySelector('.draftmsg'); if(dm) dm.after(sub);
   }
