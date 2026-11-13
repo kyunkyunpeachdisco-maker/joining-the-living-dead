@@ -474,7 +474,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 15:21 2488c37';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 15:28 608206f';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6499,7 +6499,7 @@ function memberConnect(){
   c.on('open', () => { hostConn = c; c.send({ t:'hello', dev:DEV, key:DEV_KEY, name:store.get('fb-name', '').slice(0, 30) }); });
   c.on('data', msg => {
     if(!msg || typeof msg !== 'object') return;
-    if(msg.t === 'welcome'){ const was = joinState; joinState = ''; peerOn = true; liveSend(); if(was){ roomSig = ''; roomPull(true); } if(was && !typing()) render(); else peerShow(); }
+    if(msg.t === 'welcome'){ const was = joinState; joinState = ''; peerOn = true; liveSend(); roomSig = ''; roomPull(true); if(was && !typing()) render(); else peerShow(); }
     else if(msg.t === 'wait'){ joinState = 'wait'; if(!typing()) render(); }
     else if(msg.t === 'denied'){ joinState = 'denied'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'file') liveGot(String(msg.dev || ''), msg.data);
