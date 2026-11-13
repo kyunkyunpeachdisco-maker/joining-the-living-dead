@@ -230,6 +230,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 #cutstill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;filter:saturate(.7) contrast(1.15) brightness(1.05)}
 #cutstill[hidden]{display:none}
 .draftimg{max-width:100%;border-radius:4px;margin:0 0 12px;display:block}
+.chg-a{color:#8d8778;text-decoration:line-through;white-space:pre-line;margin:4px 0}.chg-b{white-space:pre-line;margin:4px 0}
 .pposter{float:left;width:34%;height:auto;margin:.4em 14px 4px 0}
 .text .para::after{content:'';display:block;clear:both}
 #fbDrawer.max{left:0;width:100vw;top:0!important;z-index:30}
@@ -465,7 +466,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 03:52 eb1931a';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 09:22 43b8a44';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6097,7 +6098,7 @@ function howPages(kind){
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋の設定によって、すぐ全員のゲームに入るか、誰かの賛成か、部屋を作った人の採用を待ちます。' },
       { img:'how-make-1', full:true, t:'書き換える', legend:keys },
-      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '新しいスレッドを立てるときに「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、Claude に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
+      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '新しいスレッドを立てるときに「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、AI に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
     const linkWay = ['リンクで配る', (room ? '「リンクで配る」' : '「リンクを作る」') + 'を押して、できたリンクを送ります。あとで書き換えたときは、' + (room ? '同じボタンをもう一度押します' : '「配っている版を新しくする」を押します') + '。リンクは変わらないので、送り直さなくてかまいません。'];
@@ -6106,14 +6107,14 @@ function howPages(kind){
         ['書き換える', '文章や選択肢を書き換えられます。選択肢、場所、建物の中の一室、主人公の本を新しく足すこともできます。'],
         ['配る', '書き換えたゲームを、人に配れます。受け取った人は、リンクかファイルを開けば遊べます。'],
         ['みんなで作る', '何人かで「部屋」に入って、1つのゲームを一緒に書き換えられます。'],
-        ['AI に書かせる', '文章や選択肢を、Claude に書かせられます。'],
+        ['AI に書かせる', '文章や選択肢を、AI に書かせられます。'],
       ] },
       ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る自分用のファイル置き場です。自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。設定は最初の1回だけです。設定すると、次のことができます。', list:[
         ['ネットに保存する', '書き換えたものが、書き換えるたびに、作業用のリポジトリに自動で保存されます。'],
-        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。部屋の「通信」にも付けられるので、Claude に頼むときに、画面の写真を見せられます。'],
+        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。部屋の「通信」にも付けられるので、AI に頼むときに、画面の写真を見せられます。'],
         ['リンクで配る', 'リンクを送るだけで、書き換えたゲームを遊んでもらえます。'],
         ['部屋をいつでも使う', '部屋を作った人がゲームを閉じていても、ほかの人は続けられます。'],
-        ['AI に書かせる', '部屋で書いた頼みごとを、Claude Code（6ページ目）で Claude に対応させられます。'],
+        ['AI に書かせる', '部屋で書いた頼みごとを、AI（6ページ目）に対応させられます。'],
       ], after:'リポジトリを作らなくても、書き換えることと、ファイルで配ることはできます。部屋も作れますが、作った人がゲームを閉じているあいだは、ほかの人は部屋を使えません。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
       { img:'how-make-1', full:true, t:'書き換える', legend:keys, text:(host ? '' : '書き換えたものは、自動で保存されます。書き換えた所には、点線の枠が付きます。<br>') + '場所や建物の中の一室を足すときは、画面の右端の「地図」を開きます。通りにいるときは「ここに、歩ける場所を作る」、建物の中にいるときは「となりに、一室を足す」というボタンが出ます。主人公の本を足すときは、右上の ☰（メニュー）の「本を足す」を押します。' },
       { t:'配る', text:room ? '配るのは、採用したものが入ったゲームです。' : '', list:[
@@ -6121,9 +6122,9 @@ function howPages(kind){
         ['ファイルで配る', (room ? '「ファイルにして配る」' : '「ファイルを作る」') + 'を押して、できたファイルをメールやチャットで送ります。'],
       ], btn:['howPackBtn', room ? '部屋の画面を開く' : '「配る」の画面を開く'] },
       { img:'how-make-2', full:true, t:'みんなで作る', legend:['「＋ 新しいスレッド」：話を始めます。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに入っていない書き換えだけを並べます。'], text:'画面の右端の「通信」を押すと開きます。書き換えたものは、初めの設定では、すぐ全員のゲームに入ります。入れ方は、部屋の画面で替えられます（すぐ入る／誰か1人が賛成したら入る／部屋を作った人が採用する）。' + (room ? '' : '<br>始めるには、部屋を作って、招待リンクを送ります。'), btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
-      { t:'AI に書かせる', text:'Claude Code（claude.ai/code）は、Anthropic の AI「Claude」に作業を頼める道具です。使うには、Anthropic のアカウントが要ります。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
+      { t:'AI に書かせる', text:'リポジトリを開いて作業できる AI なら、どれでも使えます（Claude Code、Codex、Antigravity など）。ここでは、Claude Code（claude.ai/code）を例に説明します。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
         ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
-        ['部屋を作った人', '部屋の「通信」で新しいスレッドを立てるときに、「AI に頼む」というチェックが出ます。チェックを入れて頼みごとを書いたら、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書きます。Claude が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
+        ['部屋を作った人', '部屋の「通信」で新しいスレッドを立てるときに、「AI に頼む」というチェックが出ます。チェックを入れて頼みごとを書いたら、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書きます。AI が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
       ] },
     ];
   }
@@ -6997,7 +6998,7 @@ function render(){
     grp('本を選ぶ', CHAR_IDS.map(id => { const st = room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
     + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存して、ロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずに、ロックを外す</button>' : '') : '')
     + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
-    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button>' : '')
+    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '')
       + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
       + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '<small>済み</small>' : '') + '</button>'))
     + grp('そのほか', `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
@@ -7076,7 +7077,8 @@ function render(){
   html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb panel"><div class="note">' + roomNote + '</div></div>' + html;
   // ☰ から開く画面は、遊ぶ画面には差しこまず、別の画面（#screen）に出す
-  const screenHtml = roomPanel ? roomPanelHtml() : packPanel ? packPanelHtml() : linkPanel && !room ? linkPanelHtml() : bookPanel && TEST_BUILD ? bookPanelHtml() : '';
+  if(chgPanel && (roomPanel || packPanel || linkPanel || bookPanel)) chgPanel = false;
+  const screenHtml = chgPanel && TEST_BUILD ? changesHtml() : roomPanel ? roomPanelHtml() : packPanel ? packPanelHtml() : linkPanel && !room ? linkPanelHtml() : bookPanel && TEST_BUILD ? bookPanelHtml() : '';
   if(!packPanel && packNote) html = '<p class="help">' + escText(packNote) + '</p>' + html;
   html = joinBannerHtml() + html;
   if(flowOpen && TEST_BUILD) html = flowHtml() + html;
@@ -7224,7 +7226,7 @@ function render(){
   });
   on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
   on('roombtn', () => { roomPanel = true; packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); });
-  on('screenClose', () => { const back = screenBack; screenBack = null; roomPanel = packPanel = linkPanel = bookPanel = false; roomNote = ''; ghNote = ''; render(); if(back && !room){ front = back; frontRender(); } });
+  on('screenClose', () => { const back = screenBack; screenBack = null; chgPanel = false; roomPanel = packPanel = linkPanel = bookPanel = false; roomNote = ''; ghNote = ''; render(); if(back && !room){ front = back; frontRender(); } });
   on('roomNew', () => roomCreate());
   on('roomToggle', () => roomClose(!roomOpen));
   const rg = document.getElementById('roomGap'); if(rg) rg.onchange = () => { roomFetch(roomPath('gap'), { method:'PUT', body:JSON.stringify(+rg.value) }).then(() => { roomSig = ''; roomPull(true); }).catch(() => { roomNote = '部屋につながりません。'; render(); }); };
@@ -7248,6 +7250,9 @@ function render(){
   on('roomDelNo', () => { roomDelAsk = false; render(); });
   on('roomDelYes', roomDelete);
   on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room + (roomLocal() ? '&l=1' : '&r=' + ghRepo() + '&k=' + ghPat())).then(() => { roomNote = roomLocal() ? '招待リンクをコピーしました。部屋に入れたい人に渡してください。' : '招待リンクをコピーしました。このリンクには、リポジトリに書きこむためのトークンが入っています。部屋に入れたい人にだけ渡してください。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
+  on('chgbtn', () => { chgPanel = true; roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
+  document.querySelectorAll('[data-chgundo]').forEach(el => { el.onclick = () => { const c = chgList()[+el.dataset.chgundo]; if(c && confirm('「' + c.kind + '」を取り消しますか？')) chgUndo(c.id); }; });
+  document.querySelectorAll('[data-chggo]').forEach(el => { el.onclick = () => { chgPanel = false; cmGo(el.dataset.chggo); }; });
   on('bookbtn', () => { bookPanel = true; roomPanel = packPanel = linkPanel = false; menuOpen = false; render(); });
   bookPanelWire();
   on('flowbtn', () => { flowOpen = !flowOpen; menuOpen = false; flowAt = loadPlayer(current).para; render(); if(flowOpen){ const c = document.querySelector('.fl.cur'); if(c) c.scrollIntoView({ block:'center' }); } else window.scrollTo(0, 0); });
@@ -8424,6 +8429,49 @@ function flowJump(no){
   markRoom(s); if(!inBlindSpot(s)) s.lastCam = camFor(s);
   store.set('world', w); store.set('player-' + current, s);
   flowOpen = false; draftShown = null; selectedBlock = null; render(); window.scrollTo(0, 0);
+}
+// ===== 変えた所の一覧：自分が書き換えたものを並べて、1件ずつ取り消せる =====
+let chgPanel = false;
+function chgPlace(key){
+  const m = /^([a-z]+):(@?[\w-]+)/.exec(String(key)); if(!m || !CHARS[m[1]]) return String(key);
+  const bk = BOOKS[loadPlayer(m[1]).book] || {}, sp = m[2][0] === '@' ? (bk.spots || {})[m[2].slice(1)] : Object.values(bk.spots || {}).find(x => String(x.no) === m[2]);
+  return CHARS[m[1]].name + 'の本　' + (sp && sp.name ? sp.name : '場面 ' + m[2]) + (String(key).includes('>') ? '（足した場面の先）' : '');
+}
+// 1件ずつに分けた一覧。id は、送るのを待つ箱（outbox）の名前と同じ
+function chgList(){
+  const out = [], all = store.get('draft', {});
+  for(const [key, d0] of Object.entries(all)){
+    const d = Object.assign(DRAFT_BASE(), d0);
+    for(const x of d.paras) out.push({ key, t:'para', x, id:key + '|para|' + x.kind + '|' + x.before, kind:x.after ? '文を直した' : '文を消した', a:x.before, b:x.after });
+    for(const x of d.ins) out.push({ key, t:'ins', x, id:key + '|ins|' + x.id, kind:'文を足した', b:x.text });
+    for(const [orig, value] of Object.entries(d.labels)) out.push({ key, t:'label', x:{ orig, value }, id:key + '|choice|' + orig, kind:'選択肢を直した', a:orig, b:value });
+    for(const l of d.del) out.push({ key, t:'del', x:l, id:key + '|choice|' + l, kind:'選択肢を消した', a:l });
+    for(const l of d.off) out.push({ key, t:'off', x:l, id:key + '|choice|' + l, kind:'選択肢を選べなくした', a:l });
+    for(const x of d.add) out.push({ key, t:'add', x, id:key + '|add|' + x.id, kind:'選択肢を足した', b:x.label + (x.result ? '\n' + x.result : '') });
+    for(const [orig, fx] of Object.entries(d.cond)) out.push({ key, t:'cond', x:{ orig, fx }, id:key + '|ccond|' + orig, kind:'選べる条件を付けた', a:orig, b:condText({ fx }).replace(/^条件：/, '') });
+  }
+  for(const [bk, m] of Object.entries(store.get('draft-spots', {}))) for(const [id, x] of Object.entries(m || {})) out.push({ t:'spot', bk, sid:id, id:'spot|' + bk + '|' + id, place:(CHARS[bk] ? CHARS[bk].name + 'の本' : bk), kind:'場所を足した', b:(x && x.name) || id });
+  for(const [id, x] of Object.entries(store.get('draft-books', {}))) out.push({ t:'book', sid:id, id:'book|' + id, place:'本', kind:'本を足した', b:((x && x.name) || id) + 'の本' });
+  for(const [scene, m] of Object.entries(store.get('draft-cams', {}))) for(const [id, x] of Object.entries(m || {})) out.push({ t:'cam', scene, sid:id, id:'cam|' + scene + '|' + id, place:'映像', kind:'カメラを足した', b:(x && x.name) || id });
+  return out;
+}
+function chgUndo(id){
+  const c = chgList().find(x => x.id === id); if(!c) return;
+  if(c.key){ draftSet(c.key, unitApply(draftOf(c.key), { t:c.t, x:c.x }, false)); }
+  else if(c.t === 'spot'){ const all = store.get('draft-spots', {}); if(all[c.bk]) delete all[c.bk][c.sid]; store.set('draft-spots', all); }
+  else if(c.t === 'book'){ const all = store.get('draft-books', {}); delete all[c.sid]; store.set('draft-books', all); store.remove('player-' + c.sid); }
+  else if(c.t === 'cam'){ const all = store.get('draft-cams', {}); if(all[c.scene]) delete all[c.scene][c.sid]; store.set('draft-cams', all); }
+  unqueue(c.id);
+  if(c.t === 'spot' || c.t === 'book' || c.t === 'cam'){ location.reload(); return; } // 場所・本・カメラは、読みこみ直して外す
+  render();
+}
+function changesHtml(){
+  const list = chgList(), cut = t => { const s = String(t || ''); return escText(s.length > 120 ? s.slice(0, 120) + '…' : s); };
+  return '<div class="scr"><h2 class="scr-h">変えた所</h2><p class="scr-lead">' + (list.length ? '自分が書き換えたものの一覧です。1件ずつ、取り消せます。' + (room ? 'ほかの人が書き換えたものは、「通信」の「採用待ち」と、採用済みのスレッドで見られます。' : '') : 'まだ、書き換えたものがありません。') + '</p>'
+    + list.map((c, i) => '<div class="step chg"><div class="n">' + escText(c.key ? chgPlace(c.key) : c.place) + '</div><h3>' + c.kind + '</h3>'
+      + (c.a ? '<p class="chg-a">' + cut(c.a) + '</p>' : '') + (c.b ? '<p class="chg-b">' + cut(c.b) + '</p>' : '')
+      + '<div class="row"><button class="sm" data-chgundo="' + i + '">取り消す</button>' + (c.key && /^[a-z]+:\d+/.test(c.key) ? '<button class="sm" data-chggo="' + escAttr(c.key.split('>')[0]) + '">この場面へ行く</button>' : '') + '</div></div>').join('')
+    + '</div>';
 }
 function draftSet(key, d){ const all = store.get('draft', {}); all[key] = d; store.set('draft', all); }
 const viewKey = () => lastView.char + ':' + lastView.para;
