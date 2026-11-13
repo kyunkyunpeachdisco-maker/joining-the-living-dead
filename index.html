@@ -472,7 +472,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.18';
+const APP_VERSION = 'v0.3.19';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4629,6 +4629,50 @@ const packData = () => { const o = distOverlay(); return { v:1, base:overlay.bas
 // 部屋に入っていないとき：この端末の下書きを、連携したリポジトリの book/overlay.json に保存する。リポジトリの今の中身（Claude Code が直した分など）は残して、その上に重ねる
 // 書き換えを保存するたびに、少し待ってから、リポジトリにも保存する（続けて直しているあいだは、1回にまとめる）
 let autoSaveTimer = 0, soloBase = null, soloGuideSeen = false;
+let soloSha = null, soloPullNote = '', soloPulling = false;
+const jeq = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+// リポジトリの中身から、この端末が前に保存した分（L）を取りのぞく。残るのは、ほかで書かれた分（AI が書いた分など）
+function soloStrip(cur, L){
+  const o = JSON.parse(JSON.stringify(cur || {})); o.keys = o.keys || {};
+  for(const [key, l0] of Object.entries((L && L.keys) || {})){
+    const d = o.keys[key]; if(!d) continue; const l = Object.assign(DRAFT_BASE(), l0);
+    for(const t of ['paras', 'ins', 'add']) if(Array.isArray(d[t])) d[t] = d[t].filter(z => !l[t].some(q => jeq(q, z)));
+    for(const t of ['del', 'off']) if(Array.isArray(d[t])) d[t] = d[t].filter(z => !l[t].includes(z));
+    for(const t of ['labels', 'cond']) if(d[t]) for(const k of Object.keys(l[t] || {})) if(jeq(d[t][k], l[t][k])) delete d[t][k];
+    const e = Object.assign(DRAFT_BASE(), d);
+    if(!(e.paras.length || e.ins.length || e.add.length || e.del.length || e.off.length || Object.keys(e.labels).length || Object.keys(e.cond).length)) delete o.keys[key];
+  }
+  for(const t of ['spots', 'cams']) for(const [g, list] of Object.entries((L && L[t]) || {})) if(o[t] && o[t][g]){ for(const [id, x] of Object.entries(list || {})) if(jeq(o[t][g][id], x)) delete o[t][g][id]; if(!Object.keys(o[t][g]).length) delete o[t][g]; }
+  for(const [id, x] of Object.entries((L && L.books) || {})) if(o.books && jeq(o.books[id], x)) delete o.books[id];
+  return o;
+}
+const soloMine = () => soloOverlay({});                                   // この端末の下書きだけ
+const soloSaved = () => store.get('solo-saved', null) || soloMine();      // 前にリポジトリへ保存した、この端末の分
+// 部屋の中の「更新」：部屋の今の中身を読みこむ（リポジトリのない部屋では、部屋を作った人の端末から届く）
+async function roomPullNow(){ soloPullNote = '読みこんでいます…'; render(); roomNote = ''; roomSig = ''; await roomPull(true); if(liveOn()) liveAll({ t:'refresh' }); soloPullNote = roomNote ? '読みこめませんでした' : '読みこみました'; render(); }
+// リポジトリを読みこむ。開いたとき・画面に戻ったとき・3分ごと・☰ の「更新」
+async function soloPull(manual){
+  if(room || !TEST_BUILD || CUSTOM || !ghReady() || soloPulling || (!manual && fbe)) return;
+  soloPulling = true; if(manual){ soloPullNote = '読みこんでいます…'; render(); }
+  try {
+    const g = await ghApi('book/overlay.json');
+    if(g.status === 404){ if(manual) soloPullNote = '新しいものはありません'; }
+    else if(!g.ok) throw g.status;
+    else {
+      const meta = await g.json();
+      if(meta.sha === soloSha){ if(manual) soloPullNote = '新しいものはありません'; }
+      else {
+        const dec = ghDecode(meta); if(!dec) throw 0;
+        const o = clean(soloStrip(Object.assign({ v:1, keys:{} }, dec), soloSaved())) || {}, sig = () => JSON.stringify([overlay.keys, overlay.spots, overlay.books, overlay.cams, overlay.poses]), before = sig();
+        overlay = { base:o.base || null, keys:o.keys || {}, items:{}, poses:o.poses || {}, spots:o.spots || {}, books:o.books || {}, cams:o.cams || {} }; soloSha = meta.sha; overlayPoses(); store.set('overlay', overlay);
+        const changed = before !== sig();
+        if(manual) soloPullNote = changed ? '読みこみました' : '新しいものはありません';
+        if(changed){ try { applySpots(); } catch(e){} if(!manual) render(); }
+      }
+    }
+  } catch(e){ if(manual) soloPullNote = '読みこめませんでした'; }
+  soloPulling = false; if(manual) render();
+}
 function autoSaveSoon(){ try { if(!ghLinked()) return; clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => soloSave(true), 4000); } catch(e){} }
 async function soloSave(quiet){
   if(room || !ghReady()) return;
@@ -4636,8 +4680,9 @@ async function soloSave(quiet){
   try {
     const auto = quiet === true, base = auto && soloBase ? soloBase : (soloBase = (await packDataPublic()).base);
     if(!auto || !soloGuideSeen) soloGuideSeen = true, ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
-    const r = await ghWrite('book/overlay.json', meta => { const cur = Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...cur, ...soloOverlay(cur), base })) }; });
+    const r = await ghWrite('book/overlay.json', meta => { const cur = soloStrip(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null), soloSaved()); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...cur, ...soloOverlay(cur), base })) }; });
     if(r.status !== 200) throw r.status;
+    store.set('solo-saved', soloMine()); soloSha = null;
     if(quiet !== true || packPanel) packNote = 'リポジトリ（' + ghRepo() + '）の book/overlay.json に保存しました。Claude Code でこのリポジトリを開くと、続きを直せます。配るリンクは、この欄のいちばん上に、このリポジトリの名前を入れて付けると、取れます。';
   } catch(e){ if(quiet !== true || packPanel) packNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。リポジトリの名前と、トークン（Contents: Read and write）を、確かめてください。' : '保存できませんでした。電波のよい所で、もう一度押してください。'; }
   if(quiet !== true || packPanel) render();
@@ -4653,7 +4698,7 @@ async function soloPublish(){
   try {
     const base = (await packDataPublic()).base, g = await ghApi('book/overlay.json');
     if(!g.ok && g.status !== 404) throw g.status;
-    const cur = Object.assign({ v:1, keys:{} }, g.ok ? ghDecode(await g.json()) : null), o = soloOverlay(cur), data = { v:1, base, keys:o.keys, items:{}, poses:o.poses, spots:o.spots, books:o.books, cams:o.cams };
+    const cur = soloStrip(Object.assign({ v:1, keys:{} }, g.ok ? ghDecode(await g.json()) : null), soloSaved()), o = soloOverlay(cur), data = { v:1, base, keys:o.keys, items:{}, poses:o.poses, spots:o.spots, books:o.books, cams:o.cams };
     const r = await ghWrite('book/overlay.json', () => ({ message:'直したものを出す', content:b64(JSON.stringify(data)) }), { api });
     if(r.status !== 200) throw r.status;
     for(const id of usedAssets(data)){ const d = await assetData(id), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(m) await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] }), { api }); }
@@ -4951,7 +4996,7 @@ function howPages(kind){
       { t:'みんなで作る', text:(room ? '招待リンクを送って、人を呼びます。' : '部屋を作って、招待リンクを送ります。') + '部屋に入った人が書き換えると、全員のゲームに反映されます。', list:[['反映のしかた', 'すぐ反映されます。部屋の画面で、誰か1人が賛成してから、または部屋を作った人が採用してから反映するように替えられます。']], btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
       { img:'how-make-2', full:true, t:'通信', lead:'部屋の人と話す画面です。部屋の中で、画面の右端の「通信」を押すと開きます。', legend:['書く欄：書いて送ると、新しいスレッドが始まります。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに反映されていない書き換えだけを並べます。'] },
       { t:'AI に書かせる', text:'リポジトリを開いて作業できる AI なら、どれでも使えます（Claude Code、Codex、Antigravity など）。ここでは、Claude Code（claude.ai/code）を例に説明します。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
-        ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
+        ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。AI が書いたものは、☰ の「更新」を押すと、ゲームに出ます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
         ['部屋で作る人', '部屋の「通信」の書く欄で、「AI に頼む」にチェックを入れて、頼みごとを書きます。部屋を作った人が、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書くと、AI が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
       ] },
     ];
@@ -5278,6 +5323,7 @@ function memberConnect(){
     else if(msg.t === 'denied'){ joinState = 'denied'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'file') liveGot(String(msg.dev || ''), msg.data);
     else if(msg.t === 'changed'){ clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300); }
+    else if(msg.t === 'refresh'){ roomSig = ''; roomPull(true); }
     else if(msg.t === 'vfsr' && vfsWait[msg.id]){ const f = vfsWait[msg.id]; delete vfsWait[msg.id]; f({ status:+msg.status || 500, json:msg.json, text:typeof msg.text === 'string' ? msg.text : '' }); }
   });
   const gone = () => { if(hostConn === c){ hostConn = null; peerOn = false; peerShow(); } peerRetry(15000); };
@@ -5328,6 +5374,9 @@ function hostAccept(c){
     } else if(msg.t === 'vfs' && dev && roomLocal()){ // リポジトリのない部屋：置き場所の読み書きを、代わりにする
       const r = vfsDo(String(msg.m), String(msg.path), msg.body && typeof msg.body === 'object' ? msg.body : null, !!msg.raw);
       try { c.send({ t:'vfsr', id:msg.id, status:r.status, json:r.json, text:r.text }); } catch(e){}
+    } else if(msg.t === 'refresh' && dev){
+      for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'refresh' }); } catch(e){}
+      roomSig = ''; roomPull(true);
     } else if(msg.t === 'changed' && dev){
       for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'changed' }); } catch(e){}
       clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300);
@@ -5834,7 +5883,7 @@ function render(){
     grp('本を選ぶ', CHAR_IDS.map(id => { const st = room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
     + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存して、ロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずに、ロックを外す</button>' : '') : '')
     + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
-    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '')
+    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
       + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
       + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '<small>済み</small>' : '') + '</button>'))
     + grp('そのほか', `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
@@ -6092,6 +6141,7 @@ function render(){
   on('roomDelNo', () => { roomDelAsk = false; render(); });
   on('roomDelYes', roomDelete);
   on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room + (roomLocal() ? '&l=1' : '&r=' + ghRepo() + '&k=' + ghPat())).then(() => { roomNote = roomLocal() ? '招待リンクをコピーしました。部屋に入れたい人に渡してください。' : '招待リンクをコピーしました。このリンクには、リポジトリに書きこむためのトークンが入っています。部屋に入れたい人にだけ渡してください。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
+  on('soloPullBtn', () => (room ? roomPullNow() : soloPull(true)));
   on('chgbtn', () => { chgPanel = true; roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
   document.querySelectorAll('[data-chgundo]').forEach(el => { el.onclick = () => { const c = chgList()[+el.dataset.chgundo]; if(c && confirm('「' + c.kind + '」を取り消しますか？')) chgUndo(c.id); }; });
   document.querySelectorAll('[data-chggo]').forEach(el => { el.onclick = () => { chgPanel = false; cmGo(el.dataset.chggo); }; });
@@ -7667,6 +7717,7 @@ frontRender();
 // リポジトリの初めの名前を変えた（…-rooms → …-work）。前の名前を覚えている端末は、新しい名前のリポジトリがあれば、そちらに替える
 (async () => { try { const r0 = store.get('gh-repo', ''); if(!/\/joining-the-living-dead-rooms$/.test(r0) || !ghPat()) return; const nw = r0.replace(/-rooms$/, '-work'), r = await fetch('https://api.github.com/repos/' + nw, { headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json' } }); if(r.ok && (await r.json()).full_name === nw){ store.set('gh-repo', nw); const p0 = store.get('pub-repo', ''); if(/\/jtld-my-version$/.test(p0)) store.set('pub-repo', p0.replace(/jtld-my-version$/, 'joining-the-living-dead-share')); render(); } } catch(e){} })();
 loadPack();
+if(TEST_BUILD && !room){ soloPull(); setInterval(() => { if(document.visibilityState === 'visible') soloPull(); }, 180000); document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') soloPull(); }); }
 // 送るのを待っているものは、開いたときと、1分ごとに、時刻を過ぎていれば送る
 if(TEST_BUILD && !room){ flushOutbox(); setInterval(() => { if(!fbe) flushOutbox(); }, 60000); }
 // 部屋に入っていれば、開いたとき・画面に戻ったとき・30秒ごとに、ほかの人の進み具合を読みこむ
