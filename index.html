@@ -310,7 +310,9 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-rx{display:flex;gap:6px;margin-top:-6px}.cm-rx.me{align-self:flex-end}.cm-rx button{border:1px solid #3a3a40;border-radius:99px;padding:1px 8px;font-size:13px;background:none;color:inherit}.cm-rx button.on{border-color:#e0b04a}
 .cm-card{border:1px solid #3a3a40;border-radius:12px;overflow:hidden}.cm-card .h{padding:8px 12px;font-size:13px;color:#c9c2b3;background:#15151a}.cm-card .d{padding:10px 12px;font-size:14px;overflow-wrap:anywhere}.cm-card .done{padding:0 12px 10px;color:#8d8778;font-size:13px}
 .cm-acts{display:flex;gap:8px;padding:0 12px 12px}.cm-acts button{flex:1;border-radius:8px;padding:9px;font-size:14px;border:1px solid #3a3a40;background:none;color:#e8e2d6}.cm-acts .go,.cm-acts .on{border-color:#e0b04a;color:#e0b04a}.cm-m .cm-acts{padding:8px 0 0}
-.cm-poll{margin-top:8px;display:grid;gap:6px}.cm-poll button{position:relative;overflow:hidden;display:flex;justify-content:space-between;border:1px solid #3a3a40;border-radius:8px;padding:8px 12px;background:none;color:inherit;text-align:left}.cm-poll button i{position:absolute;left:0;top:0;bottom:0;background:#4a3d1a;opacity:.7}.cm-poll button span{position:relative}.cm-poll button.on{border-color:#e0b04a}
+.cm-poll{margin-top:8px;display:grid;gap:6px}.cm-poll button{position:relative;overflow:hidden;display:flex;justify-content:space-between;border:1px solid #3a3a40;border-radius:8px;padding:8px 12px;background:none;color:inherit;text-align:left}.cm-poll button i{position:absolute;left:0;top:0;bottom:0;background:#4a3d1a;opacity:.7}.cm-poll button span{position:relative}.cm-poll button.on{border-color:#f0d890;box-shadow:inset 0 0 0 1px #f0d890}.cm-poll button.on span{color:#fff;font-weight:bold}
+.cm-m .b{position:relative}.cm-m .mo{float:right;margin:-4px -6px 0 8px;padding:0 4px;font-style:normal;font-size:20px;line-height:1;color:#a8a090;cursor:pointer}.cm-m.me .mo{color:#b8a878}
+.cm-in .note{margin:0 0 8px;padding:6px 10px;border-radius:8px;background:#1b1b20;color:#e8e2d6;font-size:13px}
 .cm-in{position:sticky;bottom:0;background:#0a0b0e;border-top:1px solid #2a2a2e;padding:10px 14px 14px;z-index:2}
 .cm-r{display:flex;gap:8px;align-items:flex-end}.cm-r button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:10px;height:44px;min-width:44px;font-size:18px}.cm-r button.on{border-color:#e0b04a;color:#e0b04a}.cm-r .go{border-color:#e0b04a;color:#e0b04a;font-size:15px;padding:0 14px}
 .cm-r textarea{flex:1 1 0;width:0!important;min-width:0;min-height:44px!important;height:44px;max-height:160px;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;box-sizing:border-box}.cm-r button{flex:none;width:auto!important;margin:0!important}
@@ -470,7 +472,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.17';
+const APP_VERSION = 'v0.3.18';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4968,7 +4970,7 @@ function howPages(kind){
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : '先の時間帯に入った本は、ほかの本が追いつくまで進められません。')],
       ['持ち物', '持っているときだけ選べる選択肢があります。'],
       ['体力と感染', '体力は最大3です。ゾンビに襲われると1減り、傷から感染することもあります。体力がなくなるか、感染してしばらくたつと、主人公はゾンビになります。'],
-      ...(room ? [['ロック', '☰ の「部屋」の画面で、進めたい本の「ロックする」を押します。進められるのは、自分がロックした本だけです。1冊をロックできるのは1人だけです。ロックしていない本も、開けばこれまでの話を読めます。' + reach]] : [['別の本に替える', '本は、ロックして進めます。ロックできる本は、一度に1冊です。本を選ぶと、ロックするかを聞かれます。別の本を進めるときは、☰ の「保存して、ロックを外す」を押してから、本を選びます。進めた分をなかったことにするときは、「保存せずに、ロックを外す」を押します。'], ['みんなで遊ぶ', '☰ の「部屋」で部屋を作り、招待リンクを送ります。本は、1人1冊ずつ進めます。']]),
+      ...(room ? [['ロック', '☰ の「部屋」の画面で、進めたい本の「ロックする」を押します。進められるのは、自分がロックした本だけです。1冊をロックできるのは1人だけです。ロックしていない本も、開けばこれまでの話を読めます。' + reach]] : [['別の本に替える', '本は、ロックして進めます。ロックできる本は、一度に1冊です。本を選ぶと、ロックするかを聞かれます。別の本を進めるときは、☰ の「保存して、ロックを外す」を押してから、本を選びます。進めた分をなかったことにするときは、「保存せずに、ロックを外す」を押します。'], ['みんなで遊ぶ', '☰ の「部屋」で部屋を作り、招待リンクを送ります。一度に進められるのは、1人1冊です。']]),
     ] },
   ];
   return P;
@@ -5841,7 +5843,7 @@ function render(){
       + (room ? '' : '<button class="reset" id="reset">最初から</button>'))
     + (TEST_BUILD ? '' : `<div style="font-size:11px;color:#6a6458;text-align:right;padding-top:6px">${APP_VERSION}</div>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
   const lkReal = room ? null : realIO(() => loadWorld().lock), lkOn = room ? mine(current) : lkReal === current;
-  const whose = `<span><b>${CHARS[current].name}</b>${lkOn ? '<span class="lk on">ロック中</span>' : !room && !lkReal ? '<button class="lk" id="lockAsk">ロックなし</button>' : '<span class="lk">ロックなし</span>'}</span>`;
+  const whose = `<span><b>${CHARS[current].name}</b>${lkOn ? '<span class="lk on">ロック中</span>' : !room && !lkReal ? '<button class="lk" id="lockAsk">ロックなし</button>' : room && own[current] ? '' : '<span class="lk">ロックなし</span>'}</span>`;
 
   let html = '', drawerHtml = '';
   if(mode === 'history'){
@@ -5988,6 +5990,7 @@ function render(){
   on('cmSheetNo', () => { cmSheet = ''; fbDelAsk = ''; render(); });
   on('cmQuoteNo', () => { cmQuote = null; render(); });
   on('cmTagBtn', () => { cmPlus = false; cmAppend('\n' + cmNowTag() + '\n'); });
+  cmNoteFade();
   document.querySelectorAll('[data-open]').forEach(el => { el.onclick = () => { cmThread = el.dataset.open; cmNew = false; cmSheet = ''; cmQuote = null; cmPlus = false; cmScroll = true; fbNote = ''; render(); }; });
   document.querySelectorAll('[data-cmf]').forEach(el => { el.onclick = () => { cmFilter = el.dataset.cmf; render(); }; });
   document.querySelectorAll('[data-msg]').forEach(el => { el.onclick = e => { if(e.target.closest('a,button,textarea,input')) return; cmSheet = el.dataset.msg; fbDelAsk = ''; render(); }; });
@@ -6184,6 +6187,8 @@ function memoNew(text){
   memoSave(); fbDrafts.opinion = ''; cmNew = false; cmPlus = false; cmThread = id; cmScroll = true; render();
 }
 let cmThread = null, cmNew = false, cmFilter = 'all', cmSheet = '', cmQuote = null, cmPlus = false, cmScroll = false, cmAdopting = false;
+const cmHM = t => { if(!t) return ''; const d = new Date(t); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const cmDay = t => { const d = new Date(t); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
 const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[[\w-]+:\d+\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
@@ -6242,38 +6247,41 @@ function cmInputHtml(k){
       + (paras.length ? '<details><summary>いまの場面の文を引用する</summary>' + paras.map((p, i) => '<button class="cm-para" data-cmpara="' + i + '">' + escText(p.slice(0, 60)) + (p.length > 60 ? '…' : '') + '</button>').join('') + '</details>' : '')
       + (k || !room ? '' : '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + '><summary>投票にする</summary><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ"></textarea></details>') + '</div>' : '')
     + (!k && room && TEST_BUILD && !roomLocal() ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
+    + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
     + '<div class="cm-r"><button id="cmPlusBtn" class="' + (cmPlus ? 'on' : '') + '" aria-label="付ける">＋</button>'
-    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッドを始める' : '新しいメモを書く') + '"></textarea>')
+    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッド' : '新しいメモ') + '"></textarea>')
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
     + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
-    + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '') + '</div>';
+    + '</div>';
 }
+let cmNoteT = 0;
+function cmNoteFade(){ clearTimeout(cmNoteT); if(fbNote && !/ません|ください/.test(fbNote)) cmNoteT = setTimeout(() => { fbNote = ''; document.querySelectorAll('.cm-in .note').forEach(e => e.remove()); }, 6000); }
 function cmThreadHtml(k){
   if(fbEdit) cmSheet = '';
   const it = roomItems[k], hasTag = /^\[\[[\w-]+:\d+\]\]$/m.test(String(roomItems[k].text || '')), pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<button class="cm-pic" data-img="' + id + '">画像を見る</button>');
   const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
   const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
-  const bubble = (id, by, text, mine, extra, cls) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '">' + (mine && !cls ? '' : '<div class="n">' + escText(by) + '</div>')
-    + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : cmText(text)) + (extra || '') + '</div></div>';
+  const bubble = (id, by, text, mine, extra, cls, when) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '">' + '<div class="n">' + (mine && !cls ? '' : escText(by) + '　') + cmHM(when) + '</div>'
+    + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : '<i class="mo" aria-label="返信・リアクション">⋯</i>' + cmText(text)) + (extra || '') + '</div></div>';
   let h = '';
   if(unitOk(it.draft)){
     h += '<div class="cm-card"><div class="h">' + escText(it.by || '名前なし') + 'が書き換えました</div><div class="d" data-msg="' + k + '">' + cmText(it.text || String(it.body || '').split('\n\n---\n')[0]) + cmChip(it.at) + '</div>'
-      + (it.adopted ? '<div class="done">採用済み。全員のゲームに入っています。</div>' + (isHost() ? '<div class="cm-acts"><button data-adopt="' + k + '|0">採用をやめる</button></div>' : '')
+      + (it.adopted ? '<div class="done">採用済み。全員のゲームに入っています。</div>' + (isHost() ? '<div class="cm-acts"><button data-adopt="' + k + '|0" style="flex:none;margin-left:auto;padding:5px 10px;font-size:12px;color:#8d8778">採用をやめる</button></div>' : '')
         : isHost() ? '<div class="cm-acts"><button class="go" data-adopt="' + k + '|1">採用する</button></div>'
         : mode === 'peer' && !mineKey(k) ? '<div class="cm-acts"><button class="go' + (rx.e0 && rx.e0[DEV] ? ' on' : '') + '" data-rx="' + k + '|0">賛成' + (agree ? '　' + agree : '') + '</button></div><div class="done">誰か1人が賛成すると、全員のゲームに入ります。</div>'
         : '<div class="done">' + (mode === 'peer' ? 'ほかの人が賛成すると、全員のゲームに入ります。' : mode === 'auto' ? 'まもなく、全員のゲームに入ります。' : '部屋を作った人が採用すると、全員のゲームに入ります。') + '</div>') + '</div>';
   } else {
     h += bubble(k, (it.by || '名前なし') + (it.claude ? '　AI に頼んだこと' : '') + (it.edited ? '　直した' : ''), it.text || String(it.body || '').split('\n\n---\n')[0], mineKey(k),
-      (it.img ? pic(k) : '') + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '');
+      (it.img ? pic(k) : '') + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + (my === i ? '✓ ' : '') + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '', it.o);
   }
   const chips = EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
   if(chips) h += '<div class="cm-rx' + (mineKey(k) && !unitOk(it.draft) ? ' me' : '') + '">' + chips + '</div>';
   if(it.reply) h += bubble(k + '|ai', 'AI', it.reply, false, '', ' ai');
-  let day = '';
+  let day = it.o ? new Date(it.o).toDateString() : '';
   for(const [rk, r] of visRes(it)){
-    const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmTime(r.o) + '</div>'; }
-    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), r.img ? pic(k + '_' + rk) : '');
+    const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmDay(r.o) + '</div>'; }
+    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), r.img ? pic(k + '_' + rk) : '', '', r.o);
     const rrx = r.rx && typeof r.rx === 'object' ? r.rx : {}, rchips = EMOJI.map((e, i) => { const who = rrx['e' + i] && typeof rrx['e' + i] === 'object' ? Object.keys(rrx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + rk + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
     if(rchips) h += '<div class="cm-rx' + (mineKey(rk) ? ' me' : '') + '">' + rchips + '</div>';
   }
@@ -6978,7 +6986,7 @@ async function adoptItem(k, on){
   try {
     await overlayWrite(o => { if(u.t === 'cam'){ o.cams = o.cams || {}; const sc = (o.cams[u.x.scene] = o.cams[u.x.scene] || {}); if(on){ const { id, scene, ...rest } = u.x; sc[id] = rest; } else delete sc[u.x.id]; } else if(u.t === 'book'){ o.books = o.books || {}; if(on){ const { id, ...rest } = u.x; o.books[id] = rest; } else delete o.books[u.x.id]; } else if(u.t === 'spot'){ o.spots = o.spots || {}; const bk = (o.spots[u.x.book] = o.spots[u.x.book] || {}); if(on){ const { id, book, ...rest } = u.x; bk[id] = rest; } else delete bk[u.x.id]; } else o.keys[u.key] = unitApply(Object.assign(DRAFT_BASE(), o.keys[u.key]), u, on); if(on) o.items[k] = { by:String(it.by || ''), at:Date.now() }; else delete o.items[k]; });
     if(!on) store.set('adopt-skip', [...new Set([...store.get('adopt-skip', []), k])].slice(-200));
-    it.adopted = on; fbNote = on ? '採用しました。部屋の全員の本に、反映されます。' : '採用をやめました。';
+    it.adopted = on; fbNote = on ? '採用しました。全員のゲームに入ります。' : '採用をやめました。';
   } catch(e){ fbNote = 'リポジトリに書けませんでした。電波のよい所で、もう一度押してください。'; }
   roomSig = ''; render(); roomPull();
 }
