@@ -457,7 +457,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 00:01 c3b4195';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 03:05 8c327f1';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6314,7 +6314,7 @@ let vfsMem = null, vfsSeq = 0;
 const vfsWait = {};
 function vfsLoad(){ if(!vfsMem){ try { vfsMem = JSON.parse(localStorage.getItem(vfsKey(room)) || '{}') || {}; } catch(e){ vfsMem = {}; } } return vfsMem; }
 function vfsSave(){ try { localStorage.setItem(vfsKey(room), JSON.stringify(vfsMem)); } catch(e){} }
-const vfsPathOk = p => typeof p === 'string' && p.length < 200 && /^[A-Za-z0-9_.\/-]+$/.test(p) && !p.includes('..') && (p === 'rooms/' + room || p.startsWith('rooms/' + room + '/') || p === 'book' || p.startsWith('book/') || p === 'CLAUDE.md');
+const vfsPathOk = p => typeof p === 'string' && p.length < 200 && /^[A-Za-z0-9_.\/-]+$/.test(p) && !p.includes('..') && (p === 'rooms/' + room || p.startsWith('rooms/' + room + '/') || p === 'book' || p.startsWith('book/') || p === 'CLAUDE.md' || p === 'AGENTS.md');
 const vfsHash = t => { let h = 5381; for(let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h.toString(36); };
 function vfsDo(m, path, body, raw){
   if(!vfsPathOk(path)) return { status:400 };
@@ -6710,7 +6710,7 @@ async function roomCreate(){
     if(!ghReady()) throw 'no-repo';
     const r = await ghApi(repoBase(code) + 'room.json', { method:'PUT', body:JSON.stringify({ message:'部屋 ' + code + ' を作る', content:b64(JSON.stringify({ v:3, host:DEV, open:true, gap:0, updated:Date.now() })) }) });
     if(!r.ok) throw r.status;
-    try { const g = await ghApi('CLAUDE.md'); if(g.status === 404) await ghApi('CLAUDE.md', { method:'PUT', body:JSON.stringify({ message:'案内ファイルを作る', content:b64(GUIDE_MD) }) }); } catch(e){}
+    for(const f of ['CLAUDE.md', 'AGENTS.md']) try { const g = await ghApi(f); if(g.status === 404) await ghApi(f, { method:'PUT', body:JSON.stringify({ message:'案内ファイルを作る', content:b64(GUIDE_MD) }) }); } catch(e){}
     try { localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code)); } catch(e){}
     roomEnter(code);
   } catch(e){ roomBusy = false; roomNote = e === 'no-repo' ? '先に、下の「部屋の置き場所」を入れてください。' : [401, 403, 404].includes(e) ? '部屋を作れませんでした。リポジトリの名前とトークンを確かめてください。' : '部屋を作れませんでした。電波のよい所で、もう一度押してください。'; render(); }
@@ -7055,9 +7055,9 @@ function render(){
   const fbD = document.getElementById('fbDrawer'), waitN = TEST_BUILD ? store.get('outbox', []).length : 0;
   const fbCan = TEST_BUILD || !!room;
   fbD.hidden = !fbCan; fbD.classList.toggle('open', fbOpen && fbCan);
-  document.getElementById('fbBody').innerHTML = fbOpen && fbCan ? (room ? commHtml() : fbPanelHtml()) : '';
+  document.getElementById('fbBody').innerHTML = fbOpen && fbCan ? (room || !cmOld ? commHtml() : fbPanelHtml()) : '';
   document.getElementById('fbTab').classList.toggle('on', fbOpen);
-  fbD.classList.toggle('max', (fbMax || !!room) && fbOpen && fbCan);
+  fbD.classList.toggle('max', (fbMax || !!room || !cmOld) && fbOpen && fbCan);
   if(room && fbOpen && cmThread && cmScroll){ const fb = document.getElementById('fbBody'); fb.scrollTop = fb.scrollHeight; cmScroll = false; }
   chatBadge();
   syncTuck();
@@ -7095,6 +7095,8 @@ function render(){
   if(fbN){ fbN.value = store.get('fb-name', ''); fbN.oninput = () => store.set('fb-name', fbN.value.trim()); }
   on('fbSend', sendFeedback);
   on('fbMic', fbMic);
+  on('cmOldBtn', () => { cmOld = true; fbNote = ''; render(); });
+  on('cmOldNo', () => { cmOld = false; fbMax = false; fbNote = ''; render(); });
   on('cmClose', () => { fbOpen = false; fbNote = ''; render(); });
   on('cmBack', () => { cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
   on('cmNewBtn', () => { cmNew = true; cmPlus = false; fbNote = ''; render(); const t = document.getElementById('fbText'); if(t) t.focus(); });
@@ -7286,6 +7288,14 @@ function tallyResult(){
 }
 // ===== 通信（部屋の話す画面）=====
 // 話1つと、その返信が、1つのスレッド。一覧 → 開く → 書く。いつも画面いっぱいに開く
+let cmOld = false, cmMemoLoaded = false; // cmOld：1人のとき、作者へ意見を送る画面（前の意見の欄）を開いている
+function memoSave(){ store.set('memo-items', roomItems); }
+// 1人のとき：新しいスレッドは、自分だけのメモ
+function memoNew(text){
+  const m = issueMeta(), id = DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  roomItems[id] = { title:'[' + m.name + ' ' + m.para + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), text, by:store.get('fb-name', '') || '自分', o:Date.now(), at:current + ':' + m.para, free:true };
+  memoSave(); fbDrafts.opinion = ''; cmNew = false; cmPlus = false; cmThread = id; cmScroll = true; render();
+}
 let cmThread = null, cmNew = false, cmFilter = 'all', cmSheet = '', cmQuote = null, cmPlus = false, cmScroll = false, cmAdopting = false;
 const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
@@ -7327,10 +7337,11 @@ function cmListHtml(){
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
     + '<input id="fbFind" class="cm-find" placeholder="スレッドを探す" maxlength="40">'
     + '<button class="cm-new" id="cmNewBtn">＋ 新しいスレッド</button>'
-    + '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>'
+    + (room ? '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
     + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : 'まだ、スレッドがありません。') + '</p>') + '</div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
-    + '<details class="cm-set"><summary>名前・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30">'
+    + (room ? '' : '<button class="cm-new" id="cmOldBtn" style="border-color:#3a3a40;color:#c9c2b3">作者へ意見を送る' + (store.get('outbox', []).length ? '（待ち ' + store.get('outbox', []).length + '）' : '') + '</button>')
+    + '<details class="cm-set"' + (room ? '' : ' hidden') + '><summary>名前・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30">'
     + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details></div>';
 }
 // 書く欄。k があれば、そのスレッドへの返信。なければ、新しいスレッド
@@ -7339,20 +7350,21 @@ function cmInputHtml(k){
   const img = k ? !!fbReImg[k] : !!fbImg;
   return '<div class="cm-in">'
     + (cmQuote ? '<div class="cm-qbar"><span>' + escText(cmQuote.by + '：' + cmQuote.text) + '</span><button id="cmQuoteNo">×</button></div>' : '')
-    + (cmPlus ? '<div class="cm-plus">' + (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>')
+    + (cmPlus ? '<div class="cm-plus">' + (!room ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>'))
       + (lastView ? '<button id="cmTagBtn">いまの場面の札を付ける</button>' : '')
-      + '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>'
+      + (!room ? '' : '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>')
       + (paras.length ? '<details><summary>いまの場面の文を引用する</summary>' + paras.map((p, i) => '<button class="cm-para" data-cmpara="' + i + '">' + escText(p.slice(0, 60)) + (p.length > 60 ? '…' : '') + '</button>').join('') + '</details>' : '')
-      + (k ? '' : '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + '><summary>投票にする</summary><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ"></textarea></details>') + '</div>' : '')
-    + (!k && TEST_BUILD && !roomLocal() ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
+      + (k || !room ? '' : '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + '><summary>投票にする</summary><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ"></textarea></details>') + '</div>' : '')
+    + (!k && room && TEST_BUILD && !roomLocal() ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
     + '<div class="cm-r"><button id="cmPlusBtn" class="' + (cmPlus ? 'on' : '') + '" aria-label="付ける">＋</button>'
-    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="新しいスレッドの、最初のメッセージを書く"></textarea>')
+    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッドの、最初のメッセージを書く' : '新しいメモを書く') + '"></textarea>')
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
     + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '') + '</div>';
 }
 function cmThreadHtml(k){
-  const it = roomItems[k], pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<button class="cm-pic" data-img="' + id + '">画像を見る</button>');
+  if(fbEdit) cmSheet = '';
+  const it = roomItems[k], hasTag = /^\[\[[\w-]+:\d+\]\]$/m.test(String(roomItems[k].text || '')), pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<button class="cm-pic" data-img="' + id + '">画像を見る</button>');
   const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
   const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
@@ -7367,7 +7379,7 @@ function cmThreadHtml(k){
         : '<div class="done">' + (mode === 'peer' ? 'ほかの人が賛成すると、全員のゲームに入ります。' : mode === 'auto' ? 'まもなく、全員のゲームに入ります。' : '部屋を作った人が採用すると、全員のゲームに入ります。') + '</div>') + '</div>';
   } else {
     h += bubble(k, (it.by || '名前なし') + (it.claude ? '　AI に頼んだこと' : '') + (it.edited ? '　直した' : ''), it.text || String(it.body || '').split('\n\n---\n')[0], mineKey(k),
-      (it.img ? pic(k) : '') + cmChip(it.at) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '');
+      (it.img ? pic(k) : '') + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '');
   }
   const chips = EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
   if(chips) h += '<div class="cm-rx' + (mineKey(k) && !unitOk(it.draft) ? ' me' : '') + '">' + chips + '</div>';
@@ -7392,6 +7404,7 @@ function cmThreadHtml(k){
   return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
 }
 function commHtml(){
+  if(!room && !cmMemoLoaded){ roomItems = clean(store.get('memo-items', {})) || {}; cmMemoLoaded = true; }
   if(cmThread && !roomItems[cmThread]) cmThread = null;
   if(cmThread) return cmThreadHtml(cmThread);
   if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの題になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
@@ -7442,7 +7455,7 @@ function fbPanelHtml(){
   const box = store.get('outbox', []), at = store.get('send-at', '');
   return '<div class="fb panel">'
     + (room ? chatHeadHtml() + threadsHtml() + '<div class="who" style="margin-top:14px">書く先：' + escText(viewName(composeAt())) + '</div>'
-      : 'この場面について<p>気になったこと、直してほしいこと、足してほしいもの。Claude への頼みごとも、ここに書けます。</p>')
+      : '<div class="row"><button id="cmOldNo">‹ 通信へ戻る</button></div>作者へ意見を送る<p>このゲームの作者に、気になったことや、直してほしいことを送れます。どの場面かは、自動で付きます。</p>')
     + '<textarea id="fbText"' + (room ? ' placeholder="気になったこと、直してほしいこと、足してほしいもの。Claude への頼みごとも、ここに書けます"' : '') + '></textarea>'
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<div class="row" style="margin-bottom:8px"><button id="fbMic">' + (fbRec ? '■ 聞き取りを止める' : '声で書く') + '</button></div>' : '')
     + (room ? '<div class="row">' + ['all', ...Object.entries(roomMembers).filter(([k, m]) => k !== DEV && m && m.name).map(([, m]) => m.name)].slice(0, 12).map(n => '<button class="mini" data-at="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>'
@@ -7468,6 +7481,7 @@ function fbPanelHtml(){
 function sendFeedback(){
   const text = fbDrafts.opinion.trim();
   if(!text) return;
+  if(!room && !cmOld){ memoNew(text); return; }
   const extra = {};
   if(room){
     extra.free = true;
@@ -7578,8 +7592,9 @@ function chatNotify(){
 async function threadEditSave(id){
   const [k, rk] = id.split('|'), text = (fbEdit && fbEdit.value || '').trim(), it = roomItems[k];
   if(!text || !it) return;
+  if(!room){ if(rk) Object.assign(it.re[rk], { text:text.slice(0, 1000), edited:true }); else Object.assign(it, { text, edited:true }); fbEdit = null; memoSave(); render(); return; }
   try {
-    const body = rk ? { text:text.slice(0, 400), edited:true } : { text, edited:true, title:String(it.title).split('] ')[0] + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), body:text + '\n\n---\n' + String(it.body || '').split('\n\n---\n').slice(1).join('\n\n---\n') };
+    const body = rk ? { text:text.slice(0, 1000), edited:true } : { text, edited:true, title:String(it.title).split('] ')[0] + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), body:text + '\n\n---\n' + String(it.body || '').split('\n\n---\n').slice(1).join('\n\n---\n') };
     const res = await roomFetch(roomPath('items/' + k + (rk ? '/re/' + rk : '')), { method:'PATCH', body:JSON.stringify(body) });
     if(!res.ok) throw 0;
     Object.assign(rk ? it.re[rk] : it, clean(body)); fbEdit = null; roomSig = '';
@@ -7588,6 +7603,8 @@ async function threadEditSave(id){
 }
 async function threadDelete(id){
   const [k, rk] = id.split('|');
+  cmSheet = '';
+  if(!room){ if(rk){ if(roomItems[k] && roomItems[k].re) delete roomItems[k].re[rk]; } else delete roomItems[k]; fbDelAsk = ''; memoSave(); render(); return; }
   try {
     const res = await roomFetch(roomPath('items/' + k + (rk ? '/re/' + rk : '')), { method:'DELETE' });
     if(!res.ok) throw 0;
@@ -7599,9 +7616,11 @@ async function threadDelete(id){
 }
 async function threadRx(k, i){
   const it = roomItems[k];
-  if(!it || !roomOpen) return;
+  if(!it || (room && !roomOpen)) return;
   it.rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const e = it.rx['e' + i] = it.rx['e' + i] && typeof it.rx['e' + i] === 'object' ? it.rx['e' + i] : {}, on = !e[DEV];
+  if(!room){ if(on) e[DEV] = 1; else delete e[DEV]; cmSheet = ''; memoSave(); render(); return; }
+  cmSheet = '';
   try {
     const res = await roomFetch(roomPath('items/' + k + '/rx/e' + i + '/' + DEV), on ? { method:'PUT', body:'1' } : { method:'DELETE' });
     if(!res.ok) throw 0;
@@ -7788,6 +7807,7 @@ function placeFormWire(box, s){
 async function threadReply(k){
   const text = (fbRe[k] || '').trim();
   if(!text) return;
+  if(!room){ const it0 = roomItems[k]; if(it0){ it0.re = it0.re && typeof it0.re === 'object' ? it0.re : {}; it0.re[DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { by:store.get('fb-name', '') || '自分', text:text.slice(0, 1000), o:Date.now() }; memoSave(); fbRe[k] = ''; } render(); return; }
   if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。'; render(); return; }
   const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 1000), showAt, o:showAt || Date.now(), img:!!fbReImg[k] };
   try {
