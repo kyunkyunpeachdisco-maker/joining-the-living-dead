@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.12",
+ "version": "v0.3.13",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -1265,12 +1265,7 @@
      "h": 3,
      "floorT": "wood",
      "wall": "white",
-     "cams": [
-      {
-       "no": "26",
-       "name": "1年2組"
-      }
-     ],
+     "cams": [],
      "props": [
       [
        "desk",
@@ -1393,6 +1388,11 @@
        "voterow",
        18.4,
        -15.4
+      ],
+      [
+       "drape",
+       20.7,
+       -14.25
       ],
       [
        "standing",
@@ -1696,7 +1696,12 @@
      "h": 3.4,
      "floorT": "concrete",
      "wall": "concrete",
-     "cams": [],
+     "cams": [
+      {
+       "no": "54",
+       "name": "荷受け場"
+      }
+     ],
      "props": [
       [
        "crates",
@@ -1814,12 +1819,7 @@
      "h": 3,
      "floorT": "carpet",
      "wall": "wood",
-     "cams": [
-      {
-       "no": "60",
-       "name": "院長室"
-      }
-     ],
+     "cams": [],
      "props": [
       [
        "desk",
@@ -2425,12 +2425,7 @@
      "h": 3,
      "floorT": "carpet",
      "wall": "wood",
-     "cams": [
-      {
-       "no": "09",
-       "name": "署長室"
-      }
-     ],
+     "cams": [],
      "props": [
       [
        "desk",
@@ -2626,6 +2621,7 @@
   "hoop",
   "court",
   "bleachers",
+  "drape",
   "voterow",
   "polldesk",
   "hydrant",
