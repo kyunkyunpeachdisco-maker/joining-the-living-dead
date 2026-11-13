@@ -266,6 +266,48 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 #drawer[hidden],#fbDrawer[hidden]{display:none}
 #drawer .edgetab,#fbDrawer .edgetab{position:absolute;right:auto;left:-27px;top:0}
 #fbBody{padding:12px 14px!important}
+#fbDrawer.max #fbBody{padding:0!important}
+.cm{display:flex;flex-direction:column;min-height:100dvh;background:#0a0b0e;color:#e8e2d6;font-size:15px;line-height:1.6}
+.cm button{font:inherit}
+.cm-top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #2a2a2e;position:sticky;top:0;background:#0a0b0e;z-index:2}
+.cm-top b{font-size:17px}.cm-top .ttl{font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-top span{color:#8d8778;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-top button{background:none;border:1px solid #3a3a40;color:#e8e2d6;border-radius:8px;padding:6px 12px;font-size:14px}
+.cm-find{margin:12px 14px 0!important;width:auto!important;font-size:16px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;border-radius:10px;padding:10px 12px;box-sizing:border-box}
+.cm-new{margin:10px 14px;border:1px solid #e0b04a;color:#e0b04a;background:none;border-radius:10px;padding:11px;text-align:center}
+.cm-chips{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none}.cm-chips button{white-space:nowrap;background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.cm-chips button.on{border-color:#e0b04a;color:#e0b04a}
+.cm-list{flex:1}.cm-none{color:#8d8778;padding:16px 14px;font-size:14px}
+.cm-row{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border:0;border-top:1px solid #1f1f24;background:none;color:inherit}
+.cm-row .x{flex:1;min-width:0;display:block}.cm-row .t,.cm-row .s{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-row .t{font-size:16px;color:#f3e8cc}.cm-row .s{color:#8d8778;font-size:13px}
+.cm-row .w{color:#8d8778;font-size:12px;text-align:right;white-space:nowrap}
+.cm-tag{font-style:normal;border:1px solid #3a3a40;border-radius:6px;font-size:11px;color:#c9c2b3;padding:0 6px;margin-right:6px;vertical-align:2px}
+.cm-n{font-style:normal;display:inline-block;background:#e0b04a;color:#111;border-radius:99px;font:700 12px/20px sans-serif;min-width:20px;padding:0 5px;text-align:center;margin-top:4px}
+.cm-set{margin:14px;color:#8d8778;font-size:13px}.cm-set input{font-size:16px;margin-top:8px}
+.cm-log{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:12px}.cm-log>*{flex-shrink:0}
+.cm-day{align-self:center;color:#8d8778;font-size:12px}
+.cm-m{max-width:84%}.cm-m .n{color:#8d8778;font-size:12px;margin-bottom:2px}.cm-m .b{background:#1b1b20;border-radius:14px;padding:8px 12px;overflow-wrap:anywhere}
+.cm-m.me{align-self:flex-end}.cm-m.me .b{background:#3a3115;color:#f3e8cc}.cm-m.me .n{text-align:right}.cm-m.ai .b{background:#14202b}.cm-m.sel .b{outline:2px solid #e0b04a}
+.cm-m img,.cm-card img{max-width:100%;border-radius:8px;margin-top:6px;display:block}
+.cm a{color:#8fc0ff}
+.cm-q{border-left:3px solid #6b6557;padding-left:8px;color:#a39c8c;font-size:13px}
+.cm-at{color:#e0b04a;font-weight:400}
+.cm-chip{display:block;margin-top:6px;border:1px solid #3a3a40;border-radius:8px;padding:4px 8px;font-size:13px;color:#e0b04a;background:none;text-align:left}
+.cm-pic{margin-top:6px;border:1px solid #3a3a40;border-radius:8px;padding:4px 8px;font-size:13px;background:none;color:#c9c2b3}
+.cm-rx{display:flex;gap:6px;margin-top:-6px}.cm-rx.me{align-self:flex-end}.cm-rx button{border:1px solid #3a3a40;border-radius:99px;padding:1px 8px;font-size:13px;background:none;color:inherit}.cm-rx button.on{border-color:#e0b04a}
+.cm-card{border:1px solid #3a3a40;border-radius:12px;overflow:hidden}.cm-card .h{padding:8px 12px;font-size:13px;color:#c9c2b3;background:#15151a}.cm-card .d{padding:10px 12px;font-size:14px;overflow-wrap:anywhere}.cm-card .done{padding:0 12px 10px;color:#8d8778;font-size:13px}
+.cm-acts{display:flex;gap:8px;padding:0 12px 12px}.cm-acts button{flex:1;border-radius:8px;padding:9px;font-size:14px;border:1px solid #3a3a40;background:none;color:#e8e2d6}.cm-acts .go,.cm-acts .on{border-color:#e0b04a;color:#e0b04a}.cm-m .cm-acts{padding:8px 0 0}
+.cm-poll{margin-top:8px;display:grid;gap:6px}.cm-poll button{position:relative;overflow:hidden;display:flex;justify-content:space-between;border:1px solid #3a3a40;border-radius:8px;padding:8px 12px;background:none;color:inherit;text-align:left}.cm-poll button i{position:absolute;left:0;top:0;bottom:0;background:#4a3d1a;opacity:.7}.cm-poll button span{position:relative}.cm-poll button.on{border-color:#e0b04a}
+.cm-in{position:sticky;bottom:0;background:#0a0b0e;border-top:1px solid #2a2a2e;padding:10px 14px 14px;z-index:2}
+.cm-r{display:flex;gap:8px;align-items:flex-end}.cm-r button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:10px;height:44px;min-width:44px;font-size:18px}.cm-r button.on{border-color:#e0b04a;color:#e0b04a}.cm-r .go{border-color:#e0b04a;color:#e0b04a;font-size:15px;padding:0 14px}
+.cm-r textarea{flex:1;min-height:44px!important;height:44px;max-height:160px;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px}
+.cm-ai{display:flex;align-items:center;gap:6px;color:#8d8778;font-size:13px;margin:0 0 8px}
+.cm-qbar{display:flex;justify-content:space-between;gap:8px;border-left:3px solid #e0b04a;padding:2px 8px;margin-bottom:8px;color:#8d8778;font-size:13px}.cm-qbar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-qbar button{background:none;border:0;color:#8d8778;font-size:16px}
+.cm-plus{display:grid;gap:8px;margin-bottom:10px}.cm-plus>button,.cm-para{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:8px;padding:9px 12px;text-align:left;font-size:14px}.cm-para{display:block;width:100%;margin-top:6px}
+.cm-plus summary{color:#c9c2b3;font-size:14px;padding:4px 0}.cm-plus textarea{font-size:16px;min-height:80px}
+.cm-names{display:flex;gap:6px;flex-wrap:wrap}.cm-names button{border:1px solid #3a3a40;background:none;color:#c9c2b3;border-radius:99px;padding:3px 10px;font-size:13px}
+.cm-shade{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40}
+.cm-sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:#17171c;border-top:1px solid #3a3a40;border-radius:16px 16px 0 0;padding:10px 14px 18px;display:grid}
+.cm-sheet .e{display:flex;justify-content:space-between;padding:4px 4px 10px;border-bottom:1px solid #2a2a2e}.cm-sheet .e button{font-size:26px;background:none;border:0}
+.cm-sheet>button{background:none;border:0;border-bottom:1px solid #2a2a2e;color:#e8e2d6;text-align:left;padding:14px 8px;font-size:16px}.cm-sheet>button:last-child{border-bottom:0}
 #drawerBody,#fbBody{max-height:calc(100dvh - 130px);overflow:auto;-webkit-overflow-scrolling:touch;background:#0a0b0e;border:1px solid #4a4436;border-right:0;border-radius:0 0 0 6px;padding:8px;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
 #drawerBody .map,#drawerBody .planmap{margin:0}
 #top{overflow-x:clip}
@@ -369,7 +411,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 </div>
 <button class="edgetab" id="videoTab">映像</button>
 <aside id="drawer" hidden><button class="edgetab" id="mapTab">地図</button><div id="drawerBody"></div></aside>
-<aside id="fbDrawer" hidden><button class="edgetab" id="fbTab">意見</button><div id="fbBody"></div></aside>
+<aside id="fbDrawer" hidden><button class="edgetab" id="fbTab">通信</button><div id="fbBody"></div></aside>
 <main id="main"></main>
 <script>
 'use strict';
@@ -415,7 +457,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-12 23:40 f6535f3';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 00:01 c3b4195';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -506,6 +548,10 @@ function setFlag(w, s, name){ addEvent(w, s, 'flag', s.place, { name }); }
 function flag(s, w, name){ return w.events.some(e => e.type === 'flag' && e.name === name && e.t <= s.clock); }
 // 一度きりの物：先に読んだ人が持っていく
 function takeOnce(w, key, who){ if(w.once[key]) return false; w.once[key] = who; return true; }
+// 街にある数を決めた物：n 個まで、1人1つ。鍵は 'item:名前'、2つ目からは 'item:名前#2'…
+const stockKeys = (name, n) => Array.from({ length:Math.max(1, Math.min(99, n || 1)) }, (x, i) => 'item:' + name + (i ? '#' + (i + 1) : ''));
+function stockGone(w, name, n, who){ const ks = stockKeys(name, n); return ks.every(k => w.once[k]) || ks.some(k => w.once[k] === who); }
+function takeStock(w, name, n, who){ if(stockGone(w, name, n, who)) return false; w.once[stockKeys(name, n).find(k => !w.once[k])] = who; return true; }
 function taken(w, key){
   if(holdBlock && holdBlock.has('o:' + key)) return true;
   const who = w.once[key];
@@ -6012,9 +6058,9 @@ function howPages(kind){
   if(kind === 'make'){
     const keys = ['「✎ 編集する」：押してから、本文の書き換えたい所を押すと、書き換える欄が開きます。', '「✎」：その選択肢を書き換えたり、消したりします。', '「＋ 選択肢を足す」：新しい選択肢と、選んだときに起きることを書きます。'];
     if(guest) return [
-      { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋を作った人が「採用する」を押すと、全員のゲームに入ります。' },
+      { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋の設定によって、すぐ全員のゲームに入るか、誰かの賛成か、部屋を作った人の採用を待ちます。' },
       { img:'how-make-1', full:true, t:'書き換える', legend:keys },
-      { t:'話す・AI に頼む', text:'画面の右端の「意見」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '「Claude に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、Claude に対応させると、同じ「意見」に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
+      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '新しいスレッドを立てるときに「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、Claude に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
     const linkWay = ['リンクで配る', (room ? '「リンクで配る」' : '「リンクを作る」') + 'を押して、できたリンクを送ります。あとで書き換えたときは、' + (room ? '同じボタンをもう一度押します' : '「配っている版を新しくする」を押します') + '。リンクは変わらないので、送り直さなくてかまいません。'];
@@ -6027,7 +6073,7 @@ function howPages(kind){
       ] },
       ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る自分用のファイル置き場です。自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。設定は最初の1回だけです。設定すると、次のことができます。', list:[
         ['ネットに保存する', '書き換えたものが、書き換えるたびに、作業用のリポジトリに自動で保存されます。'],
-        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。部屋の「意見」にも付けられるので、Claude に頼むときに、画面の写真を見せられます。'],
+        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。部屋の「通信」にも付けられるので、Claude に頼むときに、画面の写真を見せられます。'],
         ['リンクで配る', 'リンクを送るだけで、書き換えたゲームを遊んでもらえます。'],
         ['部屋をいつでも使う', '部屋を作った人がゲームを閉じていても、ほかの人は続けられます。'],
         ['AI に書かせる', '部屋で書いた頼みごとを、Claude Code（6ページ目）で Claude に対応させられます。'],
@@ -6037,10 +6083,10 @@ function howPages(kind){
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '「ファイルにして配る」' : '「ファイルを作る」') + 'を押して、できたファイルをメールやチャットで送ります。'],
       ], btn:['howPackBtn', room ? '部屋の画面を開く' : '「配る」の画面を開く'] },
-      { img:'how-make-2', full:true, t:'みんなで作る', legend:['「意見」：押すと、この欄が開きます。', '部屋に入った人が書き換えたものは、案としてここに並びます。', '「採用する」：部屋を作った人が押すと、その案が全員のゲームに入ります。', 'みんなと話せます。書く欄は、この下にあります。'], text:room ? '招待リンクを送って、人を呼びます。' : '始めるには、部屋を作って、招待リンクを送ります。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { img:'how-make-2', full:true, t:'みんなで作る', legend:['「＋ 新しいスレッド」：話を始めます。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに入っていない書き換えだけを並べます。'], text:'画面の右端の「通信」を押すと開きます。書き換えたものは、初めの設定では、すぐ全員のゲームに入ります。入れ方は、部屋の画面で替えられます（すぐ入る／誰か1人が賛成したら入る／部屋を作った人が採用する）。' + (room ? '' : '<br>始めるには、部屋を作って、招待リンクを送ります。'), btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
       { t:'AI に書かせる', text:'Claude Code（claude.ai/code）は、Anthropic の AI「Claude」に作業を頼める道具です。使うには、Anthropic のアカウントが要ります。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
         ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
-        ['部屋を作った人', '部屋の「意見」に、「Claude に頼む」というチェックが出ます。チェックを入れて頼みごとを書いたら、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書きます。Claude が頼まれたとおりにゲームの文章や選択肢を書き換えて、「意見」に返事を書きます。'],
+        ['部屋を作った人', '部屋の「通信」で新しいスレッドを立てるときに、「AI に頼む」というチェックが出ます。チェックを入れて頼みごとを書いたら、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書きます。Claude が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
       ] },
     ];
   }
@@ -6219,7 +6265,7 @@ async function repoSync(){
 function repoDoc(){
   const base = repoBase(), cfg = repoSeen.files[base + 'room.json'];
   if(!cfg || !cfg.data || cfg.data.deleted) return null;
-  const doc = { v:2, open:cfg.data.open === true, gap:cfg.data.gap || 0, host:cfg.data.host, own:{}, members:{}, items:{}, stats:{} }, mem = {};
+  const doc = { v:2, open:cfg.data.open === true, gap:cfg.data.gap || 0, adopt:cfg.data.adopt || 'auto', host:cfg.data.host, own:{}, members:{}, items:{}, stats:{} }, mem = {};
   for(const [p, f] of Object.entries(repoSeen.files)){
     const m = p.slice(base.length).match(/^(own|m)\/([A-Za-z0-9_-]+)\.json$/);
     if(!m || !f.data || typeof f.data !== 'object') continue;
@@ -6480,7 +6526,7 @@ async function roomFetch(url, opts = {}){
     delete repoSeen.dirs.own; if(r.status === 200) liveChanged();
     return res(r.status);
   }
-  if((a === 'open' || a === 'gap') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
+  if((a === 'open' || a === 'gap' || a === 'adopt') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
   if(a === 'members') return res(200); // 「いる」印は、自分の分を書くときに一緒に付く
   if(a === 'items' && k){
     if(!sub){ if(m === 'DELETE'){ delete obj('items')[k]; } else obj('items')[k] = Object.assign({}, m === 'PATCH' ? obj('items')[k] : null, body); myTouch('fast'); return res(200); }
@@ -6552,7 +6598,7 @@ function roomPayload0(){
 // 読みこんだものが、前と同じかを見る印（自分の本の分は数えない）
 const hashStr = t => { let x = 5381; for(let i = 0; i < t.length; i++) x = ((x << 5) + x + t.charCodeAt(i)) | 0; return x; };
 const hereNow = m => !!m && typeof m === 'object' && Date.now() - m.at < 300000; // 5分以内に、自分の分を書いた人
-const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
+const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.adopt || '', d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
 // 街を組み直す：自分の本の出来事はこの端末のもの、ほかの本の出来事は部屋のもの
 function roomApply(data){ if(trial && !trial.moved) trialEnd(); return realIO(() => roomApply0(data)); } // まだ手を打っていない試しは、届いた進み具合で作り直す
 function roomApply0(data){
@@ -6576,7 +6622,7 @@ function roomApply0(data){
   roomApplying = true;
   try {
     store.set('world', { ...w, events, once, votes, lock:null });
-    store.set('own', own); store.set('ats', ats); store.set('gap', Math.max(0, Math.min(600, Number(data.gap) || 0)));
+    store.set('own', own); store.set('ats', ats); store.set('gap', Math.max(0, Math.min(600, Number(data.gap) || 0))); store.set('adopt-mode', ['auto', 'peer', 'host'].includes(data.adopt) ? data.adopt : 'auto');
     for(const [id, p] of Object.entries(players)){
       const local = store.get('player-' + id, null), hist = Array.isArray(p.history) ? p.history : [];
       const history = local && (local.history || []).length === hist.length ? local.history : hist.map(h => ({ ...h, text:'（まだ読んでいない場面）', msg:'', labels:[], items:'' }));
@@ -6726,6 +6772,7 @@ function roomPanelHtml(){
       + '<button class="go" id="roomCopy">招待リンクをコピーする</button></div>'
     + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅（話の中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れている人より、話の中の時刻で ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
         + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、そのファイルを開けば遊べます。</p>'
         + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>')
@@ -7006,10 +7053,12 @@ function render(){
   decorateMap();
   document.getElementById('mapTab').classList.toggle('on', mapOpen);
   const fbD = document.getElementById('fbDrawer'), waitN = TEST_BUILD ? store.get('outbox', []).length : 0;
-  fbD.hidden = !TEST_BUILD; fbD.classList.toggle('open', fbOpen && TEST_BUILD);
-  document.getElementById('fbBody').innerHTML = fbOpen && TEST_BUILD ? fbPanelHtml() : '';
+  const fbCan = TEST_BUILD || !!room;
+  fbD.hidden = !fbCan; fbD.classList.toggle('open', fbOpen && fbCan);
+  document.getElementById('fbBody').innerHTML = fbOpen && fbCan ? (room ? commHtml() : fbPanelHtml()) : '';
   document.getElementById('fbTab').classList.toggle('on', fbOpen);
-  fbD.classList.toggle('max', fbMax && fbOpen && TEST_BUILD);
+  fbD.classList.toggle('max', (fbMax || !!room) && fbOpen && fbCan);
+  if(room && fbOpen && cmThread && cmScroll){ const fb = document.getElementById('fbBody'); fb.scrollTop = fb.scrollHeight; cmScroll = false; }
   chatBadge();
   syncTuck();
   placeTabs();
@@ -7046,6 +7095,24 @@ function render(){
   if(fbN){ fbN.value = store.get('fb-name', ''); fbN.oninput = () => store.set('fb-name', fbN.value.trim()); }
   on('fbSend', sendFeedback);
   on('fbMic', fbMic);
+  on('cmClose', () => { fbOpen = false; fbNote = ''; render(); });
+  on('cmBack', () => { cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
+  on('cmNewBtn', () => { cmNew = true; cmPlus = false; fbNote = ''; render(); const t = document.getElementById('fbText'); if(t) t.focus(); });
+  on('cmNewNo', () => { cmNew = false; cmPlus = false; render(); });
+  on('cmPlusBtn', () => { cmPlus = !cmPlus; render(); });
+  on('cmSend', cmSendReply);
+  on('cmSheetNo', () => { cmSheet = ''; fbDelAsk = ''; render(); });
+  on('cmQuoteNo', () => { cmQuote = null; render(); });
+  on('cmTagBtn', () => { cmPlus = false; cmAppend('\n' + cmNowTag() + '\n'); });
+  document.querySelectorAll('[data-open]').forEach(el => { el.onclick = () => { cmThread = el.dataset.open; cmNew = false; cmSheet = ''; cmQuote = null; cmPlus = false; cmScroll = true; fbNote = ''; render(); }; });
+  document.querySelectorAll('[data-cmf]').forEach(el => { el.onclick = () => { cmFilter = el.dataset.cmf; render(); }; });
+  document.querySelectorAll('[data-msg]').forEach(el => { el.onclick = e => { if(e.target.closest('a,button,textarea,input')) return; cmSheet = el.dataset.msg; fbDelAsk = ''; render(); }; });
+  document.querySelectorAll('[data-go]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmGo(el.dataset.go); }; });
+  document.querySelectorAll('[data-cmq]').forEach(el => { el.onclick = () => { const m = cmMsgOf(el.dataset.cmq); cmSheet = ''; if(m) cmQuote = { by:m.by, text:cmPlain(m.text).slice(0, 80) }; render(); const t = document.getElementById('cmReText'); if(t) t.focus(); }; });
+  document.querySelectorAll('[data-cmcopy]').forEach(el => { el.onclick = () => { const m = cmMsgOf(el.dataset.cmcopy); cmSheet = ''; if(m) navigator.clipboard.writeText(m.text).then(() => { fbNote = 'コピーしました。'; render(); }, () => { fbNote = 'コピーできませんでした。'; render(); }); else render(); }; });
+  document.querySelectorAll('[data-cmat]').forEach(el => { el.onclick = () => cmAppend('@' + el.dataset.cmat + ' '); });
+  document.querySelectorAll('[data-cmpara]').forEach(el => { el.onclick = () => { const ps = lastView ? String(lastView.text || '').split(/\n+/).map(x => x.trim()).filter(Boolean) : [], p = ps[+el.dataset.cmpara]; cmPlus = false; if(p) cmAppend('> ' + p.slice(0, 200) + '\n' + cmNowTag() + '\n'); }; });
+  const ra = document.getElementById('roomAdopt'); if(ra) ra.onchange = () => { store.set('adopt-skip', itemList().filter(cmWaiting).map(x => x[0]).slice(-200)); roomFetch(roomPath('adopt'), { method:'PUT', body:JSON.stringify(ra.value) }).then(() => { roomSig = ''; roomPull(true); }).catch(() => { roomNote = '部屋につながりません。'; render(); }); };
   const fbCl = document.getElementById('fbClaude'); if(fbCl) fbCl.onchange = () => { fbClaude = fbCl.checked; };
   on('fbMaxBtn', () => { fbMax = !fbMax; render(); });
   on('fbNotify', () => { Notification.requestPermission().then(() => render()); });
@@ -7217,6 +7284,159 @@ function tallyResult(){
   const total = t.whitmore + t.carver + t.okafor, lead = t.whitmore >= t.carver ? 'whitmore' : 'carver', margin = Math.abs(t.whitmore - t.carver);
   return { t, p14, notes, total, lead, margin, recount:margin <= total * .001, votes, prov, st };
 }
+// ===== 通信（部屋の話す画面）=====
+// 話1つと、その返信が、1つのスレッド。一覧 → 開く → 書く。いつも画面いっぱいに開く
+let cmThread = null, cmNew = false, cmFilter = 'all', cmSheet = '', cmQuote = null, cmPlus = false, cmScroll = false, cmAdopting = false;
+const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
+const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[[\w-]+:\d+\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
+const cmTitle = it => { const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
+const cmWaiting = x => unitOk(x[1].draft) && !x[1].adopted;
+const adoptMode = () => { const m = store.get('adopt-mode', 'auto'); return ['auto', 'peer', 'host'].includes(m) ? m : 'auto'; };
+const ADOPT_NAMES = { auto:'すぐ入る', peer:'誰か1人が賛成したら入る', host:'部屋を作った人が採用する' };
+function cmSceneOf(at){ const m = /^([\w-]+):(\d+)$/.exec(String(at || '')); return m && CHARS[m[1]] ? { c:m[1], n:+m[2] } : null; }
+function cmChip(at){
+  const s = cmSceneOf(at); if(!s) return '';
+  const bk = BOOKS[loadPlayer(s.c).book] || {}, sp = Object.values(bk.spots || {}).find(x => x.no === s.n);
+  return '<button class="cm-chip" data-go="' + s.c + ':' + s.n + '">' + escText(CHARS[s.c].name) + 'の本　' + (sp && sp.name ? escText(sp.name) : '場面 ' + s.n) + ' ›</button>';
+}
+// 文の見せ方：行の頭の > は引用、[[本:番号]] は場面の札、リンクは押せる、@名前 は目立たせる
+function cmText(t){
+  const names = Object.values(roomMembers).map(m => m && m.name).filter(Boolean);
+  return String(t || '').replace(/^### (.*)\n+/, '$1\n').split('\n').map(line => {
+    const m = /^\[\[([\w-]+:\d+)\]\]$/.exec(line.trim()); if(m) return cmChip(m[1]);
+    const q = /^[>＞]\s?(.*)$/.exec(line);
+    const h = escText(q ? q[1] : line).replace(/https?:\/\/[^\s<>"']+/g, u => '<a href="' + u.replace(/"/g, '') + '" target="_blank" rel="noopener noreferrer">' + u + '</a>').replace(/@(all|[^\s@<>&、。]{1,30})/g, (x, n) => (n === 'all' || names.includes(n) ? '<b class="cm-at">' + x + '</b>' : x));
+    return q ? '<div class="cm-q">' + h + '</div>' : '<div>' + (h || '&nbsp;') + '</div>';
+  }).join('');
+}
+function cmListHtml(){
+  const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), all = itemList();
+  let list = all;
+  if(q) list = list.filter(([, it]) => [it.text, it.by, it.title, it.reply, ...visRes(it).flatMap(([, r]) => [r.text, r.by])].some(t => String(t || '').toLowerCase().includes(q)));
+  const f = { unread:isUnread, me:itemCallsMe, wait:cmWaiting, ai:x => !!x[1].claude }[cmFilter]; if(f) list = list.filter(f);
+  list = list.slice().sort((x, y) => cmWhen(y[1]) - cmWhen(x[1]));
+  const here = Object.values(roomMembers).filter(hereNow).map(m => m.name || '名前なし');
+  const chips = [['all', 'すべて', 0], ['unread', '未読', all.filter(isUnread).length], ['me', '自分宛て', all.filter(x => isUnread(x) && itemCallsMe(x)).length], ...(TEST_BUILD ? [['wait', '採用待ち', all.filter(cmWaiting).length], ['ai', 'AI', 0]] : [])];
+  const row = x => {
+    const [k, it] = x, rs = visRes(it), last = rs.length ? rs[rs.length - 1][1] : null, un = isUnread(x) ? Math.max(1, sizeOf(it) - (seen[k] || 0)) : 0;
+    const tag = unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
+    return '<button class="cm-row" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span></span>'
+      + '<span class="w">' + cmTime(cmWhen(it)) + (un ? '<br><i class="cm-n">' + (itemCallsMe(x) ? '@' : '') + un + '</i>' : '') + '</span></button>';
+  };
+  return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
+    + '<input id="fbFind" class="cm-find" placeholder="スレッドを探す" maxlength="40">'
+    + '<button class="cm-new" id="cmNewBtn">＋ 新しいスレッド</button>'
+    + '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>'
+    + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : 'まだ、スレッドがありません。') + '</p>') + '</div>'
+    + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
+    + '<details class="cm-set"><summary>名前・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30">'
+    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details></div>';
+}
+// 書く欄。k があれば、そのスレッドへの返信。なければ、新しいスレッド
+function cmInputHtml(k){
+  const names = ['all', ...Object.entries(roomMembers).filter(([d, m]) => d !== DEV && m && m.name).map(([, m]) => m.name)].slice(0, 12), paras = lastView ? String(lastView.text || '').split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 12) : [];
+  const img = k ? !!fbReImg[k] : !!fbImg;
+  return '<div class="cm-in">'
+    + (cmQuote ? '<div class="cm-qbar"><span>' + escText(cmQuote.by + '：' + cmQuote.text) + '</span><button id="cmQuoteNo">×</button></div>' : '')
+    + (cmPlus ? '<div class="cm-plus">' + (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>')
+      + (lastView ? '<button id="cmTagBtn">いまの場面の札を付ける</button>' : '')
+      + '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>'
+      + (paras.length ? '<details><summary>いまの場面の文を引用する</summary>' + paras.map((p, i) => '<button class="cm-para" data-cmpara="' + i + '">' + escText(p.slice(0, 60)) + (p.length > 60 ? '…' : '') + '</button>').join('') + '</details>' : '')
+      + (k ? '' : '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + '><summary>投票にする</summary><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ"></textarea></details>') + '</div>' : '')
+    + (!k && TEST_BUILD && !roomLocal() ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
+    + '<div class="cm-r"><button id="cmPlusBtn" class="' + (cmPlus ? 'on' : '') + '" aria-label="付ける">＋</button>'
+    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="新しいスレッドの、最初のメッセージを書く"></textarea>')
+    + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
+    + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
+    + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '') + '</div>';
+}
+function cmThreadHtml(k){
+  const it = roomItems[k], pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<button class="cm-pic" data-img="' + id + '">画像を見る</button>');
+  const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
+  const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
+  const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
+  const bubble = (id, by, text, mine, extra, cls) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '">' + (mine && !cls ? '' : '<div class="n">' + escText(by) + '</div>')
+    + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : cmText(text)) + (extra || '') + '</div></div>';
+  let h = '';
+  if(unitOk(it.draft)){
+    h += '<div class="cm-card"><div class="h">' + escText(it.by || '名前なし') + 'が書き換えました</div><div class="d" data-msg="' + k + '">' + cmText(it.text || String(it.body || '').split('\n\n---\n')[0]) + cmChip(it.at) + '</div>'
+      + (it.adopted ? '<div class="done">採用済み。全員のゲームに入っています。</div>' + (isHost() ? '<div class="cm-acts"><button data-adopt="' + k + '|0">採用をやめる</button></div>' : '')
+        : isHost() ? '<div class="cm-acts"><button class="go" data-adopt="' + k + '|1">採用する</button></div>'
+        : mode === 'peer' && !mineKey(k) ? '<div class="cm-acts"><button class="go' + (rx.e0 && rx.e0[DEV] ? ' on' : '') + '" data-rx="' + k + '|0">賛成' + (agree ? '　' + agree : '') + '</button></div><div class="done">誰か1人が賛成すると、全員のゲームに入ります。</div>'
+        : '<div class="done">' + (mode === 'peer' ? 'ほかの人が賛成すると、全員のゲームに入ります。' : mode === 'auto' ? 'まもなく、全員のゲームに入ります。' : '部屋を作った人が採用すると、全員のゲームに入ります。') + '</div>') + '</div>';
+  } else {
+    h += bubble(k, (it.by || '名前なし') + (it.claude ? '　AI に頼んだこと' : '') + (it.edited ? '　直した' : ''), it.text || String(it.body || '').split('\n\n---\n')[0], mineKey(k),
+      (it.img ? pic(k) : '') + cmChip(it.at) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '');
+  }
+  const chips = EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
+  if(chips) h += '<div class="cm-rx' + (mineKey(k) && !unitOk(it.draft) ? ' me' : '') + '">' + chips + '</div>';
+  if(it.reply) h += bubble(k + '|ai', 'AI', it.reply, false, '', ' ai');
+  let day = '';
+  for(const [rk, r] of visRes(it)){
+    const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmTime(r.o) + '</div>'; }
+    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), r.img ? pic(k + '_' + rk) : '');
+  }
+  // 話を押したときに出る欄
+  let sheet = '';
+  if(cmSheet && !fbEdit){
+    const rk = cmSheet.split('|')[1], own = rk ? rk !== 'ai' && mineKey(rk) : mineKey(k) && it.free;
+    sheet = '<div class="cm-shade" id="cmSheetNo"></div><div class="cm-sheet">'
+      + (!rk ? '<div class="e">' + EMOJI.map((e, i) => '<button data-rx="' + k + '|' + i + '">' + e + '</button>').join('') + '</div>' : '')
+      + (fbDelAsk === cmSheet ? '<button data-delyes="' + cmSheet + '">本当に消す</button><button data-delno="1">やめる</button>'
+        : '<button data-cmq="' + cmSheet + '">返信する</button><button data-cmcopy="' + cmSheet + '">文をコピーする</button>'
+          + (own ? '<button data-edit="' + cmSheet + '">直す</button><button data-del="' + cmSheet + '">消す</button>' : '')
+          + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : ''))
+      + '</div>';
+  }
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
+}
+function commHtml(){
+  if(cmThread && !roomItems[cmThread]) cmThread = null;
+  if(cmThread) return cmThreadHtml(cmThread);
+  if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの題になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
+  return cmListHtml();
+}
+// 話の文と、書いた人（返信・コピーに使う）
+function cmMsgOf(id){
+  const [k, rk] = String(id).split('|'), it = roomItems[k]; if(!it) return null;
+  if(rk === 'ai') return { by:'AI', text:String(it.reply || '') };
+  const r = rk ? it.re && it.re[rk] : it; if(!r) return null;
+  return { by:r.by || '名前なし', text:String(r.text || '') };
+}
+// 書いている所に、文を足す
+function cmAppend(t){
+  if(cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + t; else fbDrafts.opinion += t;
+  render(); const el = document.getElementById(cmThread ? 'cmReText' : 'fbText'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
+}
+const cmNowTag = () => (lastView ? '[[' + lastView.char + ':' + lastView.para + ']]' : '');
+function cmSendReply(){
+  const k = cmThread, text = (fbRe[k] || '').trim();
+  if(!k || !text) return;
+  fbRe[k] = (cmQuote ? '> ' + cmQuote.by + '：' + cmQuote.text + '\n' : '') + text;
+  cmQuote = null; cmPlus = false; cmScroll = true;
+  threadReply(k);
+}
+// 場面の札を押したとき：その本を開く。ロックしていない本なら、その場面へ移る（保存せずに試す）
+function cmGo(at){
+  const sc = cmSceneOf(at); if(!sc) return;
+  fbOpen = false; cmSheet = ''; histIndex = null; menuOpen = false; current = sc.c; store.set('current', current); render();
+  if(trialOn()){
+    const p = loadPlayer(current), bk = BOOKS[p.book];
+    if(bk && bk.paras[sc.n] && p.para !== sc.n){ const sp = Object.values(bk.spots || {}).find(x => x.no === sc.n); p.para = sc.n; p.menu = null; p.msg = ''; if(sp && sp.place) p.place = sp.place; store.set('player-' + current, p); trial.moved++; render(); }
+  }
+  window.scrollTo(0, 0);
+}
+// 採用のしかた：「すぐ入る」「誰か1人が賛成したら入る」のときは、部屋を作った人の端末が、代わりに採用する
+async function cmAutoAdopt(){
+  if(!room || !TEST_BUILD || !isHost() || !roomOpen || cmAdopting) return;
+  const mode = adoptMode(); if(mode === 'host') return;
+  const skip = store.get('adopt-skip', []);
+  const next = itemList().find(([k, it]) => cmWaiting([k, it]) && !skip.includes(k) && (mode === 'auto' || Object.keys(it.rx && it.rx.e0 && typeof it.rx.e0 === 'object' ? it.rx.e0 : {}).some(d => d !== k.split('-')[0])));
+  if(!next) return;
+  cmAdopting = true;
+  try { await adoptItem(next[0], true); if(roomItems[next[0]] && !roomItems[next[0]].adopted) store.set('adopt-skip', [...skip, next[0]].slice(-200)); } finally { cmAdopting = false; }
+}
 // 意見を、意見用のリポジトリの投稿画面へ渡す。どの場面かは自動で付ける
 function fbPanelHtml(){
   const box = store.get('outbox', []), at = store.get('send-at', '');
@@ -7257,7 +7477,7 @@ function sendFeedback(){
     if(fbAskOpen){ extra.ask = true; const o = fbOpts.split('\n').map(x => x.trim().slice(0, 60)).filter(Boolean).slice(0, 8); if(o.length) extra.opts = o; }
   }
   queueIssue('op|' + Date.now(), 'その他', text, text, true, extra);
-  fbDrafts.opinion = ''; fbImg = ''; fbOpts = ''; fbAskOpen = false; render();
+  fbDrafts.opinion = ''; fbImg = ''; fbOpts = ''; fbAskOpen = false; cmNew = false; cmPlus = false; render();
 }
 // ===== 話の一覧 =====
 const escAttr = t => escText(t).replace(/"/g, '&quot;');
@@ -7326,9 +7546,9 @@ function threadsHtml(){
 }
 // 開いて見えた話は、読んだことにする（自分の端末に覚え、部屋にも「既読」を残す）
 function markSeen(){
-  if(!room || !fbOpen || !TEST_BUILD) return;
+  if(!room || !fbOpen) return;
   const seen = store.get('seen-items', {}); let ch = false;
-  for(const [k, it] of shownItems()){
+  for(const [k, it] of (cmThread && roomItems[cmThread] ? [[cmThread, roomItems[cmThread]]] : [])){
     const n = sizeOf(it);
     if((seen[k] || 0) < n){ seen[k] = n; ch = true; }
     if(roomOpen && !mineKey(k) && !(it.seen && it.seen[DEV])){ it.seen = Object.assign(it.seen && typeof it.seen === 'object' ? it.seen : {}, { [DEV]:1 }); roomFetch(roomPath('items/' + k + '/seen/' + DEV), { method:'PUT', body:'1' }).catch(() => {}); }
@@ -7338,15 +7558,15 @@ function markSeen(){
 // つまみの数字：まだ読んでいない話の数（名指しされていれば @ を付ける）
 function chatBadge(){
   const tab = document.getElementById('fbTab');
-  if(!room || !TEST_BUILD){ if(tab) tab.textContent = '意見' + (TEST_BUILD && store.get('outbox', []).length || ''); return 0; }
+  if(!room){ if(tab) tab.textContent = '通信' + (TEST_BUILD && store.get('outbox', []).length || ''); return 0; }
   const un = itemList().filter(isUnread), n = un.length;
-  if(tab) tab.textContent = '意見' + (un.some(itemCallsMe) ? '@' : '') + (n || '');
+  if(tab) tab.textContent = '通信' + (un.some(itemCallsMe) ? '@' : '') + (n || '');
   document.title = (n ? '(' + n + ') ' : '') + PAGE_TITLE;
   return n;
 }
 // 新しい話が来たら、知らせを出す（許しをもらっていて、欄を開いていないか、ページが裏にあるとき）
 function chatNotify(){
-  if(!TEST_BUILD) return;
+  cmAutoAdopt();
   const un = itemList().filter(isUnread), n = un.length;
   if(n > lastUnread && (document.hidden || !fbOpen) && 'Notification' in window && Notification.permission === 'granted'){
     const [, it] = un[un.length - 1], last = visRes(it).pop();
@@ -7408,7 +7628,7 @@ function fbMic(){
   if(fbRec){ fbRec.stop(); return; }
   const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   r.lang = 'ja-JP'; r.continuous = true; r.interimResults = false;
-  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal) fbDrafts.opinion += e.results[i][0].transcript; const t = document.getElementById('fbText'); if(t) t.value = fbDrafts.opinion; };
+  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal){ const tx = e.results[i][0].transcript; if(room && cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + tx; else fbDrafts.opinion += tx; } const t = document.getElementById(room && cmThread ? 'cmReText' : 'fbText'); if(t) t.value = room && cmThread ? fbRe[cmThread] || '' : fbDrafts.opinion; };
   r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクを使う許しが、出ていません。' : '声を聞き取れませんでした。'; };
   r.onend = () => { fbRec = null; render(); };
   fbRec = r;
@@ -7569,7 +7789,7 @@ async function threadReply(k){
   const text = (fbRe[k] || '').trim();
   if(!text) return;
   if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。'; render(); return; }
-  const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 400), showAt, o:showAt || Date.now(), img:!!fbReImg[k] };
+  const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 1000), showAt, o:showAt || Date.now(), img:!!fbReImg[k] };
   try {
     if(fbReImg[k]){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(fbReImg[k]) }); if(!r0.ok) throw 0; imgCache[k + '_' + id] = fbReImg[k]; delete fbReImg[k]; }
     const res = await roomFetch(roomPath('items/' + k + '/re/' + id), { method:'PUT', body:JSON.stringify(r) });
@@ -7626,7 +7846,7 @@ function queueIssue(id, label, head, main, auto, extra){
   else if(after) fbNote = store.get('send-at', '') + ' になったら送ります。';
   else if(fbToken()) flushOutbox();
   else if(auto) outboxToGithub();
-  else fbNote = '下書きにしました。右端の「意見」から、まとめて送れます。';
+  else fbNote = '下書きにしました。右端の「通信」から、まとめて送れます。';
 }
 function unqueue(id){
   store.set('outbox', store.get('outbox', []).filter(x => x.id !== id));
@@ -7823,6 +8043,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
   + '## 本と本をつなぐ（ザッピング）\n\n本は、同じ街の、同じ一日を、別々の人として進む。ある本の人がしたことが、ほかの本に出るようにするには、次の部品を使う。どれも、足した選択肢（add）の fx に書く。\n\n'
   + '- 街の印： "flag":["橋の鍵を開けた"] … 選ぶと、街に印が残る。ほかの本の選択肢の条件に "cond":{ "flag":["橋の鍵を開けた"] }（起きたあとだけ選べる）か "noflag":[…]（まだ起きていないあいだだけ選べる）と書く。印は、付けた時刻を、相手の本の時計が過ぎてから見える（先に進んでいる人には、届かない）\n'
   + '- もとの本の印（英字の名前）も、条件に使える。例：dir_let_vote（院長が、職員を投票に行かせた）、dir_dock_clear（院長が、搬入口を片づけた）、gov_delay（知事が、統合の延期を口にした）、chief_sent_hosp（署長が、8人を病院へ送った）、voter_reported（有権者が、届け出た）。全部の名前は、公開のリポジトリの book-*.js の中の setFlag(w, s, \'…\') にある\n'
+  + '- 街にある数を決める： "once":["救急箱"], "onceN":3 … 街に3つまで。1人1つで、先に選んだ人から順に手に入れる。"onceN" を書かなければ1つ\n'
   + '- 街に1つだけの物： "once":["橋の鍵"] … どの本からでも、先に選んだ人だけが手に入れる（この選択肢は、同じ人も1回しか選べない）。もう取られていたら、その選択肢は選べない。持っている人は、ゲームの中の「持ち物を置いていく」で、その場所に置ける。ほかの本の人が、同じ場所へ、そのあとの時刻に来ると、拾える\n'
   + '- 物の条件： "cond":{ "have":["橋の鍵"] }（持っているときだけ）、"lack":[…]（持っていないときだけ）\n'
   + '- 隠し番号： "hide":"417"（その場面でだけ）、"any":true を足すと、どの場面でも。条件と組み合わせると、「鍵を持っている人だけが、橋で 417 を打ちこめる」になる\n\n'
@@ -7838,13 +8059,14 @@ async function adoptItem(k, on){
   fbNote = on ? '採用しています…' : '採用をやめています…'; render();
   try {
     await overlayWrite(o => { if(u.t === 'cam'){ o.cams = o.cams || {}; const sc = (o.cams[u.x.scene] = o.cams[u.x.scene] || {}); if(on){ const { id, scene, ...rest } = u.x; sc[id] = rest; } else delete sc[u.x.id]; } else if(u.t === 'book'){ o.books = o.books || {}; if(on){ const { id, ...rest } = u.x; o.books[id] = rest; } else delete o.books[u.x.id]; } else if(u.t === 'spot'){ o.spots = o.spots || {}; const bk = (o.spots[u.x.book] = o.spots[u.x.book] || {}); if(on){ const { id, book, ...rest } = u.x; bk[id] = rest; } else delete bk[u.x.id]; } else o.keys[u.key] = unitApply(Object.assign(DRAFT_BASE(), o.keys[u.key]), u, on); if(on) o.items[k] = { by:String(it.by || ''), at:Date.now() }; else delete o.items[k]; });
+    if(!on) store.set('adopt-skip', [...new Set([...store.get('adopt-skip', []), k])].slice(-200));
     it.adopted = on; fbNote = on ? '採用しました。部屋の全員の本に、反映されます。' : '採用をやめました。';
   } catch(e){ fbNote = 'リポジトリに書けませんでした。電波のよい所で、もう一度押してください。'; }
   roomSig = ''; render(); roomPull();
 }
 // 足した選択肢の「そのあと」と「主人公に起きること」を、言葉にする
 const toText = to => to === 'stay' ? 'この場面にとどまる' : to === 'off' ? 'カメラの外へ出る（まだ映像のない場所）' : String(to).startsWith('spot:') ? '「' + ((bookOf(loadPlayer(current)).spots[String(to).slice(5)] || {}).name || String(to).slice(5)) + '」へ移る' : '「' + to + '」と同じ先へ進む';
-const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.img ? (fx.img.as === 'text' ? '文の下に、絵を出す' : '監視カメラの映像として、絵を出す') : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose', 'once', 'flag'].map(k => fx && fx[k] && fx[k].length ? (k === 'flag' ? '街に' : '') + fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす', once:'を手に入れる（街に1つだけ）', flag:'の印を残す' }[k] : ''), ].filter(Boolean).join('、');
+const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.img ? (fx.img.as === 'text' ? '文の下に、絵を出す' : '監視カメラの映像として、絵を出す') : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose', 'once', 'flag'].map(k => fx && fx[k] && fx[k].length ? (k === 'flag' ? '街に' : '') + fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす', once:'を手に入れる（街に' + onceN(fx) + 'つ' + (onceN(fx) > 1 ? '。1人1つ' : 'だけ') + '）', flag:'の印を残す' }[k] : ''), ].filter(Boolean).join('、');
 // ===== 演出：足した選択肢の文と、その先の文から、映像の動きを決める。手で選び直したものがあれば、そちらを使う =====
 const STAGE_NAMES = {
   gait:{ walk:'歩く', run:'走る', sneak:'忍び足' },
@@ -7912,7 +8134,7 @@ function applyFx(s, fx, key, self, w){
   // 街の印：ほかの本の人にも、その時刻を過ぎると見える
   if(w) for(const n of fx.flag || []) setFlag(w, s, flagName(n));
   // 街に1つだけの物：先に取った人のもの
-  if(w) for(const n of onceItems(fx)) if(takeOnce(w, 'item:' + n, s.char)) addItem(s, n);
+  if(w) for(const n of onceItems(fx)) if(takeStock(w, n, onceN(fx), s.char)) addItem(s, n);
   // 選べなくする選択肢は、その場面ごとに、主人公の側に覚えておく
   if(fx.lock && fx.lock.length && key){ s.dlock = s.dlock || {}; s.dlock[key] = [...new Set([...(s.dlock[key] || []), ...fx.lock.map(l => (l === '@self' ? self : l))])]; }
   if(fx.hp){ s.hp = Math.max(0, Math.min(5, s.hp + fx.hp)); if(fx.hp < 0) s.wounds = (s.wounds || 0) + 1; }
@@ -7933,6 +8155,7 @@ const COND_NAMES = {
 const hm = t => (/^\d\d:\d\d$/.test(t || '') ? +t.slice(0, 2) * 60 + +t.slice(3) : null);
 // 条件は、組の並び。1つの組は、中の条件が全部そろったときに成り立つ。組がいくつかあれば、どれか1つが成り立てばよい（「または」）
 // fx.cond が1つ目の組、fx.cor が2つ目から。fx.one は、1回しか選べない（街に1つだけの物 fx.once がある選択肢も、1回だけ）
+const onceN = fx => Math.max(1, Math.min(99, Math.floor(Number(fx && fx.onceN) || 1)));
 const onceItems = fx => (fx && Array.isArray(fx.once) ? fx.once : []), oneTime = fx => !!(fx && (fx.one || fx.once === true || onceItems(fx).length));
 const spotName = id => ((bookOf(loadPlayer(current)).spots || {})[id] || {}).name || id;
 const groupEmpty = g => !g || !Object.keys(g).some(k => (Array.isArray(g[k]) ? g[k].length : g[k]));
@@ -7969,14 +8192,14 @@ function groupUnmet(s, w, g){
 // 条件を、言葉にする
 function condText(a){
   const fx = a.fx || {}, gs = condGroups(fx).map(g => groupList(g).join('、')), need = (fx.need || []).map(n => '「' + n + '」を持っている');
-  const parts = [...(onceItems(fx).length ? [onceItems(fx).map(n => '「' + n + '」').join('と') + 'が、まだ誰にも取られていない'] : []), ...(need.length ? [need.join('、')] : []), ...(gs.length ? [gs.join('　または　')] : []), ...(oneTime(fx) ? ['1回だけ'] : [])];
+  const parts = [...(onceItems(fx).length ? [onceItems(fx).map(n => '「' + n + '」').join('と') + (onceN(fx) > 1 ? 'が、まだ残っている（街に' + onceN(fx) + 'つ。1人1つ）' : 'が、まだ誰にも取られていない')] : []), ...(need.length ? [need.join('、')] : []), ...(gs.length ? [gs.join('　または　')] : []), ...(oneTime(fx) ? ['1回だけ'] : [])];
   return parts.length ? '条件：' + parts.join('。') : '';
 }
 // そろっていない条件（空なら、選べる）
 function condUnmet(s, w, a){
   const fx = a.fx || {}, out = fxMissing(s, fx).map(n => '「' + n + '」を持っている');
   if(oneTime(fx) && (s.history || []).some(h => h.para === s.para && h.chosen === a.label)) out.push('まだ選んでいない（1回だけ）');
-  for(const n of onceItems(fx)) if(w.once['item:' + n]) out.push('「' + n + '」が、まだ誰にも取られていない');
+  for(const n of onceItems(fx)) if(stockGone(w, n, onceN(fx), s.char)) out.push('「' + n + '」が、' + (onceN(fx) > 1 ? 'まだ残っている' : 'まだ誰にも取られていない'));
   const gs = condGroups(fx).map(g => groupUnmet(s, w, g));
   if(gs.length && !gs.some(u => !u.length)) out.push(...gs.sort((x, y) => x.length - y.length)[0], ...(gs.length > 1 ? ['（または、ほかの組）'] : []));
   return out;
@@ -8316,7 +8539,7 @@ function decorateForEdit(mode){
       + STAGE_KEYS.map(k => '<label>' + STAGE_LABEL[k] + '<select data-st="' + k + '"><option value="">自動</option>' + Object.entries(STAGE_NAMES[k]).map(([val, t]) => '<option value="' + val + '">' + t + '</option>').join('') + '</select></label>').join('') + '</div></details>'
       + '<details' + (['get', 'lose', 'once'].some(k => (fbe.fx && fbe.fx[k] || []).length) ? ' open' : '') + ' style="margin:0 0 8px"><summary>持ち物</summary>'
       + '<input data-fxi="get" maxlength="60" placeholder="手に入れる物（いくつかあれば、「、」で区切る）"><input data-fxi="lose" maxlength="60" placeholder="なくす物">'
-      + '<input data-fxi="once" maxlength="60" placeholder="街に1つだけの物として、手に入れる（先に取った人のもの）"><p>街に1つだけの物は、どの本からでも、先に取った人のものになります。取った人が「持ち物を置いていく」で置けば、ほかの本の人が拾えます。</p></details>'
+      + '<input data-fxi="once" maxlength="60" placeholder="街にある数が決まっている物として、手に入れる"><input data-oncen type="number" inputmode="numeric" min="1" max="99" placeholder="街にある数（空なら1つ）"><p>数が決まっている物は、どの本からでも、先に取った人から順に手に入れます。1人1つで、なくなると、その選択肢は選べなくなります。取った人が「持ち物を置いていく」で置けば、ほかの本の人が拾えます。</p></details>'
       + '<details' + ((fbe.fx && fbe.fx.flag || []).length ? ' open' : '') + ' style="margin:0 0 8px"><summary>街に残す印（ほかの本から見える）</summary>'
       + '<input data-fxi="flag" maxlength="60" placeholder="印の名前（例：橋の鍵を開けた）"><p>この選択肢を選ぶと、街に印が残ります。ほかの本の人は、自分の時計がその時刻を過ぎると、「選べる条件」の「街でこれが起きたあと」で、その印を使えます。</p></details>'
       + condHtml(fbe.fx || {}, [...v.labels, ...shownOf(fbe.scene || key).add.filter(q => q.id !== fbe.id).map(q => q.label)].filter((l, i, arr) => arr.indexOf(l) === i))
@@ -8338,6 +8561,7 @@ function decorateForEdit(mode){
     autoShow();
     f1.oninput = () => { fbe.label = f1.value; autoShow(); }; f2.oninput = () => { fbe.result = f2.value; autoShow(); }; f3.onchange = () => { fbe.to = f3.value; };
     e.querySelectorAll('[data-fx]').forEach(q => { const k = q.dataset.fx; q.value = String(fbe.fx[k] == null ? (k === 'inf' ? '' : 0) : fbe.fx[k]); q.onchange = () => { fbe.fx[k] = k === 'inf' ? q.value : +q.value; }; });
+    e.querySelectorAll('[data-oncen]').forEach(q => { q.value = fbe.fx.onceN > 1 ? fbe.fx.onceN : ''; q.oninput = () => { const n = Math.floor(Number(q.value)); if(n > 1) fbe.fx.onceN = Math.min(99, n); else delete fbe.fx.onceN; }; });
     e.querySelectorAll('[data-fxi]').forEach(q => { const k = q.dataset.fxi; q.value = (fbe.fx[k] || []).join('、'); q.oninput = () => { fbe.fx[k] = q.value.split(/[、,，]/).map(x => x.replace(/[<>&"'×]/g, '').trim().slice(0, 20)).filter(Boolean).slice(0, 5); }; });
     condWire(e, fbe.fx);
     e.querySelectorAll('[data-any]').forEach(q => { q.value = fbe.fx.any ? '1' : ''; q.onchange = () => { if(q.value) fbe.fx.any = true; else delete fbe.fx.any; }; });
