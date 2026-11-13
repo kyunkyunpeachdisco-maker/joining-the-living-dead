@@ -38,12 +38,18 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .barbtns{flex:none;display:flex;gap:6px;align-self:flex-start}
 .barbtns button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:14px}
 .barbtns button.on{color:var(--text);border-color:var(--gold)}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.tabs{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:2px 12px 10px;background:#0d0e12}
+.tabs .mg{padding:10px 0 8px;border-top:1px solid var(--line)}.tabs .mg:first-child{border-top:0}
+.tabs .mh{font-size:11px;color:#8d8778;letter-spacing:.12em;margin-bottom:6px}
+.tabs .mb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tabs .mb button{width:100%;text-align:left;padding:10px 12px;line-height:1.35}
+.tabs .mb button small{display:block;font-size:11px;color:#8d8778}
+.tabs #saveBtn,.tabs #dropBtn,.tabs #roombtn{grid-column:1/-1}
 .tabs[hidden]{display:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:14px}
 .tabs button.on{color:var(--text);border-color:var(--gold)}
-.tabs .reset{margin-left:auto;color:var(--dim)}
+.tabs .reset{color:#b98a80}
 .tabs .mapbtn.on{color:var(--text);border-color:var(--gold)}
 .map{margin:0 0 16px;border:1px solid #5a4528;border-radius:3px;background:#e4d3ab;padding:5px}
 .map svg{display:block;width:100%;height:auto}
@@ -224,7 +230,8 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 #cutstill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;filter:saturate(.7) contrast(1.15) brightness(1.05)}
 #cutstill[hidden]{display:none}
 .draftimg{max-width:100%;border-radius:4px;margin:0 0 12px;display:block}
-.posters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.posters img{width:100%;height:auto;display:block}
+.pposter{float:left;width:34%;height:auto;margin:.4em 14px 4px 0}
+.text .para::after{content:'';display:block;clear:both}
 #fbDrawer.max{left:0;width:100vw;top:0!important;z-index:30}
 #fbDrawer.max #fbBody{max-height:100dvh;height:100dvh;box-sizing:border-box;border:0;border-radius:0}
 #fbDrawer.max .edgetab{display:none}
@@ -458,7 +465,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 03:26 ed034b8';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 03:52 eb1931a';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -1137,7 +1144,7 @@ BOOKS.voter = {
       text:s => (s.flags.yellow ? '黄色い札を見た係員が、出口側のいちばん端の記載台を手で示した。隣の台はひとつ空けてある。\n\n' : '')
         + '記載台へ向かう途中で、ペンが床に落ちる音がした。\n\n3つ目の台で、灰色の上着の男が、台に額をつけたまま立っている。鎖の先でペンが揺れていた。男はのろのろと体を起こすと、目隠しの板を両手でつかんだ。\n\n係員が2人来た。ひとりが後ろから男を抱えて出口へ連れていき、もうひとりは台に残った用紙を、中を見ないようにして裏返す。選挙管理人が呼ばれてきた。\n「ご本人が機械に入れていないので、これは票にはなりません」\n選挙管理人は用紙を封筒にしまい、封の上に署名して、時刻を書き添えた。',
       choices:[c('空いている記載台に入る', 0, 70)] },
-    70:{ time:s => s.clock + 3,
+    70:{ nocam:true, time:s => s.clock + 3,
       text:'折りたたみ式の台で、三方に目隠しの板が立ててある。黒いペンは鎖でつないであった。\n\n投票用紙のいちばん上は「州知事および副知事（1組に投票）」。\n\n　ロバート・ホイットモア／アラン・ヘイル　　自由連合党\n　ダイアン・カーヴァー／ポール・ニールセン　　国民進歩党\n　サミュエル・オカフォー／ルース・リンド　　無所属\n\nその下に州議会の下院議員、郡政委員、それから判事を留任させるかどうか、と続いている。',
       choices:[
         mark('ホイットモアの楕円を塗る', 'whitmore'),
@@ -2639,7 +2646,7 @@ const PROPS = {
   sign(T, g, o){ const h = o.h || .5; g.add(box(T, .04, h + .3, .04, M(T, 0x8a8a86), 0, (h + .3) / 2, 0), box(T, o.w || .7, .45, .03, M(T, o.c || 0xe8e8e0), 0, h + .3, 0)); },
   mailbox(T, g){ g.add(box(T, .08, 1.05, .08, M(T, 0x5a4a3a), 0, .52, 0), box(T, .26, .24, .5, M(T, 0x30486a), 0, 1.16, 0)); },
   house(T, g, o){
-    const w = o.w || 7, h = 3, d = 5, f = d / 2, col = o.c || 0xd8d2c0, trim = M(T, 0xe6e2d6), y0 = .4;
+    const w = o.w || 8.2, h = 3.3, d = 6.4, f = d / 2, col = o.c || 0xd8d2c0, trim = M(T, 0xe6e2d6), y0 = .4;
     g.add(shade(T, w + 1.6, d + 1.2, .9, .5), box(T, w + .1, y0, d + .1, M(T, 0x6c685f), 0, y0 / 2, 0), box(T, w, h, d, TM(T, 'siding', 1, 9, col), 0, y0 + h / 2, 0));
     const roof = new T.Mesh(new T.CylinderGeometry(1, 1, w + .7, 3, 1, false, Math.PI / 2), TM(T, 'roof', 2, 6));
     roof.rotation.z = Math.PI / 2; roof.scale.set(1.5 / 1.5, 1, (f + .45) / .866); roof.position.set(0, y0 + h + .5, 0); g.add(roof);
@@ -2757,6 +2764,7 @@ const PROPS = {
   hoop(T, g){ g.add(box(T, 1.8, 1.1, .06, M(T, 0xe8e6de), 0, 3.3, 0), box(T, .6, .45, .02, M(T, 0xb03a2a), 0, 3.15, .04), box(T, .5, .04, .5, M(T, 0xc05a2a), 0, 2.95, .32), box(T, .12, .12, .7, M(T, 0x6a6e72), 0, 3.6, -.35)); },
   court(T, g){ const m = M(T, 0xd8d2c2), b = M(T, 0x2a4a7a); g.add(flat(T, 9.2, .08, m, 0, .012, -3.6), flat(T, 9.2, .08, m, 0, .012, 3.4), flat(T, .08, 7, m, -4.6, .012, 0), flat(T, .08, 7, m, 4.6, .012, 0), flat(T, .08, 7, m, 0, .012, 0), flat(T, 3, .08, b, 0, .012, -1.5), flat(T, 3, .08, b, 0, .012, 1.5), flat(T, .08, 3, b, -1.5, .012, 0), flat(T, .08, 3, b, 1.5, .012, 0)); },
   bleachers(T, g, o){ const w = o.w || 6; for(let i = 0; i < 4; i++) g.add(box(T, w, .28, .1, M(T, 0x8a6a48), 0, .3 + i * .42, .05), box(T, w, .06, .12, M(T, 0x3a3a3e), 0, .47 + i * .42, .06)); },
+  drape(T, g, o){ const w = o.w || 6, h = o.h || 2.4, post = M(T, 0x8a8a86); g.add(box(T, w, h - .15, .05, M(T, o.c || 0x26324c), 0, (h - .15) / 2 + .15, 0), box(T, w + .1, .06, .06, post, 0, h, 0)); for(let x = -w / 2; x <= w / 2 + .01; x += w / Math.max(1, Math.round(w / 2))) g.add(box(T, .06, h, .06, post, x, h / 2, 0)); }, // 目隠しの幕（記載台の前。カメラから、書く所を隠す）
   voterow(T, g, o){ for(let i = 0; i < (o.n || 5); i++){ const x = i * 1.15, m = new T.MeshBasicMaterial({ color:0xd2cec2 }), leg = M(T, 0x8a8a86); g.add(box(T, .9, .04, .6, M(T, 0xbcb8ac), x, 1, 0), box(T, .9, .55, .03, m, x, 1.3, -.3), box(T, .03, .55, .6, m, x - .45, 1.3, 0), box(T, .03, .55, .6, m, x + .45, 1.3, 0), box(T, .86, .16, .02, psxMat(T, { map:textTex(T, ['VOTE'], '#2a4a9a', '#fff', 32, 8) }), x, 1.4, -.31)); [[-.4, -.26], [.4, -.26], [-.4, .26], [.4, .26]].forEach(([dx, dz]) => g.add(box(T, .04, 1, .04, leg, x + dx, .5, dz))); } },
   polldesk(T, g, o){ g.add(box(T, 1.9, .05, .8, M(T, 0xc8c2b0), 0, .76, 0), box(T, 1.9, .5, .03, M(T, 0x2a4a7a), 0, .5, .4), box(T, .5, .36, .02, psxMat(T, { map:textTex(T, [o.text || 'A - L'], '#f4f2ea', '#1c2a4a', 32, 16) }), 0, .98, .1), box(T, .5, .04, .36, M(T, 0xe8e6de), -.5, .8, 0), box(T, .3, .2, .3, M(T, 0x6a5a48), .6, .88, -.1)); [[-.9, -.36], [.9, -.36], [-.9, .36], [.9, .36]].forEach(([x, z]) => g.add(box(T, .05, .76, .05, M(T, 0x6a6a66), x, .38, z))); },
   hydrant(T, g){ const m = M(T, 0xb03a2a); g.add(box(T, .24, .6, .24, m, 0, .3, 0), box(T, .44, .12, .14, m, 0, .42, 0), box(T, .3, .1, .3, m, 0, .65, 0)); },
@@ -2891,8 +2899,16 @@ function posterTex(T, who){
   im.src = POSTER_IMG[who] || POSTER_IMG.whitmore;
   return t;
 }
-function postersHtml(){
-  return '<div class="posters">' + Object.entries(POSTERS).map(([k, P]) => '<img src="' + POSTER_IMG[k] + '" alt="' + P.ja + 'のポスター" width="240" height="360">').join('') + '</div>';
+// 本文の中：候補者の名前で始まる段の頭に、その人のポスターを1枚ずつ添える
+function placePosters(){
+  if(!lastView || !lastView.posters) return;
+  const tx = document.querySelector('#main .text') || document.querySelector('.text'); if(!tx) return;
+  let paras = [...tx.querySelectorAll('.para')];
+  if(!paras.length){ const parts = tx.textContent.split(/\n\n+/); tx.textContent = ''; paras = parts.map(t => { const p = document.createElement('div'); p.className = 'para'; p.textContent = t; tx.appendChild(p); return p; }); }
+  for(const [k, P] of Object.entries(POSTERS)){
+    const p = paras.find(x => x.textContent.trimStart().startsWith(P.ja));
+    if(p && !p.querySelector('.pposter')){ const im = document.createElement('img'); im.className = 'pposter'; im.src = POSTER_IMG[k]; im.alt = P.ja + 'のポスター'; im.width = 240; im.height = 360; p.prepend(im); }
+  }
 }
 function textTex(T, lines, bg, fg, w = 48, h = 32){
   return psxTex(T, w, h, (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; const lh = H / lines.length; g.font = `bold ${Math.floor(Math.min(lh * .78, W / Math.max(...lines.map(l => l.length)) * 1.5))}px sans-serif`; lines.forEach((l, i) => g.fillText(l, W / 2, lh * (i + .55))); });
@@ -3076,7 +3092,7 @@ Object.assign(CAM_DEFS, {
   v_gym:{ no:'23', name:'リンカーン小学校 体育館', room:{ size:[11, 9, 4.6], floorTex:'gymfloor', wallTex:'block', wallC:0x9c9788, light:'fluo', gen:true, amb:0x6a6e74, ambI:.8, lamps:[[-2.4, 0], [2.4, 0]],
     props:[['court', 0, 0], ['hoop', 0, -4.3, 0], ['bleachers', 3.4, -4.3, 0, { w:3.6 }], ['window', -5.39, -2.4, Math.PI / 2, { w:2.4, h:1, y:3.5, c:0xa8b8c4 }], ['window', -5.39, 1.4, Math.PI / 2, { w:2.4, h:1, y:3.5, c:0xa8b8c4 }],
       ['polldesk', -3.4, 1.9, Math.PI / 2, { text:'A - L' }], ['polldesk', -3.4, -.6, Math.PI / 2, { text:'M - Z' }], ['standing', -4.3, 1.9, Math.PI / 2, { who:'civil', shirt:'#5a6a8a', dark:'#3a4866' }], ['standing', -4.3, -.6, Math.PI / 2, { who:'civil', shirt:'#8a6a5a', dark:'#5a4038' }], ['standing', -2.4, 2.2, -Math.PI / 2, { who:'civil', shirt:'#6a7a5a', dark:'#48543c' }],
-      ['voterow', -3, -3.4, 0, { n:5 }], ['standing', -1.85, -2.8, Math.PI, { who:'civil', shirt:'#7a7a80', dark:'#50505a' }], ['standing', .45, -2.8, Math.PI, { who:'civil', shirt:'#8a7a50', dark:'#5a5034' }],
+      ['voterow', -3, -3.4, 0, { n:5 }], ['drape', -.7, -2.25, 0, { w:6.6 }], ['standing', -1.85, -2.8, Math.PI, { who:'civil', shirt:'#7a7a80', dark:'#50505a' }], ['standing', .45, -2.8, Math.PI, { who:'civil', shirt:'#8a7a50', dark:'#5a5034' }],
       ['scanner', 3.2, .6], ['standing', 4, -.2, -Math.PI / 2, { who:'civil', shirt:'#c8b030', dark:'#8a7a20' }], ['table', 3.6, 2.8, 0], ['plant', 4.8, -3.8], ['aframe', 1.4, 3.4, Math.PI, { text:['EXIT'], bg:'#f4f2ea', fg:'#2a6a3a' }], ['papers', 0, 1.2]],
     you:[-1.9, 1.3] } },
 });
@@ -3213,7 +3229,7 @@ for(const [cam, list] of Object.entries({ v_home:[1, 5, 8, 27, 111], v_oak:[12, 
 const NO_CAM = new Set(['chief', 'room302', 'lounge', 'duty_h', 'locker', 'captain', 'shipclinic', 'hold', 'shipdeck', 'fisherhut',
   'dining', 'study', 'greenhouse', 'bedroom', 'labstairs', 'lab', 'house_c', 'cellar', 'apartment', 'v_home']);
 function inBlindSpot(s){
-  if(s.offcam) return true;
+  if(s.offcam || paraOf(s).nocam) return true; // nocam：カメラのない場面（記載台。投票の秘密）
   if(planOf(s)) return false;
   const p = paraOf(s);
   return !p.hub && !p.encounter && s.book !== 'monster' && (NO_CAM.has(PARA_CAMS[s.para]) || !!p.inside);
@@ -3565,7 +3581,7 @@ PLANS.school = {
       stand:[9, -1.5], cams:[{ no:'25', name:'廊下 西', pos:[.6, 2.6, -1], look:[13, .5, -1.8], fov:48 }, { no:'27', name:'廊下 東', pos:[27.4, 2.6, -2], look:[14, .5, -1.2], fov:48 }],
       props:[['locker', 11.6, -.35, Math.PI, { n:4 }], ['bench', 24.5, -.5, Math.PI], ['plant', 27.3, -.6]] },
     classroom:{ floor:'1F', name:'1年2組', rect:[0, -10, 7, -3], h:3, floorT:'wood', wall:'white', light:'fluo', lamps:[[3.5, -6.5]],
-      stand:[3.6, -4.6], cams:[{ no:'26', name:'1年2組', pos:[6.6, 2.7, -3.4], look:[1.6, .4, -8.4] }],
+      stand:[3.6, -4.6], // カメラなし（教室には、ふつう付けない）
       props:[['desk', 5.2, -8.8], ['desk', 3.4, -8.8], ['desk', 5.2, -9.4], ['chair', 1.5, -7.4, Math.PI / 2], ['standing', 1.5, -7.4, Math.PI / 2, { who:'civil', shirt:'#4a4a42', dark:'#30302c', hold:true }],
         ['standing', 2.9, -6.6, -Math.PI / 2, { who:'civil', shirt:'#c8b030', dark:'#8a7a20' }], ['shelf', .5, -4.6, Math.PI / 2]] },
     nurse:{ floor:'1F', name:'保健室', rect:[7, -10, 12, -3], h:3, floorT:'linoleum', wall:'white', light:'fluo', lamps:[[9.5, -6.5]],
@@ -3574,7 +3590,7 @@ PLANS.school = {
       stand:[20.4, -6.4], cams:[{ no:'23', name:'体育館', pos:[27.5, 4.4, -3.6], look:[18, .4, -12.5], fov:62 }],
       props:[['polldesk', 16.8, -7.2, Math.PI / 2, { text:'A - L' }], ['polldesk', 16.8, -10.2, Math.PI / 2, { text:'M - Z' }],
         ['standing', 15.9, -7.2, Math.PI / 2, { who:'civil', shirt:'#5a6a8a', dark:'#3a4866' }], ['standing', 15.9, -10.2, Math.PI / 2, { who:'civil', shirt:'#8a6a5a', dark:'#5a4038' }], ['standing', 17.9, -9.8, -Math.PI / 2, { who:'civil', shirt:'#6a7a5a', dark:'#48543c' }],
-        ['voterow', 18.4, -15.4, 0, { n:5 }], ['standing', 19.55, -14.8, Math.PI, { who:'civil', shirt:'#7a7a80', dark:'#50505a' }], ['standing', 21.85, -14.8, Math.PI, { who:'civil', shirt:'#8a7a50', dark:'#5a5034' }],
+        ['voterow', 18.4, -15.4, 0, { n:5 }], ['drape', 20.7, -14.25, 0, { w:6.6 }], ['standing', 19.55, -14.8, Math.PI, { who:'civil', shirt:'#7a7a80', dark:'#50505a' }], ['standing', 21.85, -14.8, Math.PI, { who:'civil', shirt:'#8a7a50', dark:'#5a5034' }],
         ['scanner', 25.6, -8.6], ['standing', 26.5, -9.4, -Math.PI / 2, { who:'civil', shirt:'#c8b030', dark:'#8a7a20' }], ['table', 25.8, -5.4, 0], ['bleachers', 25.2, -16.3, 0, { w:4.4 }], ['papers', 21, -8]] },
   },
   doors:[['lobby', '@street', 4, 6, 2.4, '正面玄関'], ['lobby', 'corridor', 4, 0, 1.6], ['corridor', 'classroom', 3.5, -3], ['corridor', 'nurse', 9.5, -3], ['corridor', 'gym', 20, -3, 2.4]],
@@ -3598,14 +3614,14 @@ PLANS.hosp = {
       stand:[14.4, -5], cams:[{ no:'57', name:'用度係', pos:[17.6, 2.7, -3.4], look:[12.6, .4, -8.6] }],
       props:[['desk', 13.2, -8.4], ['standing', 13.2, -9.2, 0, { who:'civil', shirt:'#7a8a9a', dark:'#56626e' }], ['shelf', 17.5, -7, -Math.PI / 2], ['shelf', 11.5, -5.4, Math.PI / 2], ['crates', 16.4, -9], ['papers', 14, -6.6]] },
     dock:{ floor:'1F', name:'荷受け場', rect:[19, -10, 26, -3], h:3.4, floorT:'concrete', wall:'concrete', light:'fluo', lamps:[[22.5, -6.5]],
-      stand:[22.4, -5.4], props:[['crates', 20.4, -8.4], ['crate', 24.8, -8.6, 0, { s:1.2 }], ['cart', 24.4, -4.6], ['barrel', 19.8, -4]] },
+      stand:[22.4, -5.4], cams:[{ no:'54', name:'荷受け場', pos:[25.6, 3, -3.4], look:[20.6, .4, -8.6] }], props:[['crates', 20.4, -8.4], ['crate', 24.8, -8.6, 0, { s:1.2 }], ['cart', 24.4, -4.6], ['barrel', 19.8, -4]] },
     stairs1:{ floor:'1F', name:'階段', rect:[26, -4, 30, 1], h:3, floorT:'concrete', wall:'concrete', light:'dim', lamps:[[28, -1.5]], stand:[27.4, -1.5], props:[['stairs', 28.6, -2.8, 0, { n:6, w:2.4 }]] },
     stairs3:{ floor:'3F', name:'階段', rect:[26, -4, 30, 1], h:3, floorT:'concrete', wall:'concrete', light:'dim', lamps:[[28, -1.5]], stand:[27.4, -1.5], props:[['stairs', 28.6, -2.8, 0, { n:6, w:2.4 }]] },
     ward:{ floor:'3F', name:'3階病棟の廊下', rect:[0, -3, 26, 0], h:3, floorT:'linoleum', wall:'green', light:'fluo', lamps:[[5, -1.5], [13, -1.5], [21, -1.5]],
       stand:[9, -1.5], cams:[{ no:'58', name:'3階病棟 西', pos:[.6, 2.6, -1], look:[13, .5, -1.8], fov:48 }, { no:'59', name:'3階病棟 東', pos:[25.4, 2.6, -2], look:[13, .5, -1.2], fov:48 }],
       props:[['cart', 12, -.6], ['bench', 6, -.5, Math.PI], ['plant', .7, -2.4]] },
     office:{ floor:'3F', name:'院長室', rect:[0, 0, 8, 6], h:3, floorT:'carpet', wall:'wood', light:'warm', lamps:[[4, 3]],
-      stand:[4.6, 2.2], cams:[{ no:'60', name:'院長室', pos:[7.6, 2.7, .5], look:[2.4, .5, 5] }],
+      stand:[4.6, 2.2], // カメラなし（個人の執務室）
       props:[['desk', 3, 4.4], ['cabinet', .6, 3, Math.PI / 2], ['plant', 7.3, 5.3], ['papers', 3.4, 3.2]] },
     aud:{ floor:'3F', name:'講堂', rect:[10, 0, 24, 9], h:3.6, floorT:'linoleum', wall:'beige', light:'fluo', lamps:[[14, 4.5], [20, 4.5]],
       stand:[17, 2], cams:[{ no:'61', name:'講堂', pos:[23.5, 3.2, .6], look:[14, .5, 7] }],
@@ -3653,7 +3669,7 @@ PLANS.ps = {
       stand:[4.6, 2], cams:[{ no:'08', name:'点呼室', pos:[8.6, 2.7, .4], look:[2.4, .4, 6] }],
       props:[['desk', 2, 5.6], ['chair', 3, 3.6, Math.PI], ['chair', 4.4, 3.6, Math.PI], ['chair', 5.8, 3.6, Math.PI], ['chair', 3, 2.4, Math.PI], ['chair', 5.8, 2.4, Math.PI], ['standing', 3.4, 5.6, Math.PI, { who:'civil', shirt:'#2a3a5a', dark:'#1a2438' }], ['papers', 7, 5]] },
     office:{ floor:'1F', name:'署長室', rect:[0, -9, 7, -3], h:3, floorT:'carpet', wall:'wood', light:'warm', lamps:[[3.5, -6]],
-      stand:[3.6, -4.6], cams:[{ no:'09', name:'署長室', pos:[6.6, 2.7, -3.4], look:[1.6, .4, -8] }],
+      stand:[3.6, -4.6], // カメラなし（個人の執務室）
       props:[['desk', 3, -7.4], ['chair', 3, -8.2, 0], ['cabinet', .6, -6, Math.PI / 2], ['radio', 4.6, -7.4], ['plant', 6.3, -8.3]] },
     cells:{ floor:'1F', name:'留置場', rect:[9, -10, 18, -3], h:3, floorT:'concrete', wall:'concrete', light:'fluo', lamps:[[13.5, -6]],
       stand:[13.4, -4.6], cams:[{ no:'10', name:'留置場', pos:[17.6, 2.7, -3.4], look:[11, .4, -9] }],
@@ -6174,7 +6190,7 @@ function frontRender(){
   el.innerHTML = frontHtml(); el.scrollTop = 0;
   const on = (id, fn) => { const e = document.getElementById(id); if(e) e.onclick = fn; }, go = f => { front = f; frontRender(); if(!f) render(); };
   on('frStart', () => go('menu'));
-  on('frResume', () => go(null));
+  on('frResume', () => { go(null); askLock(); });
   on('frNew', () => { if(!confirm('全員の進み具合を消して、最初からやり直しますか？')) return; store.remove('world'); store.remove('undo'); CHAR_IDS.forEach(id => store.remove('player-' + id)); histIndex = null; go('menu'); });
   on('frHow', () => { howPage = 0; howBack = 'title'; howKind = 'play'; go('how'); });
   on('frMake', () => { howPage = 0; howBack = 'title'; howKind = 'make'; go('how'); });
@@ -6894,7 +6910,7 @@ function viewHtml(v, opt){
   if(v.msg) html += `<div class="msg">${escText(v.msg)}</div>`;
   html += `<div class="no">${v.para}</div>`;
   html += `<div class="text">${escText(v.text)}</div>`;
-  if(v.posters) html += postersHtml();
+
   if(v.radio) html += `<div class="radio">${v.radio}</div>`;
   if(v.traces.length) html += `<div class="trace">${v.traces.join('\n')}</div>`;
   if(v.menuTitle) html += `<div class="menu-title">${v.menuTitle}</div>`;
@@ -6975,16 +6991,20 @@ function render(){
   document.getElementById('barbtns').innerHTML = (mode === 'live' && undoCount() ? `<button class="${undoOpen ? 'on' : ''}" id="undobtn">戻す</button>` : '') + `<button class="${menuOpen ? 'on' : ''}" id="menubtn" aria-label="メニュー">☰</button>`;
   const tabs = document.getElementById('tabs');
   tabs.hidden = !menuOpen;
+  // ☰ の中身：することごとに、見出しを付けて分ける
+  const grp = (t, inner) => (inner ? '<div class="mg"><div class="mh">' + t + '</div><div class="mb">' + inner + '</div></div>' : '');
   tabs.innerHTML =
-    CHAR_IDS.map(id => `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${room ? (own[id] ? '（' + ownerName(own[id]) + '）' : '') : id === w.lock ? '（ロック中）' : ''}</button>`).join('')
-    + `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
-    + (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button>' : '')
-    + (room ? '' : '<button class="mapbtn" id="packbtn">もらった版で遊ぶ' + (PACK ? '（' + escText(PACK) + '）' : '') + '</button>' + (TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : ''))
-    + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '（済み）' : '') + '</button>')
-    + '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>'
-    + (!room && w.lock ? '<button id="saveBtn">保存して、ロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずに、ロックを外す</button>' : '') : '')
-    + (room ? '' : '<button class="reset" id="reset">最初から</button>')
-    + (TEST_BUILD ? '' : `<span style="font-size:11px;color:#6a6458;margin-left:auto;align-self:center">${APP_VERSION}</span>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
+    grp('本を選ぶ', CHAR_IDS.map(id => { const st = room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
+    + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存して、ロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずに、ロックを外す</button>' : '') : '')
+    + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
+    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button>' : '')
+      + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
+      + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '<small>済み</small>' : '') + '</button>'))
+    + grp('そのほか', `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
+      + (room ? '' : '<button class="mapbtn" id="packbtn">もらった版で遊ぶ' + (PACK ? '<small>' + escText(PACK) + '</small>' : '') + '</button>')
+      + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>')
+      + (room ? '' : '<button class="reset" id="reset">最初から</button>'))
+    + (TEST_BUILD ? '' : `<div style="font-size:11px;color:#6a6458;text-align:right;padding-top:6px">${APP_VERSION}</div>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
   const whose = `<span><b>${CHARS[current].name}</b></span>`;
 
   let html = '', drawerHtml = '';
@@ -7022,8 +7042,8 @@ function render(){
     lastView = v;
     document.getElementById('stat').innerHTML = whose + statHtml(v);
     if(mode === 'live' && trialOn()){
-      const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'この本は、ロックしていません。';
-      html += '<div class="lockbar"><b>' + other + '</b>選択肢は選べますが、進んだ分は保存されません' + (trial.moved ? '<button id="trialBack">もとの場面に戻る</button>' : '') + (!own0 && !lk && (!room || roomOpen) ? '<button id="lockBtn">ロックして進める</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
+      const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'ロックしていません。';
+      html += '<div class="lockbar"><b>' + other + '</b>進んだ分は保存されません' + (trial.moved ? '<button id="trialBack">もとの場面に戻る</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
       if(undoOpen && undoCount()) html += undoListHtml(s);
     } else if(mode === 'live'){ if(undoOpen && undoCount()) html += undoListHtml(s); } // 自分が進めている間は帯を出さない（ロックを外すは ☰ の中）
     else if(room) html += own[current]
@@ -7169,6 +7189,7 @@ function render(){
   if(fbT){ fbT.value = fbDrafts[fbMode]; fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; }; }
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
   decorateForEdit(mode);
+  placePosters();
   on('undobtn', () => { undoOpen = !undoOpen; render(); window.scrollTo(0, 0); });
   on('undoClose', () => { undoOpen = false; render(); });
   document.querySelectorAll('.undolist button[data-undo]').forEach(b => b.onclick = () => undoTo(+b.dataset.undo));
