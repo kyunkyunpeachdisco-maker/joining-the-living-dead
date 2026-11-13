@@ -258,7 +258,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .tally{border-collapse:collapse;margin:8px 0 10px;width:100%;max-width:420px}.tally td{padding:3px 6px;border-bottom:1px solid #3a3528}.tally .num{text-align:right;font-variant-numeric:tabular-nums}
 .help{margin:0 0 16px;font-size:12px;color:var(--dim);line-height:1.7;border:1px solid var(--line);border-radius:4px;padding:10px 12px}
 /* 画面の右端のつまみ：押すと、映像・地図が横から出入りする */
-.edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1}
+.edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;white-space:nowrap;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1}
 .edgetab.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
 #videoTab{top:58px}
 #drawer,#fbDrawer{position:fixed;right:0;top:112px;z-index:8;width:min(94vw,560px);transform:translateX(100%);transition:transform .22s ease-out}
@@ -455,7 +455,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.10';
+const APP_VERSION = 'v0.3.11';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
