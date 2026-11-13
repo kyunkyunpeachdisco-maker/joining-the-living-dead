@@ -38,7 +38,7 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .barbtns{flex:none;display:flex;gap:6px;align-self:flex-start}
 .barbtns button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:14px}
 .barbtns button.on{color:var(--text);border-color:var(--gold)}
-.tabs{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:2px 12px 10px;background:#0d0e12}
+.tabs{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:2px 12px 10px;background:#0d0e12;max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .tabs .mg{padding:10px 0 8px;border-top:1px solid var(--line)}.tabs .mg:first-child{border-top:0}
 .tabs .mh{font-size:11px;color:#8d8778;letter-spacing:.12em;margin-bottom:6px}
 .tabs .mb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -283,7 +283,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .cm-top button{background:none;border:1px solid #3a3a40;color:#e8e2d6;border-radius:8px;padding:6px 12px;font-size:14px}
 .cm-find{margin:12px 14px 0!important;width:auto!important;font-size:16px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;border-radius:10px;padding:10px 12px;box-sizing:border-box}
 .cm-new{margin:10px 14px;border:1px solid #e0b04a;color:#e0b04a;background:none;border-radius:10px;padding:11px;text-align:center}
-.cm-chips{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none}.cm-chips button{white-space:nowrap;background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.cm-chips button.on{border-color:#e0b04a;color:#e0b04a}
+.cm-chips{display:flex;gap:6px;padding:10px 14px 10px;overflow-x:auto;scrollbar-width:none}.cm-chips button{white-space:nowrap;background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.cm-chips button.on{border-color:#e0b04a;color:#e0b04a}
 .cm-list{flex:1}.cm-none{color:#8d8778;padding:16px 14px;font-size:14px}
 .cm-row{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border:0;border-top:1px solid #1f1f24;background:none;color:inherit}
 .cm-row .x{flex:1;min-width:0;display:block}.cm-row .t,.cm-row .s{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-row .t{font-size:16px;color:#f3e8cc}.cm-row .s{color:#8d8778;font-size:13px}
@@ -307,7 +307,7 @@ main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .cm-poll{margin-top:8px;display:grid;gap:6px}.cm-poll button{position:relative;overflow:hidden;display:flex;justify-content:space-between;border:1px solid #3a3a40;border-radius:8px;padding:8px 12px;background:none;color:inherit;text-align:left}.cm-poll button i{position:absolute;left:0;top:0;bottom:0;background:#4a3d1a;opacity:.7}.cm-poll button span{position:relative}.cm-poll button.on{border-color:#e0b04a}
 .cm-in{position:sticky;bottom:0;background:#0a0b0e;border-top:1px solid #2a2a2e;padding:10px 14px 14px;z-index:2}
 .cm-r{display:flex;gap:8px;align-items:flex-end}.cm-r button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:10px;height:44px;min-width:44px;font-size:18px}.cm-r button.on{border-color:#e0b04a;color:#e0b04a}.cm-r .go{border-color:#e0b04a;color:#e0b04a;font-size:15px;padding:0 14px}
-.cm-r textarea{flex:1;min-height:44px!important;height:44px;max-height:160px;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px}
+.cm-r textarea{flex:1 1 0;width:0!important;min-width:0;min-height:44px!important;height:44px;max-height:160px;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;box-sizing:border-box}.cm-r button{flex:none;width:auto!important;margin:0!important}
 .cm-ai{display:flex;align-items:center;gap:6px;color:#8d8778;font-size:13px;margin:0 0 8px}
 .cm-qbar{display:flex;justify-content:space-between;gap:8px;border-left:3px solid #e0b04a;padding:2px 8px;margin-bottom:8px;color:#8d8778;font-size:13px}.cm-qbar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-qbar button{background:none;border:0;color:#8d8778;font-size:16px}
 .cm-plus{display:grid;gap:8px;margin-bottom:10px}.cm-plus>button,.cm-para{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:8px;padding:9px 12px;text-align:left;font-size:14px}.cm-para{display:block;width:100%;margin-top:6px}
@@ -464,7 +464,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.15';
+const APP_VERSION = 'v0.3.16';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4708,7 +4708,7 @@ function linkPanelHtml(){
   const repo = ghRepo(), pub = store.get('pub-repo', ''), esc = t => escText(t).replace(/"/g, '&quot;'), on = ghLinked();
   const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
   return '<div class="scr"><h2 class="scr-h">リポジトリの設定</h2>'
-    + '<p class="scr-lead">設定すると、書き換えたものを、自分のリポジトリにも置けます。ネットに保存する、画像を付ける、リンクで配る、AI に書かせる、といったことができるようになります。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは、GitHub の上のファイル置き場です。トークンは、ゲームがそこへ書きこむための鍵です。GitHub は無料で使えます。</p>'
+    + '<p class="scr-lead">設定すると、書き換えたものが自動で保存され、画像を付ける、リンクで配る、AI に書かせる、といったことができるようになります。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは、GitHub の上のファイル置き場です。トークンは、ゲームがそこへ書きこむための鍵です。GitHub は無料で使えます。</p>'
     + '<div class="scr-state' + (on ? ' on' : '') + '">' + (on ? '連携しています<b>作業用：' + escText(repo) + '</b><b>配る用：' + (pub ? escText(pub) : 'まだ決めていません') + '</b>' : 'まだ連携していません') + '</div>'
     + '<div class="step"><div class="n">STEP 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開・非公開が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作ります。すでにあるなら、飛ばします。</p>'
       + '<p><b>作業用（非公開）</b>　書き換えたもの、画像、部屋の記録が入ります。見られるのは、自分とトークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
@@ -4913,14 +4913,14 @@ function howPages(kind){
   const host = !!room && isHost(), guest = !!room && !isHost();
   const reach = roomLocal() ? '部屋を作った人がゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は、自動で共有されます。';
   if(kind === 'make'){
-    const keys = ['「✎ 編集する」：押してから、本文の書き換えたい所を押すと、書き換える欄が開きます。', '「✎」：その選択肢を書き換えたり、消したりします。', '「＋ 選択肢を足す」：新しい選択肢と、選んだときに起きることを書きます。'];
+    const keys = ['「✎ 編集する」：編集を開始します。', '「✎」：その選択肢を書き換えたり、消したりします。', '「＋ 選択肢を足す」：新しい選択肢と、選んだときに起きることを書きます。'];
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、案として部屋のみんなに見えます。部屋の設定によって、すぐ全員のゲームに入るか、誰かの賛成か、部屋を作った人の採用を待ちます。' },
       { img:'how-make-1', full:true, t:'書き換える', legend:keys },
-      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '新しいスレッドを立てるときに「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、AI に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
+      { t:'話す・AI に頼む', text:'画面の右端の「通信」を開くと、部屋のみんなと話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI への頼みごとは使えません（部屋を作った人が、リポジトリを設定して部屋を作ると、使えるようになります）。' : '「通信」の書く欄で「AI に頼む」にチェックを入れて、作ってほしいものや直してほしいものを書きます。頼みごとは、部屋のリポジトリに残ります。そのリポジトリを Claude Code（AI に作業を頼める道具）で開ける人が、AI に対応させると、同じスレッドに返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に頼んで、GitHub の画面でそのリポジトリを使える人に加えてもらいます。そのうえで、そのリポジトリを Claude Code で開きます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
-    const linkWay = ['リンクで配る', (room ? '「リンクで配る」' : '「リンクを作る」') + 'を押して、できたリンクを送ります。あとで書き換えたときは、' + (room ? '同じボタンをもう一度押します' : '「配っている版を新しくする」を押します') + '。リンクは変わらないので、送り直さなくてかまいません。'];
+    const linkWay = ['リンクで配る', (room ? '部屋の画面で「リンクで配る」' : '「配る」の画面で「リンクを作る」') + 'を押して、できたリンクを送ります。あとで書き換えたときは、' + (room ? '同じボタンをもう一度押します' : '「配っている版を新しくする」を押します') + '。リンクは変わらないので、送り直さなくてかまいません。'];
     return [
       { t:'編集版でできること', list:[
         ['書き換える', '文章や選択肢を書き換えられます。選択肢、場所、建物の中の一室、主人公の本を新しく足すこともできます。'],
@@ -4928,29 +4928,30 @@ function howPages(kind){
         ['みんなで作る', '何人かで「部屋」に入って、1つのゲームを一緒に書き換えられます。'],
         ['AI に書かせる', '文章や選択肢を、AI に書かせられます。'],
       ] },
-      ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る自分用のファイル置き場です。自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。設定は最初の1回だけです。設定すると、次のことができます。', list:[
-        ['ネットに保存する', '書き換えたものが、書き換えるたびに、作業用のリポジトリに自動で保存されます。'],
-        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。部屋の「通信」にも付けられるので、AI に頼むときに、画面の写真を見せられます。'],
-        ['リンクで配る', 'リンクを送るだけで、書き換えたゲームを遊んでもらえます。'],
-        ['部屋をいつでも使う', '部屋を作った人がゲームを閉じていても、ほかの人は続けられます。'],
-        ['AI に書かせる', '部屋で書いた頼みごとを、AI（6ページ目）に対応させられます。'],
+      ...(room ? [] : [{ t:'リポジトリを設定する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。リポジトリは、GitHub に作る自分用のファイル置き場です。自分だけが見られる作業用と、誰でも見られる配る用の2つを作ります。設定は最初の1回だけです。', list:[
+        ['自動で保存される', '書き換えたものは、作業用のリポジトリに自動で保存されます。'],
+        ['画像を付ける', '足した選択肢や場所に、自分の画像を付けられます。'],
+        ['リンクで配る', 'リンクを送ると、書き換えたゲームを遊んでもらえます。'],
+        ['部屋をいつでも使う', '部屋を作った人がゲームを閉じていても、ほかの人は部屋を使えます。'],
+        ['AI に書かせる', '文章や選択肢を、AI に書かせられます（7ページ目）。'],
       ], after:'リポジトリを作らなくても、書き換えることと、ファイルで配ることはできます。部屋も作れますが、作った人がゲームを閉じているあいだは、ほかの人は部屋を使えません。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', legend:keys, text:(host ? '' : '書き換えたものは、自動で保存されます。書き換えた所には、点線の枠が付きます。<br>') + '場所や建物の中の一室を足すときは、画面の右端の「地図」を開きます。通りにいるときは「ここに、歩ける場所を作る」、建物の中にいるときは「となりに、一室を足す」というボタンが出ます。主人公の本を足すときは、右上の ☰（メニュー）の「本を足す」を押します。' },
+      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['場所を足す', '「地図」を開いて、「ここに、歩ける場所を作る」を押します。建物の中では、「となりに、一室を足す」を押します。'], ['本を足す', '☰ の「本を足す」を押します。']] },
       { t:'配る', text:room ? '配るのは、採用したものが入ったゲームです。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
-        ['ファイルで配る', (room ? '「ファイルにして配る」' : '「ファイルを作る」') + 'を押して、できたファイルをメールやチャットで送ります。'],
+        ['ファイルで配る', (room ? '部屋の画面で「ファイルにして配る」' : '「配る」の画面で「ファイルを作る」') + 'を押して、できたファイルをメールやチャットで送ります。'],
       ], btn:['howPackBtn', room ? '部屋の画面を開く' : '「配る」の画面を開く'] },
-      { img:'how-make-2', full:true, t:'みんなで作る', legend:['「＋ 新しいスレッド」：話を始めます。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに入っていない書き換えだけを並べます。'], text:'画面の右端の「通信」を押すと開きます。書き換えたものは、初めの設定では、すぐ全員のゲームに入ります。入れ方は、部屋の画面で替えられます（すぐ入る／誰か1人が賛成したら入る／部屋を作った人が採用する）。' + (room ? '' : '<br>始めるには、部屋を作って、招待リンクを送ります。'), btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { t:'みんなで作る', text:(room ? '招待リンクを送って、人を呼びます。' : '部屋を作って、招待リンクを送ります。') + '部屋に入った人が書き換えると、全員のゲームに反映されます。', list:[['反映のしかた', 'すぐ反映されます。部屋の画面で、誰か1人が賛成してから、または部屋を作った人が採用してから反映するように替えられます。']], btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { img:'how-make-2', full:true, t:'通信', lead:'部屋の人と話す画面です。部屋の中で、画面の右端の「通信」を押すと開きます。', legend:['書く欄：書いて送ると、新しいスレッドが始まります。話題ごとに、スレッドを分けます。', 'スレッドです。押すと開いて、中で話せます。', '部屋に入った人が書き換えたものも、スレッドになって並びます。', '「採用待ち」：まだ全員のゲームに反映されていない書き換えだけを並べます。'] },
       { t:'AI に書かせる', text:'リポジトリを開いて作業できる AI なら、どれでも使えます（Claude Code、Codex、Antigravity など）。ここでは、Claude Code（claude.ai/code）を例に説明します。Claude Code には、自分の GitHub のアカウントをつないでおきます。', list:[
         ['1人で作る人', 'Claude Code で作業用のリポジトリを選んで、書いてほしいことを頼みます。リポジトリの設定がまだの人は、下のリンクを Claude Code に貼って「準備して」と書くと、Claude が設定を手伝います。' + guide],
-        ['部屋を作った人', '部屋の「通信」で新しいスレッドを立てるときに、「AI に頼む」というチェックが出ます。チェックを入れて頼みごとを書いたら、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書きます。AI が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
+        ['部屋で作る人', '部屋の「通信」の書く欄で、「AI に頼む」にチェックを入れて、頼みごとを書きます。部屋を作った人が、Claude Code で作業用のリポジトリを選んで「頼みごとに対応して」と書くと、AI が頼まれたとおりにゲームの文章や選択肢を書き換えて、「通信」に返事を書きます。'],
       ] },
     ];
   }
   const names = CHAR_IDS.map(id => CHARS[id].name).join('、');
   const P = [
     { t:'どんなゲームか', list:[
-      ['舞台', 'ゾンビのいる街グレンフォードの、州知事選挙の投票日を描いたゲームブックです。'],
+      ['舞台', 'アメリカ中西部の架空の州、ウィノア州の州都グレンフォードです。今日は、州知事選挙の投票日です。街には、ゾンビがいます。'],
       ['主人公と「本」', '主人公は' + names + 'で、それぞれに1冊ずつ「本」があります。'],
       ['本どうしがつながっている', 'どの本も、同じ街の同じ一日の話です。' + (room ? 'ほかの人が本の中でしたことは、あなたの本にもそのまま残ります。' : 'ある本でしたことは、別の本にもそのまま残ります。') + '倒したゾンビはいなくなり、取った物はもうありません。'],
       ['開票', '一日の終わりに、選挙の開票結果が出ます。結果は、それぞれの本でしたことによって変わります。'],
@@ -4958,10 +4959,10 @@ function howPages(kind){
     { img:'how-play-0', full:true, t:'画面の見方', legend:['いま読んでいる本の主人公と、話の中の時刻、体力、持ち物です。', '「戻す」：直前の選択を取り消します。時刻と体力も元に戻ります。', '「☰」：別の本に替える、みんなで遊ぶための「部屋」、音の入・切。', '「映像」「地図」：監視カメラの映像と、街の地図です。', '主人公です。街の監視カメラが、主人公のいる場所を映しています。'] },
     { t:'遊ぶうえでの決まり', list:[
       ['時刻', '選択肢を選ぶたびに、話の中の時刻が進みます。投票所が開いているのは、朝7時から夜8時までです。'],
-      ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : '1冊が先の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
+      ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : '先の時間帯に入った本は、ほかの本が追いつくまで進められません。')],
       ['持ち物', '持っているときだけ選べる選択肢があります。'],
-      ['体力と感染', '体力は ●●● の3つです。ゾンビに襲われると1つ減り、傷から感染することもあります。全部なくなるか、感染してしばらくたつと、主人公はゾンビになります。'],
-      ...(room ? [['ロック', '☰ の「部屋」の画面で、進めたい本の「ロックする」を押します。進められるのは、自分がロックした本だけです。1冊をロックできるのは1人だけです。ロックしていない本も、開けばこれまでの話を読めます。' + reach]] : [['別の本に替える', '本を選ぶと、その本をロックするかを聞かれます。進められるのは、ロックした1冊だけです。別の本を進めるときは、☰ でロックを外してから、本を選びます。外し方は2つです。「保存して、ロックを外す」は、進めた分を残します。「保存せずに、ロックを外す」は、ロックした時点に戻します。'], ['みんなで遊ぶ', '☰ の「部屋」で部屋を作り、招待リンクを送ります。本は、1人1冊ずつ進めます。']]),
+      ['体力と感染', '体力は最大3です。ゾンビに襲われると1減り、傷から感染することもあります。体力がなくなるか、感染してしばらくたつと、主人公はゾンビになります。'],
+      ...(room ? [['ロック', '☰ の「部屋」の画面で、進めたい本の「ロックする」を押します。進められるのは、自分がロックした本だけです。1冊をロックできるのは1人だけです。ロックしていない本も、開けばこれまでの話を読めます。' + reach]] : [['別の本に替える', '本は、ロックして進めます。ロックできる本は、一度に1冊です。本を選ぶと、ロックするかを聞かれます。別の本を進めるときは、☰ の「保存して、ロックを外す」を押してから、本を選びます。進めた分をなかったことにするときは、「保存せずに、ロックを外す」を押します。'], ['みんなで遊ぶ', '☰ の「部屋」で部屋を作り、招待リンクを送ります。本は、1人1冊ずつ進めます。']]),
     ] },
   ];
   return P;
@@ -4979,7 +4980,7 @@ function frontHtml(){
       + '<button id="frHow">遊び方</button>'
       + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・配る・みんなで作る</small></button>' : '')
       + '</div>'
-      + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>先に、リポジトリを設定してください</b><br>できることは「作り方」の2ページ目にあります。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリの設定を開く</button></div></div>' : '')
+      + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>リポジトリの作成を推奨しています</b><br>設定するとできることは、「作り方」の2ページ目にあります。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリの設定を開く</button></div></div>' : '')
       + (EMBED ? '' : '<a class="fr-switch" href="' + siteRoot() + (TEST_BUILD ? '' : 'test/') + '">' + (TEST_BUILD ? '公開版へ' : '編集版へ') + '</a>')
       + '</div>' + foot;
   }
@@ -4992,6 +4993,7 @@ function frontHtml(){
   return '<div class="fr-in" style="justify-content:flex-start;padding-top:0">'
     + '<div class="fr-top"><span class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</span><button data-frclose="1">× ' + closeLabel + '</button></div>'
     + '<div class="fr-page"><h3>' + q.t + '</h3>'
+    + (q.lead ? '<p class="fr-text">' + q.lead + '</p>' : '')
     + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg?v=' + encodeURIComponent(TEST_BUILD ? BUILD.slice(-7) : APP_VERSION) + '" alt="" onerror="this.remove()">' : '')
     + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + t + '</li>').join('') + '</ol>' : '')
     + (q.text ? '<p class="fr-text">' + q.text + '</p>' : '')
@@ -5968,7 +5970,10 @@ function render(){
   on('cmOldBtn', () => { cmOld = true; fbNote = ''; render(); });
   on('cmOldNo', () => { cmOld = false; fbMax = false; fbNote = ''; render(); });
   on('cmClose', () => { fbOpen = false; fbNote = ''; render(); });
-  on('cmBack', () => { cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
+  on('cmNameBtn', () => { cmRename = cmTitle(roomItems[cmThread] || {}); render(); const el = document.getElementById('cmNameIn'); if(el){ el.focus(); el.select(); } });
+  { const el = document.getElementById('cmNameIn'); if(el){ el.value = cmRename || ''; el.oninput = () => { cmRename = el.value; }; el.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); threadRename(cmThread, el.value); } }; } }
+  on('cmNameOk', () => threadRename(cmThread, cmRename));
+  on('cmBack', () => { cmRename = null; cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
   on('cmNewBtn', () => { cmNew = true; cmPlus = false; fbNote = ''; render(); const t = document.getElementById('fbText'); if(t) t.focus(); });
   on('cmNewNo', () => { cmNew = false; cmPlus = false; render(); });
   on('cmPlusBtn', () => { cmPlus = !cmPlus; render(); });
@@ -6174,7 +6179,8 @@ let cmThread = null, cmNew = false, cmFilter = 'all', cmSheet = '', cmQuote = nu
 const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
 const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[[\w-]+:\d+\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
-const cmTitle = it => { const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
+let cmRename = null; // スレッドの題を直している最中の文（直していなければ null）
+const cmTitle = it => { if(it && typeof it.name === 'string' && it.name.trim()) return it.name.trim().slice(0, 40); const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
 const cmWaiting = x => unitOk(x[1].draft) && !x[1].adopted;
 const adoptMode = () => { const m = store.get('adopt-mode', 'auto'); return ['auto', 'peer', 'host'].includes(m) ? m : 'auto'; };
 const ADOPT_NAMES = { auto:'すぐ入る', peer:'誰か1人が賛成したら入る', host:'部屋を作った人が採用する' };
@@ -6210,13 +6216,11 @@ function cmListHtml(){
   };
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
     + '<input id="fbFind" class="cm-find" placeholder="スレッドを探す" maxlength="40">'
-    + '<button class="cm-new" id="cmNewBtn">＋ 新しいスレッド</button>'
     + (room ? '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
-    + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : 'まだ、スレッドがありません。') + '</p>') + '</div>'
-    + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
+    + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : '') + '</p>') + '</div>'
     + (room ? '' : '<button class="cm-new" id="cmOldBtn" style="border-color:#3a3a40;color:#c9c2b3">作者へ意見を送る' + (store.get('outbox', []).length ? '（待ち ' + store.get('outbox', []).length + '）' : '') + '</button>')
     + '<details class="cm-set"' + (room ? '' : ' hidden') + '><summary>名前・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30">'
-    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details></div>';
+    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + '</div>';
 }
 // 書く欄。k があれば、そのスレッドへの返信。なければ、新しいスレッド
 function cmInputHtml(k){
@@ -6231,7 +6235,7 @@ function cmInputHtml(k){
       + (k || !room ? '' : '<details id="fbAsk"' + (fbAskOpen ? ' open' : '') + '><summary>投票にする</summary><textarea id="fbOpts" placeholder="選べる答えを、1行に1つ"></textarea></details>') + '</div>' : '')
     + (!k && room && TEST_BUILD && !roomLocal() ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
     + '<div class="cm-r"><button id="cmPlusBtn" class="' + (cmPlus ? 'on' : '') + '" aria-label="付ける">＋</button>'
-    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッドの、最初のメッセージを書く' : '新しいメモを書く') + '"></textarea>')
+    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッドを始める' : '新しいメモを書く') + '"></textarea>')
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
     + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '') + '</div>';
@@ -6277,7 +6281,7 @@ function cmThreadHtml(k){
           + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : ''))
       + '</div>';
   }
-  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button>' + (cmRename !== null ? '<input id="cmNameIn" maxlength="40" style="flex:1;min-width:0;margin:0;font-size:16px"><button id="cmNameOk">決める</button>' : '<b class="ttl">' + escText(cmTitle(it)) + '</b>' + (mineKey(k) ? '<button id="cmNameBtn" aria-label="題を直す">✎</button>' : '')) + '</div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
 }
 function commHtml(){
   if(!room && !cmMemoLoaded){ roomItems = clean(store.get('memo-items', {})) || {}; cmMemoLoaded = true; }
@@ -6285,6 +6289,14 @@ function commHtml(){
   if(cmThread) return cmThreadHtml(cmThread);
   if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの題になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
   return cmListHtml();
+}
+async function threadRename(k, name){
+  const it = roomItems[k]; name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 40); cmRename = null;
+  if(!it || !name){ render(); return; }
+  if(!room){ it.name = name; memoSave(); render(); return; }
+  try { const res = await roomFetch(roomPath('items/' + k), { method:'PATCH', body:JSON.stringify({ name }) }); if(!res.ok) throw 0; it.name = name; roomSig = ''; }
+  catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  render();
 }
 // 話の文と、書いた人（返信・コピーに使う）
 function cmMsgOf(id){
