@@ -466,7 +466,7 @@ const CHARS = {
 const CHAR_IDS = Object.keys(CHARS);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 09:22 43b8a44';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-13 09:34 4fdf9e6';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6323,10 +6323,17 @@ function repoDoc(){
     for(const [k, v] of Object.entries(obj(f.stats))) if(segOk(k)) doc.stats[k] = v;
   }
   for(const [dev, f] of Object.entries(mem)){
-    for(const [k, rs] of Object.entries(obj(f.re))) if(doc.items[k]) for(const [rid, r] of Object.entries(obj(rs))) if(segOk(rid) && rid.startsWith(dev + '-')) doc.items[k].re[rid] = r;
+    for(const [k, rs] of Object.entries(obj(f.re))) if(doc.items[k]) for(const [rid, r] of Object.entries(obj(rs))) if(segOk(rid) && rid.startsWith(dev + '-') && r && typeof r === 'object') doc.items[k].re[rid] = { ...r, rx:{} };
     for(const [k, v] of Object.entries(obj(f.votes))) if(doc.items[k]) doc.items[k].votes[dev] = v;
     for(const k of Object.keys(obj(f.seen))) if(doc.items[k]) doc.items[k].seen[dev] = 1;
     for(const [k, es] of Object.entries(obj(f.rx))) if(doc.items[k]) for(const e of Object.keys(obj(es))) if(/^e\d$/.test(e)) (doc.items[k].rx[e] = doc.items[k].rx[e] || {})[dev] = 1;
+  }
+  for(const [dev, f] of Object.entries(mem)) for(const [key, es] of Object.entries(obj(f.rx))){
+    if(doc.items[key]) continue;
+    for(let at = key.indexOf('__'); at > 0; at = key.indexOf('__', at + 1)){
+      const it = doc.items[key.slice(0, at)], r = it && it.re[key.slice(at + 2)];
+      if(r && typeof r === 'object'){ const rx = (r.rx = r.rx && typeof r.rx === 'object' ? r.rx : {}); for(const e of Object.keys(obj(es))) if(/^e\d$/.test(e)) (rx[e] = rx[e] || {})[dev] = 1; break; }
+    }
   }
   for(const k of Object.keys(overlay.items || {})) if(doc.items[k]) doc.items[k].adopted = true;
   const cl = repoSeen.files[base + 'claude.json'];
@@ -7168,7 +7175,7 @@ function render(){
   document.querySelectorAll('[data-view]').forEach(el => { el.onclick = () => { fbView = el.dataset.view; fbFind = ''; render(); }; });
   document.querySelectorAll('[data-at]').forEach(el => { el.onclick = () => { fbDrafts.opinion += (fbDrafts.opinion && !/\s$/.test(fbDrafts.opinion) ? ' ' : '') + '@' + el.dataset.at + ' '; render(); const t = document.getElementById('fbText'); if(t) t.focus(); }; });
   document.querySelectorAll('[data-adopt]').forEach(el => { el.onclick = () => { const [k, on] = el.dataset.adopt.split('|'); adoptItem(k, on === '1'); }; });
-  document.querySelectorAll('[data-rx]').forEach(el => { el.onclick = () => { const [k, i] = el.dataset.rx.split('|'); threadRx(k, +i); }; });
+  document.querySelectorAll('[data-rx]').forEach(el => { el.onclick = () => { const a = el.dataset.rx.split('|'), i = +a.pop(); threadRx(a.join('|'), i); }; });
   document.querySelectorAll('[data-edit]').forEach(el => { el.onclick = () => { const [k, rk] = el.dataset.edit.split('|'), it = roomItems[k]; if(!it) return; fbEdit = { id:el.dataset.edit, value:rk ? it.re[rk].text : it.text }; render(); }; });
   document.querySelectorAll('[data-editbox]').forEach(el => { el.value = fbEdit ? fbEdit.value : ''; el.oninput = () => { if(fbEdit) fbEdit.value = el.value; }; });
   document.querySelectorAll('[data-editsave]').forEach(el => { el.onclick = () => threadEditSave(el.dataset.editsave); });
@@ -7436,13 +7443,15 @@ function cmThreadHtml(k){
   for(const [rk, r] of visRes(it)){
     const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmTime(r.o) + '</div>'; }
     h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), r.img ? pic(k + '_' + rk) : '');
+    const rrx = r.rx && typeof r.rx === 'object' ? r.rx : {}, rchips = EMOJI.map((e, i) => { const who = rrx['e' + i] && typeof rrx['e' + i] === 'object' ? Object.keys(rrx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + rk + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
+    if(rchips) h += '<div class="cm-rx' + (mineKey(rk) ? ' me' : '') + '">' + rchips + '</div>';
   }
   // 話を押したときに出る欄
   let sheet = '';
   if(cmSheet && !fbEdit){
     const rk = cmSheet.split('|')[1], own = rk ? rk !== 'ai' && mineKey(rk) : mineKey(k) && it.free;
     sheet = '<div class="cm-shade" id="cmSheetNo"></div><div class="cm-sheet">'
-      + (!rk ? '<div class="e">' + EMOJI.map((e, i) => '<button data-rx="' + k + '|' + i + '">' + e + '</button>').join('') + '</div>' : '')
+      + (rk !== 'ai' ? '<div class="e">' + EMOJI.map((e, i) => '<button data-rx="' + cmSheet + '|' + i + '">' + e + '</button>').join('') + '</div>' : '')
       + (fbDelAsk === cmSheet ? '<button data-delyes="' + cmSheet + '">本当に消す</button><button data-delno="1">やめる</button>'
         : '<button data-cmq="' + cmSheet + '">返信する</button><button data-cmcopy="' + cmSheet + '">文をコピーする</button>'
           + (own ? '<button data-edit="' + cmSheet + '">直す</button><button data-del="' + cmSheet + '">消す</button>' : '')
@@ -7662,15 +7671,15 @@ async function threadDelete(id){
   } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
   render();
 }
-async function threadRx(k, i){
-  const it = roomItems[k];
+async function threadRx(id, i){
+  const [k, rk] = String(id).split('|'), top = roomItems[k], it = rk ? top && top.re && top.re[rk] : top;
   if(!it || (room && !roomOpen)) return;
   it.rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const e = it.rx['e' + i] = it.rx['e' + i] && typeof it.rx['e' + i] === 'object' ? it.rx['e' + i] : {}, on = !e[DEV];
   if(!room){ if(on) e[DEV] = 1; else delete e[DEV]; cmSheet = ''; memoSave(); render(); return; }
   cmSheet = '';
   try {
-    const res = await roomFetch(roomPath('items/' + k + '/rx/e' + i + '/' + DEV), on ? { method:'PUT', body:'1' } : { method:'DELETE' });
+    const res = await roomFetch(roomPath('items/' + (rk ? k + '__' + rk : k) + '/rx/e' + i + '/' + DEV), on ? { method:'PUT', body:'1' } : { method:'DELETE' });
     if(!res.ok) throw 0;
     if(on) e[DEV] = 1; else delete e[DEV];
     roomSig = '';
