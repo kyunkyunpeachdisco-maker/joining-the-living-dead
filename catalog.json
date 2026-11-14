@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.30",
+ "version": "v0.3.31",
  "books": {
   "voter": {
    "file": "book-voter.js",

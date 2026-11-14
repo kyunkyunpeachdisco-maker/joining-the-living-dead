@@ -494,7 +494,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.30';
+const APP_VERSION = 'v0.3.31';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -528,7 +528,8 @@ const memory = {};
 let trial = null; // { c:本, mem:{ 鍵:中身 }, off:本物を読み書きしている深さ, moved:試しで打った手の数 }
 const trialKey = key => !!trial && !trial.off && trial.c === current && (key === 'world' || key === 'undo' || key === 'player-' + trial.c);
 function trialOn(){ return !!trial && trial.c === current; }
-function trialEnd(){ trial = null; }
+let trialKeep = {}; // ほかの本を見に行っているあいだ、手を打った試しを本ごとに置いておく
+function trialEnd(){ trial = null; trialKeep = {}; }
 function realIO(fn){ if(!trial) return fn(); trial.off++; try { return fn(); } finally { if(trial) trial.off--; } }
 const store = {
   get(key, fallback){
@@ -795,7 +796,7 @@ function addBook(id, x){
 function dynExtra(s, base){
   const next = PERIODS.find(t => t > s.clock);
   return [
-    ...(next ? [c('しばらく、ここにいる', 0, 0, { run(s){ s.clock = next; s.msg = fmt(next) + 'になった。'; return s.para; } })] : []),
+    ...(next ? [c('しばらく、ここにいる', 0, 0, { run(s){ s.clock = Math.min(next, s.clock + 30); s.msg = fmt(s.clock) + 'になった。'; return s.para; } })] : []),
     ...(s.clock >= 1140 ? [c('今日は、ここまでにする', 0, base + 199)] : []),
   ];
 }
@@ -893,10 +894,10 @@ function hubChoices(s, w, place){
     } });
   }
   if(s.hp < 3 && id === 'doctor'){
-    items.push({ label:'自分の傷を手当てする（20分）', cost:20, run(s){ s.hp += 1; s.msg = '傷を縫って包帯を巻いた。'; return back(); } });
+    items.push({ label:'自分の傷を手当てする（20分）', cost:20, run(s){ s.hp = Math.min(3, s.hp + 1); s.msg = '傷を縫って包帯を巻いた。'; return back(); } });
   }
   if(s.hp < 3 && has(s, '救急箱')){
-    items.push({ label:'救急箱を使う（10分）', cost:10, run(s){ addItem(s, '救急箱', -1); s.hp += 1; s.msg = '救急箱で傷の手当てをした。'; return back(); } });
+    items.push({ label:'救急箱を使う（10分）', cost:10, run(s){ addItem(s, '救急箱', -1); s.hp = Math.min(3, s.hp + 1); s.msg = '救急箱で傷の手当てをした。'; return back(); } });
   }
   for(const [item, n] of Object.entries(s.items)){
     if(n <= 0) continue;
@@ -4567,7 +4568,7 @@ function canAct(){ return trialOn() || canActReal(); }
 // 試しを始める：自分がロックしていない本を開いたとき（自分がロックしている本は、部屋が閉じていても試しにしない）
 function trialWanted(){ return !canActReal() && !(room && mine(current)) && !!CHARS[current]; }
 function trialStart(){
-  trialEnd();
+  trial = null;
   const w = loadWorld(), p = loadPlayer(current);
   trial = { c:current, off:0, moved:0, mem:{ world:JSON.stringify(w), undo:'[]', ['player-' + current]:JSON.stringify(p) } };
 }
@@ -6154,8 +6155,8 @@ let mapOpen = false, helpOpen = false; // 横から出る地図・☰ の「遊�
 let menuOpen = false; // 右上の ☰ で開くメニュー
 
 function render(){
-  if(trial && trial.c !== current) trialEnd();
-  if(!trial && histIndex === null && trialWanted()) trialStart();
+  if(trial && trial.c !== current){ if(trial.moved) trialKeep[trial.c] = trial; trial = null; }
+  if(!trial && histIndex === null && trialWanted()){ if(trialKeep[current]){ trial = trialKeep[current]; delete trialKeep[current]; } else trialStart(); }
   const w = loadWorld(), s = loadPlayer(current);
   const own = room ? store.get('own', {}) : {};
   if(room){ if(mine(current)) me = current; } else if(w.lock && CHARS[w.lock]) me = w.lock; // ロックしている本（部屋では、受け持っている本）が、いま進めている本
@@ -7538,7 +7539,7 @@ function applyFx(s, fx, key, self, w){
   if(w) for(const n of onceItems(fx)) if(takeStock(w, n, onceN(fx), s.char)) addItem(s, n);
   // 選べなくする選択肢は、その場面ごとに、主人公の側に覚えておく
   if(fx.lock && fx.lock.length && key){ s.dlock = s.dlock || {}; s.dlock[key] = [...new Set([...(s.dlock[key] || []), ...fx.lock.map(l => (l === '@self' ? self : l))])]; }
-  if(fx.hp){ s.hp = Math.max(0, Math.min(5, s.hp + fx.hp)); if(fx.hp < 0) s.wounds = (s.wounds || 0) + 1; }
+  if(fx.hp){ s.hp = Math.max(0, Math.min(3, s.hp + fx.hp)); if(fx.hp < 0) s.wounds = (s.wounds || 0) + 1; }
   if(fx.inf === 'on' && !s.infected){ s.infected = true; s.turnAt = s.clock + TURN_AFTER; }
   if(fx.inf === 'off'){ s.infected = false; s.turnAt = null; }
   if(fx.min) s.clock += fx.min;
