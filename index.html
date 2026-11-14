@@ -476,7 +476,7 @@ const CHARS = {
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
 };
 const CHAR_IDS = Object.keys(CHARS);
-const APP_VERSION = 'v0.3.23';
+const APP_VERSION = 'v0.3.24';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4891,7 +4891,7 @@ async function packFileSave(){ const a = document.createElement('a'); a.href = U
 // 部屋に入っていないときの、配る欄（☰ の「カスタム版」の中。編集版だけ）
 function soloDistHtml(){
   const n = soloCount(), has = n || Object.keys(overlay.keys || {}).length, esc = t => escText(t).replace(/"/g, '&quot;');
-  if(!has) return '<div class="scr-state">まだ書き換えたものがありません。本文の下の「✎ 編集する」か「＋ 選択肢を足す」で書き換えると、ここから配れます。</div>';
+  if(!has && !(ghLinked() && store.get('pub-repo', ''))) return '<div class="scr-state">まだ書き換えたものがありません。本文の下の「✎ 編集する」か「＋ 選択肢を足す」で書き換えると、ここから配れます。</div>';
   return '<div class="scr-state on">書き換えたもの<b>' + n + ' 件</b></div>'
     + '<div class="step"><div class="n">配り方 1</div><h3>ファイルで配る</h3><p>ファイルを作って、メールやチャットで送ってください。受け取った人は、ファイルを開くと遊べます。</p><button class="go" id="soloExport">ファイルを作る</button></div>'
     + '<div class="step"><div class="n">配り方 2</div><h3>リンクで配る</h3><p>リンクを作って、送ってください。受け取った人は、リンクを開くと遊べます。</p>'
