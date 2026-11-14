@@ -131,7 +131,7 @@ const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[
   note:'赤い丸が現在地。' };
 
 BOOKS.chief = {
-  start:300,
+  start:300, car:true,
   hubs:{},
   noJump:true,
   lines:{ shot:'拳銃を抜いて、撃った。1人が倒れた。薬莢が、足もとで鳴った。', shotLast:'撃った。最後の1人が倒れた。薬莢を拾って、ポケットに入れた。',

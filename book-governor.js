@@ -108,7 +108,7 @@ const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[30, 292], areas:[{ na
   note:'赤い丸が現在地。' };
 
 BOOKS.governor = {
-  start:200,
+  start:200, car:true,
   hubs:{},
   noJump:true,
   lines:{ noticed:'1人が、こちらを向いた。ルイス巡査部長が、半歩前に出た。カメラは、まだ気づいていない。', grabbed:'巡査部長の腕の下から、手が伸びてきた。袖をつかまれる。巡査部長が引きはがした。シャッターの音が、2回した。',
