@@ -490,7 +490,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.26';
+const APP_VERSION = 'v0.3.27';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -4234,18 +4234,20 @@ function makeActors(T, scene, built, st0){
         vicT0 = t; vicGap = rnd(14, 30);
         // 主人公から少し離れた、カメラに映る歩ける所。通りがかりの人は、もう歩いているゾンビの前に出る
         const z0 = prey.amb ? zs.find((m, i) => m.visible && m.userData.placed && !(st.encounter && i === 0)) : null;
+        // 画面の下の端は、文字が重なるので避ける
+        const inShot = q => { const v = new T.Vector3(q[0], 1, q[1]).project(Cut.camera); return v.z < 1 && Math.abs(v.x) < .6 && v.y > -.2 && v.y < .6; };
         let best = null, bs = -1; const camA = Math.atan2(Cut.camera.position.x - base[0], Cut.camera.position.z - base[1]);
         for(let n = 0; n < 40; n++){
-          const a = camA + rnd(-1.2, 1.2), r = rnd(2.2, 3.6); let q = [base[0] + Math.sin(a) * r, base[1] + Math.cos(a) * r]; if(nav) q = nav.snap(q);
+          const a = camA + (n < 20 ? rnd(-1.2, 1.2) : rnd(-3.14, 3.14)), r = n < 20 ? rnd(2.2, 3.6) : rnd(2.2, 6); let q = [base[0] + Math.sin(a) * r, base[1] + Math.cos(a) * r]; if(nav) q = nav.snap(q);
           if(!free(q[0], q[1])) continue;
-          const v = new T.Vector3(q[0], 1, q[1]).project(Cut.camera), seen = v.z < 1 && Math.abs(v.x) < .6 && Math.abs(v.y) < .6;
+          const seen = inShot(q);
           const inZ = q[0] >= wz0[0] && q[0] <= wz0[1] && q[1] >= wz0[2] && q[1] <= wz0[3], far = Math.hypot(q[0] - base[0], q[1] - base[1]);
-          const score = (seen ? 2 : 0) + (inZ ? .5 : 0) + (far > 2 ? 1 : 0) + Math.cos(a - camA) + Math.random() * .3;
+          const score = (seen ? 3 : 0) + (inZ ? .5 : 0) + (far > 2 ? 1 : 0) + Math.cos(a - camA) + Math.random() * .3;
           if(score > bs){ bs = score; best = q; }
         }
         best = best || [base[0] + 2.6, base[1]];
         let near = null;
-        if(z0){ const a = z0.rotation.y, q = [z0.position.x + Math.sin(a) * .8, z0.position.z + Math.cos(a) * .8]; if(free(q[0], q[1]) && Math.hypot(q[0] - tx, q[1] - tz) > 1.6) near = q; }
+        if(z0){ const a = z0.rotation.y, q = [z0.position.x + Math.sin(a) * .8, z0.position.z + Math.cos(a) * .8]; if(free(q[0], q[1]) && Math.hypot(q[0] - tx, q[1] - tz) > 1.6 && inShot(q)) near = q; }
         if(near){ vic.position.set(near[0], 0, near[1]); vicA = Math.atan2(z0.position.x - near[0], z0.position.z - near[1]); }
         else { vic.position.set(best[0], 0, best[1]); vicA = Math.atan2(tx - best[0], tz - best[1]); vicNew = true; }
         vic.rotation.y = vicA;
@@ -5239,13 +5241,13 @@ function howPages(kind){
     return [
       { t:'編集版でできること', text:'編集版では、ゲームの文章や選択肢を書き換えられます。場所や本を足すこともできます。<br><br>書き換えたゲームは、リンクかファイルで人に配れます。部屋を作ると、何人かで一緒に書き換えられます。文章や選択肢を、AI に書かせることもできます。' },
       ...(room ? [] : [{ t:'準備する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。<br><br>リポジトリは、GitHub に作る自分用のファイル置き場です。GitHub は、無料で使えるサービスです。リポジトリは、作業用と配る用の2つを作ります。リポジトリを設定すると、次のことができます。<br><br>・書き換えたものが、自動で保存されます。<br>・好きな画像を、ゲームに入れられます。<br>・書き換えたゲームを、リンクで配れます。<br>・自分がゲームを閉じていても、ほかの人が部屋を使えます。<br>・文章や選択肢を、AI に書かせられます。', after:'※ リポジトリを設定しなくても、文章や選択肢を書き換えて、ファイルで配ることはできます。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。［この本が出る条件］を押すと、足した本が読めるようになる条件を付けられます。']] },
+      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。']] },
       { t:'配る', text:room ? '配るのは、部屋の全員のゲームと同じ中身です。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。'],
       ], after:'※ ' + (room ? '部屋の画面' : '配る画面') + 'の［版の一覧］で、前の版を選べます。［違いを見る］を押すと、選んだ版で変わった所が表示されます。［この版を配る］を押すと、選んだ版をもう一度配れます。' + (room ? '［部屋に戻す］を押すと、部屋の中身が、選んだ版の中身に戻ります。' : '［手元に戻す］を押すと、選んだ版の中身から書き換えを続けられます。'), btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
       { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、一緒に作れます。部屋の人が書き換えたものは、全員のゲームに入ります。', after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。［☰］の［部屋］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
-      { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。' + (room ? '' : '部屋の中で、') + '画面の右端の［通信］を押すと表示されます。', legend:[B('新しいスレッド') + '：メッセージを書いて［送る］を押すと、スレッドが始まります。スレッドは、話題ごとのまとまりです。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。', B('採用待ち') + '：まだ全員のゲームに入っていない書き換えを表示します。'], after:'※ ［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。' },
+      { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。' + (room ? '' : '部屋の中で、') + '画面の右端の［通信］を押すと表示されます。', legend:[B('新しいスレッド') + '：メッセージを書いて［送る］を押すと、スレッドが始まります。スレッドは、話題ごとのまとまりです。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。', B('採用待ち') + '：まだ全員のゲームに入っていない書き換えを表示します。'], after:'※ メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。' },
       { t:'AI に書かせる', text:'GitHub のリポジトリを扱える AI なら、どれでも使えます。Claude Code、Codex、Antigravity などです。先に、AI に自分の GitHub のアカウントをつないでください。', list:[
         ['AI に直接頼む', 'AI で作業用のリポジトリを開いて、書いてほしいことを頼んでください。'],
         ['通信から頼む', '通信で［AI に頼む］にチェックを入れて、頼みごとを送ってください。AI で作業用のリポジトリを開いて「頼みごとに対応して」と頼むと、AI がゲームを書き換えて、通信に返事を書きます。' + (room ? 'AI で作業用のリポジトリを開くのは、部屋を作った人です。' : '')],
