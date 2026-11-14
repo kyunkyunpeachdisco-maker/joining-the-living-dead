@@ -492,7 +492,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 06:23 f4bb92a';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 07:31 3d0a930';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -967,7 +967,7 @@ const SPOTS = {
     ] },
   church:{ no:94, name:'聖マルコ教会', short:'聖マルコ教会', map:'city', place:'church', cam:'v_church', at:[182, 272], label:[-42, 4], adj:['main'], go:{ main:'メインストリートへ車を出す' },
     z:4, arrive:drive,
-    text:s => '第9投票区の投票所は、礼拝堂の隣の集会室だ。列は教会の前の歩道まではみ出している。\n\n墓地の柵の内側を、4人が歩いていた。喪服が2人、作業着が2人。柵といっても腰の高さしかない。並んでいる人たちは、墓地に背中を向けないように、少し斜めに立っている。'
+    text:s => '第9投票区の投票所は、礼拝堂の隣の集会室だ。' + (s.flags.waited ? '歩道の列は、もうなくなっている。' : '列は教会の前の歩道まではみ出している。') + '\n\n墓地の柵の内側を、4人が歩いていた。喪服が2人、作業着が2人。柵といっても腰の高さしかない。' + (s.flags.waited ? '' : '並んでいる人たちは、墓地に背中を向けないように、少し斜めに立っている。')
       + (s.flags.dChurch ? '' : '\n\n荷台の箱はひとつで、郡の選挙管理委員会の封印がしてある。伝票によれば、中身は暫定投票用の封筒が200、黒ペンが50、シールが500。'),
     extra:s => [
       c('箱を抱えて、列の脇から集会室へ入る', 0, 95, { cond:s => !s.flags.dChurch }),
@@ -1133,7 +1133,7 @@ BOOKS.voter = {
         + (s.flags.luredHit ? '\n\nただ、係員が来る前に、男の手は一度こっちの腕に届いていた。\n' + wound(s) : '')
         + '\n\n列に戻ると、さっきの場所にはもう別の人が立っていた。いちばん後ろに並び直す。',
       choices:[c('最後尾から、入口へ進む', 0, 52)] },
-    62:{ zombies:1, enter(s){ s.flags.late = 1; },
+    62:{ zombies:1, enter(s){ s.flags.late = 1; s.flags.reported = 1; },
       text:'入口の机まで行って、係員に話した。\n「ありがとうございます。保健局の者が、もう向かってますので」\n係員は名簿から目を上げないまま続けた。\n「列に戻ってお待ちください。すみませんが、場所は取っておけない決まりなんです」\n\n振り返ると、黄色いベストの2人が男を校舎のほうへ連れていくところだった。いちばん後ろに並び直す。',
       choices:[c('最後尾から、入口へ進む', 0, 52)] },
     52:{ time:s => (s.flags.lineDone ? s.clock + 6 : late(s) ? 455 : 440), place:'school', enter(s){ s.flags.lineDone = 1; },
@@ -1415,7 +1415,7 @@ const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[30, 292], areas:[{ na
   note:'赤い丸が現在地。' };
 
 BOOKS.governor = {
-  start:200,
+  start:200, car:true,
   hubs:{},
   noJump:true,
   lines:{ noticed:'1人が、こちらを向いた。ルイス巡査部長が、半歩前に出た。カメラは、まだ気づいていない。', grabbed:'巡査部長の腕の下から、手が伸びてきた。袖をつかまれる。巡査部長が引きはがした。シャッターの音が、2回した。',
@@ -1684,7 +1684,7 @@ const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[
   note:'赤い丸が現在地。' };
 
 BOOKS.chief = {
-  start:300,
+  start:300, car:true,
   hubs:{},
   noJump:true,
   lines:{ shot:'拳銃を抜いて、撃った。1人が倒れた。薬莢が、足もとで鳴った。', shotLast:'撃った。最後の1人が倒れた。薬莢を拾って、ポケットに入れた。',
@@ -4202,7 +4202,10 @@ function spotMove(s, w, to){
   s.from = fromId; s.aware = null; s.clock += 2; s.moved = true;
   // 気づかれたまま逃げると、何人かがついてくる。建物の中へ入って戸を閉めるか、もう1つ先まで行けば、振り切れる
   const had = s.follow && s.follow.n > 0 ? s.follow.n : 0, inDoors = !!d.room, wasIn = !!(fromSp && fromSp.room);
-  if(chased && !inDoors){ s.follow = { n:chased, at:to }; s.aware = to; addMsg(s, spotLine(s, 'follow', chased)); }
+  // 車で動くあいだは、誰もついてこない（文も出さない）
+  const byCar = !inDoors && !wasIn && !!fromSp && (B.car || (d.map === 'city' && fromSp.map === 'city'));
+  if(byCar) s.follow = null;
+  else if(chased && !inDoors){ s.follow = { n:chased, at:to }; s.aware = to; addMsg(s, spotLine(s, 'follow', chased)); }
   else { if(chased || had) addMsg(s, spotLine(s, inDoors && !wasIn ? 'shake' : 'lost')); s.follow = null; }
   s.spots = s.spots || []; if(!s.spots.includes(to)) s.spots.push(to);
   const hook = d.arrive ? d.arrive(s, w) : null;
@@ -6390,7 +6393,7 @@ async function packFileSave(){ const a = document.createElement('a'); a.href = U
 // 部屋に入っていないときの、配る欄（☰ の「カスタム版」の中。編集版だけ）
 function soloDistHtml(){
   const n = soloCount(), has = n || Object.keys(overlay.keys || {}).length, esc = t => escText(t).replace(/"/g, '&quot;');
-  if(!has && !(ghLinked() && store.get('pub-repo', ''))) return '<div class="scr-state">まだ書き換えたものがありません。本文の下の「✎ 編集する」か「＋ 選択肢を足す」で書き換えると、ここから配れます。</div>';
+  if(!has && !(ghLinked() && store.get('pub-repo', ''))) return '<div class="scr-state">まだ書き換えたものがありません。本文の下の「✎ 編集する」を押して書き換えると、ここから配れます。</div>';
   return '<div class="scr-state on">書き換えたもの<b>' + n + ' 件</b></div>'
     + '<div class="step"><div class="n">配り方 1</div><h3>ファイルで配る</h3><p>ファイルを作って、メールやチャットで送ってください。受け取った人は、ファイルを開くと遊べます。</p><button class="go" id="soloExport">ファイルを作る</button></div>'
     + '<div class="step"><div class="n">配り方 2</div><h3>リンクで配る</h3><p>リンクを作って、送ってください。受け取った人は、リンクを開くと遊べます。</p>'
@@ -6646,10 +6649,10 @@ function howPages(kind){
   const reach = roomLocal() ? '部屋を作った人がゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は、自動で共有されます。';
   const B = t => '<b>' + t + '</b>';
   if(kind === 'make'){
-    const keys = [B('✎ 編集する') + '：本文を編集します。', B('✎') + '：選択肢を書き換えます。消すこともできます。', B('＋ 選択肢を足す') + '：選択肢を足します。'];
+    const keysLead = '本文の下の［✎ 編集する］を押してください。本文を編集します。', keys = [B('文章') + '：押すと、文章を書き換えられます。', B('✔ 編集を終える') + '：押すと、本文の編集を終えます。', B('選択肢') + '：押すと、選択肢を書き換えられます。消すこともできます。', B('＋ 選択肢を足す') + '：押すと、選択肢を足せます。'];
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、文章や選択肢を書き換えられます。書き換えたものは、部屋の全員に見えます。書き換えたものがいつ全員のゲームに入るかは、部屋を作った人が決めています。' },
-      { img:'how-make-1', full:true, t:'書き換える', legend:keys },
+      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys },
       { t:'通信', text:'画面の右端の［通信］を押すと、部屋の人と話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '［AI に頼む］にチェックを入れて、頼みごとを送ってください。部屋を作った人が AI に対応させると、通信に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に、GitHub の画面で、部屋のリポジトリを使える人に加えてもらってください。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
@@ -6657,7 +6660,7 @@ function howPages(kind){
     return [
       { t:'編集版でできること', text:'編集版では、ゲームの文章や選択肢を書き換えられます。場所や本を足すこともできます。<br><br>書き換えたゲームは、リンクかファイルで人に配れます。部屋を作ると、何人かで一緒に書き換えられます。文章や選択肢を、AI に書かせることもできます。' },
       ...(room ? [] : [{ t:'準備する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。<br><br>リポジトリは、GitHub に作る自分用のファイル置き場です。GitHub は、無料で使えるサービスです。リポジトリは、作業用と配る用の2つを作ります。リポジトリを設定すると、次のことができます。<br><br>・書き換えたものが、自動で保存されます。<br>・好きな画像を、ゲームに入れられます。<br>・書き換えたゲームを、リンクで配れます。<br>・自分がゲームを閉じていても、ほかの人が部屋を使えます。<br>・文章や選択肢を、AI に書かせられます。', after:'※ リポジトリを設定しなくても、文章や選択肢を書き換えて、ファイルで配ることはできます。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。']] },
+      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。']] },
       { t:'配る', text:room ? '配るのは、部屋の全員のゲームと同じ中身です。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。'],
@@ -8991,7 +8994,7 @@ function runDraft(a, key, child, v){
 let bookPanel = false, bookForm = { name:'', osd:'', like:'voter', start:'', clock:'07:00', need:{ clear:false, flag:'', noflag:'', have:'', lack:'' } }, bookNote = '';
 function bookPanelHtml(){
   const f = bookForm, bases = CHAR_IDS.filter(c => !CHARS[c].dyn), L = BOOKS[f.like] || BOOKS.voter, mine = store.get('draft-books', {});
-  return '<div class="scr"><h2 class="scr-h">本を足す</h2><p class="scr-lead">新しい主人公の本を作ります。作ったら、その本を開いて「＋ 選択肢を足す」で話を書いていきます。</p>'
+  return '<div class="scr"><h2 class="scr-h">本を足す</h2><p class="scr-lead">新しい主人公の本を作ります。作ったら、その本を開いて、本文の下の「✎ 編集する」を押して話を書いていきます。</p>'
     + (Object.keys(mine).length ? '<div class="step"><div class="n">足した本</div>' + Object.entries(mine).map(([id, x]) => '<div class="rowl"><span>' + escText(x.name) + 'の本<small>下書き</small></span><button class="sm" data-bookdel="' + id + '">消す</button></div>').join('') + '</div>' : '')
     + '<div class="step"><div class="n">新しい本</div><h3>どんな人の本か</h3>'
     + '<label class="lab">名前</label><input id="bkName" maxlength="12" placeholder="新聞記者">'
@@ -9264,7 +9267,7 @@ function decorateForEdit(mode){
     if(pk === 'text' && TEST_BUILD){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
       const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
-      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。直したものは、自分の画面にすぐ出ます。' : ''; render(); };
+      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。選択肢を足すときは、下の「＋ 選択肢を足す」を押してください。' : ''; render(); };
       wrap.appendChild(t); el.after(wrap);
     }
   }
@@ -9383,8 +9386,7 @@ function decorateForEdit(mode){
     const row = document.createElement('div'); row.className = 'crow';
     btn.replaceWith(row); row.appendChild(btn);
     const edit = () => { fbe = { kind:'choice', orig, value:changed || orig, fx:JSON.parse(JSON.stringify(d.cond[orig] || {})) }; fbNote = ''; render(); };
-    if(editOn){ btn.disabled = false; btn.onclick = edit; }
-    else if(TEST_BUILD){ const p = document.createElement('button'); p.className = 'fbe'; p.textContent = '✎'; p.title = 'この選択肢を直す'; p.setAttribute('aria-label', 'この選択肢を直す'); p.onclick = edit; row.appendChild(p); }
+    if(editOn){ btn.disabled = false; btn.onclick = edit; } // 選択肢を直すのは、編集中に選択肢を押して
   });
   // 足した選択肢を選んだあとの場面：その先の選択肢を、さらに足していける
   if(draftShown && draftShown.key === key && draftShown.scene){
@@ -9405,7 +9407,7 @@ function decorateForEdit(mode){
       sub.appendChild(q);
     }
     if(fbe && fbe.kind === 'add' && fbe.scene === sk && !fbe.id) sub.appendChild(addEditor());
-    else if(TEST_BUILD){ const more = document.createElement('button'); more.className = 'pending'; more.textContent = '＋ この先に選択肢を足す'; more.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay', scene:sk }; fbNote = ''; render(); }; sub.appendChild(more); }
+    else if(TEST_BUILD && editOn){ const more = document.createElement('button'); more.className = 'pending'; more.textContent = '＋ この先に選択肢を足す'; more.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay', scene:sk }; fbNote = ''; render(); }; sub.appendChild(more); }
     const back = document.createElement('button'); back.className = 'pending'; back.textContent = '足した場面を閉じる'; back.onclick = () => { const p = loadPlayer(current); if(p.offcam || p.pose || p.spos || p.scam){ p.offcam = false; p.pose = null; p.spos = null; p.scam = null; store.set('player-' + current, p); } draftShown = null; render(); }; sub.appendChild(back);
     const dm = main.querySelector('.draftmsg'); if(dm) dm.after(sub);
   }
@@ -9432,7 +9434,7 @@ function decorateForEdit(mode){
     box.appendChild(q);
   }
   if(fbe && fbe.kind === 'add' && !fbe.scene && !fbe.id) box.appendChild(addEditor());
-  else if(TEST_BUILD){ const add = document.createElement('button'); add.className = 'pending'; add.textContent = '＋ 選択肢を足す'; add.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay' }; fbNote = ''; render(); }; box.appendChild(add); }
+  else if(TEST_BUILD && editOn){ const add = document.createElement('button'); add.className = 'pending'; add.textContent = '＋ 選択肢を足す'; add.onclick = () => { fbe = { kind:'add', label:'', result:'', to:'stay' }; fbNote = ''; render(); }; box.appendChild(add); }
   if(live){
     const sk = draftShown && draftShown.key === key && draftShown.scene;
     const hid = [...(sk ? shownOf(sk).add.map(a => [a, sk + '>' + a.id]) : []), ...d.add.map(a => [a, key + '>' + a.id]), ...shownOf(anyKey()).add.map(a => [a, anyKey() + '>' + a.id])].filter(([a]) => a.fx && a.fx.hide);
@@ -9483,6 +9485,12 @@ function resultHtml(){
   if(started(r.st.chief)) own.push('ブレナン署長は、一日のあいだ、どの投票所でも立て札から先へは入らなかった。投票もしていない。');
   h += '<br><br>' + own.join('<br>');
   if(r.notes.length) h += '<br><br><b>この一日のうち、数に出たこと</b><br>' + r.notes.join('<br>');
+  const vf = started(r.st.voter) ? r.st.voter.flags || {} : {}, quiet = [
+    vf.lured && 'モーガンは朝、リンカーン小学校の列に近づいた男を、駐車場の奥まで引きつけた。列に戻ると、最後尾だった。',
+    vf.reported && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
+    vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
+    vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。'].filter(Boolean);
+  if(quiet.length) h += '<br><br><b>この一日のうち、数に出なかったこと</b><br>' + quiet.join('<br>');
   return more + h + '</div>';
 }
 
