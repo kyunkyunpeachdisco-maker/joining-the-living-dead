@@ -371,7 +371,7 @@ BOOKS.voter = {
         + (s.flags.luredHit ? '\n\nただ、係員が来る前に、男の手は一度こっちの腕に届いていた。\n' + wound(s) : '')
         + '\n\n列に戻ると、さっきの場所にはもう別の人が立っていた。いちばん後ろに並び直す。',
       choices:[c('最後尾から、入口へ進む', 0, 52)] },
-    62:{ zombies:1, enter(s){ s.flags.late = 1; s.flags.reported = 1; },
+    62:{ zombies:1, enter(s){ s.flags.late = 1; s.flags.toldLine = 1; },
       text:'入口の机まで行って、係員に話した。\n「ありがとうございます。保健局の者が、もう向かってますので」\n係員は名簿から目を上げないまま続けた。\n「列に戻ってお待ちください。すみませんが、場所は取っておけない決まりなんです」\n\n振り返ると、黄色いベストの2人が男を校舎のほうへ連れていくところだった。いちばん後ろに並び直す。',
       choices:[c('最後尾から、入口へ進む', 0, 52)] },
     52:{ time:s => (s.flags.lineDone ? s.clock + 6 : late(s) ? 455 : 440), place:'school', enter(s){ s.flags.lineDone = 1; },

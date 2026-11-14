@@ -490,7 +490,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.28';
+const APP_VERSION = 'v0.3.29';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -2798,14 +2798,14 @@ function spotMove(s, w, to){
 function spotChoices(s, w){
   const B = bookOf(s), id = paraOf(s).spot, sp = B.spots[id];
   const z = spotZ(s, w, sp), aware = s.aware === id, list = [];
-  const hurt = () => { bite(s); return B.wound ? '\n' + B.wound(s) : ''; };
+  const hurt = s => { bite(s); return B.wound ? '\n' + B.wound(s) : ''; };
   const run = typeof sp.run === 'function' ? sp.run(s, w) : sp.run, sneak = typeof sp.sneak === 'function' ? sp.sneak(s, w) : sp.sneak;
   for(const to of spotAdj(s, w, sp)){
     const d = B.spots[to], name = sp.go?.[to];
     if(!spotBlocked(s, w, sp, to)){ list.push({ label:name || `${d.name}へ`, cost:0, dest:to, run:(s, w) => spotMove(s, w, to) }); continue; }
     list.push({ label:sp.runLabel?.[to] || `${d.name}へ、走って抜ける`, cost:0, dest:to, risky:true, gait:'run', run(s, w){
       const chance = 1 - (1 - (aware ? .12 : .06)) ** z; // 1体ごとに、気づかれていなければ6%、気づかれていれば12%
-      s.msg = Math.random() < chance ? run.hit + hurt() : run.ok;
+      s.msg = Math.random() < chance ? run.hit + hurt(s) : run.ok;
       return spotMove(s, w, to);
     } });
     if(sp.hide && sneak && !aware) list.push({ label:`${sneak.label}、${d.name}へ抜ける`, cost:0, dest:to, risky:true, gait:'sneak', run(s, w){
@@ -8071,7 +8071,7 @@ function resultHtml(){
   if(r.notes.length) h += '<br><br><b>この一日のうち、数に出たこと</b><br>' + r.notes.join('<br>');
   const vf = started(r.st.voter) ? r.st.voter.flags || {} : {}, quiet = [
     vf.lured && 'モーガンは朝、リンカーン小学校の列に近づいた男を、駐車場の奥まで引きつけた。列に戻ると、最後尾だった。',
-    vf.reported && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
+    vf.toldLine && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
     vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
     vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。'].filter(Boolean);
   if(quiet.length) h += '<br><br><b>この一日のうち、数に出なかったこと</b><br>' + quiet.join('<br>');
