@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path');
 const SRC = process.env.JTLD_SOURCE || 'https://raw.githubusercontent.com/kyunkyunpeachdisco-maker/joining-the-living-dead/HEAD/';
 const file = process.argv[2];
 if(!file || !fs.existsSync(file)){ console.log('使い方：node check-pack.js <overlay.json の場所>'); process.exit(2); }
-const BOOK_FILES = { voter:'book-voter.js', governor:'book-governor.js', chief:'book-chief.js', director:'book-director.js' };
+const BOOK_FILES = { voter:'book-voter.js', governor:'book-governor.js', chief:'book-chief.js', director:'book-director.js', hero:'book-hero.js' };
 const get = async name => { if(!/^https?:/.test(SRC)) return fs.readFileSync(path.join(SRC, name), 'utf8').split(String.fromCharCode(13)).join(''); const r = await fetch(SRC + name); if(!r.ok) throw new Error(name + ' を読めません（' + r.status + '）'); return (await r.text()).split(String.fromCharCode(13)).join(''); };
 const errs = [], warns = [], err = (where, t) => errs.push(where + '：' + t), warn = (where, t) => warns.push(where + '：' + t);
 const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v), arr = v => (Array.isArray(v) ? v : []);

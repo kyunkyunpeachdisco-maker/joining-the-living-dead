@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.24",
+ "version": "v0.3.25",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -1156,6 +1156,262 @@
      "place": "hosp"
     }
    }
+  },
+  "hero": {
+   "file": "book-hero.js",
+   "name": "ヒーロー",
+   "who": "ナイトウォッチ",
+   "start": {
+    "place": "north",
+    "clock": 360,
+    "items": {}
+   },
+   "flags": [
+    "asked",
+    "ate",
+    "bridge",
+    "church",
+    "elm",
+    "gate",
+    "hosp",
+    "last",
+    "maple",
+    "saved",
+    "school",
+    "shown",
+    "stop",
+    "voted"
+   ],
+   "spots": {
+    "apt": {
+     "no": 520,
+     "name": "エルム通りのアパート",
+     "place": "north",
+     "cam": "v_north",
+     "at": [
+      92,
+      40
+     ],
+     "adj": [
+      "elm",
+      "maple",
+      "hospf",
+      "gate",
+      "stop",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "elm": {
+     "no": 521,
+     "name": "エルム通りの白い家",
+     "place": "north",
+     "cam": "v_h_elm",
+     "at": [
+      70,
+      34
+     ],
+     "adj": [
+      "apt",
+      "maple",
+      "hospf",
+      "gate",
+      "stop",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "maple": {
+     "no": 522,
+     "name": "メープル通りの停留所",
+     "place": "maple",
+     "cam": "v_h_maple",
+     "at": [
+      150,
+      109
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "hospf",
+      "gate",
+      "stop",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "hospf": {
+     "no": 523,
+     "name": "州立病院の正面",
+     "place": "hosp",
+     "cam": "v_h_hosp",
+     "at": [
+      100,
+      112
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "gate",
+      "stop",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "gate": {
+     "no": 524,
+     "name": "ケスラー製鋼の正門",
+     "place": "factory",
+     "cam": "v_h_gate",
+     "at": [
+      346,
+      84
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "hospf",
+      "stop",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "stop": {
+     "no": 525,
+     "name": "オーク通り4丁目の停留所",
+     "place": "oak",
+     "cam": "v_h_stop",
+     "at": [
+      282,
+      214
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "hospf",
+      "gate",
+      "churchl",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "churchl": {
+     "no": 526,
+     "name": "聖マルコ教会",
+     "place": "church",
+     "cam": "v_h_church",
+     "at": [
+      182,
+      272
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "hospf",
+      "gate",
+      "stop",
+      "bridgeh",
+      "schoolh"
+     ]
+    },
+    "bridgeh": {
+     "no": 527,
+     "name": "ケスラー橋",
+     "place": "bridge",
+     "cam": "v_h_bridge",
+     "at": [
+      316,
+      186
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "hospf",
+      "gate",
+      "stop",
+      "churchl",
+      "schoolh"
+     ]
+    },
+    "schoolh": {
+     "no": 528,
+     "name": "リンカーン小学校",
+     "place": "school",
+     "cam": "v_h_school",
+     "at": [
+      258,
+      164
+     ],
+     "adj": [
+      "apt",
+      "elm",
+      "maple",
+      "hospf",
+      "gate",
+      "stop",
+      "churchl",
+      "bridgeh"
+     ]
+    }
+   },
+   "paras": {
+    "500": {
+     "place": "north",
+     "head": "火曜日、午前6時。エルム通りのアパートの3階。 棚の無線機は"
+    },
+    "505": {
+     "place": "church"
+    },
+    "506": {
+     "place": "church",
+     "head": "用紙を読み取り機に入れた。係員が、「投票しました」の丸い札を"
+    },
+    "510": {
+     "place": "north"
+    },
+    "530": {
+     "place": "north",
+     "head": "玄関の扉は、内側へ倒れていた。廊下の奥で、6人が床にかがんで"
+    },
+    "531": {
+     "place": "maple",
+     "head": "バスの扉は、開いていた。乗り口の段に、運転手の帽子が落ちてい"
+    },
+    "532": {
+     "place": "hosp",
+     "head": "救急の入口のガラスの内側で、白衣が1人、床に押さえこまれてい"
+    },
+    "533": {
+     "place": "factory",
+     "head": "格子の内側に、弁当箱がいくつも落ちている。構内の奥、積んだ鋼"
+    },
+    "534": {
+     "place": "oak",
+     "head": "屋根の下のベンチに、老婦人が腰を下ろしたまま、5人に肩と腕を"
+    },
+    "535": {
+     "place": "church",
+     "head": "駐車場の3台のうち、1台の扉が開いていた。運転席から、女の人"
+    },
+    "536": {
+     "place": "bridge",
+     "head": "バスの乗り口の扉が、外から押し破られている。車内灯の下で、6"
+    },
+    "537": {
+     "place": "school",
+     "head": "列の後ろ半分は、歩道にもういない。駐車場の明かりの下で、6人"
+    }
+   }
   }
  },
  "plans": {
@@ -1787,6 +2043,10 @@
       {
        "no": "59",
        "name": "3階病棟 東"
+      },
+      {
+       "no": "60",
+       "name": "院長室前"
       }
      ],
      "props": [

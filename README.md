@@ -1,6 +1,6 @@
 # Joining the Living Dead
 
-ゾンビのいる街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長。同じ投票日を、それぞれの本で読み進めるゲームブックです。本は、あとから足せます。
+ゾンビが人を襲う街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長、ヒーロー。同じ投票日を、それぞれの本で読み進めるゲームブックです。本は、あとから足せます。
 
 - 遊ぶ（公開版）：https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/
 - 直す・足す（編集版）：https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/test/
