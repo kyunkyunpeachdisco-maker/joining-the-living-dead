@@ -58,7 +58,7 @@ const SPOTS = {
   oak2:{ no:12, name:'オーク通り2丁目', short:'2丁目', place:'oak', cam:'v_oak', at:[104, 214], label:[-30, -8], adj:['home', 'oak3', 'maple', 'back'], go:{ home:'家へ戻る', maple:'2番街を北へ入って、メープル通りへ回る', back:'隣の庭を抜けて、家の裏へ回る' },
     z:s => (evening(s) ? frontZ(s) : s.flags.hendersonDown ? 0 : 1), block:s => (evening(s) ? ['home'] : ['oak3']), hide:true,
     text:(s, w, aware) => (evening(s)
-      ? (s.clock >= 1200 ? 'ヘンダーソンさんの家は、玄関が開けっぱなしになっていた。中に明かりはない。\n通りのずっと先を、寝間着の背中が小学校のほうへ歩いていく。首から下げた何かが、街灯の下で一度だけ光った。' : '角の郵便受けの前には、もう誰もいなかった。芝生にスリッパが片方、裏返しに落ちている。')
+      ? (s.clock >= 1200 ? 'ヘンダーソンさんの家は、玄関が開けっぱなしになっていた。中に明かりはない。' + (s.flags.toldH ? '' : '\n通りのずっと先を、寝間着の背中が小学校のほうへ歩いていく。首から下げた何かが、街灯の下で一度だけ光った。') : '角の郵便受けの前には、もう誰もいなかった。芝生にスリッパが片方、裏返しに落ちている。')
         + (frontZ(s) ? '\n\n自分の家の前に、4人いる。3人は芝生に立っていて、ひとりは玄関の段に腰を下ろしていた。' + (aware ? '4人とも、こっちを向いた。' : '') : '\n\n家の前にいた4人は、芝生の上だ。段に座っていたのは、横に倒れたきり動かない。')
         + '\n\n隣の庭を抜ければ、家の裏へ回れる。'
       : (s.flags.hendersonDown
@@ -539,4 +539,209 @@ BOOKS.voter = {
       choices:[] },
   },
 };
+
+// ===== 朝：家を出てから、投票を終えるまで（801〜875） =====
+// 朝は、場所から場所へ動くのではなく、短い場面をつないでいく：
+//   ・選ぶのは行き先ではなく、すること。移動は、選んだ結果の中で済ませる
+//   ・選んだ結果は、次の場面の頭に出る文（s.msg）で返す。1つしか選べない場面は作らず、前の場面の結果に畳む
+//   ・先に見たこと・聞いたことが、あとの場面の選択肢を増やす（庭で聞いた話、ヘンダーソンさんの係員証の番号、免許証）
+//   ・家で読み物をしたり遠回りをしたりすると、列の後ろになる（6時半を過ぎて並ぶと、前から17番目）
+// 文は、上の SPOTS と paras の文をそのまま呼び出して使う。配達と夜は、もとの場所の骨組みのまま
+{
+const V = BOOKS.voter, P = V.paras, SP = V.spots;
+const WOUND = '袖をまくった。前腕に赤い筋が3本、斜めに走っている。爪でやられたのか歯が当たったのか、見たって区別はつかない。';
+const WOUND2 = 'またやられた。今度のは、さっきのより深い。押さえた指のあいだが、ぬるくなってくる。';
+const wound = s => (s.wounds > 1 ? WOUND2 : WOUND);
+const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + wound(s) : (typeof ok === 'function' ? ok(s, w) : ok); return to; } });
+const txt = (t, s, w, a) => (typeof t === 'function' ? t(s, w, a) : t);
+const cut = (t, n = 1) => t.split('\n\n').slice(0, -n).join('\n\n'); // 終わりの、行き先を説明する段を落とす
+const spot = (id, s, w, a) => txt(SP[id].text, s, w, a);
+const para = (n, s, w) => txt(P[n].text, s, w);
+const late = s => !!s.flags.late;
+const clear = s => !!s.flags.corridorClear;
+// 投票を終えて、表へ出る
+const tail = s => '正面玄関を出ると、列は来たときより長くなっていた。校舎の時計は' + fmt(s.clock) + '。'
+  + (s.flags.toldH ? '保健局の黄色いワゴン車が、駐車場を出て、2丁目のほうへ曲がっていく。' : '');
+const mark = (label, name) => c(label, 0, 0, { run(s, w){ s.flags.vote = name; w.votes = w.votes || {}; w.votes[s.char] = name; s.clock += 7; s.msg = para(s.flags.provisional ? 72 : 71, s, w) + '\n\n' + tail(s); return 28; } });
+// 列に並ぶ：6時半を過ぎていたら、前から17番目
+const line = s => { if(s.clock > 390){ s.flags.late = 1; s.msg = (s.msg ? s.msg + '\n\n' : '') + '並ぶ前に、歩道に車が何台か続けて停まった。降りてきた人たちが、先に列へ付く。'; } return 851; };
+// 台所：読むものが残っていれば、それも選べる
+const kitchen = [c('案内と一緒に届いた、候補者の一覧を読む', 0, 805, { cond:s => !s.flags.guide }), c('仕事の予定を確かめる', 0, 827, { cond:s => !s.flags.sched }), c('上着を取って、玄関へ行く', 0, 802)];
+// 腕を見せる机の先：傷があれば黄色い札、なければ廊下
+const arms = [
+  c('両腕を見せる', 0, 0, { run(s, w){ if(s.wounds && !s.flags.yellow){ s.flags.yellow = 1; s.msg = para(58, s, w); } else s.msg = '係員は両腕と首すじを見て、うなずいた。「はい、どうぞ」'; return 863; } }),
+  c('傷のないほうの袖だけまくって、通ってしまう', 0, 0, { cond:s => !!s.wounds && !s.flags.yellow, run(s, w){ s.flags.hidWound = 1; setFlag(w, s, 'voter_hid_wound'); s.msg = para(59, s, w); return 863; } }),
+];
+const desk = [
+  c('運転免許証を出す', 0, 0, { cond:s => has(s, '運転免許証'), run(s, w){ s.msg = para(55, s, w); return 869; } }),
+  c('「持ってきてないんです」と言う', 0, 854, { cond:s => !has(s, '運転免許証') }),
+];
+
+const MORNING = {
+  paras:{
+    // ===== 家 =====
+    801:{ choices:kitchen },
+    805:{ time:s => s.clock + 10, place:'home', inside:true, enter(s){ s.flags.guide = 1; }, posters:true, text:(s, w) => para(5, s, w), choices:kitchen },
+    827:{ time:s => s.clock + 5, place:'home', inside:true, enter(s){ s.flags.sched = 1; }, text:(s, w) => para(27, s, w), choices:kitchen },
+    802:{ place:'home', inside:true,
+      text:s => '玄関の扉の横に、細い窓がある。そこからオーク通りの歩道と、向かいの家の芝生が見える。'
+        + (has(s, '傘') ? '' : '傘立てには、黒い傘が1本。') + (has(s, '運転免許証') ? '' : '運転免許証は、電話台の引き出しに入れたきりだ。')
+        + '\n\n壁の時計は' + fmt(s.clock) + '。投票所が開くのは7時だ。',
+      choices:[
+        c('引き出しの運転免許証を、財布に入れておく', 0, 802, { cond:s => !has(s, '運転免許証'), run(s, w){ addItem(s, '運転免許証'); s.clock += 2; s.msg = para(8, s, w); return 802; } }),
+        c('寝室の戸棚から、拳銃を出していく', 0, 802, { cond:s => !has(s, '拳銃') && !s.flags.gun, run(s){ s.flags.gun = 1; addItem(s, '拳銃'); addItem(s, '弾', 6); s.clock += 5;
+          s.msg = '戸棚の上の段から、靴の箱を下ろした。布にくるんだ回転式の拳銃と、弾の紙箱。父が置いていったものだ。\n\n6発こめて、上着の内ポケットに入れた。上着の片側だけが、少し下がる。'; return 802; } }),
+        c('傘立てから、傘を1本持っていく', 0, 802, { cond:s => !has(s, '傘'), run(s){ addItem(s, '傘'); s.msg = '傘立てから黒い傘を抜いた。骨が1本曲がっているが、開くことは開く。'; return 802; } }),
+        c('玄関を出る', 0, 812),
+      ] },
+
+    // ===== 2丁目：ヘンダーソンさん =====
+    812:{ time:s => s.clock + 3, place:'oak', zombies:1,
+      text:(s, w) => spot('oak2', s, w, false),
+      choices:[
+        c('「ヘンダーソンさん、おはようございます」と声をかける', 0, 846),
+        risk('郵便受けの前を、息を止めて走る', .1, 833, '郵便受けの前を、息を止めて走った。3丁目の角まで、後ろは見なかった。', 'あの歳の人の足じゃなかった。横から伸びてきた手に、左腕をつかまれる。振りほどいて、そのまま走った。'),
+        c('通りを渡って、停めてある車の陰をつたう', 0, 0, { run(s){ if(Math.random() < .6){ s.msg = '路肩の車に沿って、腰を落として歩いた。ヘンダーソンさんは郵便受けのふたを開けて、閉めた。また開ける。その音を3回聞くうちに、2丁目の端まで来ていた。'; return 833; } return 813; } }),
+        risk('傘の先で突いて、近づけないようにする', .2, 833, '傘の先で胸を突いた。ヘンダーソンさんは2歩さがり、芝生の縁に足を取られて、仰向けに倒れた。手足がゆっくり、霜をかくように動いている。その脇を通って、3丁目へ歩いた。', '傘の先で胸を突いた。ヘンダーソンさんは倒れた。ただ、その前に伸びてきた手が、腕をかすっていた。', { cond:s => has(s, '傘'), before:s => { s.flags.hendersonDown = 1; } }),
+        c('2番街を北へ入って、メープル通りへ回る', 0, 818),
+      ] },
+    846:{ place:'oak', zombies:1, enter(s){ s.flags.greeted = 1; },
+      text:(s, w) => para(46, s, w),
+      choices:[
+        risk('歩道をさがって、2番街へ回る', .08, 818, '後ろ向きに、角まで下がった。ヘンダーソンさんは3歩ついてきて、郵便受けのところで止まった。', '後ろ向きに下がるうちに、縁石に踵を取られた。体を立て直すより先に、左腕をつかまれる。振りほどいて、2番街へ走った。'),
+        risk('脇を走り抜ける', .22, 833, '芝生の側へ大きくふくらんで、走った。伸びてきた手は、上着の裾に届かなかった。3丁目の角で、一度だけ振り返る。ヘンダーソンさんは、まだこっちへ歩いていた。', '脇を抜けるとき、左腕をつかまれた。指が、袖の上から食いこむ。振りほどいて、そのまま走った。'),
+        risk('傘の先で突いて、近づけないようにする', .2, 833, '傘の先で胸を突いた。ヘンダーソンさんは2歩さがり、芝生の縁に足を取られて、仰向けに倒れた。首の係員証が、裏返しになって胸に落ちる。その脇を通って、3丁目へ歩いた。', '傘の先で胸を突いた。ヘンダーソンさんは倒れた。ただ、その前に伸びてきた手が、腕をかすっていた。', { cond:s => has(s, '傘'), before:s => { s.flags.hendersonDown = 1; } }),
+      ] },
+    813:{ place:'oak', zombies:1,
+      text:'3台目の車のところで、空き缶を蹴ってしまった。ヘンダーソンさんの顔が、こっちを向く。',
+      choices:[
+        risk('車道を走って、3丁目の角まで行く', .22, 833, '車道のまんなかを走った。3丁目の角まで、後ろは見なかった。', '車道のまんなかで、横から左腕をつかまれた。振りほどいて、そのまま走った。'),
+        risk('車の陰を、来たほうへ戻って、2番街へ回る', .08, 818, '腰を落としたまま、車の陰を戻った。ヘンダーソンさんは、空き缶の転がった先を見ている。', '戻る途中で、車と車のあいだから手が出てきた。袖をつかまれる。振りほどいて、2番街へ走った。'),
+      ] },
+
+    // ===== メープル通り（遠回り） =====
+    818:{ time:s => s.clock + 8, place:'maple', zombies:3,
+      text:(s, w) => cut(spot('maple', s, w, false)),
+      choices:[
+        c('「これからです」と言って、チラシをもらう', 0, 0, { run(s, w){ s.flags.flyer = 1; s.clock += 12; s.msg = para(19, s, w); return 850; } }),
+        c('手を上げるだけにして、小学校へ急ぐ', 0, 0, { run(s){ s.clock += 10; s.msg = 'メープル通りを東へ歩いた。落ち葉が、靴の下で鳴る。部屋着の背中は、ひとつ手前の角を曲がっていった。'; return 850; } }),
+      ] },
+
+    // ===== 3丁目：車と5人 =====
+    833:{ time:s => s.clock + 5, place:'oak', zombies:5,
+      text:(s, w) => spot('oak3', s, w, false),
+      choices:[
+        risk('車道の反対側を走る', .27, 836, '車道の反対側を走った。何人かが振り向いたころには、もう次の角だった。', '車の陰からひとり、車道まで出てきていた。袖をつかまれて、腕を引っこ抜くようにして抜け出す。'),
+        c('車道の向こう側を、停めてある車の陰をつたう', 0, 0, { run(s){ if(Math.random() < .6){ s.msg = '向こう側の歩道を、車の陰から陰へ移った。背広の男が一度こっちへ顔を向けたが、それきりだった。'; return 836; } return 814; } }),
+        c('傘を開いて体を隠し、歩道の端をそっと行く', 0, 0, { cond:s => has(s, '傘'), run(s){
+          if(Math.random() < .15){ bite(s); addItem(s, '傘', -1); s.msg = '傘の布ごと、腕をつかまれた。傘は手放して、走った。\n' + wound(s); }
+          else s.msg = '開いた傘の陰で、足音を殺して歩いた。布の向こうで、誰かの靴が向きを変える音がした。音は、そこで止まった。';
+          return 836; } }),
+        c('生け垣の切れ目から、角の家の庭へ入る', 0, 834),
+      ] },
+    814:{ place:'oak', zombies:5,
+      text:'車の陰から出たところで、エプロンの女と目が合った。背広の男が、遅れて向きを変える。',
+      choices:[
+        risk('そのまま、次の角まで走る', .45, 836, '走った。後ろで、靴の底が車道をこする音がいくつも重なる。次の角を曲がると、音はついてこなかった。', '走りだしたところを、エプロンの女に袖をつかまれた。腕を引っこ抜くようにして抜け出す。'),
+        risk('車道を渡り直して、生け垣の切れ目へ走る', .25, 834, '車道を渡り直して、生け垣の切れ目へ体を入れた。枝が上着に引っかかる。エプロンの女は、生け垣の前まで来て、止まった。', '生け垣の切れ目に体を入れたところで、後ろから上着の背をつかまれた。枝ごと引きはがして、庭へ転がりこむ。'),
+      ] },
+    834:{ time:s => s.clock + 2, place:'oak', enter(s){ s.flags.heardJanitor = 1; },
+      text:(s, w) => cut(spot('yard', s, w, false))
+        + '\n\n網戸が少し開いた。\n「投票かい。けさ新聞を取りに出たら、小学校の用務員さんが前を通ってね。モップを持ったままだった。声はかけたんだけど」\n網戸は、また閉まった。',
+      choices:[
+        c('柵の戸を押して、4丁目へ出る', 0, 836),
+        c('「用務員さんは、どっちへ行きましたか」と聞く', 0, 836, { run(s){ s.flags.askedYard = 1; s.msg = '網戸は開かなかった。台所の中で、ラジオの音が少し大きくなる。\n\n柵の戸を押して、4丁目へ出た。'; return 836; } }),
+      ] },
+
+    // ===== 4丁目と、校門 =====
+    836:{ time:s => s.clock + 4, place:'oak', text:(s, w) => cut(spot('oak4', s, w, false)),
+      choices:[
+        c('交差点を渡って、小学校へ向かう', 0, 850),
+        c('停留所の列に並んで、投票は帰りに回す', 0, 28),
+      ] },
+    850:{ time:s => s.clock + 4, place:'school', zombies:3,
+      text:(s, w) => spot('gate', s, w, false),
+      choices:[
+        c('見本の投票用紙をもらってから、列に並ぶ', 0, 0, { run(s, w){ s.flags.cards = 1; s.clock += 3; s.msg = cut(para(49, s, w)); return line(s); } }),
+        c('まっすぐ列に並ぶ', 0, 0, { run:s => line(s) }),
+        c('列には並ばずに、4丁目の停留所へ行く', 0, 28),
+      ] },
+    851:{ time:s => Math.max(s.clock, 425) + 5, place:'school', zombies:3, text:(s, w) => (late(s) ? '7時きっかりに、正面玄関が開いた。中から出てきた選挙管理人が、「投票所を開きます」と大きな声で言った。列が動きだす。\n\n' : '') + para(51, s, w),
+      choices:[
+        c('列を離れないで待つ', 0, 0, { run(s, w){ s.msg = para(60, s, w); return 852; } }),
+        c('列を出て、男を駐車場の奥へおびき出す', 0, 0, { run(s, w){ s.flags.late = 1; s.flags.lured = 1; s.flags.luredHit = attacked(s, .3) ? 1 : 0; s.msg = para(61, s, w); return 852; } }),
+        c('入口の係員に知らせに行く', 0, 0, { run(s, w){ s.flags.late = 1; s.flags.toldLine = 1; s.msg = para(62, s, w); return 852; } }),
+      ] },
+
+    // ===== 玄関の机：腕を見せる =====
+    852:{ time:s => (late(s) ? 455 : 440), place:'school', enter(s){ s.flags.lineDone = 1; },
+      text:(s, w) => para(52, s, w),
+      choices:[...arms, c('腕を出す前に、用務員さんのことを聞く', 0, 873, { cond:s => !!s.flags.heardJanitor && !clear(s) })] },
+    873:{ place:'school', enter(s){ s.flags.corridorClear = 1; s.flags.janitorTold = 1; },
+      text:'「用務員さんは、けさ来てますか」\n\n係員は、名簿から目を上げた。\n「さっき表で連れていかれたのは、清掃の業者の方です。用務員は」\n係員は廊下のほうを見て、無線で誰かを呼んだ。\n\n黄色いベストが4人、廊下へ入っていった。じきに、作業着の男と給食の白衣の2人が、柄のついた輪に引かれて出てくる。男は、モップの柄を握ったままだ。胸の名札には「用務」とある。\n「助かりました。ここからは、廊下の奥が見えないもので」\n\n係員は、机の上を指でたたいた。\n「では、袖をまくって、両腕を見せてください」',
+      choices:arms },
+
+    // ===== 廊下 =====
+    863:{ place:'school', zombies:s => (clear(s) ? 0 : 3), enter(s){ s.flags.inHall = (s.flags.inHall || 0) + 1; if(!clear(s)) s.flags.sawJanitor = 1; },
+      text:(s, w) => (s.flags.inHall > 1 ? (clear(s) ? '廊下は、空いている。窓ガラスに、額の跡が白く残っていた。' : '3人は、さっきと同じところに立っている。') + '体育館の扉は、突き当たりの手前だ。'
+        : 'ワックスと給食のにおいがする。床にテープで順路が貼ってあって、矢印は廊下を右へ向いていた。\n\n' + spot('corridor', s, w, false)),
+      choices:[
+        risk('ほかの人たちと同じように、壁に寄って3人の後ろを通る', .17, 853, '壁に背中をつけて、3人の後ろを抜けた。男は窓から額を離さなかった。白衣の2人は、食缶の中をのぞいている。', '台車の脇を抜けかけたとき、白衣のひとりが顔を上げた。配膳の手袋をはめた手が、袖をつかんでくる。振りほどいて、体育館の扉を押した。', { cond:s => !clear(s) }),
+        c('扉の机まで戻って、係員に3人のことを知らせる', 0, 874, { cond:s => !clear(s) }),
+        c('体育館へ入る', 0, 853, { cond:clear }),
+        c('「保健室」の戸を開ける', 0, 866, { cond:s => !s.flags.nurseDone }),
+        c('「1年2組」の戸を開ける', 0, 0, { cond:s => !s.flags.sawRoom, run(s, w){ s.flags.sawRoom = 1; s.msg = spot('classroom', s, w, false) + '\n\n戸を閉めた。'; return 863; } }),
+      ] },
+    874:{ time:s => s.clock + 6, place:'school', enter(s){ s.flags.corridorClear = 1; s.flags.janitorTold = 1; },
+      text:'順路を逆にたどって、机まで戻った。係員は、列の3人ぶんの腕を見てから、こっちの話を聞いた。それから、無線で誰かを呼んだ。\n\n黄色いベストが4人、廊下へ入っていく。じきに、作業着の男と給食の白衣の2人が、柄のついた輪に引かれて出てきた。男の胸の名札には「用務」とある。\n「助かりました。ここからは、廊下の奥が見えないもので」',
+      choices:[
+        c('廊下へ戻って、体育館へ入る', 0, 853),
+        c('廊下へ戻って、ほかの戸を見る', 0, 863, { cond:s => !s.flags.nurseDone || !s.flags.sawRoom }),
+      ] },
+    866:{ place:'school',
+      text:(s, w) => 'ベッドが2つと、薬の戸棚。消毒液のにおいがする。先生の姿はない。奥のベッドはカーテンが閉まっていて、戸棚の鍵は開いていた。\n\n' + (taken(w, 'school_kit') ? '戸棚の下の段が、ひとつ空いている。' : '戸棚の下の段に、救急箱がひとつ置いてある。'),
+      choices:[
+        c('流しで傷を洗って、戸棚のガーゼを当てる', 0, 866, { cond:s => !!s.wounds && !s.flags.treated, run(s){ s.flags.treated = 1; s.hp = Math.min(3, s.hp + 1); s.msg = '流しで傷を洗った。水がしみる。ガーゼを当ててテープで留めると、血は止まった。熱いのは変わらない。'; return 866; } }),
+        c('救急箱を借りていく', 0, 868, { cond:(s, w) => !taken(w, 'school_kit') }),
+        c('戸を閉めて、廊下へ戻る', 0, 863, { run(s){ s.flags.nurseDone = 1; return 863; } }),
+      ] },
+    868:{ place:'school', zombies:1, enter(s, w){ takeOnce(w, 'school_kit', s.char); s.flags.nurseUp = 1; s.flags.nurseDone = 1; addItem(s, '救急箱'); },
+      text:'救急箱を抱えた。ふたに、マジックで「リンカーン小　保健室」と書いてある。\n\n戸棚の戸を閉めたとき、金具が鳴った。奥のベッドのカーテンが、内側からふくらむ。白衣の女の人が、カーテンをくぐって出てきた。上履きは片方だけだ。胸の名札には「養護」とある。顔は、こっちを向いている。',
+      choices:[
+        risk('ベッドの反対側を回って、戸へ走る', .12, 863, 'ベッドの反対側を回って、戸へ走った。白衣の袖が肩をかすめる。廊下へ出て、戸を閉めた。', '戸の手前で、白衣の手に襟をつかまれた。引き戻されて、かばった腕に歯が当たる。ひじで押しのけて廊下へ出て、戸を閉めた。'),
+        risk('救急箱を胸の前に構えて、押し返しながら戸まで下がる', .2, 863, '救急箱の角で、白衣の胸を押した。女の人は半歩下がる。そのあいだに戸まで下がって、廊下へ出て、閉めた。', '救急箱で押し返したとき、箱の上から手が伸びてきた。手首をつかまれる。箱ごと押しのけて廊下へ出て、戸を閉めた。'),
+      ] },
+
+    // ===== 体育館 =====
+    853:{ time:s => s.clock + 5, place:'school', zombies:2, enter(s){ s.flags.gymIn = (s.flags.gymIn || 0) + 1; },
+      text:(s, w) => (s.flags.fetch ? 'M–Zの机の係員は、顔を覚えていた。\n「モーガンさんですね。お持ちになりましたか」'
+        : (s.flags.gymIn > 1 ? '' : spot('gym', s, w, false) + '\n\n机の端に、けさの当番表が立ててある。3番目の欄だけ、丸がついていない。\n\n') + para(53, s, w)),
+      choices:[...desk, c('先に、ヘンダーソンさんのことを話す', 0, 875, { cond:s => !!s.flags.greeted && !s.flags.toldH && !s.flags.fetch })] },
+    875:{ place:'school', zombies:2, enter(s){ s.flags.toldH = 1; },
+      text:s => 'ヘンダーソンさんがけさ来ているか、聞いた。係員は、首を横に振った。' + (s.flags.hendersonDown ? '2丁目の郵便受けの脇で芝生に倒れていること、' : '2丁目の郵便受けの前にいたこと、') + '係員証を下げたままだったことを話す。'
+        + '\n\n係員は、名簿をめくる手を止めた。隣の机の選挙管理人と、目を見合わせる。\n「けさの受付は、ひとり足りないんです。6時半に来るはずでした」\n\n選挙管理人は用紙に番地と時刻を書いて、黄色いベストの係員に渡した。それから、当番表の3番目の名前に、線を1本引いた。\n\n係員が、こっちへ向き直った。\n「それで、身分のわかるものは」',
+      choices:desk },
+    854:{ place:'school', zombies:2, text:(s, w) => para(54, s, w),
+      choices:[
+        c('暫定投票にする', 0, 0, { run(s, w){ s.flags.provisional = 1; s.msg = para(56, s, w); return 869; } }),
+        c('取りに帰ることにして、机を離れる', 0, 0, { run(s){ addItem(s, '運転免許証'); s.flags.late = 1; s.flags.fetch = 1; s.clock += 45;
+          s.msg = '順路を逆にたどって、表へ出た。2番街を回って家まで戻り、電話台の引き出しから運転免許証を出す。引き出しは、やはり途中で引っかかった。\n\n戻ってくると、列は来たときの倍になっていた。もう一度腕を見せて、M–Zの机の前に立つ。'; return 853; } }),
+      ] },
+    869:{ time:s => s.clock + 2, place:'school', zombies:1, text:(s, w) => para(69, s, w),
+      choices:[
+        c('空いている記載台に入る', 0, 870),
+        c('男のいた3つ目の台に入る', 0, 870, { cond:s => !s.flags.yellow, run(s){ s.msg = '3つ目の台に入った。目隠しの板に、指の跡が左右に4本ずつ残っている。鎖の先のペンは、台の縁に引っかかっていた。'; return 870; } }),
+      ] },
+    870:{ nocam:true, time:s => s.clock + 3, place:'school', text:(s, w) => para(70, s, w),
+      choices:[mark('ホイットモアの楕円を塗る', 'whitmore'), mark('カーヴァーの楕円を塗る', 'carver'), mark('オカフォーの楕円を塗る', 'okafor'), mark('知事の欄は空けておいて、下の欄だけ書く', 'blank')] },
+
+  },
+};
+// もとの本に入れる。朝は、場面1から、この並びをたどる。夕方からは、もとの場所の骨組みに戻る
+P[1] = { ...P[1], choices:MORNING.paras[801].choices }; delete MORNING.paras[801];
+Object.assign(P, MORNING.paras);
+Object.assign(V.planParas.school, { lobby:[852, 873], corridor:[863, 874], nurse:[866, 868] });
+V.planParas.school.gym.push(853, 854, 869, 870, 875);
+}
 })();

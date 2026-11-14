@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.31",
+ "version": "v0.3.32",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -12,6 +12,7 @@
     "items": {}
    },
    "flags": [
+    "askedYard",
     "backClear",
     "blocked",
     "cards",
@@ -28,21 +29,28 @@
     "greeted",
     "guide",
     "gun",
+    "gymIn",
     "hallClear",
     "heard",
+    "heardJanitor",
     "hendersonDown",
     "hidWound",
+    "inHall",
+    "janitorTold",
     "late",
     "lineDone",
     "lured",
     "luredHit",
+    "nurseDone",
     "nurseUp",
     "provisional",
     "reported",
     "sawDir",
     "sawJanitor",
+    "sawRoom",
     "sched",
     "told",
+    "toldH",
     "toldLine",
     "treated",
     "van",
@@ -462,6 +470,83 @@
     "107": {},
     "111": {
      "place": "home"
+    },
+    "802": {
+     "place": "home"
+    },
+    "805": {
+     "place": "home"
+    },
+    "812": {
+     "place": "oak"
+    },
+    "813": {
+     "place": "oak",
+     "head": "3台目の車のところで、空き缶を蹴ってしまった。ヘンダーソンさ"
+    },
+    "814": {
+     "place": "oak",
+     "head": "車の陰から出たところで、エプロンの女と目が合った。背広の男が"
+    },
+    "818": {
+     "place": "maple"
+    },
+    "827": {
+     "place": "home"
+    },
+    "833": {
+     "place": "oak"
+    },
+    "834": {
+     "place": "oak"
+    },
+    "836": {
+     "place": "oak"
+    },
+    "846": {
+     "place": "oak"
+    },
+    "850": {
+     "place": "school"
+    },
+    "851": {
+     "place": "school"
+    },
+    "852": {
+     "place": "school"
+    },
+    "853": {
+     "place": "school"
+    },
+    "854": {
+     "place": "school"
+    },
+    "863": {
+     "place": "school"
+    },
+    "866": {
+     "place": "school"
+    },
+    "868": {
+     "place": "school",
+     "head": "救急箱を抱えた。ふたに、マジックで「リンカーン小 保健室」と"
+    },
+    "869": {
+     "place": "school"
+    },
+    "870": {
+     "place": "school"
+    },
+    "873": {
+     "place": "school",
+     "head": "「用務員さんは、けさ来てますか」 係員は、名簿から目を上げた"
+    },
+    "874": {
+     "place": "school",
+     "head": "順路を逆にたどって、机まで戻った。係員は、列の3人ぶんの腕を"
+    },
+    "875": {
+     "place": "school"
     }
    }
   },
@@ -476,74 +561,54 @@
    },
    "flags": [
     "answer",
+    "apol",
+    "askSchool",
     "back",
+    "briefAns",
+    "briefYes",
     "briefing",
     "called",
+    "closing",
+    "d251",
     "done",
     "env",
-    "gardener",
-    "gate",
     "hid",
+    "lateHq",
     "lateSpeech",
     "line",
     "mainSeen",
     "notice",
     "queued",
-    "radio",
+    "read",
+    "readNight",
+    "readPlan",
     "roof",
+    "school",
     "sgtHurt",
     "shook",
     "skipFactory",
     "skipped",
+    "spoke",
     "stayed",
     "told3",
+    "toll",
     "treated",
+    "vans",
+    "votedAt",
     "waiterGone",
     "yellow"
    ],
    "spots": {
-    "res": {
-     "no": 230,
-     "name": "知事公邸",
-     "place": "res",
-     "cam": "v_res",
+    "gschool": {
+     "no": 228,
+     "name": "リンカーン小学校",
+     "place": "school",
+     "cam": "v_school",
      "at": [
-      238,
-      38
+      258,
+      164
      ],
-     "adj": [
-      "resF",
-      "resB"
-     ]
-    },
-    "resF": {
-     "no": 231,
-     "name": "公邸の正門",
-     "place": "res",
-     "cam": "v_res",
-     "at": [
-      214,
-      58
-     ],
-     "adj": [
-      "res",
-      "hq"
-     ]
-    },
-    "resB": {
-     "no": 232,
-     "name": "公邸の裏門",
-     "place": "res",
-     "cam": "v_resb",
-     "at": [
-      262,
-      58
-     ],
-     "adj": [
-      "res",
-      "radio",
-      "hq"
-     ]
+     "adj": []
     },
     "hq": {
      "no": 233,
@@ -554,29 +619,7 @@
       171,
       92
      ],
-     "adj": [
-      "resF",
-      "resB",
-      "hosp",
-      "mainx"
-     ]
-    },
-    "mainx": {
-     "no": 234,
-     "name": "メインストリート",
-     "place": "mainst",
-     "cam": "v_main",
-     "at": [
-      176,
-      186
-     ],
-     "adj": [
-      "hq",
-      "hosp",
-      "church",
-      "radio",
-      "hotelF"
-     ]
+     "adj": []
     },
     "hosp": {
      "no": 235,
@@ -587,10 +630,7 @@
       100,
       112
      ],
-     "adj": [
-      "hq",
-      "mainx"
-     ]
+     "adj": []
     },
     "church": {
      "no": 236,
@@ -601,11 +641,7 @@
       182,
       272
      ],
-     "adj": [
-      "mainx",
-      "hotelF",
-      "radio"
-     ]
+     "adj": []
     },
     "radio": {
      "no": 237,
@@ -616,12 +652,7 @@
       272,
       236
      ],
-     "adj": [
-      "mainx",
-      "church",
-      "resB",
-      "factory"
-     ]
+     "adj": []
     },
     "factory": {
      "no": 238,
@@ -632,9 +663,7 @@
       346,
       84
      ],
-     "adj": [
-      "radio"
-     ]
+     "adj": []
     },
     "hotelF": {
      "no": 239,
@@ -646,8 +675,6 @@
       232
      ],
      "adj": [
-      "mainx",
-      "church",
       "hotelB",
       "t_lobby"
      ]
@@ -712,23 +739,30 @@
      "place": "res",
      "head": "火曜日、午前7時。公邸の食堂のコーヒーは、もう冷めかけている"
     },
+    "201": {
+     "place": "res",
+     "head": "日程表は、ペイジの字で打ち直してある。 7:30 聖マルコ教"
+    },
+    "202": {
+     "place": "res",
+     "head": "保健局の夜間報告は、1枚だった。市内で47件、うち噛まれた者"
+    },
+    "203": {
+     "place": "res",
+     "head": "正門の鉄の扉が開くと、青い立て札がいっせいに上がった。支持者"
+    },
     "204": {
-     "place": "church"
+     "place": "church",
+     "head": "第9投票区の投票所は、聖マルコ教会の隣の集会室だ。歩道にカメ"
     },
     "205": {
      "place": "church"
     },
-    "206": {
-     "place": "church",
-     "head": "集会室を出ると、記者たちが半円に並んで待っていた。マイクが6"
-    },
     "207": {
-     "place": "hq",
-     "head": "事務所の中は、60人ぶんの電話の声で暖かい。選対本部長のグレ"
+     "place": "hq"
     },
     "208": {
-     "place": "hq",
-     "head": "机の上に立った。受話器を置く音が、端から順に続く。60人に向"
+     "place": "hq"
     },
     "209": {
      "place": "car",
@@ -737,21 +771,24 @@
     "210": {
      "place": "hosp"
     },
-    "211": {},
+    "211": {
+     "place": "hosp"
+    },
     "212": {
-     "place": "hosp",
-     "head": "玄関から、白衣の男が出てきた。院長だ。握手をして、並んでカメ"
+     "place": "hosp"
     },
     "213": {
      "place": "car",
      "head": "車の中で、サンドイッチを食べた。落ちたパンくずを、ペイジが紙"
     },
-    "214": {},
     "216": {
      "place": "radio",
      "head": "スタジオの赤い灯がついた。司会者は税の話から始め、橋の通行料"
     },
-    "217": {},
+    "217": {
+     "place": "radio",
+     "head": "最後に、司会者が30秒くれた。マイクの向こうの壁に、時計があ"
+    },
     "218": {
      "place": "hosp",
      "head": "講堂の扉を開けると、院長が壇上で、統合の日程を読み上げていた"
@@ -764,12 +801,51 @@
      "head": "5時のサイレンが鳴って、門が開いた。外はもう暗い。 出てくる"
     },
     "221": {
-     "head": "年かさの工員が1人、列を離れてこちらへ来た。弁当箱を脇に抱え"
+     "place": "factory"
     },
     "222": {
      "place": "car"
     },
     "224": {
+     "place": "hotel"
+    },
+    "225": {
+     "place": "res"
+    },
+    "245": {
+     "place": "res",
+     "head": "川沿いの旧道に面した裏門には、支持者も記者も来ていない。 鉄"
+    },
+    "246": {
+     "place": "church",
+     "head": "列の最後尾に付いた。前の女性が振り向いた。買い物袋を、両手で"
+    },
+    "247": {
+     "place": "church"
+    },
+    "248": {
+     "place": "hq",
+     "head": "机のあいだを歩きながら、グレースが紙を1枚、こちらへ向けた。"
+    },
+    "250": {
+     "place": "car"
+    },
+    "251": {
+     "place": "school",
+     "head": "列は、駐車場の脇まで伸びている。体育館の入口から30メートル"
+    },
+    "252": {
+     "place": "school",
+     "head": "列の最後尾から、男が1人、立て札の外まで出てきた。作業着で、"
+    },
+    "253": {
+     "place": "radio",
+     "head": "WGLNの局舎は、川沿いの平屋だ。屋根のアンテナが、川風で細"
+    },
+    "254": {
+     "place": "radio"
+    },
+    "256": {
      "place": "hotel"
     }
    }
@@ -787,23 +863,50 @@
     }
    },
    "flags": [
-    "back",
+    "at",
     "caged",
     "cells",
+    "cells8",
     "cleared",
     "clerk",
     "crowd",
+    "d302",
     "d304",
     "d305",
     "d308",
+    "d310",
     "d311",
+    "d313",
+    "d315",
+    "d317",
+    "d331",
+    "d333",
+    "d334",
+    "d339",
+    "d352",
+    "early",
+    "elmLate",
+    "erline",
+    "escort",
+    "gave",
     "guard",
     "hotel",
+    "kaneBridge",
+    "lastman",
+    "leftTwo",
+    "letter",
     "lights",
     "lit",
+    "lobby2",
+    "logged",
     "lunch",
     "neutral",
+    "onair",
+    "pen",
     "pulled",
+    "pulled2",
+    "readForm",
+    "readPlan",
     "removed",
     "rode",
     "route",
@@ -811,9 +914,12 @@
     "sch2",
     "sent",
     "spare",
+    "steps",
     "swept",
     "upheld",
-    "waited"
+    "wagon",
+    "waited",
+    "walked"
    ],
    "spots": {
     "p_roll": {
@@ -831,7 +937,6 @@
      "place": "ps",
      "room": "hall",
      "adj": [
-      "p_roll",
       "p_office",
       "p_cells",
       "p_lobby"
@@ -875,12 +980,7 @@
       140
      ],
      "adj": [
-      "p_lobby",
-      "school",
-      "hospc",
-      "north",
-      "bridgec",
-      "county"
+      "p_lobby"
      ]
     },
     "school": {
@@ -892,13 +992,7 @@
       258,
       164
      ],
-     "adj": [
-      "lot",
-      "hospc",
-      "north",
-      "bridgec",
-      "county"
-     ]
+     "adj": []
     },
     "hospc": {
      "no": 327,
@@ -909,13 +1003,7 @@
       100,
       112
      ],
-     "adj": [
-      "lot",
-      "school",
-      "north",
-      "bridgec",
-      "county"
-     ]
+     "adj": []
     },
     "north": {
      "no": 328,
@@ -926,13 +1014,7 @@
       70,
       34
      ],
-     "adj": [
-      "lot",
-      "school",
-      "hospc",
-      "bridgec",
-      "county"
-     ]
+     "adj": []
     },
     "bridgec": {
      "no": 329,
@@ -943,13 +1025,7 @@
       316,
       186
      ],
-     "adj": [
-      "lot",
-      "school",
-      "hospc",
-      "north",
-      "county"
-     ]
+     "adj": []
     },
     "county": {
      "no": 330,
@@ -960,50 +1036,130 @@
       44,
       234
      ],
-     "adj": [
-      "lot",
-      "school",
-      "hospc",
-      "north",
-      "bridgec"
-     ]
+     "adj": []
     }
    },
    "paras": {
     "300": {
      "place": "ps",
-     "head": "火曜日、午前6時半。点呼室の椅子は、22脚で足りた。 夜勤の"
+     "head": "火曜日、午前6時半。点呼室の椅子は、22脚で足りた。4年前の"
+    },
+    "301": {
+     "place": "ps",
+     "head": "ドイルが配置表に書き足しているところへ、受付の巡査が顔を出し"
+    },
+    "302": {
+     "place": "ps"
     },
     "303": {
-     "head": "駐車場の3人のうち、1人が向きを変えた。列のほうへ歩き出す。"
+     "place": "school"
     },
     "304": {
-     "place": "car",
-     "head": "走っている途中で、無線が入った。通信係のノヴァクが、待ちの件"
+     "place": "car"
     },
     "305": {
-     "place": "hosp",
-     "head": "知事の演説が始まった。演台には背を向けて、聴衆のほうを見てい"
+     "place": "hosp"
     },
     "306": {
-     "head": "拍手がやんで、聴衆が駐車場のほうへ流れていく。ルイス巡査部長"
+     "place": "hosp"
     },
     "307": {
      "place": "ps",
      "head": "紙袋の中身は、ハムのサンドイッチだった。半分食べたところで、"
     },
+    "308": {
+     "place": "north"
+    },
     "309": {
      "place": "north"
+    },
+    "310": {
+     "place": "hosp"
+    },
+    "311": {
+     "place": "bridge"
     },
     "312": {
      "place": "bridge",
      "head": "街を出る車線に沿って歩いていると、1台の窓が下りた。運転席の"
+    },
+    "313": {
+     "place": "ps"
     },
     "314": {
      "place": "school"
     },
     "315": {
      "place": "county"
+    },
+    "316": {
+     "place": "school"
+    },
+    "317": {
+     "place": "ps"
+    },
+    "318": {
+     "place": "school"
+    },
+    "331": {
+     "place": "ps",
+     "head": "受付の窓口に、4人並んでいる。届けを出しに来た列だ。 前の2"
+    },
+    "333": {
+     "place": "county",
+     "head": "正面の段に、3人が座ったまま動かない。背広が2人と、清掃員の"
+    },
+    "334": {
+     "place": "ps"
+    },
+    "335": {
+     "place": "school"
+    },
+    "336": {
+     "place": "county"
+    },
+    "338": {
+     "place": "hosp"
+    },
+    "339": {
+     "place": "car"
+    },
+    "340": {
+     "place": "car"
+    },
+    "346": {
+     "place": "car"
+    },
+    "347": {
+     "place": "ps"
+    },
+    "349": {
+     "place": "ps"
+    },
+    "352": {
+     "place": "bridge",
+     "head": "橋のたもとに、交通整理の1台が停めてある。街を出る車線の列が"
+    },
+    "353": {
+     "place": "ps",
+     "head": "配置表は、4年前と同じ書式で作ってある。 投票所17か所の巡"
+    },
+    "355": {
+     "place": "school",
+     "head": "列の中ほどから、男が1人出てきた。通報したのは、この男だ。 "
+    },
+    "357": {
+     "place": "north"
+    },
+    "358": {
+     "place": "bridge"
+    },
+    "359": {
+     "place": "school"
+    },
+    "360": {
+     "place": "school",
+     "head": "受け渡しの用紙は、2枚複写になっている。 袋は2つ。1つは投"
     }
    }
   },
@@ -1169,18 +1325,33 @@
    },
    "flags": [
     "asked",
+    "at",
     "ate",
     "bridge",
+    "busOut",
     "church",
+    "civ",
     "elm",
     "gate",
     "hosp",
     "last",
+    "lastLost",
+    "late",
+    "lineLeft",
+    "man",
     "maple",
+    "readNorth",
+    "readOak",
+    "readRiver",
     "saved",
+    "saw_bridge",
+    "saw_elm",
+    "saw_school",
     "school",
     "shown",
     "stop",
+    "tipChurch",
+    "tipHosp",
     "voted"
    ],
    "spots": {
@@ -1193,16 +1364,7 @@
       92,
       40
      ],
-     "adj": [
-      "elm",
-      "maple",
-      "hospf",
-      "gate",
-      "stop",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "elm": {
      "no": 521,
@@ -1213,16 +1375,7 @@
       70,
       34
      ],
-     "adj": [
-      "apt",
-      "maple",
-      "hospf",
-      "gate",
-      "stop",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "maple": {
      "no": 522,
@@ -1233,16 +1386,7 @@
       150,
       109
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "hospf",
-      "gate",
-      "stop",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "hospf": {
      "no": 523,
@@ -1253,16 +1397,7 @@
       100,
       112
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "gate",
-      "stop",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "gate": {
      "no": 524,
@@ -1273,16 +1408,7 @@
       346,
       84
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "hospf",
-      "stop",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "stop": {
      "no": 525,
@@ -1293,16 +1419,7 @@
       282,
       214
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "hospf",
-      "gate",
-      "churchl",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "churchl": {
      "no": 526,
@@ -1313,16 +1430,7 @@
       182,
       272
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "hospf",
-      "gate",
-      "stop",
-      "bridgeh",
-      "schoolh"
-     ]
+     "adj": []
     },
     "bridgeh": {
      "no": 527,
@@ -1333,16 +1441,7 @@
       316,
       186
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "hospf",
-      "gate",
-      "stop",
-      "churchl",
-      "schoolh"
-     ]
+     "adj": []
     },
     "schoolh": {
      "no": 528,
@@ -1353,16 +1452,7 @@
       258,
       164
      ],
-     "adj": [
-      "apt",
-      "elm",
-      "maple",
-      "hospf",
-      "gate",
-      "stop",
-      "churchl",
-      "bridgeh"
-     ]
+     "adj": []
     }
    },
    "paras": {
@@ -1374,8 +1464,7 @@
      "place": "church"
     },
     "506": {
-     "place": "church",
-     "head": "用紙を読み取り機に入れた。係員が、「投票しました」の丸い札を"
+     "place": "church"
     },
     "510": {
      "place": "north"
@@ -1411,6 +1500,97 @@
     "537": {
      "place": "school",
      "head": "列の後ろ半分は、歩道にもういない。駐車場の明かりの下で、6人"
+    },
+    "540": {},
+    "541": {
+     "place": "north",
+     "head": "検針の台帳は、区域ごとに1冊ある。メーターの場所と、そこへ行"
+    },
+    "542": {
+     "place": "north",
+     "head": "「ノースエンド」 エルム通り41番地（白い家） メーターは台"
+    },
+    "543": {
+     "place": "north",
+     "head": "「川沿い・工場」 ケスラー製鋼 メーターはボイラー棟の裏。正"
+    },
+    "544": {
+     "place": "north",
+     "head": "「オーク・学校」 リンカーン小学校 メーターは、給食の搬入口"
+    },
+    "545": {
+     "head": "通りの向かいから、WGLNの腕章を付けた男が走ってきた。録音"
+    },
+    "546": {
+     "head": "歩道で、紙を持った男に呼び止められた。作業着で、手が油で黒い"
+    },
+    "550": {
+     "place": "north",
+     "head": "紺色の上着は、釘に掛けたままにした。水道局の上着を着る。受信"
+    },
+    "551": {
+     "place": "north",
+     "head": "白い家の玄関の前に、6人が立っている。6人とも扉のほうを向い"
+    },
+    "552": {
+     "place": "maple",
+     "head": "通学のバスが、停留所から出られずにいる。前に2人、乗り口に3"
+    },
+    "553": {
+     "place": "hosp",
+     "head": "救急の入口の列の中へ、4人が入りこんでいる。並んでいる者は、"
+    },
+    "554": {
+     "place": "factory",
+     "head": "正門の鉄の格子に、外から6人が取りついている。門の内側には、"
+    },
+    "555": {
+     "place": "oak",
+     "head": "停留所の屋根の下に、10人ほどが固まっている。投票所行きのバ"
+    },
+    "556": {
+     "place": "church",
+     "head": "駐車場の真ん中に、車が3台、エンジンをかけたまま停まっている"
+    },
+    "557": {
+     "place": "bridge",
+     "head": "街へ入る車線の中ほどで、車が2台、ぶつかったまま止まっている"
+    },
+    "558": {
+     "place": "school",
+     "head": "投票の列が、途中で切れている。駐車場から出てきた6人が、列の"
+    },
+    "559": {
+     "place": "church"
+    },
+    "561": {
+     "place": "north"
+    },
+    "562": {
+     "place": "maple",
+     "head": "バスは、通りの先の角を曲がっていった。青い札の家の玄関先で、"
+    },
+    "563": {
+     "place": "hosp",
+     "head": "ガラスの内側で、看護師が名簿に線を引いている。車椅子の老人が"
+    },
+    "564": {
+     "place": "factory"
+    },
+    "565": {
+     "place": "oak",
+     "head": "バスの扉が閉まる。窓の中で、列の先頭にいた男が、帽子の青い札"
+    },
+    "566": {
+     "place": "church",
+     "head": "3台から降りた人たちは、礼を言うより先に、入口の列へ歩いてい"
+    },
+    "567": {
+     "place": "bridge"
+    },
+    "568": {
+     "place": "school",
+     "head": "列は、1本につながった。先頭では、係員が袖をまくった腕を1人"
     }
    }
   }

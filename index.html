@@ -494,7 +494,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.31';
+const APP_VERSION = 'v0.3.32';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -747,8 +747,8 @@ BOOKS.monster = {
     600:{ text:'指先の感覚がない。寒さも、もう感じない。\n\nどこへ行く途中だったのかが、出てこない。名前も出てこない。足だけが、歩道の継ぎ目の間隔を覚えている。',
       choices:[c('足の向くほうへ歩く', 0, 601), c('明かりのついた窓のほうを向く', 0, 602)] },
     601:{ text:s => '歩いた。\n\n前から来た女の人が、歩道の端へ寄った。目は合わせない。買い物袋を、体の反対側へ持ち替えただけだ。自転車の子どもが、ベルを鳴らさずによけていった。\n\n角を曲がるたびに、足が先に決めている。'
-        + ({ voter:'\n\n体育館の屋根が見えてきた。入口から歩道まで、人が並んでいる。', governor:'\n\n青い風船が見えてきた。車寄せに、人が列を作っている。', chief:'\n\n赤い灯が回っているのが見えてきた。金網のフェンスと、見覚えのある車が何台か。', director:'\n\n番号の表示が光っている。長椅子に、人がおおぜい座っている。' })[s.char],
-      choices:s => [c(({ voter:'列のいちばん後ろに立つ', governor:'列の前を歩いて、扉のほうへ行く', chief:'車のあいだを通って、玄関のほうへ行く', director:'長椅子のあいだを歩く' })[s.char], 0, ({ voter:s.clock >= 1200 ? 605 : 603, governor:606, chief:608, director:610 })[s.char])] },
+        + (({ voter:'\n\n体育館の屋根が見えてきた。入口から歩道まで、人が並んでいる。', governor:'\n\n青い風船が見えてきた。車寄せに、人が列を作っている。', chief:'\n\n赤い灯が回っているのが見えてきた。金網のフェンスと、見覚えのある車が何台か。', director:'\n\n番号の表示が光っている。長椅子に、人がおおぜい座っている。', hero:'\n\n石の段と、扉の前の列が見えてきた。扉の脇の机で、誰かが名簿を広げている。' })[s.char] || '\n\n体育館の屋根が見えてきた。入口から歩道まで、人が並んでいる。'),
+      choices:s => [c(({ voter:'列のいちばん後ろに立つ', governor:'列の前を歩いて、扉のほうへ行く', chief:'車のあいだを通って、玄関のほうへ行く', director:'長椅子のあいだを歩く', hero:'列のいちばん後ろに立つ' })[s.char] || '列のいちばん後ろに立つ', 0, ({ governor:606, chief:608, director:610, hero:611 })[s.char] || (s.clock >= 1200 ? 605 : 603))] },
     602:{ end:'monster-done', text:'庭の芝生を踏んで、窓の下まで行った。\n\nガラスの向こうで、テレビがついている。地図の上に、数字が3つ並んでいた。長椅子に、大人が2人と子どもが1人。子どもがこっちを指さした。\n\n母親が立ってきて、カーテンを引いた。カーテンの合わせ目から、テレビの光が細く漏れている。\n\nそのまま、そこに立っている。\n\n（ここまで）', choices:[] },
     603:{ text:'列のいちばん後ろに立った。\n\n前の男が、半歩だけ前へ詰めた。振り向かない。その前の人も、半歩詰めた。\n\n列が進む。足が、それに合わせて出る。黄色い立て札の脇を通った。「これより先、選挙運動を禁ず」。字は読めるが、何のことかはわからない。',
       choices:[c('列が進むのに合わせて、進む', 0, 604), c('前の男の襟のあたりへ、顔を寄せる', 0, 604, { run(s){ s.msg = '前の男は、振り向かずに列を出ていった。空いたところを、後ろから誰も詰めてこない。'; return 604; } })] },
@@ -760,6 +760,9 @@ BOOKS.monster = {
     608:{ text:'車のあいだを通った。\n\n若い巡査が、パトカーの扉に手を掛けたまま、こっちを見ている。\n「署長」\n返事をしようとした。口は開いたが、音にならない。\n\n玄関から、もうひとり出てきた。帽子を取って、脇に挟んだ。それから、腰の手錠を外した。',
       choices:[c('立ったまま、待つ', 0, 609), c('玄関のほうへ、もう一歩出る', 0, 609, { run(s){ s.msg = '若い巡査が、警棒を横にして、胸の前に出した。押されはしなかった。足が止まった。'; return 609; } })] },
     610:{ end:'monster-done', text:'長椅子のあいだを歩いた。\n\n座っている人たちが、黙って足を引っこめる。窓口の中の女の人が、番号を呼びかけて、やめた。\n「院長」\n\n白い服の2人が、両側から腕を取った。ひとりは、前に何度も一緒に歩いたことのある歩幅だ。引かれるほうへ歩いた。\n\n小さな部屋。ベッドが1つ。戸が閉まって、外から掛け金の音がした。小窓の向こうで、誰かが紙を貼っている。字は裏から透けて見えるが、読み方が出てこない。\n\n（ここまで）', choices:[] },
+    611:{ text:'列のいちばん後ろに立った。\n\n前の女の人が、振り向いた。紺色の上着の袖を見て、それから顔を見た。何か言いかけて、半歩だけ前へ詰めた。\n\n内ポケットで、小さな機械が番地を読み上げている。聞いたことのある通りの名前だ。どこにあるのかが、出てこない。',
+      choices:[c('列が進むのに合わせて、進む', 0, 612), c('読み上げられた番地のほうへ、向きを変える', 0, 612, { run(s){ s.msg = '向きを変えた。足は、2歩で止まった。走り方が、出てこない。列の後ろへ戻った。'; return 612; } })] },
+    612:{ end:'monster-done', text:'扉のすぐ内側に、机があった。\n\n係員が、名簿から顔を上げた。こっちの腕は見ずに、目を見た。それから、無線に短く何か言った。\n「すみません。こちらへ」\n\n黄色いベストの2人が、両側に立った。首に、柄のついた輪が掛かる。痛くはない。引かれるほうへ歩いた。\n\n集会室の奥の、小さな部屋だった。長椅子が1つ。先に、2人いる。\n\nポケットの機械は、まだ番地を読み上げている。係員が、上着の内側からそれを取り出して、つまみを回した。音が、消えた。\n\n係員は、名札のない上着を、しばらく見ていた。それから、用紙の名前の欄を、空けたままにした。\n\n（ここまで）', choices:[] },
     609:{ end:'monster-done', text:'左の手首に、手錠が掛かった。もう片方の輪は、金網のフェンスに掛けられた。\n\n「決まりですので」と、帽子を脇に挟んだ男が言った。それから帽子をかぶり直して、敬礼をした。若い巡査も、遅れて敬礼をした。\n\nフェンスには、ほかにも手錠がいくつか下がっている。空のものも、そうでないものもある。\n\n無線の声が、車の中から聞こえる。数を読み上げている。その数が何の数だったかは、もう出てこない。\n\n（ここまで）', choices:[] },
   },
 };
@@ -2087,9 +2090,10 @@ Object.assign(CAM_DEFS, {
   CAM_DEFS.v_h_gate.out = { ...CAM_DEFS.v_h_gate.out, night:false, fog:[28, 90], lamps:[] }; // 工場の正門は、もとの映像が夕方用。ヒーローが行くのは午前
 }
 for(const [cam, list] of Object.entries({ v_hosp:[403], v_dock:[406] })) list.forEach(n => PARA_CAMS[n] = cam);
-for(const [cam, list] of Object.entries({ v_north:[500, 510], v_church:[505, 506], v_h_elm:[530], v_h_maple:[531], v_h_hosp:[532], v_h_gate:[533], v_h_stop:[534], v_h_church:[535], v_h_bridge:[536], v_h_school:[537] })) list.forEach(n => PARA_CAMS[n] = cam); // ヒーローの本
-for(const [cam, list] of Object.entries({ v_ps:[300, 301, 307, 310], v_school:[302, 303, 304, 313, 314], v_hosp:[305, 306], v_north:[308, 309], v_bridge:[311, 312], v_county:[315] })) list.forEach(n => PARA_CAMS[n] = cam);
-for(const [cam, list] of Object.entries({ v_res:[200, 201, 202], v_church:[203, 204, 205, 206], v_hq:[207, 208, 209], v_hosp:[210, 211, 212, 213, 214, 218], v_radio:[215, 216, 217, 219], v_factory:[220, 221, 222], v_hotel:[223, 224] })) list.forEach(n => PARA_CAMS[n] = cam);
+for(const [cam, list] of Object.entries({ v_home:[801, 802, 803, 805, 808, 827], v_oak:[812, 813, 846], v_maple:[818, 819], v_oak3:[833, 814], v_yard:[834], v_oak4:[836, 898], v_school:[850, 849, 851, 860, 861, 862, 897], v_gym:[865, 853, 854, 855, 875, 876, 869, 871, 872, 899] })) list.forEach(n => PARA_CAMS[n] = cam); // 有権者の朝（短い場面をつなぐ所）
+for(const [cam, list] of Object.entries({ v_north:[500, 510, 541, 542, 543, 544, 550], v_church:[505, 506], v_h_elm:[530, 551, 561], v_h_maple:[531, 552, 562], v_h_hosp:[532, 553, 563], v_h_gate:[533, 554, 564], v_h_stop:[534, 555, 565], v_h_church:[535, 556, 566, 559], v_h_bridge:[536, 557, 567], v_h_school:[537, 558, 568] })) list.forEach(n => PARA_CAMS[n] = cam); // ヒーローの本
+for(const [cam, list] of Object.entries({ v_ps:[302, 313, 317], v_school:[316, 355, 303, 318, 359, 335, 314, 360], v_hosp:[310, 305, 306, 338], v_north:[308, 309, 357], v_bridge:[352, 311, 312, 358], v_county:[333, 336, 315] })) list.forEach(n => PARA_CAMS[n] = cam); // 署長の本
+for(const [cam, list] of Object.entries({ v_res:[200, 201, 202, 203, 225], v_resb:[245], v_church:[204, 246, 247, 205], v_hq:[207, 248, 208], v_school:[251, 252], v_hosp:[210, 211, 212, 218], v_radio:[253, 216, 254, 217], v_factory:[220, 221] })) list.forEach(n => PARA_CAMS[n] = cam); // 州知事の本
 for(const [cam, list] of Object.entries({ v_oak3:[33, 34], v_bridge:[76, 97, 100], v_depot:[77, 98, 99], v_hosp:[78, 83, 84, 85, 86, 87], v_dock:[80], v_main:[88, 91, 92, 93], v_alley:[90], v_church:[94, 95, 96] })) list.forEach(n => PARA_CAMS[n] = cam);
 for(const [cam, list] of Object.entries({ v_home:[1, 5, 8, 27, 111], v_oak:[12, 31, 32, 44, 46, 57, 110], v_oak4:[28, 36, 104], v_maple:[18, 19], v_school:[49, 50, 51, 52, 58, 59, 60, 61, 62, 75, 105, 106, 107], v_gym:[53, 54, 55, 56, 69, 70, 71, 72] })) list.forEach(n => PARA_CAMS[n] = cam);
 
@@ -3232,7 +3236,7 @@ function cctvState(s, w){
     place:s.place, cam:camFor(s), plan:planOf(s), offscreen:inBlindSpot(s), you:s.char, monster:s.book === 'monster', ended,
     // 襲われている町の人：場面（段落か場所）の prey:{ n:組みつく数, pose:町の人のしぐさ }
     prey:(() => { if(ended || s.book === 'monster') return null; let v = sp ? sp.prey : p.prey; try { if(typeof v === 'function') v = v(s, w); } catch(e){ v = null; } return v && v.n > 0 ? { n:Math.min(6, v.n | 0), pose:POSES[v.pose] ? v.pose : 'fend' } : null; })(),
-    zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? spotZ(s, w, sp) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? p.zombies : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
+    zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? spotZ(s, w, sp) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? (typeof p.zombies === 'function' ? p.zombies(s, w) : p.zombies) : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
     hideOk:sp ? !!sp.hide : p.zombies == null || !!p.hide, inDoor:p.inside === 'door',
     aware:sp ? s.aware === p.spot : !!zsHere(s)?.aware, alert:zsHere(s)?.alert || 0, encounter:!!p.encounter, other:other ? other.char : null,
     blackout:s.clock >= BLACKOUT, clock:s.clock,
@@ -4562,7 +4566,7 @@ if(store.get('ver', 0) !== SAVE_VER){ ['world', 'undo', 'me', 'current', ...CHAR
 let me = store.get('me', CHAR_IDS[0]); if(!CHARS[me]) me = CHAR_IDS[0];
 let histIndex = null; // 履歴を見ているときの位置（null は最新）
 let lastView = null;  // いま画面に出している内容（選んだときに履歴へ残す）
-document.addEventListener('click', e => { const q = e.target.closest && e.target.closest('[data-drop]'); if(!q || editOn) return; const t = document.querySelector('.choices button.dropch'); if(t && !t.disabled) t.click(); });
+document.addEventListener('click', e => { const q = e.target.closest && e.target.closest('[data-drop]'); if(!q || editOn) return; const t = [...document.querySelectorAll('.choices button.dropch')].find(x => lastView && lastView.choices[+x.dataset.i] && lastView.choices[+x.dataset.i].menu === 'drop'); if(t && !t.disabled) t.click(); });
 function canActReal(){ return realIO(() => room ? roomOpen && mine(current) : loadWorld().lock === me && current === me); }
 function canAct(){ return trialOn() || canActReal(); }
 // 試しを始める：自分がロックしていない本を開いたとき（自分がロックしている本は、部屋が閉じていても試しにしない）
@@ -6075,7 +6079,7 @@ function viewHtml(v, opt){
   html += '<div class="choices">' + v.labels.map((l, i) => {
     const chosen = opt.chosen === l;
     const off = !opt.interactive || v.disabled[i];
-    const drop = !chosen && v.choices && v.choices[i] && v.choices[i].menu === 'drop'; // 「持ち物を置いていく」は、上の帯の［持ち物］から
+    const drop = !chosen && v.choices && v.choices[i] && (v.choices[i].menu === 'drop' || v.choices[i].hide != null); // 「持ち物を置いていく」は、上の帯の［持ち物］から。hide のある選択肢は、番号を打ちこんだときだけ
     return `<button data-i="${i}" class="${chosen ? 'chosen' : drop ? 'dropch' : ''}" ${off ? 'disabled' : ''}>${chosen ? '▶ ' : ''}${escText(l)}${v.held && v.held[i] ? '<span class="tag">先に来た人がいます。いまは取れません</span>' : ''}</button>`;
   }).join('') + '</div>';
   return html;
@@ -6497,6 +6501,11 @@ const TALLY = {
     ['gov_delay', 900, -500, 0, '知事は州立病院の前で、統合の時期を1年延ばして見直すと答えた。'],
     ['gov_stayed', 700, 0, 0, '知事は、演台の前まで3人が来ても、演説をやめなかった。'],
     ['gov_police_promise', 800, -300, 0, '知事はラジオで、巡回の警官の数を戻すと約束した。'],
+    ['gov_vans', 450, 0, 0, '知事の陣営は午前、東の投票区へ送迎の車を出した。'],
+    ['gov_school_wave', 120, 0, 0, '知事は午前、リンカーン小学校の立て札の外から、列に手を振った。'],
+    ['gov_school_line', -500, 300, 100, '知事は午前、リンカーン小学校の立て札の内側で、列の人と握手をした。選挙管理人は、時刻と知事の名前を州務長官へ届けた。'],
+    ['gov_yellow', -400, 200, 200, '知事は投票所で、黄色い札を下げて投票した。その写真が、夕刊の1面に載った。'],
+    ['gov_reported', 150, 0, 0, '知事は夕方、手首の傷を、自分の名前で保健局へ届け出た。'],
     ['health_notice', -600, -500, -200, '保健局は昼に、投票所での確認を徹底する呼びかけをもう一度出した。'],
     ['chief_pulled_patrol', -200, -250, -50, '署長は、投票所の巡回の1台を通報の対応へ回した。'],
     ['chief_route', 0, 700, 0, '署長は、カーヴァー陣営の送迎の車が通る道に、巡回を寄せた。'],
@@ -8151,10 +8160,13 @@ function decorateForEdit(mode){
     const sk = draftShown && draftShown.key === key && draftShown.scene;
     const hid = [...(sk ? shownOf(sk).add.map(a => [a, sk + '>' + a.id]) : []), ...d.add.map(a => [a, key + '>' + a.id]), ...shownOf(anyKey()).add.map(a => [a, anyKey() + '>' + a.id])].filter(([a]) => a.fx && a.fx.hide);
     const jb = document.createElement('div'); jb.className = 'jump';
-    jb.innerHTML = '<label>番号を打ちこむ</label><input type="number" inputmode="numeric" placeholder="番号"><button>進む</button>';
+    jb.innerHTML = '<label>番号を打ちこむ</label><input type="text" inputmode="numeric" maxlength="12" placeholder="番号"><button>進む</button>';
     jb.querySelector('button').onclick = () => {
-      const n = jb.querySelector('input').value.trim();
+      const n = jb.querySelector('input').value.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 65248)).replace(/[^0-9]/g, '');
       if(!n) return;
+      // 作りつけの隠れた選択肢（本文に出てくる番号）
+      const bi = (v.choices || []).findIndex((ch, i) => ch && ch.hide != null && String(ch.hide) === n && !v.disabled[i]);
+      if(bi >= 0){ fbNote = ''; act(v.choices[bi]); return; }
       const hit = hid.find(([a]) => String(a.fx.hide) === n && !condUnmet(loadPlayer(current), loadWorld(), a).length && !locked.includes(a.label));
       if(!hit){ fbNote = 'その番号では、何も起きない。'; render(); return; }
       fbNote = ''; runDraft(hit[0], key, hit[1], v);
@@ -8194,15 +8206,18 @@ function resultHtml(){
   if(r.votes.governor) own.push('ホイットモア知事の1票は、第9投票区（聖マルコ教会）の数に入っている。');
   else if(started(gov)) own.push('ホイットモア知事は、投票しなかった。');
   if(started(r.st.director)) own.push('ハーラン院長は、先週のうちに期日前投票を済ませている。');
-  if(started(r.st.chief)) own.push('ブレナン署長は、一日のあいだ、どの投票所でも立て札から先へは入らなかった。投票もしていない。');
+  if(started(r.st.chief)) own.push((r.st.chief.flags || {}).removed ? 'ブレナン署長は朝、リンカーン小学校で、要請のないまま立て札を越えた。投票はしていない。' : 'ブレナン署長は、一日のあいだ、要請のないかぎり、どの投票所でも立て札から先へは入らなかった。投票もしていない。');
   h += '<br><br>' + own.join('<br>');
   if(r.notes.length) h += '<br><br><b>この一日のうち、数に出たこと</b><br>' + r.notes.join('<br>');
   const vf = started(r.st.voter) ? r.st.voter.flags || {} : {}, quiet = [
     vf.lured && 'モーガンは朝、リンカーン小学校の列に近づいた男を、駐車場の奥まで引きつけた。列に戻ると、最後尾だった。',
     vf.toldLine && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
     vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
+    vf.janitorTold && 'モーガンは朝、リンカーン小学校の廊下に立っていた用務員と給食の2人のことを、係員に知らせた。',
+    vf.toldH && 'モーガンは朝、受付に来なかったヘンダーソンさんのことを、体育館の係員に話した。',
     vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。',
-    String(r.st.voter.status || '').startsWith('left') && r.st.voter.wounds > 0 && 'モーガンは、腕に傷のあるまま、リコの車の後ろの席に乗った。隣には、リコの子どもが2人いた。'].filter(Boolean);
+    String(r.st.voter.status || '').startsWith('left') && r.st.voter.wounds > 0 && 'モーガンは、腕に傷のあるまま、リコの車の後ろの席に乗った。隣には、リコの子どもが2人いた。',
+    loadWorld().events.some(e => e.type === 'flag' && e.name === 'gov_hid_wound') && 'ホイットモア知事は、手首の傷を届け出ないまま、夜の席に着いた。'].filter(Boolean);
   if(quiet.length) h += '<br><br><b>この一日のうち、数に出なかったこと</b><br>' + quiet.join('<br>');
   return more + h + '</div>';
 }
