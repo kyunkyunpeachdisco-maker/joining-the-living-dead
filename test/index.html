@@ -122,6 +122,8 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .stat{flex:1;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:13px;color:var(--dim)}
 .stat b{color:var(--text);font-weight:normal}
 .stat .infect{color:var(--red)}
+.stat .itemsbtn{all:unset;cursor:pointer;border-bottom:1px dotted var(--dim)}
+.choices button.dropch,.crow:has(> .dropch){display:none}
 #cutscene{position:relative;max-width:640px;margin:0 auto;background:#000;aspect-ratio:16/9;overflow:hidden}
 #cutscene[hidden],#cutscene.tucked{display:none}
 #cutscene canvas{display:block;width:100%;height:100%;image-rendering:pixelated;filter:saturate(.7) contrast(1.15) brightness(1.08)}
@@ -231,6 +233,8 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .th .rx button,.th .mini{padding:2px 7px;font-size:13px}
 .th .mini{background:none;border:0;color:#8a8270;text-decoration:underline}
 .chips{margin:8px 0}
+.arule{border-top:1px dashed #3a3a40;padding:10px 0 4px}.arule .row{gap:6px;margin:0 0 6px}.arule select{flex:1;margin:0}.arule input{margin:0 0 6px}
+.sug{margin:0 0 8px}.sug p{margin:0 0 4px;font-size:12px;color:var(--dim)}.sug button{display:block;width:100%;text-align:left;margin:0 0 4px;padding:7px 10px;font-size:13px;border:1px dashed #6a5a30;background:none;color:#e0c070;border-radius:8px}
 .chips button{padding:4px 10px}
 #cutscene.flash canvas{filter:brightness(2.6)}
 #cutstill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;filter:saturate(.7) contrast(1.15) brightness(1.05)}
@@ -492,7 +496,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 07:42 bfa9931';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 09:19 855aef3';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -5973,6 +5977,7 @@ if(store.get('ver', 0) !== SAVE_VER){ ['world', 'undo', 'me', 'current', ...CHAR
 let me = store.get('me', CHAR_IDS[0]); if(!CHARS[me]) me = CHAR_IDS[0];
 let histIndex = null; // 履歴を見ているときの位置（null は最新）
 let lastView = null;  // いま画面に出している内容（選んだときに履歴へ残す）
+document.addEventListener('click', e => { const q = e.target.closest && e.target.closest('[data-drop]'); if(!q || editOn) return; const t = document.querySelector('.choices button.dropch'); if(t && !t.disabled) t.click(); });
 function canActReal(){ return realIO(() => room ? roomOpen && mine(current) : loadWorld().lock === me && current === me); }
 function canAct(){ return trialOn() || canActReal(); }
 // 試しを始める：自分がロックしていない本を開いたとき（自分がロックしている本は、部屋が閉じていても試しにしない）
@@ -6138,7 +6143,7 @@ function soloCount(){
   return n + Object.keys(store.get('draft-books', {})).length;
 }
 const distNote = t => { if(room) roomNote = t; else packNote = t; };
-const packData = () => { const o = distOverlay(); return { v:1, base:overlay.base || baseNow(), keys:o.keys || {}, items:{}, poses:o.poses || {}, spots:o.spots || {}, books:o.books || {}, cams:o.cams || {} }; };
+const packData = () => { const o = distOverlay(); return { v:1, base:overlay.base || baseNow(), keys:o.keys || {}, items:{}, poses:o.poses || {}, spots:o.spots || {}, books:o.books || {}, cams:o.cams || {}, auto:autoNow() }; };
 // 部屋に入っていないとき：この端末の下書きを、連携したリポジトリの book/overlay.json に保存する。リポジトリの今の中身（Claude Code が直した分など）は残して、その上に重ねる
 // 書き換えを保存するたびに、少し待ってから、リポジトリにも保存する（続けて直しているあいだは、1回にまとめる）
 let autoSaveTimer = 0, soloBase = null, soloGuideSeen = false;
@@ -6195,7 +6200,8 @@ function soloTake(merged, saved, repo){
   if(!jeq(now.books, merged.books)) store.set('draft-books', merged.books);
   store.set('solo-saved', verPick(saved));
   if(jeq(verPick(merged), verPick(saved))) clearTimeout(autoSaveTimer); // リポジトリと同じなら、保存し直さない
-  overlay = { base:(repo && repo.base) || overlay.base || null, keys:{}, items:{}, poses:(repo && repo.poses) || overlay.poses || {}, spots:{}, books:{}, cams:{} }; overlayPoses(); store.set('overlay', overlay);
+  autoSettle(repo && repo.auto);
+  overlay = { base:(repo && repo.base) || overlay.base || null, keys:{}, items:{}, poses:(repo && repo.poses) || overlay.poses || {}, spots:{}, books:{}, cams:{}, auto:(repo && repo.auto) || overlay.auto || null }; overlayPoses(); store.set('overlay', overlay);
   try { applySpots(); } catch(e){}
 }
 const soloMine = () => soloOverlay({});                                   // この端末の下書きだけ
@@ -6215,7 +6221,7 @@ async function soloPull(manual){
       if(meta.sha === soloSha){ if(manual) soloPullNote = '新しいものはありません'; }
       else {
         const dec = ghDecode(meta); if(!dec) throw 0;
-        const repo = clean(Object.assign({ v:1, keys:{} }, dec)) || {}, sig = () => JSON.stringify([verPick(soloMine()), overlay.keys, overlay.poses]), before = sig();
+        const repo = clean(Object.assign({ v:1, keys:{} }, dec)) || {}, sig = () => JSON.stringify([verPick(soloMine()), overlay.keys, overlay.poses, overlay.auto]), before = sig();
         soloTake(soloMerge(repo), repo, repo); soloSha = meta.sha;
         const changed = before !== sig();
         if(manual) soloPullNote = changed ? '読みこみました' : '新しいものはありません';
@@ -6234,7 +6240,7 @@ async function soloSave(quiet){
     const auto = quiet === true, base = auto && soloBase ? soloBase : (soloBase = (await packDataPublic()).base);
     if(!auto || !soloGuideSeen) soloGuideSeen = true, ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
     let merged = null, repo = null;
-    const r = await ghWrite('book/overlay.json', meta => { repo = clean(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null)) || {}; merged = soloMerge(repo); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...repo, ...merged, poses:repo.poses || overlay.poses || {}, base })) }; });
+    const r = await ghWrite('book/overlay.json', meta => { repo = clean(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null)) || {}; merged = soloMerge(repo); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...repo, ...merged, poses:repo.poses || overlay.poses || {}, base, ...autoPut(repo.auto) })) }; });
     if(r.status !== 200) throw r.status;
     soloTake(merged, merged, repo); clearTimeout(autoSaveTimer); soloSha = null;
     if(quiet !== true) packNote = 'リポジトリ（' + ghRepo() + '）の book/overlay.json に保存しました。Claude Code でこのリポジトリを開くと、続きを直せます。配るリンクは、この欄のいちばん上に、このリポジトリの名前を入れて付けると、取れます。';
@@ -6326,7 +6332,7 @@ async function pubBack(sha){
     try {
       const { rel, ...data } = await pubGet(sha), o = clean(data) || {};
       const units = Object.entries(roomItems).filter(([, it]) => it && unitOk(it.draft)), kept = units.filter(([, it]) => unitIn(o, it.draft)).map(([k]) => k);
-      await overlayWrite(x => { const was = x.items || {}; x.keys = o.keys || {}; x.spots = o.spots || {}; x.books = o.books || {}; x.cams = o.cams || {}; x.poses = o.poses || {}; x.items = Object.fromEntries(kept.map(k => [k, was[k] || { by:String(roomItems[k].by || ''), at:Date.now() }])); });
+      await overlayWrite(x => { const was = x.items || {}; x.keys = o.keys || {}; x.spots = o.spots || {}; x.books = o.books || {}; x.cams = o.cams || {}; x.poses = o.poses || {}; if(o.auto) x.auto = o.auto; x.items = Object.fromEntries(kept.map(k => [k, was[k] || { by:String(roomItems[k].by || ''), at:Date.now() }])); });
       store.set('adopt-skip', [...new Set([...store.get('adopt-skip', []), ...units.map(([k]) => k).filter(k => !kept.includes(k))])].slice(-200));
       for(const [k, it] of units) it.adopted = kept.includes(k);
       roomSig = '';
@@ -6348,7 +6354,8 @@ async function pubBack(sha){
     store.set('draft', o.keys || {}); store.set('draft-spots', o.spots || {}); store.set('draft-cams', o.cams || {}); store.set('draft-books', o.books || {});
     clearTimeout(autoSaveTimer);
     store.set('solo-saved', soloMine()); soloSha = null; store.set('outbox', store.get('outbox', []).filter(x => !x.draft));
-    overlay = { base:o.base || null, keys:{}, items:{}, poses:o.poses || {}, spots:{}, books:{}, cams:{} }; overlayPoses(); store.set('overlay', overlay);
+    store.remove('draft-auto');
+    overlay = { base:o.base || null, keys:{}, items:{}, poses:o.poses || {}, spots:{}, books:{}, cams:{}, auto:o.auto || null }; overlayPoses(); store.set('overlay', overlay);
     try { applySpots(); } catch(e){}
     store.set('pub-from', { n:v.n || 0, data:verPick(o) });
     packNote = verName(v) + ' の中身を、手元に戻しました。書き換えてから［配っている版を新しくする］を押すと、新しい版として配れます。';
@@ -6377,7 +6384,7 @@ async function soloPublish(){
   try {
     const base = (await packDataPublic()).base, g = await ghApi('book/overlay.json');
     if(!g.ok && g.status !== 404) throw g.status;
-    const repo = clean(Object.assign({ v:1, keys:{} }, g.ok ? ghDecode(await g.json()) : null)) || {}, o = soloMerge(repo), data = { v:1, base, keys:o.keys, items:{}, poses:repo.poses || overlay.poses || {}, spots:o.spots, books:o.books, cams:o.cams };
+    const repo = clean(Object.assign({ v:1, keys:{} }, g.ok ? ghDecode(await g.json()) : null)) || {}, o = soloMerge(repo), data = { v:1, base, keys:o.keys, items:{}, poses:repo.poses || overlay.poses || {}, spots:o.spots, books:o.books, cams:o.cams, ...(autoNow() ? { auto:autoNow() } : {}) };
     const r = await pubWrite(api, data, 0, pubMemo);
     if(r.status !== 200) throw r.status;
     store.set('pub-from', { n:r.n, data:verPick(data) }); pubMemo = '';
@@ -6660,7 +6667,7 @@ function howPages(kind){
     return [
       { t:'編集版でできること', text:'編集版では、ゲームの文章や選択肢を書き換えられます。場所や本を足すこともできます。<br><br>書き換えたゲームは、リンクかファイルで人に配れます。部屋を作ると、何人かで一緒に書き換えられます。文章や選択肢を、AI に書かせることもできます。' },
       ...(room ? [] : [{ t:'準備する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。<br><br>リポジトリは、GitHub に作る自分用のファイル置き場です。GitHub は、無料で使えるサービスです。リポジトリは、作業用と配る用の2つを作ります。リポジトリを設定すると、次のことができます。<br><br>・書き換えたものが、自動で保存されます。<br>・好きな画像を、ゲームに入れられます。<br>・書き換えたゲームを、リンクで配れます。<br>・自分がゲームを閉じていても、ほかの人が部屋を使えます。<br>・文章や選択肢を、AI に書かせられます。', after:'※ リポジトリを設定しなくても、文章や選択肢を書き換えて、ファイルで配ることはできます。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。']] },
+      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。'], ['選択肢に持ち物や体力を付ける', '選択肢を足すとき、選択肢の文と、選んだら起きることの文を入れると、文の下に「体力が1減る」のような案が表示されます。案を押すと、案が選択肢に付きます。映像の中の主人公の動きは、入れた文から自動で決まります。どの言葉で何が出るかの決まりは、［☰］の「作る」にある［自動提案］を押すと、変えられます。']] },
       { t:'配る', text:room ? '配るのは、部屋の全員のゲームと同じ中身です。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。'],
@@ -6683,7 +6690,7 @@ function howPages(kind){
     { t:'ゲームの進めかた', list:[
       ['時刻', '選択肢を選ぶと、時刻が進みます。投票所は、朝7時から夜8時まで開いています。'],
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : 'ある本が次の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
-      ['持ち物', '持ち物によって、選べる選択肢が増えます。'],
+      ['持ち物', '持ち物によって、選べる選択肢が増えます。画面の上の［持ち物］に下線が出ているときは、［持ち物］を押すと、主人公のいる場所に持ち物を置けます。'],
       ['体力', 'ゾンビに襲われると、体力が1減ります。体力がなくなると、主人公はゾンビになります。'],
       ['感染', 'ゾンビに襲われると、感染することがあります。感染したまま時間がたつと、主人公はゾンビになります。'],
       ...(room ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、一緒に遊べます。部屋では、1人が1冊を受け持ちます。画面の右端の［通信］を押すと、部屋の人と話せます。']]),
@@ -6784,7 +6791,7 @@ async function loadPack(){
       : await fetch('https://raw.githubusercontent.com/' + PACK + '/HEAD/book/overlay.json?t=' + Date.now());
     if(!r.ok) throw r.status;
     const o = clean(JSON.parse(await r.text()));
-    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {}, rel:(o && o.rel) || null }; store.set('pack-cache', overlay); overlayPoses();
+    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {}, auto:(o && o.auto) || null, rel:(o && o.rel) || null }; store.set('pack-cache', overlay); overlayPoses();
     if(await pinToBase()) return;
     render();
   } catch(e){ packNote = 'カスタム版の中身（' + PACK + '）を、読めませんでした。' + (store.get('pack-cache', null) ? '前に読んだものを使っています。' : 'もとの版のまま出しています。'); render(); }
@@ -6841,7 +6848,7 @@ async function repoSync(){
   for(const d of ['m', 'own']) if(!top.some(f => f.type === 'dir' && f.name === d)) delete repoSeen.dirs[d];
   // 採用されたものを読む
   const bk = await list('book'), of = (bk || []).find(f => f.name === 'overlay.json');
-  if(of && of.sha !== overlaySha && !CUSTOM){ const r = await ghApi('book/overlay.json', { raw:true }); if(r.ok){ try { const o = clean(JSON.parse(await r.text())); overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:(o && o.items) || {}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {} }; overlaySha = of.sha; overlayPoses(); store.set('overlay', overlay); } catch(e){} } }
+  if(of && of.sha !== overlaySha && !CUSTOM){ const r = await ghApi('book/overlay.json', { raw:true }); if(r.ok){ try { const o = clean(JSON.parse(await r.text())); overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:(o && o.items) || {}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {}, auto:(o && o.auto) || null }; overlaySha = of.sha; overlayPoses(); store.set('overlay', overlay); } catch(e){} } }
   repoOk = true; repoAt = Date.now();
 }
 // 読んだものと自分の分から、部屋の中身を組み立てる
@@ -7466,7 +7473,7 @@ function buildView(s, w){
 function statHtml(v){
   let stat = `<span>時刻 <b>${fmt(v.clock)}</b></span>`;
   if(v.monster) return stat + '<span class="infect">化け物</span>';
-  stat += `<span>体力 <b>${'●'.repeat(Math.max(0, v.hp))}${'○'.repeat(Math.max(0, 3 - v.hp))}</b></span><span>持ち物 <b>${v.items}</b></span>`;
+  stat += `<span>体力 <b>${'●'.repeat(Math.max(0, v.hp))}${'○'.repeat(Math.max(0, 3 - v.hp))}</b></span>${(v.choices || []).some(ch => ch && ch.menu === 'drop') ? `<button class="itemsbtn" data-drop="1" title="持ち物を置いていく">持ち物 <b>${v.items}</b></button>` : `<span>持ち物 <b>${v.items}</b></span>`}`;
   if(v.wounds) stat += `<span class="infect">腕の傷×${v.wounds}</span>`;
   return stat;
 }
@@ -7483,7 +7490,8 @@ function viewHtml(v, opt){
   html += '<div class="choices">' + v.labels.map((l, i) => {
     const chosen = opt.chosen === l;
     const off = !opt.interactive || v.disabled[i];
-    return `<button data-i="${i}" class="${chosen ? 'chosen' : ''}" ${off ? 'disabled' : ''}>${chosen ? '▶ ' : ''}${escText(l)}${v.held && v.held[i] ? '<span class="tag">先に来た人がいます。いまは取れません</span>' : ''}</button>`;
+    const drop = !chosen && v.choices && v.choices[i] && v.choices[i].menu === 'drop'; // 「持ち物を置いていく」は、上の帯の［持ち物］から
+    return `<button data-i="${i}" class="${chosen ? 'chosen' : drop ? 'dropch' : ''}" ${off ? 'disabled' : ''}>${chosen ? '▶ ' : ''}${escText(l)}${v.held && v.held[i] ? '<span class="tag">先に来た人がいます。いまは取れません</span>' : ''}</button>`;
   }).join('') + '</div>';
   return html;
 }
@@ -7580,7 +7588,7 @@ function render(){
     grp('本を選ぶ', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
     + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存してロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずにロックを外す</button>' : '') : '')
     + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
-    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
+    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel === true ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (bookPanel === 'auto' ? ' on' : '') + '" id="autobtn">自動提案</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
       + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
       + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '<small>済み</small>' : '') + '</button>'))
     + grp('そのほか', `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
@@ -7851,6 +7859,8 @@ function render(){
   document.querySelectorAll('[data-chgundo]').forEach(el => { el.onclick = () => { const c = chgList()[+el.dataset.chgundo]; if(c && confirm('「' + c.kind + '」を取り消しますか？')) chgUndo(c.id); }; });
   document.querySelectorAll('[data-chggo]').forEach(el => { el.onclick = () => { chgPanel = false; cmGo(el.dataset.chggo); }; });
   on('bookbtn', () => { bookPanel = true; roomPanel = packPanel = linkPanel = false; menuOpen = false; render(); });
+  on('autobtn', () => { bookPanel = 'auto'; autoNote = ''; roomPanel = packPanel = linkPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
+  autoPanelWire();
   bookPanelWire();
   on('flowbtn', () => { flowOpen = !flowOpen; menuOpen = false; flowAt = loadPlayer(current).para; render(); if(flowOpen){ const c = document.querySelector('.fl.cur'); if(c) c.scrollIntoView({ block:'center' }); } else window.scrollTo(0, 0); });
   on('flowList', () => { flowView = 'list'; render(); });
@@ -8660,7 +8670,7 @@ async function overlayWrite(change){
   ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
   const r = await ghWrite(path, meta => { o = Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null); change(o); o.base = baseNow(); return { message:'本に採用する', content:b64(JSON.stringify(o)) }; }); // この版の原本に合わせて、採用した
   if(r.status !== 200) throw r.status;
-  const c = clean(o); overlay = { base:c.base || null, keys:c.keys || {}, items:c.items || {}, poses:c.poses || {}, spots:c.spots || {}, books:c.books || {}, cams:c.cams || {} }; overlaySha = r.sha; overlayPoses(); store.set('overlay', overlay);
+  const c = clean(o); overlay = { base:c.base || null, keys:c.keys || {}, items:c.items || {}, poses:c.poses || {}, spots:c.spots || {}, books:c.books || {}, cams:c.cams || {}, auto:c.auto || null }; overlaySha = r.sha; overlayPoses(); store.set('overlay', overlay);
   liveChanged();
 }
 // 採用したものを、公開用のリポジトリへ出す（部屋のリポジトリは非公開のまま。出すのは book/overlay.json だけ）
@@ -8704,7 +8714,7 @@ async function exportCustom(){
     if(!src.includes(mark) || !src.includes(verMark) || src.includes('<scr' + 'ipt src="book-')) throw 0;
     const d = new Date(), ver = 'custom-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
     const o = distOverlay(), assets = {}; for(const id of usedAssets(o)){ const d = await assetData(id); if(d) assets[id] = d; }
-    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:o.keys || {}, items:{}, poses:o.poses || {}, spots:o.spots || {}, books:o.books || {}, cams:o.cams || {}, assets }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
+    const json = JSON.stringify({ base:overlay.base || baseNow(), keys:o.keys || {}, items:{}, poses:o.poses || {}, spots:o.spots || {}, books:o.books || {}, cams:o.cams || {}, auto:autoNow(), assets }).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, '');
     const out = src.replace(mark, () => '/*EMB' + 'ED*/' + json + '/*EMB' + 'ED*/').replace(verMark, () => "'" + ver + "'");
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([out], { type:'text/html' })); a.download = 'joining-the-living-dead-' + ver + '.html';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
@@ -8759,6 +8769,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
   + '  - add（足した選択肢）の1つ：{ "id":1, "label":"選択肢の文", "result":"選んだあとに出る文", "to":"stay", "fx":{…} }。id は、その場面の中で重ならない数字。to は "stay"（その場にとどまる）・"off"（カメラの外へ出る）・"spot:<場所の名前>"（その場所へ移る）・もとの選択肢の文（その選択肢へ合流する）\n'
   + '    - fx：hp（体力の増減）・inf（感染の増減）・min（かかる分）・get / lose（持ち物の名前の並び）・one:true（1回だけ選べる）・hide:true（番号を入れたときだけ出る隠し選択肢）・st（演出。paras の st と同じ。pose は、catalog.json の poses の名前）\n'
   + '    - 選べる条件 fx.cond：have / lack（持ち物）・flag / noflag（街の印）・after / before（その場面で、その選択肢を、選んだあと / まだ選んでいない）・hp / inf / z（体力・感染・その場のゾンビ。{ "min":1 } や { "max":0 }）・at（時刻）・from / to（来た場所・行ける場所）。fx.cor に、同じ形の組を並べると「または」になる\n'
+  + '  - auto … 自動提案の決まり。overlay.json のいちばん上に { "auto": [ { "on":"gait", "val":"run", "words":"走っ|走る|駆け", "not":"走り書き" }, { "on":"get", "words":"手に取っ|受け取っ" } ] } のように書く。足した選択肢の文（選択肢の文と、選んだら起きることの文）に words の言葉があると、演出が決まり、起きること・条件の案が出る。auto を書くと、もとの決まりは全部それに置き換わる（もとの決まりは、編集版の ☰ の「自動提案」の画面に並んでいる。一部だけ変えたいときは、その画面の中身を写してから直す）。上にある決まりが先。on は、gait（足の運び。val は run・sneak）、pose（しぐさ。val はしぐさの名前）、pos（立つ位置。val は door・hide）、z（ゾンビ。val は 1・2）、get（words の前の「〜を」の物を、手に入れる案）、lose（なくす案）、have（words の前の物を、持っているときだけ選べる案）、hp（体力。val は -2〜2）、min（words の前の「20分」「1時間」を、かかる時間の案に）、one（1回だけ選べる案）。words と not は、そのままの字として探す（正規表現は使えない）。「|」で区切る。not の言葉がある文では、拾わない。any:true を付けると、「男が」「ゾンビが」のような、ほかの人がしたことでも拾う。打ち消し（〜ずに・〜なかった）と、せりふ（「」の中）は、初めから拾わない。\n'
   + '  - poses … 足したしぐさ。overlay.json のいちばん上に { "poses": { "salute": { "name":"敬礼する", "words":"敬礼", "armR":[2.2, 2.0] } } } のように書くと、演出の「しぐさ」に出て、文に words の言葉があれば、自動で選ばれる。名前は、小文字の英数字。数字は、関節の角度（ラジアン、-4〜4）：hip 腰の高さ（立った高さを1として）、leg ももを前へ上げる、knee 膝を曲げる、body 上体を前へ倒す、head うつむく、armL・armR [肩を前へ上げる（1.5 で水平、3 で真上）, ひじを曲げる]、lie 体ごと後ろへ倒す、y 体を浮かせる高さ、wave 振る腕（"L" か "R"）、shake 小刻みに動かす（1）。もとからあるしぐさ（crouch・kneel・sit・lie・bend・aim・fend・handsup・wave・point・phone・knock・cross・down・cover・hide）と同じ名前は、使えない\n'
   + '  - spots … 足した場所。overlay.json のいちばん上に { "spots": { "voter": { "ukanamono": { "name":"金物屋の前", "text":"着いたときの文", "from":"main", "go":"金物屋の前へ行く", "back":"メインストリートへ戻る", "at":[190, 200], "z":2, "hide":false, "cam":"same", "img":null } } } } のように書く。"voter" は本の名前（voter・governor・chief・director）。場所の名前（ukanamono）は、小文字の英数字。from は、つながるもとの場所の名前（公開のリポジトリの book-*.js の SPOTS にある）。at は、地図の上の位置。cam は "same"（つながる場所と同じ映像）か ""（映像なし）。img は、映像の代わりに出す絵の名前\n'
   + '  - books … 足した本（キャラ）。overlay.json のいちばん上に { "books": { "breporter": { "name":"新聞記者", "osd":"ペレス記者", "like":"voter", "start":"main", "clock":480, "base":7000 } } } のように書く。本の名前（breporter）は、小文字の英字 3〜12 文字。like は、街の歩き方と姿を借りる、もとの本（voter・governor・chief・director）。start は、始まる場所（like の本の SPOTS の名前）。clock は、始まる時刻（0時からの分）。base は、段落の番号の初め（7000・7200・…・8800 のうち、ほかの本と重ならないもの）。その本の場面の名前は「breporter:<段落の番号>」（番号は、base ＋ like の本の SPOTS の並び順）。出来事は、keys の add（足した選択肢）で書く\n'
@@ -8805,16 +8816,93 @@ const STAGE_NAMES = {
   z:{ 0:'変えない', 1:'1人増える', 2:'2人増える' },
 };
 const STAGE_KEYS = ['gait', 'pose', 'pos', 'cam', 'z'], STAGE_LABEL = { cam:'カメラ（とどまるとき）', gait:'足の運び', pose:'しぐさ（とどまるとき）', pos:'立つ位置（とどまるとき）', z:'ゾンビ' };
+// ===== 自動提案の決まり =====
+// 1行が1つの決まり：{ on:何を決めるか, val:決める中身, words:'拾う言葉|…', not:'外す言葉|…', any:true（ほかの人のことでも拾う） }
+//   演出：on = gait（足の運び）/ pose（しぐさ）/ pos（立つ位置）/ z（ゾンビ）。上にある決まりが先
+//   起きること・条件の案：on = get（手に入れる）/ lose（なくす）/ have（持っているときだけ選べる）/ hp（体力）/ min（かかる分）/ one（1回だけ）
+// 言葉は、そのままの字として探す（正規表現は使わない）。決まりは中身（overlay.json の auto）に置けて、手でも AI でも変えられる
+const AUTO_ON = { gait:'足の運び', pose:'しぐさ', pos:'立つ位置', z:'ゾンビ', get:'持ち物を手に入れる', lose:'持ち物をなくす', have:'持っているときだけ選べる', hp:'体力', min:'時間がたつ', one:'1回だけ選べる' };
+const AUTO_STAGE = ['gait', 'pose', 'pos', 'z'];
+const autoDefault = () => [
+  { on:'gait', val:'run', words:'走っ|走る|走り|走ら|駆け|逃げ' },
+  { on:'gait', val:'sneak', words:'忍び足|そっと|息を殺|音を立てず|陰をつたって' },
+  ...['aim', 'fend', 'lie', 'hide', 'kneel', 'crouch', 'sit', 'bend', 'handsup', 'wave', 'point', 'phone', 'knock', 'cross', 'cover', 'down'].filter(k => POSES[k] && POSES[k].words).map(k => ({ on:'pose', val:k, words:POSES[k].words, ...(k === 'phone' ? { not:'鳴ったが|鳴っている|出なかった' } : {}) })),
+  { on:'pos', val:'door', words:'戸口|扉の前|ドアの前|玄関先|入口の前|入り口の前' },
+  { on:'pos', val:'hide', words:'物陰|車の後ろ|車の陰|柱の陰|壁ぎわ|壁際' },
+  { on:'z', val:'1', words:'現れ|増え|集まって|出てき', any:true },
+  { on:'get', words:'手に取っ|手に取る|受け取っ|受け取る|拾っ|拾う|もらっ|もらう|ポケットに入れ|持っていく|持って出' },
+  { on:'lose', words:'渡し|置いていく|置いていっ|捨て|手放' },
+  { on:'have', words:'を使って|を開いて|を見せ|を構え|でこじ開け|で叩' },
+  { on:'hp', val:'-1', words:'噛まれ|歯が当た|歯が入っ' },
+  { on:'hp', val:'1', words:'手当てを|包帯を巻|傷を洗' },
+  { on:'min', words:'待っ|待つ|かかっ|かかる|たった|歩い|休ん' },
+  { on:'one', words:'手に取っ|手に取る|受け取っ|受け取る|拾っ|拾う|もらっ|もらう' },
+];
+const autoClean = list => (Array.isArray(list) ? list.slice(0, 120).map(r => (r && AUTO_ON[r.on] ? { on:r.on, val:String(r.val == null ? '' : r.val).slice(0, 20), words:String(r.words || '').slice(0, 300), not:String(r.not || '').slice(0, 300), ...(r.any ? { any:true } : {}) } : null)).filter(r => r && r.words.trim()) : null);
+const autoMine = () => { const d = store.get('draft-auto', null); return d && Array.isArray(d.rules) ? d.rules : null; };
+const autoRules = () => autoClean(autoMine()) || autoClean(overlay.auto) || autoDefault();
+// いまの決まり（配る・ファイルにするとき）。手元で変えていればそれ、なければ中身のもの
+const autoNow = () => autoClean(autoMine()) || autoClean(overlay.auto) || undefined;
+// リポジトリへ書くとき：手元で変えた決まりは、変え始めたときからリポジトリの側が変わっていなければ、書く
+const autoPut = repoAuto => { const d = store.get('draft-auto', null), v = d && Array.isArray(d.rules) && (repoAuto == null || jeq(repoAuto, d.base)) ? autoClean(d.rules) : null; return v ? { auto:v } : {}; };
+// リポジトリを読んだとき：リポジトリの側が変わっていたら（自分の保存も含む）、手元の分は片づける
+const autoSettle = repoAuto => { const d = store.get('draft-auto', null); if(d && repoAuto != null && !jeq(repoAuto, d.base)) store.remove('draft-auto'); };
+const autoSet = rules => { const d = store.get('draft-auto', null); store.set('draft-auto', { rules:autoClean(rules) || [], base:d ? d.base : (overlay.auto || null) }); autoSaveSoon(); };
+const autoParts = t => String(t || '').split('|').map(x => x.trim()).filter(Boolean);
+// 文を、「。」と改行で分ける。「」の中（せりふ）は見ない
+const autoSents = text => String(text || '').replace(/「[^」]*」/g, '').split(/[。\n]/).map(x => x.trim()).filter(Boolean);
+// 1つの決まりが、1つの文に当たる所。当たらなければ null。当たれば { i:位置, w:当たった言葉 }
+function autoHit(r, sent){
+  if(autoParts(r.not).some(n => sent.includes(n))) return null;
+  for(const w of autoParts(r.words)){
+    let from = 0;
+    for(;;){
+      const i = sent.indexOf(w, from); if(i < 0) break; from = i + 1;
+      const rest = sent.slice(i + w.length), head = sent.slice(0, i);
+      if(/^[^、]{0,6}(?:な[いかく]|ずに|ず、|ません)/.test(rest)) continue;            // 打ち消し：「走らずに」「出なかった」
+      if((/[ただる]$/.test(w) && /^[一-龠ァ-ヶ]/.test(rest)) || /^[ただる][一-龠ァ-ヶ]/.test(rest)) continue; // あとに名前が続く：「倒れた男」「噛まれた方」
+      if(!r.any && /[一-龠ァ-ヶー]{1,8}が/.test(head)) continue;                        // ほかの人のこと：「ゾンビが…」「男が…」
+      return { i, w, head, rest };
+    }
+  }
+  return null;
+}
 // 文から、演出を決める
 function stageAuto(text){
-  const t = String(text || ''), hit = words => new RegExp('(?:' + words + ')(?![^。、]{0,5}な[いか])').test(t); // 「走らなかった」のような打ち消しは拾わない
+  const sents = autoSents(text), rules = autoRules(), t = String(text || '');
+  const pick = (on, d) => { for(const r of rules) if(r.on === on && sents.some(s => autoHit(r, s))) return r.val; return d; };
+  const custom = Object.entries(POSES).reverse().find(([k, p]) => !POSES_BASE.includes(k) && p.words && sents.some(s => autoHit({ words:p.words }, s))); // 足されたしぐさを、先に見る
+  const pose = custom ? custom[0] : pick('pose', 'none');
   return {
-    gait:hit('走っ|走る|走り|走ら|駆け|逃げ') ? 'run' : hit('忍び足|そっと|息を殺|音を立てず|陰をつたって') ? 'sneak' : 'walk',
-    pose:(Object.entries(POSES).reverse().find(([k, p]) => !POSES_BASE.includes(k) && p.words && hit(p.words)) || ['aim', 'fend', 'lie', 'hide', 'kneel', 'crouch', 'sit', 'bend', 'handsup', 'wave', 'point', 'phone', 'knock', 'cross', 'cover', 'down'].map(k => [k, POSES[k]]).find(([, p]) => hit(p.words)) || ['none'])[0], // 足されたしぐさを先に見て、次に、もとからあるものを、強い順に
+    gait:pick('gait', 'walk'),
+    pose:POSES[pose] ? pose : 'none',
     cam:(Object.values(shownCams(camScene())).find(c => c.name.length >= 2 && t.includes(c.name)) || { id:'main' }).id, // 文に、足したカメラの名前があれば、そのカメラ
-    pos:hit('戸口|扉の前|ドアの前|玄関先|入口の前|入り口の前') ? 'door' : hit('物陰|車の後ろ|車の陰|柱の陰|壁ぎわ|壁際') ? 'hide' : 'you',
-    z:hit('現れ|増え|集まって|出てき') ? 1 : 0,
+    pos:pick('pos', 'you'),
+    z:Math.max(0, Math.min(2, +pick('z', 0) || 0)),
   };
+}
+// 文から、起きることと条件の案を出す。案は、押して採用するまで効かない。返すのは [{ on, val, text }]
+function fxAuto(text){
+  const sents = autoSents(text), out = [], seen = new Set(), add = (on, val, tx) => { const k = on + '|' + val; if(!seen.has(k)){ seen.add(k); out.push({ on, val, text:tx }); } };
+  const name = t => { const m = String(t).match(/([一-龠ぁ-んァ-ヶーA-Za-z0-9]{1,12})$/); if(!m) return ''; return m[1].replace(/^.*[はがにへとで、]/, '').slice(0, 20); };
+  for(const r of autoRules()) for(const s of sents){
+    const h = autoHit(r, s); if(!h) continue;
+    if(r.on === 'get' || r.on === 'lose'){ const n = h.head.endsWith('を') ? name(h.head.slice(0, -1)) : ''; if(n) add(r.on, n, '「' + n + '」を' + (r.on === 'get' ? '手に入れる' : 'なくす')); }
+    else if(r.on === 'have'){ const n = name(h.head); if(n) add('have', n, '「' + n + '」を持っているときだけ選べる'); }
+    else if(r.on === 'hp'){ const n = +r.val || 0; if(n) add('hp', String(n), '体力が' + (n > 0 ? n + '増える' : -n + '減る')); }
+    else if(r.on === 'min'){ const m = h.head.match(/(\d+|[0-9０-９]+)\s*(分|時間)(?:ほど|ばかり|くらい|ぐらい)?[、]?$/); if(m){ const n = (+m[1].replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 65248)) || 0) * (m[2] === '時間' ? 60 : 1); if(n > 0) add('min', String(Math.min(600, n)), n + '分たつ'); } }
+    else if(r.on === 'one') add('one', '1', '1回だけ選べる');
+  }
+  return out;
+}
+// 案が、もう入っているか／入れる
+const fxHas = (fx, g) => (g.on === 'get' || g.on === 'lose' ? (fx[g.on] || []).includes(g.val) : g.on === 'have' ? ((fx.cond || {}).have || []).includes(g.val) : g.on === 'hp' ? +fx.hp === +g.val : g.on === 'min' ? +fx.min === +g.val : g.on === 'one' ? !!fx.one : false);
+function fxTake(fx, g){
+  if(g.on === 'get' || g.on === 'lose') fx[g.on] = [...new Set([...(fx[g.on] || []), g.val])].slice(0, 5);
+  else if(g.on === 'have'){ fx.cond = { ...fx.cond }; fx.cond.have = [...new Set([...(fx.cond.have || []), g.val])].slice(0, 5); }
+  else if(g.on === 'hp') fx.hp = Math.max(-2, Math.min(2, +g.val));
+  else if(g.on === 'min') fx.min = +g.val;
+  else if(g.on === 'one') fx.one = true;
 }
 const stagePick = a => (a.fx && a.fx.st) || {};
 const stageTextOf = a => (a.label || '') + '。' + (a.result || '');
@@ -8992,7 +9080,37 @@ function runDraft(a, key, child, v){
 }
 // ===== 本（キャラ）を足す =====
 let bookPanel = false, bookForm = { name:'', osd:'', like:'voter', start:'', clock:'07:00', need:{ clear:false, flag:'', noflag:'', have:'', lack:'' } }, bookNote = '';
+// ===== 自動提案の決まりの画面 =====
+let autoTry = '', autoNote = '';
+const AUTO_VALS = { gait:() => ({ run:'走る', sneak:'忍び足' }), pose:() => Object.fromEntries(Object.entries(POSES).filter(([k, p]) => k !== 'none' && p.name).map(([k, p]) => [k, p.name])), pos:() => ({ door:'戸口', hide:'物陰のそば' }), z:() => ({ 1:'1人増える', 2:'2人増える' }), hp:() => ({ '-1':'1減る', '-2':'2減る', 1:'1増える', 2:'2増える' }) };
+const autoTryText = t => { if(!t.trim()) return ''; const s = stageAuto(t), st = [s.gait !== 'walk' ? STAGE_NAMES.gait[s.gait] : '', s.pose !== 'none' ? STAGE_NAMES.pose[s.pose] : '', s.pos !== 'you' ? STAGE_NAMES.pos[s.pos] + 'に立つ' : '', s.z ? 'ゾンビが' + STAGE_NAMES.z[s.z] : ''].filter(Boolean), fx = fxAuto(t).map(g => g.text); return '演出：' + (st.join('、') || 'なし') + '\n起きること・条件の案：' + (fx.join('、') || 'なし'); };
+function autoPanelHtml(){
+  const rules = autoRules(), esc = t => escText(t).replace(/"/g, '&quot;'), can = !room;
+  const row = (r, i) => '<div class="arule" data-ar="' + i + '"><div class="row"><select data-af="on"' + (can ? '' : ' disabled') + '>' + Object.entries(AUTO_ON).map(([k, n]) => '<option value="' + k + '"' + (k === r.on ? ' selected' : '') + '>' + n + '</option>').join('') + '</select>'
+    + (AUTO_VALS[r.on] ? '<select data-af="val"' + (can ? '' : ' disabled') + '>' + Object.entries(AUTO_VALS[r.on]()).map(([k, n]) => '<option value="' + k + '"' + (String(k) === String(r.val) ? ' selected' : '') + '>' + escText(n) + '</option>').join('') + '</select>' : '') + '</div>'
+    + '<input data-af="words" maxlength="300" value="' + esc(r.words) + '" placeholder="拾う言葉（「|」で区切る）"' + (can ? '' : ' disabled') + '><input data-af="not" maxlength="300" value="' + esc(r.not || '') + '" placeholder="この言葉がある文では、拾わない（「|」で区切る）"' + (can ? '' : ' disabled') + '>'
+    + (can ? '<label class="cm-ai" style="margin:0 0 8px;font-size:14px;color:inherit"><input type="checkbox" data-af="any" style="width:auto;margin:0"' + (r.any ? ' checked' : '') + '>ほかの人のことでも拾う</label><div class="row"><button class="sm" data-aup="' + i + '">上へ</button><button class="sm" data-adel="' + i + '">消す</button></div>' : '') + '</div>';
+  return '<div class="scr"><h2 class="scr-h">自動提案</h2><p class="scr-lead">選択肢を足すとき、文に出てくる言葉から、演出と、起きること・条件の案が出ます。その決まりを、ここで変えられます。</p>'
+    + '<div class="step"><div class="n">試す</div><textarea id="autoTry" placeholder="文を入れると、いまの決まりで何が出るかが、下に出ます" style="min-height:70px;width:100%;box-sizing:border-box;background:#111114;color:var(--text);border:1px solid #3a3a40;border-radius:8px;padding:10px;font-size:16px;font-family:inherit">' + escText(autoTry) + '</textarea><div class="note" id="autoOut" style="white-space:pre-wrap">' + escText(autoTryText(autoTry) || '（まだ文が入っていません）') + '</div></div>'
+    + '<div class="step"><div class="n">決まり</div><p>上にある決まりが先です。足の運び・しぐさ・立つ位置・ゾンビは、最初に当たった決まりで決まります。「〜ずに」「〜なかった」のような打ち消しと、「男が」「ゾンビが」のようにほかの人がしたことは、拾いません。</p>'
+    + (can ? '' : '<p>部屋の中では、決まりは変えられません。</p>')
+    + rules.map(row).join('')
+    + (can ? '<div class="row" style="margin-top:10px"><button id="autoAdd">＋ 決まりを足す</button><button id="autoReset">最初の決まりに戻す</button></div>' : '')
+    + (autoNote ? '<div class="note">' + escText(autoNote) + '</div>' : '') + '</div></div>';
+}
+function autoPanelWire(){
+  const tx = document.getElementById('autoTry'); if(!tx) return;
+  tx.oninput = () => { autoTry = tx.value; document.getElementById('autoOut').textContent = autoTryText(autoTry) || '（まだ文が入っていません）'; };
+  const cur = () => autoRules().map(r => ({ ...r })), put = (rules, note) => { autoSet(rules); autoNote = note || ''; render(); };
+  document.querySelectorAll('.arule').forEach(box => { const i = +box.dataset.ar;
+    box.querySelectorAll('[data-af]').forEach(q => { q.onchange = () => { const rules = cur(), k = q.dataset.af; if(k === 'any'){ if(q.checked) rules[i].any = true; else delete rules[i].any; } else rules[i][k] = q.value; if(k === 'on') rules[i].val = AUTO_VALS[q.value] ? Object.keys(AUTO_VALS[q.value]())[0] : ''; put(rules); }; }); });
+  document.querySelectorAll('[data-adel]').forEach(q => { q.onclick = () => { const rules = cur(); rules.splice(+q.dataset.adel, 1); put(rules); }; });
+  document.querySelectorAll('[data-aup]').forEach(q => { q.onclick = () => { const rules = cur(), i = +q.dataset.aup; if(i > 0){ [rules[i - 1], rules[i]] = [rules[i], rules[i - 1]]; put(rules); } }; });
+  const add = document.getElementById('autoAdd'); if(add) add.onclick = () => { const rules = cur(); rules.push({ on:'get', val:'', words:'ここに言葉', not:'' }); put(rules, 'いちばん下に、決まりを足しました。言葉を入れてください。'); };
+  const rs = document.getElementById('autoReset'); if(rs) rs.onclick = () => { if(!confirm('決まりを、最初のものに戻しますか？')) return; put(autoDefault(), '最初の決まりに戻しました。'); };
+}
 function bookPanelHtml(){
+  if(bookPanel === 'auto') return autoPanelHtml();
   const f = bookForm, bases = CHAR_IDS.filter(c => !CHARS[c].dyn), L = BOOKS[f.like] || BOOKS.voter, mine = store.get('draft-books', {});
   return '<div class="scr"><h2 class="scr-h">本を足す</h2><p class="scr-lead">新しい主人公の本を作ります。作ったら、その本を開いて、本文の下の「✎ 編集する」を押して話を書いていきます。</p>'
     + (Object.keys(mine).length ? '<div class="step"><div class="n">足した本</div>' + Object.entries(mine).map(([id, x]) => '<div class="rowl"><span>' + escText(x.name) + 'の本<small>下書き</small></span><button class="sm" data-bookdel="' + id + '">消す</button></div>').join('') + '</div>' : '')
@@ -9122,6 +9240,7 @@ function chgList(src){
   for(const [bk, m] of Object.entries(S.spots || {})) for(const [id, x] of Object.entries(m || {})) out.push({ x, t:'spot', bk, sid:id, id:'spot|' + bk + '|' + id, place:(CHARS[bk] ? CHARS[bk].name + 'の本' : bk), kind:'場所を足した', b:(x && x.name) || id });
   for(const [id, x] of Object.entries(S.books || {})) out.push({ x, t:'book', sid:id, id:'book|' + id, place:'本', kind:'本を足した', b:((x && x.name) || id) + 'の本' });
   for(const [scene, m] of Object.entries(S.cams || {})) for(const [id, x] of Object.entries(m || {})) out.push({ x, t:'cam', scene, sid:id, id:'cam|' + scene + '|' + id, place:'映像', kind:'カメラを足した', b:(x && x.name) || id });
+  if(!src && autoMine()) out.push({ t:'auto', id:'auto', place:'自動提案', kind:'決まりを変えた', b:autoMine().length + '個の決まり' });
   return out;
 }
 function chgUndo(id){
@@ -9130,6 +9249,7 @@ function chgUndo(id){
   else if(c.t === 'spot'){ const all = store.get('draft-spots', {}); if(all[c.bk]) delete all[c.bk][c.sid]; store.set('draft-spots', all); }
   else if(c.t === 'book'){ const all = store.get('draft-books', {}); delete all[c.sid]; store.set('draft-books', all); store.remove('player-' + c.sid); }
   else if(c.t === 'cam'){ const all = store.get('draft-cams', {}); if(all[c.scene]) delete all[c.scene][c.sid]; store.set('draft-cams', all); }
+  else if(c.t === 'auto') store.remove('draft-auto');
   unqueue(c.id);
   if(c.t === 'spot' || c.t === 'book' || c.t === 'cam'){ location.reload(); return; } // 場所・本・カメラは、読みこみ直して外す
   render();
@@ -9322,9 +9442,10 @@ function decorateForEdit(mode){
       + '<option value="stay">そのあとは、この場面にとどまる</option><option value="off">そのあとは、カメラの外へ出る（まだ映像のない場所）</option>'
       + '<optgroup label="今ある選択肢に合流する">' + v.labels.map(l => '<option value="' + escText(l).replace(/"/g, '&quot;') + '">「' + escText(l.slice(0, 24)) + '」と同じ先へ進む</option>').join('') + '</optgroup>'
       + '<optgroup label="ほかの場所へ移る">' + Object.entries(bookOf(loadPlayer(current)).spots || {}).map(([id, sp]) => '<option value="spot:' + id + '">' + escText(sp.name) + 'へ移る</option>').join('') + '</optgroup></select>'
+      + '<div data-sug class="sug"></div>'
       + '<details' + (fbe.fx && (fbe.fx.hp || fbe.fx.inf || fbe.fx.min) ? ' open' : '') + ' style="margin:0 0 8px"><summary>体力・感染・時間</summary><div class="row fxrow"><label>体力<select data-fx="hp">' + [[0, '変えない'], [1, '+1（回復）'], [2, '+2'], [-1, '−1（傷を負う）'], [-2, '−2']].map(([n, t]) => '<option value="' + n + '">' + t + '</option>').join('') + '</select></label>'
       + '<label>感染<select data-fx="inf"><option value="">変えない</option><option value="on">感染する</option><option value="off">感染が消える</option></select></label>'
-      + '<label>時間<select data-fx="min">' + [0, 5, 10, 30, 60, 120].map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div></details>'
+      + '<label>時間<select data-fx="min">' + [...new Set([0, 5, 10, 30, 60, 120, +(fbe.fx && fbe.fx.min) || 0])].sort((x, y) => x - y).map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div></details>'
       + '<div class="row" style="margin:0 0 8px"><button data-k="img">' + (fbe.fx && fbe.fx.img ? '絵を付けました（選び直す）' : '絵を付ける') + '</button>' + (fbe.fx && fbe.fx.img ? '<select data-imgas style="width:auto;flex:1;margin:0"><option value="cam">監視カメラの映像として出す</option><option value="text">文の下に出す</option></select><button data-k="imgdrop">絵を外す</button>' : '') + '</div>'
       + '<details' + (fbe.fx && fbe.fx.hide ? ' open' : '') + ' style="margin:0 0 8px"><summary>隠し選択肢（番号を打ちこんだ人だけが選べる）</summary><input data-hide inputmode="numeric" maxlength="4" placeholder="番号">'
       + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select></details>'
@@ -9349,6 +9470,12 @@ function decorateForEdit(mode){
       // 保存する形：手で選んだもの → なければ、決まった演出。文から決まるものと同じなら、書かない
       const st = {}; for(const k of STAGE_KEYS){ const val = fbe.pick[k] != null ? fbe.pick[k] : dv[k]; if(String(val) !== String(au[k])) st[k] = val; }
       fbe.fx.st = st;
+      // 文から出た、起きることと条件の案。押すと、下の欄に入る
+      const box = e.querySelector('[data-sug]'), sug = fxAuto(stageTextOf(fbe)).filter(g => !fxHas(fbe.fx, g));
+      if(box){
+        box.innerHTML = sug.length ? '<p>文から出た案（押すと、下の欄に入ります）</p>' + sug.map((g, i) => '<button data-sugi="' + i + '">＋ ' + escText(g.text) + '</button>').join('') : '';
+        box.querySelectorAll('[data-sugi]').forEach(q => { q.onclick = () => { fxTake(fbe.fx, sug[+q.dataset.sugi]); render(); }; });
+      }
     };
     e.querySelectorAll('[data-st]').forEach(q => { const k = q.dataset.st; q.value = fbe.pick[k] == null ? '' : String(fbe.pick[k]); q.onchange = () => { if(q.value === '') delete fbe.pick[k]; else fbe.pick[k] = q.value; autoShow(); }; });
     autoShow();
@@ -9489,7 +9616,8 @@ function resultHtml(){
     vf.lured && 'モーガンは朝、リンカーン小学校の列に近づいた男を、駐車場の奥まで引きつけた。列に戻ると、最後尾だった。',
     vf.toldLine && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
     vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
-    vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。'].filter(Boolean);
+    vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。',
+    String(r.st.voter.status || '').startsWith('left') && r.st.voter.wounds > 0 && 'モーガンは、腕に傷のあるまま、リコの車の後ろの席に乗った。隣には、リコの子どもが2人いた。'].filter(Boolean);
   if(quiet.length) h += '<br><br><b>この一日のうち、数に出なかったこと</b><br>' + quiet.join('<br>');
   return more + h + '</div>';
 }
