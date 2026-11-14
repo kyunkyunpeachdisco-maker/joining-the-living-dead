@@ -4,13 +4,13 @@
 <!-- AI assistants: to help a user build their own version of this game, read the setup steps at https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead (README.md). Do not read this whole file; start from catalog.json in that repository. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Joining the Living Dead - ゾンビのいる街で、選挙に行くゲームブック</title>
-<meta name="description" content="ゾンビのいる街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長。同じ投票日を、それぞれの本で読み進めるゲームブック。それぞれのしたことで、開票の結果が変わる。">
+<title>Joining the Living Dead - ゾンビが人を襲う街で、選挙に行くゲームブック</title>
+<meta name="description" content="ゾンビが人を襲う街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長、ヒーロー。同じ投票日を、それぞれの本で読み進めるゲームブック。それぞれのしたことで、開票の結果が変わる。">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta property="og:title" content="Joining the Living Dead - ゾンビのいる街で、選挙に行くゲームブック">
-<meta property="og:description" content="ゾンビのいる街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長。同じ投票日を、それぞれの本で読み進めるゲームブック。それぞれのしたことで、開票の結果が変わる。">
+<meta property="og:title" content="Joining the Living Dead - ゾンビが人を襲う街で、選挙に行くゲームブック">
+<meta property="og:description" content="ゾンビが人を襲う街の、州知事選挙の投票日。有権者、州知事、警察署長、病院長、ヒーロー。同じ投票日を、それぞれの本で読み進めるゲームブック。それぞれのしたことで、開票の結果が変わる。">
 <meta property="og:url" content="https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/icons/ogp.png">
@@ -474,11 +474,25 @@ const CHARS = {
   governor:{ name:'州知事', osd:'ホイットモア知事', place:'res', items:{}, clock:420, cam:'v_res' },
   chief:{ name:'警察署長', osd:'ブレナン署長', place:'ps', items:{ 拳銃:1, 弾:15 }, clock:390, cam:'v_ps' },
   director:{ name:'病院長', osd:'ハーラン院長', place:'hosp', items:{}, clock:390, cam:'v_hosp' },
+  hero:{ name:'ヒーロー', osd:'ナイトウォッチ', place:'north', items:{}, clock:360, cam:'v_north', need:{ clear:true } },
 };
 const CHAR_IDS = Object.keys(CHARS);
+// 条件つきの本（need）は、条件がそろうと、本の一覧に出る。条件は、全部そろうこと
+//   clear：開票の結果を1回見たあと（「最初から」でも消えない）／flag・noflag：街の印／have・lack：誰かの持ち物
+const needClean = n => { if(!n || typeof n !== 'object') return null; const list = v => (Array.isArray(v) ? v.map(t => String(t).replace(/[<>&"'×]/g, '').trim().slice(0, 20)).filter(Boolean).slice(0, 5) : []);
+  const o = { clear:!!n.clear, flag:list(n.flag), noflag:list(n.noflag), have:list(n.have), lack:list(n.lack) }; return o.clear || o.flag.length || o.noflag.length || o.have.length || o.lack.length ? o : null; };
+const needList = n => [...(n.clear ? ['開票の結果を見たあと'] : []), ...n.flag.map(t => '街で「' + t + '」が起きたあと'), ...n.noflag.map(t => '街で「' + t + '」が、まだ起きていない'), ...n.have.map(t => '誰かが「' + t + '」を持っている'), ...n.lack.map(t => '誰も「' + t + '」を持っていない')];
+for(const c of CHAR_IDS) if(CHARS[c].need) CHARS[c].need = needClean(CHARS[c].need) || undefined;
+const needMet = (n, self) => {
+  if(n.clear && !store.get('cleared', '')) return false;
+  const w = loadWorld(), on = t => (w.events || []).some(e => e.type === 'flag' && e.name === flagName(t)), ps = CHAR_IDS.filter(c => c !== self).map(loadPlayer), held = t => ps.some(p => has(p, t));
+  return n.flag.every(on) && !n.noflag.some(on) && n.have.every(held) && !n.lack.some(held);
+};
+const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
+const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 04:05 bd17984';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-14 05:18 4fe22c2';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -500,7 +514,7 @@ let room = (() => {
   } catch(e){ return null; }
 })();
 if(room && !/^[A-Z2-9]{8}$/.test(room)) room = null;
-const GLOBAL_KEYS = new Set(['sound', 'room-local', 'pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'room', 'room-kind', 'dev', 'dev-key', 'gh-repo', 'gh-pat', 'overlay', 'fb-token', 'fb-name', 'video', 'send-at']);
+const GLOBAL_KEYS = new Set(['sound', 'room-local', 'pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'room', 'room-kind', 'dev', 'dev-key', 'gh-repo', 'gh-pat', 'overlay', 'fb-token', 'fb-name', 'video', 'send-at', 'cleared']);
 const keyOf = key => BASE + (room && !GLOBAL_KEYS.has(key) ? 'room-' + room + '-' : '') + key;
 let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
@@ -1932,6 +1946,241 @@ BOOKS.director = {
 </script>
 <script>
 'use strict';
+// ヒーロー（ナイトウォッチ）の本：500〜599。昼は水道局の検針員。人より少し丈夫で、足が速い。それだけの力で、投票日の一日、通報の先へ走る
+// 助けを求める場所は、時間帯ごとに2つ出る。片方を助けると、もう片方には間に合わない。間に合わなかった場所では、人が襲われている所を目にする
+// 助けた通りの人は、あとで投票に行く。通りがどの候補寄りかは、庭や窓の看板の色で分かる（青＝ホイットモア／赤＝カーヴァー／緑＝オカフォー）
+(() => {
+const WOUND = '上着の袖が裂けていた。肘の下に、歯の跡が半円に並んでいる。血は、まだ出ていない。';
+const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + WOUND : ok; return to; } });
+const has = (w, name) => w.events.some(e => e.type === 'flag' && e.name === name);
+// 現場どうしは、走って12分
+const SITES = { apt:'エルム通りのアパート', elm:'エルム通りの白い家', maple:'メープル通り', hospf:'州立病院', gate:'ケスラー製鋼', stop:'オーク通り4丁目', churchl:'聖マルコ教会', bridgeh:'ケスラー橋', schoolh:'リンカーン小学校' };
+const others = id => Object.keys(SITES).filter(k => k !== id);
+const go = id => Object.fromEntries(others(id).map(k => [k, `走って、${SITES[k]}へ向かう`]));
+// 時間帯：朝（〜8時）／午前（〜11時半）／午後（〜3時半）／夕方（〜7時）／夜（〜8時。投票の締め切り）
+const MORNING = 480, FORENOON = 690, AFTERNOON = 930, EVENING = 1140, CLOSE = 1200;
+const WAITS = [MORNING, FORENOON, AFTERNOON, EVENING, CLOSE];
+const nextWait = s => WAITS.find(t => t > s.clock);
+// 通報が続くあいだ。同じ時間帯の2つは、片方を助けると、もう片方には間に合わない
+const BAND = { elm:[360, MORNING], maple:[360, MORNING], hosp:[MORNING, FORENOON], gate:[MORNING, FORENOON], stop:[FORENOON, AFTERNOON], church:[FORENOON, AFTERNOON], bridge:[AFTERNOON, EVENING], school:[AFTERNOON, EVENING], last:[EVENING, CLOSE] };
+const RIVAL = { elm:'maple', maple:'elm', hosp:'gate', gate:'hosp', stop:'church', church:'stop', bridge:'school', school:'bridge' };
+// 署長の本でしたことで、警察が先に着いている現場
+const POLICE = { elm:'chief_calls', bridge:'bridge_cleared', school:'chief_school' };
+const police = (w, key) => !!POLICE[key] && has(w, POLICE[key]);
+const live = (s, w, key) => !s.flags[key] && !s.flags[RIVAL[key]] && !police(w, key) && s.clock >= BAND[key][0] && s.clock < BAND[key][1];
+const missed = (s, w, key) => !s.flags[key] && !police(w, key) && (s.clock >= BAND[key][1] || !!s.flags[RIVAL[key]]);
+// 助ける。かかる時間と、開票に出る印
+const save = (key, flag, min) => (s, w) => { s.flags[key] = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock += min; setFlag(w, s, flag); };
+// 現場に着く。間に合わなかった現場では、1度だけ、そこで起きていることを見る
+const arr = (key, saw) => (s, w) => { if(s.from in SITES) s.clock += 12; if(key && missed(s, w, key) && !s.flags['saw_' + key]){ s.flags['saw_' + key] = 1; return saw; } };
+// 無線で聞こえている通報（アパートの文に出す）
+const calls = s => (s.clock < MORNING ? '　エルム通り、白い家。玄関の前に6人。2階に家族。\n　メープル通りの停留所。通学のバスが、囲まれて動けない。'
+  : s.clock < FORENOON ? '　州立病院、救急の入口。列の中へ、4人が入りこんでいる。\n　ケスラー製鋼の正門。夜勤明けの工員が、門の内側から出られない。'
+  : s.clock < AFTERNOON ? '　オーク通り4丁目の停留所。投票所行きのバスを待つ列に、5人。\n　聖マルコ教会の駐車場。投票に来た車が、3台、扉を開けられずにいる。'
+  : s.clock < EVENING ? '　ケスラー橋。街へ入る車線で、路線バスが動けない。乗っているのは、川向こうから投票に戻る人たち。\n　リンカーン小学校。投票の列が、駐車場の6人に、途中で切られている。'
+  : s.clock < CLOSE ? '　聖マルコ教会。列の最後尾に、3人が近づいている。締め切りまで、1時間ない。' : '　投票は、8時で締め切られた。未対応の通報は、31件。');
+// 昼を過ぎると、1度だけ、ラジオの記者に呼び止められる
+const asked = s => !!s.flags.saved && !s.flags.asked && s.clock >= 600 && s.clock < EVENING;
+const REPORTER = '\n\n通りの向かいから、WGLNの腕章を付けた男が走ってきた。録音機の紐を、肩に掛けている。\n「ナイトウォッチ。ひとつだけ。今日は、誰のために走っているんですか」';
+const answers = no => [
+  c('「通報があった順です」と答える', 0, no, { cond:asked, run(s){ s.flags.asked = 'order'; s.msg = '記者は、録音機のつまみを確かめた。「順、ですか」と繰り返す。それ以上は、聞かなかった。'; return no; } }),
+  c('「投票には、行ってください」と答える', 0, no, { cond:asked, run(s, w){ s.flags.asked = 'vote'; setFlag(w, s, 'hero_said_vote'); s.msg = '記者は、うなずいて録音機を止めた。その声は、昼のニュースの終わりに、そのまま流れた。'; return no; } }),
+  c('答えずに、次の通りへ走る', 0, no, { cond:asked, run(s){ s.flags.asked = 'none'; s.msg = '記者は、半ブロックほど追ってきた。それから、息を切らして立ち止まった。'; return no; } }),
+];
+
+const SPOTS = {
+  apt:{ no:520, name:'エルム通りのアパート', short:'アパート', place:'north', cam:'v_north', at:[92, 40], label:[20, 10], adj:others('apt'), go:go('apt'), arrive:arr(), calm:true,
+    text:s => '3階の部屋の窓を、少しだけ開けてある。棚の無線機は、警察の通報の系統に合わせたままだ。通信係の声が、番地を読み上げている。\n\n' + calls(s)
+      + '\n\n壁の釘に、水道局の上着が掛かっている。その下に、もう1着。紺色で、名札はない。'
+      + (s.flags.voted || s.clock >= CLOSE ? '' : '\n\n冷蔵庫の扉に、投票所の案内が留めてある。聖マルコ教会。夜8時まで。')
+      + (s.infected ? '\n\n流しの上の鏡に、肘の下の傷が映った。歯の跡のまわりが、朝より白い。' : ''),
+    extra:s => [
+      c('窓ぎわで、無線を聞いて待つ', 0, 520, { cond:s => !!nextWait(s), run(s){ s.clock = nextWait(s); s.msg = '読み上げられる番地を、頭の中の地図に置いていった。1つ置くたびに、前の1つが遠くなる。'; return 520; } }),
+      c('流しで水を1杯飲んで、パンを半分かじる', 0, 520, { cond:s => !s.flags.ate && s.clock >= FORENOON, run(s){ s.flags.ate = 1; s.clock += 10; s.msg = '水は、検針で回っている配水池のものだ。今朝の塩素の値は、きのうのうちに見てある。パンは、立ったまま食べた。'; return 520; } }),
+      c('上着を掛けて、ラジオをつける', 0, 510, { cond:s => s.clock >= CLOSE }),
+    ] },
+
+  // ===== 朝 =====
+  elm:{ no:521, name:'エルム通りの白い家', short:'白い家', place:'north', cam:'v_h_elm', at:[70, 34], label:[0, -13], adj:others('elm'), go:go('elm'), arrive:arr('elm', 530),
+    z:(s, w) => (live(s, w, 'elm') || missed(s, w, 'elm') ? 6 : 0),
+    text:(s, w) => (s.flags.elm ? '白い家の玄関は、開いたままになっている。芝生に、踏み荒らした跡が残っていた。隣の家の窓に、女の人と子どもが2人、並んで立っている。'
+      : police(w, 'elm') && s.clock < MORNING ? '白い家の前に、パトカーが1台停まっている。警官が2人、玄関の6人を端から1人ずつ引き離していた。手は足りている。2階の窓の女の人は、警官のほうを見ていた。'
+      : live(s, w, 'elm') ? '白い家の玄関の前に、6人が立っている。6人とも扉のほうを向いて、肩が触れるほど詰めていた。扉の蝶番が、内側へたわんでいる。\n\n2階の窓で、女の人が手を振っている。後ろに、子どもの頭が2つ見えた。\n\nこの通りは、どの家の芝生にも赤い看板が立っている。CARVER。白い家の芝生にも、1本。'
+      : missed(s, w, 'elm') ? '白い家の玄関の扉は、内側へ倒れている。2階の窓に、人影はない。芝生の赤い看板は、踏まれて折れていた。隣の家の窓に、子どもが2人。大人の姿は、ない。'
+      : '白い家の玄関は閉まっている。通りは静かだ。どの芝生にも、赤い看板が立っている。CARVER。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('裏の雨どいを登って、2階の窓から3人を屋根づたいに隣へ移す', .15, 521, '雨どいは、体重をかけても外れなかった。窓から子どもを1人ずつ受け取って、屋根の上を隣の家まで歩かせる。最後に母親。玄関の6人は、最後まで扉のほうを向いていた。', '2人目の子どもを屋根へ出したとき、下の1人が顔を上げた。雨どいを伝って、手が伸びてくる。足首をつかまれた。蹴って外した。', { cond:(s, w) => live(s, w, 'elm'), before:save('elm', 'hero_elm', 40) }),
+      risk('玄関の6人を、1人ずつ通りの向かいへ引いていく', .35, 521, '後ろから襟をつかんで、1人ずつ向かいの車庫まで引いていった。6人目を入れて、シャッターを下ろす。玄関が開いて、母親が子どもを2人連れて出てきた。', '4人目の襟をつかんだとき、5人目が振り向いた。近い。腕で顔を払ったが、肘の下を噛まれた。', { cond:(s, w) => live(s, w, 'elm'), before:save('elm', 'hero_elm', 30) }),
+      ...answers(521),
+    ] },
+  maple:{ no:522, name:'メープル通りの停留所', short:'メープル通り', place:'maple', cam:'v_h_maple', at:[150, 109], label:[0, -13], adj:others('maple'), go:go('maple'), arrive:arr('maple', 531),
+    z:(s, w) => (live(s, w, 'maple') || missed(s, w, 'maple') ? 5 : 0),
+    text:(s, w) => (s.flags.maple ? '停留所に、バスはもういない。歩道に、黄色い弁当箱が1つ落ちている。向かいの家の玄関先で、男の人がこちらに帽子を上げた。'
+      : live(s, w, 'maple') ? '通学のバスが、停留所から出られずにいる。前に2人、乗り口に3人。運転手は扉を閉めたまま、ハンドルに両手を置いていた。窓に、子どもの顔が並んでいる。\n\n停留所の前の家は、3軒とも窓に青い札を貼っている。WHITMORE。バスを待っていた親たちは、その玄関先に固まって立っていた。'
+      : missed(s, w, 'maple') ? '通学のバスは、停留所に停まったままだ。扉が開いている。座席に、鞄がいくつか残っていた。窓の青い札の家は、3軒ともカーテンを閉めている。'
+      : '停留所には、まだ誰もいない。前の家は、3軒とも窓に青い札を貼っている。WHITMORE。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('バスの屋根に上がって音を立て、5人を後ろへ集めてから、運転手に出させる', .15, 522, '屋根を踵で叩きながら、後ろの端まで歩いた。5人が、車体に沿って付いてくる。前が空いた。運転手が、ゆっくりバスを出す。屋根から、歩道の植えこみへ飛び降りた。', '屋根の端で足を滑らせた。片膝が落ちたところへ、下から手が届く。ズボンの裾をつかまれ、ふくらはぎに歯が当たった。', { cond:(s, w) => live(s, w, 'maple'), before:save('maple', 'hero_maple', 30) }),
+      risk('乗り口の3人を引きはがして、子どもを家の中へ走らせる', .35, 522, '乗り口の3人を、1人ずつ歩道の反対へ投げた。運転手が扉を開ける。子どもは12人。青い札の家の玄関が開いて、親たちが腕を広げた。', '2人目を投げたとき、3人目が腕に組みついた。振り払うより先に、噛まれた。', { cond:(s, w) => live(s, w, 'maple'), before:save('maple', 'hero_maple', 25) }),
+      ...answers(522),
+    ] },
+
+  // ===== 午前 =====
+  hospf:{ no:523, name:'州立病院の正面', short:'州立病院', place:'hosp', cam:'v_h_hosp', at:[100, 112], label:[-26, 13], adj:others('hospf'), go:go('hospf'), arrive:arr('hosp', 532),
+    z:(s, w) => (live(s, w, 'hosp') ? 4 : 2), prey:(s, w) => (live(s, w, 'hosp') ? { n:2, pose:'fend' } : null),
+    text:(s, w) => (s.flags.hosp ? '救急の入口の列は、車寄せの柱に沿って、まっすぐになっている。看護師が、列の先頭から順に名前を聞いていた。白衣の胸に、緑の丸い札。OKAFOR。'
+      : live(s, w, 'hosp') ? '救急の入口に、列ができている。その列の中へ、4人が入りこんでいた。並んでいる者は、4人が寄ってくるたびに半歩よけて、また元の位置に戻る。列は、もう形になっていない。\n\n車椅子の老人が1人、よけられずにいる。看護師が、その前に立っていた。白衣の胸に、緑の丸い札。OKAFOR。列の者も、何人かは同じ札を付けている。'
+      : missed(s, w, 'hosp') ? '救急の入口は、内側から鎖で閉めてある。車寄せに、車椅子が1台、倒れていた。芝生に、緑の丸い札がいくつも落ちている。'
+      : '救急の入口に、短い列ができている。看護師が1人、表に出て、順番を見ていた。白衣の胸に、緑の丸い札。OKAFOR。')
+      + (s.clock >= 660 && s.clock < 740 ? '\n\n正面の芝生に、青い幕の演台が組んである。知事の演説が、もうすぐ始まる。州警察の巡査部長が、演台の脇からこちらを見て、目をそらした。' : '') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('4人を1人ずつ担いで、芝生の向こうの植えこみへ運ぶ', .3, 523, '後ろから腰に腕を回して、担ぎ上げる。4人とも、思ったより軽かった。植えこみの向こうへ下ろして、戻る。4往復。看護師は、数を数えていた。', '3人目を担いだとき、肩の上で首が回った。耳のすぐ下に、歯が当たる。投げるように下ろした。', { cond:(s, w) => live(s, w, 'hosp'), before:save('hosp', 'hero_hosp', 35) }),
+      risk('車椅子の老人を抱えて中へ入れ、看護師と入口の扉を閉める', .15, 523, '老人を椅子ごと持ち上げて、入口の中へ運んだ。看護師が、内側から扉を引く。列の者は、扉が閉まる前に、自分の足で中へ入った。4人は、ガラスの外に残った。', '椅子を持ち上げたところで、横から袖を引かれた。片手が離せない。肘の下を噛まれた。', { cond:(s, w) => live(s, w, 'hosp'), before:save('hosp', 'hero_hosp', 20) }),
+      c('看護師に、肘の下の傷を見せる', 0, 523, { cond:s => s.infected && !s.flags.shown && s.clock < CLOSE, run(s){ s.flags.shown = 1; s.clock += 10; s.msg = '看護師は、袖をまくって傷を見た。それから、黄色い札を1枚出して、名前の欄を空けたまま差し出した。\n「届けは、ご自分で。投票所では、入口でこれを見せてください」\n札は、ポケットに入れた。'; return 523; } }),
+      ...answers(523),
+    ] },
+  gate:{ no:524, name:'ケスラー製鋼の正門', short:'ケスラー製鋼', place:'factory', cam:'v_h_gate', at:[346, 84], label:[-30, -12], adj:others('gate'), go:go('gate'), arrive:arr('gate', 533),
+    z:(s, w) => (live(s, w, 'gate') ? 6 : 0),
+    text:(s, w) => (s.flags.gate ? '正門は開いている。夜勤明けの工員が、弁当箱を提げて、3人、4人と出ていく。守衛所の窓に、赤い札が貼ってある。CARVER。組合の名前が、その下に入っていた。'
+      : live(s, w, 'gate') ? '正門の鉄の格子に、外から6人が取りついている。門の内側には、夜勤明けの工員が四十人ほど。弁当箱を提げたまま、格子から離れて立っていた。\n\n守衛所の窓に、赤い札が貼ってある。CARVER。組合の名前が、その下に入っている。工員の作業着の胸にも、同じ赤い札が見えた。'
+      : missed(s, w, 'gate') ? '正門の格子は、閉まったままだ。内側に、弁当箱がいくつも落ちている。構内の奥で、昼勤の始まりを知らせる汽笛が鳴った。'
+      : '正門は開いている。守衛が1人、出入りの車を見ていた。守衛所の窓に、赤い札が貼ってある。CARVER。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('格子の6人を、通りの先の空き地へ引きつけて、門を開けさせる', .2, 524, '門の前で手を叩いて、後ろ向きに歩いた。6人が、格子から手を離して付いてくる。空き地まで、2ブロック。振り切って戻ると、門は開いていた。工員が、黙って歩道へ出ていく。', '後ろ向きに歩いていて、縁石に踵を取られた。尻をついたところへ、先頭の1人が倒れこんでくる。手首を噛まれた。', { cond:(s, w) => live(s, w, 'gate'), before:save('gate', 'hero_gate', 35) }),
+      risk('塀を越えて中へ入り、工員を裏の通用口から出す', .1, 524, '塀は3メートルあった。助走をつけて、手をかける。中へ下りると、工員の1人が通用口の鍵を持っていた。四十人を、裏の通りへ出す。正門の6人は、格子の外に残った。', '塀の上で、有刺鉄線に上着を取られた。外す手間のあいだに、下から足をつかまれる。', { cond:(s, w) => live(s, w, 'gate'), before:save('gate', 'hero_gate', 50) }),
+      ...answers(524),
+    ] },
+
+  // ===== 午後 =====
+  stop:{ no:525, name:'オーク通り4丁目の停留所', short:'4丁目の停留所', place:'oak', cam:'v_h_stop', at:[282, 214], label:[0, 16], adj:others('stop'), go:go('stop'), arrive:arr('stop', 534),
+    z:(s, w) => (live(s, w, 'stop') ? 5 : 0), prey:(s, w) => (live(s, w, 'stop') ? { n:3, pose:'fend' } : null),
+    text:(s, w) => (s.flags.stop ? '停留所に、投票所行きのバスが着いている。待っていた人たちが、順に乗りこんでいく。最後の老婦人が、乗り口で振り向いて、こちらに小さく手を上げた。'
+      : live(s, w, 'stop') ? '停留所の屋根の下に、十人ほどが固まっている。投票所行きのバスを待つ列だ。そのまわりを、5人が歩いていた。列の者は、屋根の柱を背にして、動けずにいる。\n\n停留所の向かいの家は、庭に青い看板を立てている。WHITMORE。列の先頭の男は、同じ青い札を帽子に付けていた。'
+      : missed(s, w, 'stop') ? '停留所の屋根の下には、誰もいない。ベンチに、折り畳んだ新聞と、杖が1本残っている。向かいの家の青い看板は、倒れていた。'
+      : '停留所には、まだ列はない。向かいの家は、庭に青い看板を立てている。WHITMORE。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('5人を1人ずつ、向かいの空き家の庭へ入れて、木戸を閉める', .3, 525, '腕を取って、通りを渡らせる。木戸の内側へ押しこんで、戻る。5往復。最後に、木戸にベンチを立てかけた。列の先頭の男が、帽子を取った。', '4人目の腕を取ったとき、5人目が背中に寄りかかってきた。重い。首をすくめたが、肩を噛まれた。', { cond:(s, w) => live(s, w, 'stop'), before:save('stop', 'hero_stop', 35) }),
+      risk('列の人たちを、2人ずつ抱えて、1ブロック先の停留所まで走る', .15, 525, '2人ずつ、両脇に抱えて走った。1ブロックを、5往復。次の停留所には、誰も歩いていなかった。バスは、そちらに停まった。', '3往復目で、息が上がった。抱えた1人を下ろしかけたところへ、横から手が伸びる。', { cond:(s, w) => live(s, w, 'stop'), before:save('stop', 'hero_stop', 45) }),
+      ...answers(525),
+    ] },
+  churchl:{ no:526, name:'聖マルコ教会', short:'聖マルコ教会', place:'church', cam:'v_h_church', at:[182, 272], label:[0, 16], adj:others('churchl'), go:go('churchl'), arrive:arr('church', 535),
+    z:(s, w) => (live(s, w, 'church') ? 4 : live(s, w, 'last') ? 3 : 1),
+    text:(s, w) => (s.clock >= CLOSE ? '教会の扉に、「投票は終了しました」の札が掛かっている。駐車場に、車は残っていない。' + (s.flags.last ? '係員が、入口の机を畳んでいた。こちらを見て、黙って頭を下げた。' : '')
+      : live(s, w, 'last') ? '入口の列は、二十人ほど残っている。最後尾は、駐車場の端まで出ていた。その後ろから、3人が歩いてくる。足は遅い。列の者は、振り向いては、前へ詰めた。\n\n係員が、腕時計を見た。締め切りは8時。列に並んでいる者は、8時を過ぎても投票できる。列を離れた者は、できない。'
+      : s.flags.last ? '列の最後の1人が、入口を入った。3人は、駐車場の端に立ったままだ。係員が、最後尾のいた場所に、札を立てている。'
+      : s.flags.church ? '駐車場の車は、入れ替わっている。投票を終えた人が出ていき、次の車が入ってくる。入口の列は、十人ほど。看板や札は、どこにもない。投票所の近くでは、選挙の掲示が禁じられている。'
+      : live(s, w, 'church') ? '駐車場の真ん中に、車が3台、エンジンをかけたまま停まっている。どの車も、扉を開けられない。まわりを、4人が歩いていた。投票に来た人たちだ。運転席の女の人が、窓ごしに、教会の入口を指さした。\n\n3台の後ろの窓に、候補者の札が貼ってある。青が1枚、赤が1枚、緑が1枚。'
+      : missed(s, w, 'church') ? '駐車場に、車が2台、斜めに停まったままになっている。扉は、どちらも閉まっていた。中に、人が座っている。入口の列は、短い。'
+      : '駐車場に、車が数台。入口には、短い列ができている。看板や札は、どこにもない。投票所の近くでは、選挙の掲示が禁じられている。')
+      + (!s.flags.voted && s.clock < CLOSE ? '\n\n入口の係員が、名簿を机に広げている。' : '') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('4人を1人ずつ、駐車場の端の物置へ入れる', .3, 526, '腕を取って、物置まで歩かせる。4人目を入れて、かんぬきを下ろした。3台の扉が、順に開く。降りてきた人たちは、礼を言うより先に、入口の列へ歩いていった。', '3人目を物置へ押しこんだとき、中の1人が戸口へ戻ってきた。戸を閉める手を、噛まれた。', { cond:(s, w) => live(s, w, 'church'), before:save('church', 'hero_church', 30) }),
+      risk('列の最後尾の後ろに立って、8時まで、3人を押し戻す', .3, 526, '最後尾から5歩下がって、立った。3人が寄ってくるたびに、胸を押して、駐車場の端まで下がらせる。数えていたら、11回だった。8時に、係員が最後尾の後ろに札を立てた。列は、そこから先へは伸びない。', '9回目に押し戻したとき、押した手を、両手でつかまれた。引き寄せられる。手首に、歯が当たった。', { cond:(s, w) => live(s, w, 'last'), before:(s, w) => { s.flags.last = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock = CLOSE; setFlag(w, s, 'hero_last'); } }),
+      c('上着を水道局のものに替えて、列に並ぶ', 0, 505, { cond:(s, w) => !s.flags.voted && s.clock < CLOSE && !live(s, w, 'church') }),
+      ...answers(526),
+    ] },
+
+  // ===== 夕方 =====
+  bridgeh:{ no:527, name:'ケスラー橋', short:'ケスラー橋', place:'bridge', cam:'v_h_bridge', at:[316, 186], label:[0, -14], adj:others('bridgeh'), go:go('bridgeh'), arrive:arr('bridge', 536),
+    z:(s, w) => (live(s, w, 'bridge') ? 6 : 4),
+    text:(s, w) => (s.flags.bridge ? '街へ入る車線を、路線バスがゆっくり渡っていく。室内灯の下に、乗客の頭が並んでいた。運転手が、窓から片手を出した。'
+      : police(w, 'bridge') ? '街へ入る車線は、流れている。事故の2台は、欄干の側へ寄せてあった。交通整理の警官が、懐中電灯を振っている。路線バスは、もう渡ったあとだ。'
+      : live(s, w, 'bridge') ? '街へ入る車線の中ほどで、車が2台、ぶつかったまま止まっている。その後ろに、路線バスが1台。室内灯をつけて、待っていた。川向こうの工場から、投票に戻る人たちだ。\n\nバスのまわりを、6人が歩いている。乗客は、窓を閉めて、時計を見ていた。窓の内側に、青い札と赤い札が、半分ずつ貼ってある。'
+      : missed(s, w, 'bridge') ? '路線バスは、橋の中ほどに停まったままだ。乗り口の扉が、外へ垂れている。室内灯は、まだついていた。歩道に、片方だけの靴が3つ。'
+      : '橋は、どちらの車線もふつうに流れている。歩道に4人いる。4人とも欄干のほうを向いて、川をのぞく恰好で立っていた。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('事故の2台を、1台ずつ欄干の側へ押して寄せる', .25, 527, '変速機を中立にして、後ろから肩で押す。1台、それからもう1台。バスの運転手が、前照灯を2度つけて、ゆっくり出た。6人は、バスの後ろを少し歩いて、やめた。', '2台目を押している最中に、後ろの席で、何かが体を起こした。そちらの窓は、割れていた。腕を、窓ごしにつかまれた。', { cond:(s, w) => live(s, w, 'bridge'), before:save('bridge', 'hero_bridge', 35) }),
+      risk('バスの後ろの非常口から、乗客を歩道へ降ろして、橋のたもとまで歩かせる', .2, 527, '非常口を外から開けて、1人ずつ手を取って降ろした。三十人ほど。歩道を1列にして、先頭に立つ。6人は、空のバスのまわりに残った。たもとの停留所から、次のバスが出ていた。', '列の最後の1人を降ろしたとき、車体の陰から手が出た。足首をつかまれて、膝をついた。', { cond:(s, w) => live(s, w, 'bridge'), before:save('bridge', 'hero_bridge', 50) }),
+      ...answers(527),
+    ] },
+  schoolh:{ no:528, name:'リンカーン小学校', short:'リンカーン小学校', place:'school', cam:'v_h_school', at:[258, 164], label:[-10, -14], adj:others('schoolh'), go:go('schoolh'), arrive:arr('school', 537),
+    z:(s, w) => (live(s, w, 'school') ? 6 : 3),
+    text:(s, w) => (s.flags.school ? '列は、表の歩道から体育館の入口まで、1本につながっている。先頭では、係員が袖をまくった腕を1人ずつ見ていた。駐車場の6人は、車のあいだに戻っている。'
+      : police(w, 'school') ? '駐車場の端に、警官が2人立っている。列と駐車場のあいだを、行ったり来たりしていた。列は、切れていない。1人が、こちらに気づいて、帽子のつばに手をやった。'
+      : live(s, w, 'school') ? '投票の列が、途中で切れている。駐車場から出てきた6人が、列の真ん中を横切って、そのまま立ち止まっていた。前の半分は、入口へ進んでいく。後ろの半分は、歩道に取り残された。二十人ほど。\n\n体育館の入口から30メートルのところに、黄色い立て札がある。そこから先には、看板も札もない。取り残された列の中に、仕事着のままの者が多かった。'
+      : missed(s, w, 'school') ? '表の歩道に、列はもうない。体育館の入口の扉は、半分閉めてあった。駐車場の明かりの下に、上着が2枚、落ちている。'
+      : '列は、駐車場の脇まで続いている。黄色い立て札は、入口から30メートルのところ。駐車場の車のあいだを、3人が歩いていた。') + (asked(s) ? REPORTER : ''),
+    extra:(s, w) => [
+      risk('列を横切っている6人を、1人ずつ駐車場の奥へ戻す', .3, 528, '肩に手を置いて、向きを変えさせる。歩きだしたら、次の1人。6人とも、駐車場の奥の金網まで戻した。後ろの半分が、前へ詰めて、列はつながった。', '5人目の肩に手を置いたとき、その首が、手のほうへ回った。指を噛まれた。', { cond:(s, w) => live(s, w, 'school'), before:save('school', 'hero_school', 30) }),
+      risk('取り残された人たちを、校舎の裏を回らせて、列の前の半分につなぐ', .15, 528, '後ろの半分の先頭に立って、校舎の裏を回った。給食の搬入口の前を通って、体育館の脇へ出る。前の半分の最後尾が、振り向いて、1歩ずつ詰めた。', '校舎の裏の暗がりに、1人立っていた。用務員の作業着だ。先頭を歩いていて、肩がぶつかった。', { cond:(s, w) => live(s, w, 'school'), before:save('school', 'hero_school', 40) }),
+      ...answers(528),
+    ] },
+};
+
+// 街の全域の地図（有権者の本と同じ街）
+const CITY = BOOKS.voter.maps.city;
+const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:236, y:150 }],
+  roads:[...CITY.roads, { name:'エルム通り', cls:'sub', off:44, pts:[[0, 36], [70, 34], [120, 32], [169, 30]] }],
+  note:'赤い丸が現在地。' };
+const mark = (label, name) => c(label, 0, 506, { run(s, w){ s.flags.voted = name; w.votes = w.votes || {}; w.votes[s.char] = name; return 506; } });
+const savedText = n => (n >= 5 ? '今日、走った先で、間に合ったのは' + n + 'か所。それでも、間に合わなかった通りの番地は、ひとつ残らず言える。'
+  : n >= 1 ? '今日、走った先で、間に合ったのは' + n + 'か所。間に合わなかった通りのほうが、多い。' : '今日は、どの通報にも、間に合わなかった。');
+
+BOOKS.hero = {
+  start:500,
+  hubs:{},
+  noJump:true,
+  lines:{ noticed:'1人が、こちらを向いた。距離は、車1台ぶん。歩いてくる。', grabbed:'上着の背をつかまれた。前へ体を倒して、抜けた。',
+    follow:n => n + '人が、あとを歩いてくる。足は遅い。', shake:'角を2つ曲がった。ついてきた者は、もう見えない。', lost:'ついてきた者は、途中で足を止めた。' },
+  spots:SPOTS, map:MAP, wound:() => WOUND,
+  paras:{
+    // ===== 朝：無線 =====
+    500:{ time:360, place:'north', inside:true,
+      text:'火曜日、午前6時。エルム通りのアパートの3階。\n\n棚の無線機は、ひと晩じゅう鳴っていた。警察の通報の系統だ。通信係が番地を読み上げて、「順番にうかがいます」と言う。\n\n水道局の検針は、今日は休みを取ってある。メーターを見て回る仕事を8年やって、この街の裏口と塀の高さは、だいたい頭に入っている。\n\n人より少し丈夫で、足が速い。できることは、それだけだ。紺色の上着には名札がない。新聞は、勝手に「ナイトウォッチ」と書いている。\n\n通報は、いま2件。\n\n　エルム通り、白い家。玄関の前に6人。2階に家族。\n　メープル通りの停留所。通学のバスが、囲まれて動けない。\n\n両方へは、行けない。',
+      choices:[c('紺色の上着を着て、階段を降りる', 0, 520)] },
+
+    // ===== 投票 =====
+    505:{ time:s => s.clock + 40, place:'church', inside:'door',
+      text:s => '列は、40分かかった。係員が、袖をまくった腕を見て、' + (s.infected ? '肘の下で手を止めた。\n「届けは」\n係員は、返事を待たずに黄色い札を1枚出して、名簿に線を引いた。' : '名簿に線を引く。水道局の身分証は、見せるだけで済んだ。')
+        + '\n\n記載台の仕切りの中は、鉛筆が1本と、投票用紙が1枚。\n\n　ロバート・ホイットモア（自由連合党・現職）\n　ダイアン・カーヴァー（国民進歩党）\n　サミュエル・オカフォー（無所属）\n\n朝から走った通りの、看板の色を思い出した。'
+        + (s.clock >= EVENING ? '\n\n外で、列の誰かが声を上げた。仕切りの中からは、見えない。' : ''),
+      choices:[mark('ホイットモアに印を付ける', 'whitmore'), mark('カーヴァーに印を付ける', 'carver'), mark('オカフォーに印を付ける', 'okafor')] },
+    506:{ time:s => s.clock + 5, place:'church',
+      text:'用紙を読み取り機に入れた。係員が、「投票しました」の丸い札をくれた。上着の胸には付けずに、ポケットに入れた。\n\n教会の裏で、紺色の上着に着替える。無線機の音量を、元に戻した。',
+      choices:[c('駐車場へ出る', 0, 526)] },
+
+    // ===== 夜 =====
+    510:{ time:1260, place:'north', inside:true, end:'home',
+      text:s => '紺色の上着を、壁の釘に掛けた。袖口が、朝より重い。\n\nラジオをつける。WGLNは、開票所の郡庁舎から中継していた。封印した袋が届くたびに、投票区の名前が読み上げられる。'
+        + (s.flags.asked === 'vote' ? '合間に、昼の録音が流れた。「投票には、行ってください」。自分の声は、思ったより低い。' : '')
+        + '\n\n' + savedText(s.flags.saved || 0)
+        + (s.flags.voted ? '\n\nポケットから、「投票しました」の丸い札が出てきた。冷蔵庫の扉に、案内の紙と並べて留めた。' : '\n\n冷蔵庫の扉には、投票所の案内が留めたままになっている。聖マルコ教会。夜8時まで。時計は、9時を回っていた。')
+        + '\n\n棚の無線機は、まだ鳴っている。未対応の通報は、31件。\n\n（ヒーローの本は、ここまで）',
+      choices:[] },
+
+    // ===== 間に合わなかった現場 =====
+    530:{ time:s => s.clock + 15, place:'north', zombies:6, prey:{ n:6, pose:'lie' },
+      text:'玄関の扉は、内側へ倒れていた。廊下の奥で、6人が床にかがんでいる。その下に、エプロンの裾が見えた。階段の上では、子どもが2人、手すりの柵のあいだから、それを見ていた。\n\n手すりを乗り越えて、2人を抱えた。窓から屋根へ出る。下の6人は、顔を上げなかった。',
+      choices:[c('2人を隣の家へ預けて、通りへ戻る', 0, 521)] },
+    531:{ time:s => s.clock + 15, place:'maple',
+      text:'バスの扉は、開いていた。乗り口の段に、運転手の帽子が落ちている。車内の通路で、5人が1つの座席を囲んでいた。座席の背の上に、小さな手が出て、引っこんだ。\n\n後ろの非常口を、外から開けた。座席の下に、子どもが3人隠れていた。1人ずつ抱えて降ろす。5人は、囲んだ座席から離れなかった。',
+      choices:[c('3人を青い札の家へ預けて、通りへ戻る', 0, 522)] },
+    532:{ time:s => s.clock + 5, place:'hosp', zombies:3, prey:{ n:3, pose:'lie' },
+      text:'救急の入口のガラスの内側で、白衣が1人、床に押さえこまれている。上に、3人。看護師の靴が片方、ガラスのこちら側に転がっていた。\n\n扉には、内側から鎖が回してある。引いても、開かない。ガラスの向こうで、白衣の腕が動かなくなった。',
+      choices:[c('入口を離れる', 0, 523)] },
+    533:{ time:s => s.clock + 15, place:'factory', zombies:6, prey:{ n:4, pose:'fend' },
+      text:'格子の内側に、弁当箱がいくつも落ちている。構内の奥、積んだ鋼材の陰で、作業着の男が2人、6人に壁へ押しつけられていた。1人は、まだ腕を振っている。\n\n塀を越えた。腕を振っているほうの襟をつかんで、引きはがす。もう1人は、もう立っていなかった。',
+      choices:[c('男を守衛所へ運んで、正門へ戻る', 0, 524)] },
+    534:{ time:s => s.clock + 20, place:'oak', zombies:5, prey:{ n:5, pose:'sit' },
+      text:'屋根の下のベンチに、老婦人が腰を下ろしたまま、5人に肩と腕をつかまれている。杖が、歩道に落ちた。列のほかの者は、もういない。\n\n5人を、端から引きはがした。老婦人は、袖をまくって、自分の腕を見ている。歯の跡が、2つ。\n「投票は、もう無理ね」\nそう言って、杖を拾った。',
+      choices:[c('保健局の車が来るまで、そばにいる', 0, 525)] },
+    535:{ time:s => s.clock + 10, place:'church', zombies:4, prey:{ n:4, pose:'fend' },
+      text:'駐車場の3台のうち、1台の扉が開いていた。運転席から、女の人が半分引き出されている。4人が、その腕と髪をつかんでいた。あとの2台は、窓を閉めたまま、動かない。\n\n4人を引きはがして、女の人を車へ戻した。扉を閉める。女の人は、ハンドルに額をつけて、それからエンジンをかけた。車は、入口の列の前を通って、通りへ出ていった。',
+      choices:[c('駐車場に残る', 0, 526)] },
+    536:{ time:s => s.clock + 15, place:'bridge',
+      text:'バスの乗り口の扉が、外から押し破られている。車内灯の下で、6人が、通路に倒れた誰かの上にかがんでいた。後ろの窓から、乗客が1人ずつ、歩道へ降りている。足をくじいた男が、欄干にすがっていた。\n\n男に肩を貸して、橋のたもとまで歩いた。振り向くと、バスの車内灯は、まだついていた。',
+      choices:[c('橋のたもとを離れる', 0, 527)] },
+    537:{ time:s => s.clock + 15, place:'school', zombies:6, prey:{ n:6, pose:'lie' },
+      text:'列の後ろ半分は、歩道にもういない。駐車場の明かりの下で、6人が、倒れた2人を囲んでいる。体育館の入口では、選挙管理人が、残った列を中へ入れて、扉を半分閉めた。\n\n倒れた2人のうち、1人はまだ声を出していた。腕を取って、引きずり出す。入口の係員が、扉を開けて待っていた。',
+      choices:[c('入口の前を離れる', 0, 528)] },
+  },
+};
+})();
+
+</script>
+<script>
+'use strict';
 
 // ===== 足した本（キャラ） =====
 // 追加分（overlay.books[名前]）と、この端末の下書き（draft-books）から作る。街の歩き方（場所・つながり・ゾンビの数）と見た目は、もとにする本（like）から借りる
@@ -1950,7 +2199,7 @@ function addBook(id, x){
   BOOKS[id] = { start:spots[start].no, hubs:{}, noJump:true, spots, map:L.map, maps:L.maps, wound:() => '腕に、歯の形の傷がついた。', endings:{ stranded:base + 199 },
     planZ:Object.fromEntries(Object.entries(L.planZ || {}).map(([k, f]) => [k, safe(f, [])])),
     paras:{ [base + 199]:{ end:'done', text:name + 'の一日は、ここまで。', choices:[] } } };
-  CHARS[id] = { name, osd:String(x.osd || name).slice(0, 16), place:spots[start].place, items:{}, clock:Math.max(300, Math.min(1200, Number(x.clock) || 420)), cam:spots[start].cam || CHARS[x.like].cam, dyn:true, like:x.like };
+  CHARS[id] = { name, osd:String(x.osd || name).slice(0, 16), place:spots[start].place, items:{}, clock:Math.max(300, Math.min(1200, Number(x.clock) || 420)), cam:spots[start].cam || CHARS[x.like].cam, dyn:true, like:x.like, need:needClean(x.need === 'clear' ? { clear:true } : x.need) || undefined };
   CHAR_IDS.push(id);
 }
 // 足した本の、どの場所にもある選択肢：時間を進める・一日を終える
@@ -3232,7 +3481,23 @@ Object.assign(CAM_DEFS, {
       ['sedan', -2.6, -1.8, Math.PI / 2, { c:0xe8e6dc, mark:0x2a4a9a }], ['sedan', 5, -1.8, Math.PI / 2, { c:0xe8e6dc, van:true, mark:0x2a4a9a }], ['sedan', -12, 4.2, Math.PI / 2, { c:0x5a5a62 }], ['aframe', 2.6, -6, -.3, { text:['BALLOT', 'RETURN'], bg:'#f4f2ea', fg:'#1c2a4a' }], ['roadline', 0, 1, 0, { len:60 }]],
     zone:[-5, 1, -9.4, -7], you:[-2.6, -4.4], enter:[-2.6, -.6], door:[-2, -13.4], cam:[9.6, 3.9, 10.6], look:[-2.4, 2.2, -8] } },
 });
+// ヒーローの本：同じ通りを、別のカメラ（高い位置・通りの反対側）から映す。看板の色は、ヒーローの本の文に合わせる
+{
+  const alt = (id, src, no, name, cam, look, props) => { CAM_DEFS[id] = { no, name, out:{ ...CAM_DEFS[src].out, cam, look, ...(props ? { props:props(CAM_DEFS[src].out.props) } : {}) } }; };
+  const noSigns = p => p.filter(q => q[0] !== 'yardsign' && q[0] !== 'poster');
+  const red = { text:['CARVER'], bg:'#b02a2a' }, blue = { text:['WHITMORE'], bg:'#2a4a9a' };
+  alt('v_h_elm', 'v_north', '19B', 'ノースエンド エルム通り 北', [-11, 6, 3.6], [-4.5, 1.2, -9.5], p => [...noSigns(p), ['yardsign', -3.4, -6.6, .2, red], ['yardsign', 6, -6.6, -.1, red], ['yardsign', -12, -6.6, 0, red]]);
+  alt('v_h_maple', 'v_maple', '17B', 'メープル通り 停留所', [2.5, 6, 8.8], [-1, 1.2, -8], p => noSigns(p).map(q => (q[0] === 'house' ? [q[0], q[1], q[2], q[3], { ...(q[4] || {}), win:{ text:['WHITMORE'], bg:'#2a4a9a' } }] : q)));
+  alt('v_h_hosp', 'v_hosp', '51B', '州立グレンフォード病院 車寄せ', [-11, 7.5, 9], [8, 1.5, -9]);
+  alt('v_h_gate', 'v_factory', '81B', 'ケスラー製鋼 正門 東', [-11, 7.5, 9], [1, 1.5, -6]);
+  alt('v_h_stop', 'v_oak4', '15B', 'オーク通り 4丁目 停留所', [-3, 6, 5.5], [7.4, 1, -5.6], p => [...noSigns(p), ['yardsign', 1.6, -6.9, 0, blue]]);
+  alt('v_h_church', 'v_church', '70B', '聖マルコ教会 駐車場', [-11, 7.5, 9], [2, 1.5, -7]);
+  alt('v_h_bridge', 'v_bridge', '31B', 'ケスラー橋 街側', [-12, 5.2, 10.4], [2, 1.6, -3.5]);
+  alt('v_h_school', 'v_school', '22B', 'リンカーン小学校 駐車場', [-11, 7, 9], [6, 1.5, -3]);
+  CAM_DEFS.v_h_gate.out = { ...CAM_DEFS.v_h_gate.out, night:false, fog:[28, 90], lamps:[] }; // 工場の正門は、もとの映像が夕方用。ヒーローが行くのは午前
+}
 for(const [cam, list] of Object.entries({ v_hosp:[403], v_dock:[406] })) list.forEach(n => PARA_CAMS[n] = cam);
+for(const [cam, list] of Object.entries({ v_north:[500, 510], v_church:[505, 506], v_h_elm:[530], v_h_maple:[531], v_h_hosp:[532], v_h_gate:[533], v_h_stop:[534], v_h_church:[535], v_h_bridge:[536], v_h_school:[537] })) list.forEach(n => PARA_CAMS[n] = cam); // ヒーローの本
 for(const [cam, list] of Object.entries({ v_ps:[300, 301, 307, 310], v_school:[302, 303, 304, 313, 314], v_hosp:[305, 306], v_north:[308, 309], v_bridge:[311, 312], v_county:[315] })) list.forEach(n => PARA_CAMS[n] = cam);
 for(const [cam, list] of Object.entries({ v_res:[200, 201, 202], v_church:[203, 204, 205, 206], v_hq:[207, 208, 209], v_hosp:[210, 211, 212, 213, 214, 218], v_radio:[215, 216, 217, 219], v_factory:[220, 221, 222], v_hotel:[223, 224] })) list.forEach(n => PARA_CAMS[n] = cam);
 for(const [cam, list] of Object.entries({ v_oak3:[33, 34], v_bridge:[76, 97, 100], v_depot:[77, 98, 99], v_hosp:[78, 83, 84, 85, 86, 87], v_dock:[80], v_main:[88, 91, 92, 93], v_alley:[90], v_church:[94, 95, 96] })) list.forEach(n => PARA_CAMS[n] = cam);
@@ -3631,10 +3896,10 @@ PLANS.hosp = {
     stairs1:{ floor:'1F', name:'階段', rect:[26, -4, 30, 1], h:3, floorT:'concrete', wall:'concrete', light:'dim', lamps:[[28, -1.5]], stand:[27.4, -1.5], props:[['stairs', 28.6, -2.8, 0, { n:6, w:2.4 }]] },
     stairs3:{ floor:'3F', name:'階段', rect:[26, -4, 30, 1], h:3, floorT:'concrete', wall:'concrete', light:'dim', lamps:[[28, -1.5]], stand:[27.4, -1.5], props:[['stairs', 28.6, -2.8, 0, { n:6, w:2.4 }]] },
     ward:{ floor:'3F', name:'3階病棟の廊下', rect:[0, -3, 26, 0], h:3, floorT:'linoleum', wall:'green', light:'fluo', lamps:[[5, -1.5], [13, -1.5], [21, -1.5]],
-      stand:[9, -1.5], cams:[{ no:'58', name:'3階病棟 西', pos:[.6, 2.6, -1], look:[13, .5, -1.8], fov:48 }, { no:'59', name:'3階病棟 東', pos:[25.4, 2.6, -2], look:[13, .5, -1.2], fov:48 }],
+      stand:[9, -1.5], cams:[{ no:'58', name:'3階病棟 西', pos:[.6, 2.6, -1], look:[13, .5, -1.8], fov:48 }, { no:'59', name:'3階病棟 東', pos:[25.4, 2.6, -2], look:[13, .5, -1.2], fov:48 }, { no:'60', name:'院長室前', pos:[2.2, 2.7, -2.8], look:[4.3, 1, 0], fov:58 }],
       props:[['cart', 12, -.6], ['bench', 6, -.5, Math.PI], ['plant', .7, -2.4]] },
     office:{ floor:'3F', name:'院長室', rect:[0, 0, 8, 6], h:3, floorT:'carpet', wall:'wood', light:'warm', lamps:[[4, 3]],
-      stand:[4.6, 2.2], // カメラなし（個人の執務室）
+      stand:[4.6, 2.2], outCam:'60', // カメラなし（個人の執務室）。中にいるあいだは、廊下の「院長室前」が扉を映す
       props:[['desk', 3, 4.4], ['cabinet', .6, 3, Math.PI / 2], ['plant', 7.3, 5.3], ['papers', 3.4, 3.2]] },
     aud:{ floor:'3F', name:'講堂', rect:[10, 0, 24, 9], h:3.6, floorT:'linoleum', wall:'beige', light:'fluo', lamps:[[14, 4.5], [20, 4.5]],
       stand:[17, 2], cams:[{ no:'61', name:'講堂', pos:[23.5, 3.2, .6], look:[14, .5, 7] }],
@@ -4372,6 +4637,8 @@ function cctvState(s, w){
   return {
     zgroups, ...(() => { const ss = sp || p.spot ? sceneStageOf(s) : {}; return { pose:s.pose || ss.pose || null, spos:s.spos || ss.pos || null, scam:s.scam || ss.cam || null }; })(),
     place:s.place, cam:camFor(s), plan:planOf(s), offscreen:inBlindSpot(s), you:s.char, monster:s.book === 'monster', ended,
+    // 襲われている町の人：場面（段落か場所）の prey:{ n:組みつく数, pose:町の人のしぐさ }
+    prey:(() => { if(ended || s.book === 'monster') return null; let v = sp ? sp.prey : p.prey; try { if(typeof v === 'function') v = v(s, w); } catch(e){ v = null; } return v && v.n > 0 ? { n:Math.min(6, v.n | 0), pose:POSES[v.pose] ? v.pose : 'fend' } : null; })(),
     zombies:ended ? 0 : s.book === 'monster' ? 3 : sp ? spotZ(s, w, sp) : planOf(s) ? (zsHere(s)?.n || 0) : p.zombies != null ? p.zombies : camFor(s) !== s.place ? 0 : (zsHere(s)?.n || 0),
     hideOk:sp ? !!sp.hide : p.zombies == null || !!p.hide, inDoor:p.inside === 'door',
     aware:sp ? s.aware === p.spot : !!zsHere(s)?.aware, alert:zsHere(s)?.alert || 0, encounter:!!p.encounter, other:other ? other.char : null,
@@ -4710,11 +4977,11 @@ function planDirector(){
         const cands = b.eyes.filter(e => !e.hide && canSee(b, e, x, z) && (e !== curEye || wholeIn(e, x, z))).sort((p, q) => dist(p) - dist(q));
         // 切れていても今のカメラに映っているなら、ほかも切れている限り替えない（行ったり来たりしないように）
         if(cands.length && (wholeIn(cands[0], x, z) || !curEye || curEye.hide || !canSee(b, curEye, x, z))){ cam = cands[0].cam; Cut.lostAt = 0; }
-        else if(!Cut.curCam || curEye?.hide){ const any = Object.values(R).find(q => q.floor === b.floor && q.cams) || R[PLANS[b.plan].hub]; cam = any.cams[0]; }
+        else if(!Cut.curCam || curEye?.hide || r?.outCam){ const any = Object.values(R).find(q => q.floor === b.floor && q.cams) || R[PLANS[b.plan].hub]; cam = (r?.outCam && Object.values(R).flatMap(q => q.cams || []).find(c => c.no === r.outCam)) || any.cams[0]; }
       }
     }
   }
-  if(!cam){ const any = Object.values(R).find(q => q.floor === b.floor && q.cams) || R[PLANS[b.plan].hub]; cam = any.cams[0]; }
+  if(!cam){ const any = Object.values(R).find(q => q.floor === b.floor && q.cams) || R[PLANS[b.plan].hub]; cam = (r?.outCam && Object.values(R).flatMap(q => q.cams || []).find(c => c.no === r.outCam)) || any.cams[0]; }
   const eye = b.eyes.find(e => e.cam === cam);
   const visible = shown && eye && (eye.hide || canSee(b, eye, x, z));
   // 見張り役に分かるのは、映っているかどうかだけ
@@ -5070,6 +5337,7 @@ function person(T, who, o = {}){
   if(who === 'voter') return person(T, 'civil', { shirt:'#7a5a48', dark:'#54392c', pants:'#3a3a44' });
   if(who === 'chief') return person(T, 'police');
   if(who === 'director') return person(T, 'doctor');
+  if(who === 'hero') return person(T, 'civil', { shirt:'#1c2440', dark:'#10162a', pants:'#1a1c26', hair:'#2a2420' });
   if(who === 'governor') return person(T, 'civil', { shirt:'#2c3040', dark:'#1a1c28', pants:'#22242e', hair:'#9a9a98' });
   if(who === 'civil'){ // 町の人：シャツとズボン
     const shirt = o.shirt || '#6a7a5a', dark = o.dark || '#48543c', skin = '#c9a27e', hair = o.hair || '#3a2a1c';
@@ -5208,10 +5476,10 @@ function gaitShamble(g, dist, dt, t){
   u.LL.hip.rotation.x = -s * .3 * mv; u.LR.hip.rotation.x = (s * .16 + .08) * mv;
   u.LL.kn.rotation.x = (.08 + Math.max(0, c) * .45) * mv; u.LR.kn.rotation.x = (.05 + Math.max(0, -c) * .15) * mv;
   const grab = u.lunge ? Math.abs(Math.sin(t * 7)) * .35 : 0;
-  u.AL.sh.rotation.x = -.12 + ((u.lunge ? -1.5 : -1.15) + .12) * R - grab + s * .08 * mv + sway * .05;
-  u.AR.sh.rotation.x = -.12 + ((u.lunge ? -1.4 : -.85) + .12) * R - grab - s * .08 * mv - sway * .05;
+  u.AL.sh.rotation.x = -.12 + ((u.feed ? -.75 : u.lunge ? -1.5 : -1.15) + .12) * R - grab + s * .08 * mv + sway * .05;
+  u.AR.sh.rotation.x = -.12 + ((u.feed ? -.7 : u.lunge ? -1.4 : -.85) + .12) * R - grab - s * .08 * mv - sway * .05;
   u.AL.el.rotation.x = u.lunge ? -.1 : -.35; u.AR.el.rotation.x = u.lunge ? -.1 : -.2;
-  u.body.rotation.x = (u.lunge ? .15 : .3) + sway * .03; u.body.rotation.z = s * .07 * mv + sway * .03;
+  u.body.rotation.x = (u.feed ? .95 + Math.sin(t * 5 + u.phase) * .07 : u.lunge ? .15 : .3) + sway * .03; u.body.rotation.z = s * .07 * mv + sway * .03;
   u.neck.rotation.z = .28; u.neck.rotation.x = .18;
   g.position.y = Math.abs(s) * .03 * mv; u.shadow.position.y = (.02 - g.position.y) / g.scale.y;
 }
@@ -5227,6 +5495,8 @@ function makeActors(T, scene, built, st0){
   const other = person(T, st0.you === 'police' ? 'doctor' : 'police'); other.visible = false; scene.add(other);
   const zs = [];
   for(let i = 0; i < 12; i++){ const m = shambler(T); m.visible = false; scene.add(m); zs.push(m); }
+  const vic = person(T, 'civil', { shirt:'#b9ab8c', dark:'#8c7f66', pants:'#4a4640', hair:'#8a8478' }); vic.visible = false; scene.add(vic);
+  let vicOn = false, vicA = 0;
   const free = (x, zz) => !nav || nav.free(x, zz);
   const rnd = (a, b) => a + Math.random() * (b - a);
   const gap = (m, x, zz) => Math.hypot(m.position.x - x, m.position.z - zz);
@@ -5369,19 +5639,49 @@ function makeActors(T, scene, built, st0){
       }
       const grouped = built.plan && !!st.zgroups, here = st.plan ? st.plan.room : null;
       const pull = clamp01(((st.alert || 0) - 30) / 70), avoid = st.monster ? .8 : 2.2 - pull * 1.1;
+      const prey = st.prey && !st.monster && !st.offscreen && !grouped ? st.prey : null;
+      let vicNew = false;
+      if(prey && !vicOn){
+        // 主人公から少し離れた、カメラに映る歩ける所
+        let best = null, bs = -1; const camA = Math.atan2(Cut.camera.position.x - base[0], Cut.camera.position.z - base[1]);
+        for(let n = 0; n < 40; n++){
+          const a = camA + rnd(-1.2, 1.2), r = rnd(2.2, 3.6); let q = [base[0] + Math.sin(a) * r, base[1] + Math.cos(a) * r]; if(nav) q = nav.snap(q);
+          if(!free(q[0], q[1])) continue;
+          const v = new T.Vector3(q[0], 1, q[1]).project(Cut.camera), seen = v.z < 1 && Math.abs(v.x) < .6 && Math.abs(v.y) < .6;
+          const inZ = q[0] >= wz0[0] && q[0] <= wz0[1] && q[1] >= wz0[2] && q[1] <= wz0[3], far = Math.hypot(q[0] - base[0], q[1] - base[1]);
+          const score = (seen ? 2 : 0) + (inZ ? .5 : 0) + (far > 2 ? 1 : 0) + Math.cos(a - camA) + Math.random() * .3;
+          if(score > bs){ bs = score; best = q; }
+        }
+        best = best || [base[0] + 2.6, base[1]];
+        vic.position.set(best[0], 0, best[1]); vicA = Math.atan2(tx - best[0], tz - best[1]); vic.rotation.y = vicA; vicNew = true;
+      }
+      vicOn = !!prey; vic.visible = vicOn;
+      if(prey){ gaitRest(vic, t, prey.pose); if(prey.pose === 'fend') vic.rotation.y = vicA + Math.sin(t * 6) * .12; }
       zs.forEach((m, i) => {
         const u = m.userData;
         const slot = grouped ? slots[i] : null, wz = slot ? slot.zone : wz0;
-        const show = grouped ? !!slot : i < (built.room && !built.open ? Math.min(2, st.zombies) : st.zombies) || (st.encounter && i === 0);
+        const show = grouped ? !!slot : i < (built.room && !built.open ? Math.min(2, st.zombies) : st.zombies) || (st.encounter && i === 0) || (!!prey && i < prey.n + (st.encounter ? 1 : 0));
         m.visible = show;
         if(!show){ u.placed = false; u.zroom = null; return; }
         if(grouped && u.zroom !== slot.room){ u.zroom = slot.room; u.placed = false; }
         u.lunge = st.encounter && i === 0; u.hunt = st.aware && !st.monster && (!slot || slot.room === here);
         const fresh = !u.placed;
+        const pk = prey ? i - (st.encounter ? 1 : 0) : -1, eats = pk >= 0 && pk < prey.n;
+        u.feed = eats && prey.pose === 'lie';
         if(fresh && !u.lunge) place(m, wz, tx, tz, base);
         const px = m.position.x, pz = m.position.z, d = gap(m, tx, tz);
         let moved = 0;
-        if(u.lunge){
+        if(eats){
+          // 町の人に組みつく：まわりに並んで、腕を伸ばす
+          u.lunge = true; u.hunt = false;
+          const lie = prey.pose === 'lie', gapA = Math.min(lie ? 1.2 : .78, 6.283 / prey.n), a = vicA + (pk - (prey.n - 1) / 2) * gapA, r = lie ? .9 : .8;
+          const gx = vic.position.x + Math.sin(a) * r, gz = vic.position.z + Math.cos(a) * r, gd = Math.hypot(gx - px, gz - pz);
+          if(fresh || vicNew){ m.position.set(gx, 0, gz); m.rotation.y = Math.atan2(vic.position.x - gx, vic.position.z - gz); u.placed = true; u.path = null; }
+          else {
+            if(gd > .1){ moved = Math.min(.9 * dt, gd); m.position.x = px + (gx - px) / gd * moved; m.position.z = pz + (gz - pz) / gd * moved; }
+            turnTo(m, Math.atan2(vic.position.x - m.position.x, vic.position.z - m.position.z), .35);
+          }
+        } else if(u.lunge){
           if(fresh || d > 3.5){
             // 襲いかかる一体は、主人公のすぐそばの空いている所へ
             const aim = nav ? nav.snap([tx, tz]) : [tx, tz];
@@ -5878,7 +6178,7 @@ function soloTake(merged, saved, repo){
   try { applySpots(); } catch(e){}
 }
 const soloMine = () => soloOverlay({});                                   // この端末の下書きだけ
-const soloSaved = () => store.get('solo-saved', null) || soloMine();      // 前にリポジトリへ保存した、この端末の分
+const soloSaved = () => store.get('solo-saved', null) || { keys:{}, spots:{}, books:{}, cams:{} };      // 前にリポジトリへ保存した、この端末の分
 // 部屋の中の「更新」：部屋の今の中身を読みこむ（リポジトリのない部屋では、部屋を作った人の端末から届く）
 async function roomPullNow(){ soloPullNote = '読みこんでいます…'; render(); roomNote = ''; roomSig = ''; await roomPull(true); if(liveOn()) liveAll({ t:'refresh' }); soloPullNote = roomNote ? '読みこめませんでした' : '読みこみました'; render(); }
 // リポジトリを読みこむ。開いたとき・画面に戻ったとき・3分ごと・☰ の「更新」
@@ -6324,7 +6624,7 @@ const hasProgress = () => { const w = loadWorld(); return !!w.lock || CHAR_IDS.s
 function howPages(kind){
   // 文の形は、市販のゲームの説明書（任天堂の電子説明書）を手本にしている：
   //   最初のページは「どんなゲーム？」を文章で／画面の見かたは、番号ごとに名前と短い1文／操作は「〜を押してください」／保存（ロック）の話は1か所にまとめる
-  const guest = !!room && !isHost(), n = CHAR_IDS.length;
+  const guest = !!room && !isHost(), n = openIds().length;
   const reach = roomLocal() ? '部屋を作った人がゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は、自動で共有されます。';
   const B = t => '<b>' + t + '</b>';
   if(kind === 'make'){
@@ -6353,7 +6653,7 @@ function howPages(kind){
       ], after:'※ Claude Code を使う場合は、次のリンクを貼って「準備して」と頼むと、Claude Code がリポジトリの設定を手伝います。' + guide },
     ];
   }
-  const names = CHAR_IDS.map(id => CHARS[id].name).join('、');
+  const names = openIds().map(id => CHARS[id].name).join('、');
   const P = [
     { t:'どんなゲーム？', text:'州知事選挙の投票日を、' + n + '人の立場から読み進めるゲームブックです。舞台は、アメリカ中西部の架空の州ウィノアの州都グレンフォード。街では、ゾンビが人を襲っています。<br><br>主人公は、' + names + 'の' + n + '人です。1人に1冊の「本」があります。' + n + '冊は同じ一日の話で、' + (room ? 'ほかの人がしたことは、あなたの本にも残ります。たとえば、ほかの人がゾンビを倒すと、あなたの本にもそのゾンビは出てきません。' : 'ある本でしたことは、ほかの本にも残ります。たとえば、ある本でゾンビを倒すと、ほかの本にもそのゾンビは出てきません。') + '<br><br>一日の終わりに、選挙の開票結果が出ます。結果は、' + n + '人のしたことで変わります。' },
     room ? { t:'ゲームの始めかた', text:'［☰］の［部屋］を押して、進めたい本の［ロックする］を押してください。1冊をロックできるのは、1人です。ロックしていない本も、開くとこれまでの話を読めます。<br><br>' + reach }
@@ -6376,7 +6676,7 @@ function frontHtml(){
   if(front === 'title'){
     const go = hasProgress();
     return osd + '<div class="fr-in"><h1 class="fr-title"><small>ELECTION DAY</small>Joining<br>the Living Dead</h1>'
-      + '<p class="fr-sub">ゾンビのいる街の、州知事選挙の投票日。<br>' + CHAR_IDS.map(id => escText(CHARS[id].name)).join('、') + '。<br>同じ一日を、それぞれの本で読み進める。</p>'
+      + '<p class="fr-sub">ゾンビが人を襲う街の、州知事選挙の投票日。<br>' + openIds().map(id => escText(CHARS[id].name)).join('、') + '。<br>同じ一日を、それぞれの本で読み進める。</p>'
       + '<div class="fr-btns">'
       + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
       + '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>'
@@ -6389,7 +6689,7 @@ function frontHtml(){
   }
   if(front === 'menu'){
     return osd + '<div class="fr-in"><h2 class="fr-h">どの本から読みますか</h2><p class="fr-lead">あとから別の本にも替えられます。</p><div class="fr-btns">'
-      + CHAR_IDS.map(id => '<button data-frbook="' + id + '">' + escText(CHARS[id].name) + 'の本<small>' + escText(CHARS[id].osd || '') + '　' + fmt(CHARS[id].clock) + ' に、' + escText(PLACES[CHARS[id].place] || '') + 'から始まる</small></button>').join('')
+      + openIds().map(id => '<button data-frbook="' + id + '">' + escText(CHARS[id].name) + 'の本<small>' + escText(CHARS[id].osd || '') + '　' + fmt(CHARS[id].clock) + ' に、' + escText(PLACES[CHARS[id].place] || '') + 'から始まる</small></button>').join('')
       + '</div><button class="plain" id="frBack">タイトルへ</button></div>';
   }
   const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i], closeLabel = howBack === 'title' ? 'タイトルへ' : '閉じる';
@@ -6771,6 +7071,14 @@ async function roomFetch(url, opts = {}){
   if(!segs.every(segOk)) return res(400);
   const [head, a, k, sub, x, y] = segs, base = repoBase();
   const obj = name => (myFile[name] = myFile[name] && typeof myFile[name] === 'object' ? myFile[name] : {});
+  if(head === room + '-file'){ // ファイル
+    if(!a) return res(200);
+    const path = base + 'file/' + a + '.bin';
+    if(m === 'GET'){ const r = await ghApi(path); if(!r.ok) return res(200, null); return res(200, 'data:application/octet-stream;base64,' + String((await r.json()).content || '').replace(/\s/g, '')); }
+    if(m === 'PUT'){ const mm = String(body).match(/^data:[^;,]*;base64,([A-Za-z0-9+\/=]+)$/); if(!mm || mm[1].length > 720000) return res(400); const r = await ghWrite(path, () => ({ message:'部屋 ' + room + ' のファイル', content:mm[1] })); return res(r.status); }
+    await ghDelete(path, '部屋 ' + room + ' のファイルを消す');
+    return res(200);
+  }
   if(head === room + '-img'){ // 画像
     if(!a) return res(200);
     const path = base + 'img/' + a + '.jpg';
@@ -6830,7 +7138,8 @@ async function roomSendItems(){
       did = true;
       const key = itemKey(it.id);
       if(it.img){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + key + '.json', { method:'PUT', body:JSON.stringify(it.img) }); if(!r0.ok) throw 0; }
-      const item = { label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）', at:it.at || '', text:it.text || '', ask:!!it.ask, opts:it.opts || null, draft:it.draft || null, claude:!!it.claude, img:!!it.img, pos:it.pos || null, free:!!it.free, o:it.after || Date.now() };
+      if(it.file && it.file.data){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + key + '.json', { method:'PUT', body:JSON.stringify(it.file.data) }); if(!r0.ok) throw 0; }
+      const item = { label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）', at:it.at || '', text:it.text || '', ask:!!it.ask, opts:it.opts || null, draft:it.draft || null, claude:!!it.claude, img:!!it.img, file:it.file ? { name:String(it.file.name || 'file').slice(0, 80), size:+it.file.size || 0 } : null, pos:it.pos || null, free:!!it.free, o:it.after || Date.now() };
       const res = await roomFetch(roomPath('items/' + key), { method:'PATCH', body:JSON.stringify(item) });
       if(!res.ok) throw 0;
       roomItems[key] = Object.assign(roomItems[key] || {}, clean(item)); roomSig = '';
@@ -7038,7 +7347,7 @@ function roomPanelHtml(){
     + note
     + '<div class="step"><div class="n">呼び名</div><h3>みんなに見える名前</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
     + '<div class="step"><div class="n">本</div><h3>誰が、どの本を進めるか</h3>'
-      + CHAR_IDS.map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
+      + openIds().map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
         + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">' + (o.dev === DEV ? '保存してロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>' + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずにロックを外す</button></div>' : ''); }).join('')
       + '<p style="margin-top:12px">進められるのは、自分がロックした本だけです。ロックしたら、左上の「← 戻る」で本に戻って読み進めます。</p><p>ロックを外せば、別の本に替えられます。外した本は、ほかの人が続きから進められます。ゲームを閉じても、ロックは残ります。</p></div>'
     + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手が入るには、部屋を作った人の許可が要ります。') : isHost() ? '相手は、開くだけで入れます。リンクには、リポジトリに書きこむためのトークンが入ります。部屋に入れたい人にだけ渡してください。ほかの人に渡ってしまったときは、GitHub でそのトークンを消すと止められます。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
@@ -7186,6 +7495,23 @@ function fbKeyGuideHtml(){
 let fbClaude = false; // 書いている話に、「Claude に頼む」の印を付けるか
 let roomMembers = {}, fbView = 'here', fbMax = false, fbFind = '', fbChOpen = false, fbEdit = null, fbDelAsk = '', lastUnread = 0;
 const fbReImg = {}, EMOJI = ['👍', '❤️', '😂', '😮', '🙏', '👀'], PAGE_TITLE = document.title;
+let fbFile = null, fbReFile = {}; // 付けるファイル（{ name, size, data }）。新しいスレッドの分と、返信の分
+// ファイルを選ぶ。500KB まで
+function pickFile(done){
+  const f = document.createElement('input'); f.type = 'file';
+  f.onchange = () => { const file = f.files[0]; if(!file) return; if(file.size > 500 * 1024){ fbNote = '付けられるファイルは、500KB までです。'; render(); return; } const rd = new FileReader(); rd.onload = () => { done({ name:String(file.name || 'file').slice(0, 80), size:file.size, data:String(rd.result) }); render(); }; rd.readAsDataURL(file); };
+  f.click();
+}
+const fileSize = n => (n >= 1024 ? Math.round(n / 1024) + 'KB' : n + 'B');
+// 付いているファイルを、取ってきて保存する
+async function threadFile(id, name){
+  try {
+    const v = await (await roomFetch(ROOM_DB + room + '-file/' + id + '.json')).json(), m = typeof v === 'string' && v.match(/^data:[^;,]*;base64,([A-Za-z0-9+\/=]+)$/);
+    if(!m) throw 0;
+    const bin = atob(m[1]), u8 = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([u8], { type:'application/octet-stream' })); a.download = String(name || 'file').replace(/[\\\/:*?"<>|]/g, '_').slice(0, 80); document.body.appendChild(a); a.click(); a.remove();
+  } catch(e){ fbNote = 'ファイルを読めませんでした。'; render(); }
+}
 let roomItems = {}, fbImg = '', fbWhere = 'here', fbLoreOpen = false, fbAskOpen = false, fbOpts = '', fbOtherOpen = false, pendingRender = false;
 const fbRe = {}, imgCache = {};
 const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
@@ -7230,7 +7556,7 @@ function render(){
   // ☰ の中身：することごとに、見出しを付けて分ける
   const grp = (t, inner) => (inner ? '<div class="mg"><div class="mh">' + t + '</div><div class="mb">' + inner + '</div></div>' : '');
   tabs.innerHTML =
-    grp('本を選ぶ', CHAR_IDS.map(id => { const st = room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
+    grp('本を選ぶ', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
     + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存してロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずにロックを外す</button>' : '') : '')
     + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
     + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
@@ -7424,6 +7750,8 @@ function render(){
   const fbF = document.getElementById('fbImgFile'); if(fbF) fbF.onchange = () => fbPickImage(fbF.files[0]);
   on('fbImgBtn', () => fbF && fbF.click());
   on('fbImgDrop', () => { fbImg = ''; render(); });
+  document.querySelectorAll('[data-pickfile]').forEach(el => { el.onclick = () => pickFile(f => { if(el.dataset.pickfile) fbReFile[el.dataset.pickfile] = f; else fbFile = f; }); });
+  document.querySelectorAll('[data-file]').forEach(el => { el.onclick = e => { e.stopPropagation(); threadFile(el.dataset.file, el.dataset.fname); }; });
   document.querySelectorAll('[data-re]').forEach(el => { el.value = fbRe[el.dataset.re] || ''; el.oninput = () => { fbRe[el.dataset.re] = el.value; }; });
   document.querySelectorAll('[data-resend]').forEach(el => { el.onclick = () => threadReply(el.dataset.resend); });
   document.querySelectorAll('[data-vote]').forEach(el => { el.onclick = () => { const [k, i] = el.dataset.vote.split('|'); threadVote(k, +i); }; });
@@ -7563,6 +7891,16 @@ const TALLY = {
     ['dir_let_vote', 0, 300, 100, '院長は夕方、日勤の職員11人を投票に行かせた。'],
     ['dir_hold_report', 250, 300, 150, '院長は、噛まれた傷の届け出を、翌朝にまとめて出させた。黄色い札を嫌って帰る人が減った。'],
     ['bridge_swept', 150, 250, 50, '署長は、ケスラー橋の歩道の4人を欄干の側へつないだ。歩いて橋を渡る人が、通れるようになった。'],
+    ['hero_elm', 0, 320, 40, 'ナイトウォッチは朝、エルム通りの白い家から、家族3人を出した。通りの人たちは、午後に投票へ行った。'],
+    ['hero_maple', 320, 0, 40, 'ナイトウォッチは朝、メープル通りの停留所で、通学のバスを出した。親たちは、子どもを送ってから投票へ行った。'],
+    ['hero_hosp', 60, 60, 260, 'ナイトウォッチは午前、州立病院の救急の列から、4人を離した。列にいた人と看護師は、夕方に投票へ行った。'],
+    ['hero_gate', 0, 340, 20, 'ナイトウォッチは午前、ケスラー製鋼の正門を開けさせた。夜勤明けの工員は、帰る前に投票所へ寄った。'],
+    ['hero_stop', 330, 0, 30, 'ナイトウォッチは午後、オーク通り4丁目の停留所で、投票所行きのバスを待つ列を守った。'],
+    ['hero_church', 150, 150, 40, 'ナイトウォッチは午後、聖マルコ教会の駐車場で、車から出られずにいた人たちを降ろした。'],
+    ['hero_bridge', 200, 200, 20, 'ナイトウォッチは夕方、ケスラー橋で止まっていた路線バスを通した。川向こうから戻った人たちが、8時までに投票した。'],
+    ['hero_school', 120, 120, 60, 'ナイトウォッチは夕方、リンカーン小学校で、切れていた投票の列をつないだ。'],
+    ['hero_last', 90, 90, 30, 'ナイトウォッチは夜、聖マルコ教会の列の最後尾に、8時まで立っていた。並んでいた全員が投票した。'],
+    ['hero_said_vote', 40, 40, 20, 'ナイトウォッチは昼、WGLNの記者に「投票には、行ってください」と答えた。その声が、ニュースで流れた。'],
   ],
   // 第14投票区（リンカーン小学校）の数
   p14:{ whitmore:412, carver:412, okafor:71 },
@@ -7577,6 +7915,7 @@ function tallyResult(){
   // 自分たちの1票
   const votes = w.votes || {}, v = st.voter, prov = !!v.flags.provisional;
   if(votes.governor && t[votes.governor] != null) t[votes.governor] += 1;
+  if(votes.hero && t[votes.hero] != null) t[votes.hero] += 1;
   if(votes.voter && t[votes.voter] != null && !prov){ t[votes.voter] += 1; p14[votes.voter] += 1; }
   for(const k of Object.keys(p14)) t[k] += p14[k] - TALLY.p14[k] - (votes.voter === k && !prov ? 1 : 0);
   const total = t.whitmore + t.carver + t.okafor, lead = t.whitmore >= t.carver ? 'whitmore' : 'carver', margin = Math.abs(t.whitmore - t.carver);
@@ -7678,7 +8017,7 @@ function cmInputHtml(k){
   const img = k ? !!fbReImg[k] : !!fbImg;
   return '<div class="cm-in">'
     + (cmQuote ? '<div class="cm-qbar"><span>' + escText(cmQuote.by + '：' + cmQuote.text) + '</span><button id="cmQuoteNo">×</button></div>' : '')
-    + (cmPlus ? '<div class="cm-plus">' + (!room ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>'))
+    + (cmPlus ? '<div class="cm-plus">' + (!room ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>') + '<button data-pickfile="' + (k || '') + '">' + ((k ? fbReFile[k] : fbFile) ? 'ファイルを付けました：' + escText((k ? fbReFile[k] : fbFile).name) + '（選び直す）' : 'ファイルを付ける') + '</button>')
       + (lastView ? '<button id="cmTagBtn">いまの場面の札を付ける</button>' : '')
       + (!room ? '' : '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>')
       + (paras.length ? '<details><summary>いまの場面の文を引用する</summary>' + paras.map((p, i) => '<button class="cm-para" data-cmpara="' + i + '">' + escText(p.slice(0, 60)) + (p.length > 60 ? '…' : '') + '</button>').join('') + '</details>' : '')
@@ -7696,6 +8035,7 @@ function cmNoteFade(){ clearTimeout(cmNoteT); if(fbNote && !/ません|くださ
 function cmThreadHtml(k){
   if(fbEdit) cmSheet = '';
   const it = roomItems[k], hasTag = /^\[\[[\w-]+:\d+\]\]$/m.test(String(roomItems[k].text || '')), pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<button class="cm-pic" data-img="' + id + '">画像を見る</button>');
+  const fileBtn = (id, f) => (f && typeof f === 'object' && f.name ? '<button class="cm-pic" data-file="' + id + '" data-fname="' + escAttr(f.name) + '">📎 ' + escText(f.name) + '（' + fileSize(+f.size || 0) + '）</button>' : '');
   const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
   const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
@@ -7710,7 +8050,7 @@ function cmThreadHtml(k){
         : '<div class="done">' + (mode === 'peer' ? 'ほかの人が賛成すると、全員のゲームに入ります。' : mode === 'auto' ? 'まもなく、全員のゲームに入ります。' : '部屋を作った人が採用すると、全員のゲームに入ります。') + '</div>') + '</div>';
   } else {
     h += bubble(k, (it.by || '名前なし') + (it.claude ? '　AI に頼んだこと' : '') + (it.edited ? '　直した' : ''), it.text || String(it.body || '').split('\n\n---\n')[0], mineKey(k),
-      (it.img ? pic(k) : '') + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + (my === i ? '✓ ' : '') + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '', it.o);
+      (it.img ? pic(k) : '') + fileBtn(k, it.file) + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + (my === i ? '✓ ' : '') + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '', it.o);
   }
   const chips = EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
   if(chips) h += '<div class="cm-rx' + (mineKey(k) && !unitOk(it.draft) ? ' me' : '') + '">' + chips + '</div>';
@@ -7718,7 +8058,7 @@ function cmThreadHtml(k){
   let day = it.o ? new Date(it.o).toDateString() : '';
   for(const [rk, r] of visRes(it)){
     const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmDay(r.o) + '</div>'; }
-    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), r.img ? pic(k + '_' + rk) : '', '', r.o);
+    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), (r.img ? pic(k + '_' + rk) : '') + fileBtn(k + '_' + rk, r.file), '', r.o);
     const rrx = r.rx && typeof r.rx === 'object' ? r.rx : {}, rchips = EMOJI.map((e, i) => { const who = rrx['e' + i] && typeof rrx['e' + i] === 'object' ? Object.keys(rrx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + rk + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
     if(rchips) h += '<div class="cm-rx' + (mineKey(rk) ? ' me' : '') + '">' + rchips + '</div>';
   }
@@ -7829,10 +8169,11 @@ function sendFeedback(){
     if(composeAt() !== 'here') extra.at = composeAt();
     if(fbClaude) extra.claude = true;
     if(fbImg) extra.img = fbImg;
+    if(fbFile) extra.file = fbFile;
     if(fbAskOpen){ extra.ask = true; const o = fbOpts.split('\n').map(x => x.trim().slice(0, 60)).filter(Boolean).slice(0, 8); if(o.length) extra.opts = o; }
   }
   queueIssue('op|' + Date.now(), 'その他', text, text, true, extra);
-  fbDrafts.opinion = ''; fbImg = ''; fbOpts = ''; fbAskOpen = false; cmNew = false; cmPlus = false; render();
+  fbDrafts.opinion = ''; fbImg = ''; fbFile = null; fbOpts = ''; fbAskOpen = false; cmNew = false; cmPlus = false; render();
 }
 // ===== 話の一覧 =====
 const escAttr = t => escText(t).replace(/"/g, '&quot;');
@@ -7950,6 +8291,7 @@ async function threadDelete(id){
     const res = await roomFetch(roomPath('items/' + k + (rk ? '/re/' + rk : '')), { method:'DELETE' });
     if(!res.ok) throw 0;
     roomFetch(ROOM_DB + room + '-img/' + (rk ? k + '_' + rk : k) + '.json', { method:'DELETE' }).catch(() => {});
+    roomFetch(ROOM_DB + room + '-file/' + (rk ? k + '_' + rk : k) + '.json', { method:'DELETE' }).catch(() => {});
     if(rk) delete roomItems[k].re[rk]; else delete roomItems[k];
     fbDelAsk = ''; roomSig = '';
   } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
@@ -8150,8 +8492,9 @@ async function threadReply(k){
   if(!text) return;
   if(!room){ const it0 = roomItems[k]; if(it0){ it0.re = it0.re && typeof it0.re === 'object' ? it0.re : {}; it0.re[DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { by:store.get('fb-name', '') || '自分', text:text.slice(0, 1000), o:Date.now() }; memoSave(); fbRe[k] = ''; } render(); return; }
   if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。'; render(); return; }
-  const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 1000), showAt, o:showAt || Date.now(), img:!!fbReImg[k] };
+  const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 1000), showAt, o:showAt || Date.now(), img:!!fbReImg[k], ...(fbReFile[k] ? { file:{ name:fbReFile[k].name, size:fbReFile[k].size } } : {}) };
   try {
+    if(fbReFile[k]){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(fbReFile[k].data) }); if(!r0.ok) throw 0; delete fbReFile[k]; }
     if(fbReImg[k]){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(fbReImg[k]) }); if(!r0.ok) throw 0; imgCache[k + '_' + id] = fbReImg[k]; delete fbReImg[k]; }
     const res = await roomFetch(roomPath('items/' + k + '/re/' + id), { method:'PUT', body:JSON.stringify(r) });
     if(!res.ok) throw 0;
@@ -8323,6 +8666,7 @@ async function publishPack(){
 function usedAssets(o = overlay){
   const out = new Set();
   for(const d of Object.values(o.keys || {})) for(const a of (d && d.add) || []) if(a.fx && a.fx.img && assetOk(a.fx.img.id)) out.add(a.fx.img.id);
+  for(const d of Object.values(o.keys || {})) for(const q of (d && d.paras) || []) if(q && assetOk(q.img)) out.add(q.img);
   for(const bk of Object.values(o.spots || {})) for(const x of Object.values(bk || {})) if(x && assetOk(x.img)) out.add(x.img);
   return [...out];
 }
@@ -8626,7 +8970,7 @@ function runDraft(a, key, child, v){
   render(); window.scrollTo(0, 0);
 }
 // ===== 本（キャラ）を足す =====
-let bookPanel = false, bookForm = { name:'', osd:'', like:'voter', start:'', clock:'07:00' }, bookNote = '';
+let bookPanel = false, bookForm = { name:'', osd:'', like:'voter', start:'', clock:'07:00', need:{ clear:false, flag:'', noflag:'', have:'', lack:'' } }, bookNote = '';
 function bookPanelHtml(){
   const f = bookForm, bases = CHAR_IDS.filter(c => !CHARS[c].dyn), L = BOOKS[f.like] || BOOKS.voter, mine = store.get('draft-books', {});
   return '<div class="scr"><h2 class="scr-h">本を足す</h2><p class="scr-lead">新しい主人公の本を作ります。作ったら、その本を開いて「＋ 選択肢を足す」で話を書いていきます。</p>'
@@ -8637,6 +8981,10 @@ function bookPanelHtml(){
     + '<label class="lab">もとにする本（街の歩き方と、映像の姿を借ります）</label><select id="bkLike">' + bases.map(c => '<option value="' + c + '"' + (c === f.like ? ' selected' : '') + '>' + CHARS[c].name + 'の本</option>').join('') + '</select>'
     + '<label class="lab">始まる場所</label><select id="bkStart">' + Object.entries(L.spots || {}).filter(([, sp]) => !sp.dyn).map(([id, sp]) => '<option value="' + id + '"' + (id === f.start ? ' selected' : '') + '>' + escText((sp.room && PLACES[sp.place] ? PLACES[sp.place] + '：' : '') + sp.name) + '</option>').join('') + '</select>'
     + '<label class="lab">始まる時刻</label><input id="bkClock" type="time" value="' + f.clock + '">'
+    + '<details' + (Object.values(f.need).some(Boolean) ? ' open' : '') + ' style="margin:10px 0"><summary>この本が出る条件</summary><p>下の条件が全部そろうと、本の一覧に出ます。何も入れなければ、初めから出ます。</p>'
+    + '<label class="cm-ai" style="margin:8px 0;font-size:14px;color:inherit"><input type="checkbox" id="bkNeed" style="width:auto;margin:0"' + (f.need.clear ? ' checked' : '') + '>開票の結果を見たあとだけ出る</label>'
+    + '<input data-bkn="flag" maxlength="60" placeholder="街でこれが起きたあとだけ出る（印の名前）"><input data-bkn="noflag" maxlength="60" placeholder="街でこれが、まだ起きていないあいだだけ出る">'
+    + '<input data-bkn="have" maxlength="60" placeholder="誰かがこれを持っているときだけ出る"><input data-bkn="lack" maxlength="60" placeholder="誰もこれを持っていないときだけ出る"></details>'
     + '<button class="go" id="bkSave">この本を足す</button>'
     + '<p style="margin-top:10px">10冊まで足せます。足した本は ☰ の本の一覧に出ます。あとから消せます。' + (room ? '部屋を作った人が採用すると、全員の本に入ります。' : '') + '</p>'
     + (bookNote ? '<div class="note">' + escText(bookNote) + '</div>' : '') + '</div></div>';
@@ -8646,6 +8994,8 @@ function bookPanelWire(){
   if(!$('bkName')) return;
   for(const [id, k] of [['bkName', 'name'], ['bkOsd', 'osd'], ['bkClock', 'clock'], ['bkStart', 'start']]){ const e = $(id); if(k !== 'start' && k !== 'clock') e.value = f[k]; e.oninput = e.onchange = () => { f[k] = e.value; }; }
   $('bkLike').onchange = () => { f.like = $('bkLike').value; f.start = ''; render(); };
+  $('bkNeed').onchange = () => { f.need.clear = $('bkNeed').checked; };
+  document.querySelectorAll('[data-bkn]').forEach(q => { const k = q.dataset.bkn; q.value = f.need[k]; q.oninput = () => { f.need[k] = q.value; }; });
   document.querySelectorAll('[data-bookdel]').forEach(q => { q.onclick = () => { const all = store.get('draft-books', {}), id = q.dataset.bookdel; delete all[id]; store.set('draft-books', all); unqueue('book|' + id); store.remove('player-' + id); location.reload(); }; });
   $('bkSave').onclick = () => {
     const name = f.name.replace(/[<>&"']/g, '').trim().slice(0, 12);
@@ -8655,9 +9005,10 @@ function bookPanelWire(){
     let id = 'b' + Array.from(crypto.getRandomValues(new Uint8Array(7)), n => 'abcdefghijklmnopqrstuvwxyz'[n % 26]).join('');
     const t = /^\d\d:\d\d$/.test(f.clock) ? +f.clock.slice(0, 2) * 60 + +f.clock.slice(3) : 420;
     const x = { name, osd:f.osd.replace(/[<>&"']/g, '').trim().slice(0, 16), like:f.like, start:f.start || Object.keys(BOOKS[f.like].spots)[0], clock:t, base };
+    const need = needClean({ clear:f.need.clear, ...Object.fromEntries(['flag', 'noflag', 'have', 'lack'].map(k => [k, f.need[k].split(/[、,，]/)])) }); if(need) x.need = need;
     const all = store.get('draft-books', {}); all[id] = x; store.set('draft-books', all);
     fbeUnit = { key:'books', t:'book', x:{ id, ...x } };
-    queueIssue('book|' + id, '追加の案', '本の追加：' + name, '### 本（キャラ）の追加\n\n名前：' + name + '\n映像に出る呼び名：' + (x.osd || name) + '\nもとにする本：' + CHARS[x.like].name + '\n始まる場所：' + (BOOKS[x.like].spots[x.start] || {}).name + '\n始まる時刻：' + fmt(t), false, { at:'all' });
+    queueIssue('book|' + id, '追加の案', '本の追加：' + name, '### 本（キャラ）の追加\n\n名前：' + name + '\n映像に出る呼び名：' + (x.osd || name) + '\nもとにする本：' + CHARS[x.like].name + '\n始まる場所：' + (BOOKS[x.like].spots[x.start] || {}).name + '\n始まる時刻：' + fmt(t) + (need ? '\n出る条件：' + needList(need).join('、') : ''), false, { at:'all' });
     store.set('current', id);
     setTimeout(() => location.reload(), 600);
   };
@@ -8739,7 +9090,7 @@ function chgList(src){
   const out = [], all = S.keys || {};
   for(const [key, d0] of Object.entries(all)){
     const d = Object.assign(DRAFT_BASE(), d0);
-    for(const x of d.paras) out.push({ key, t:'para', x, id:key + '|para|' + x.kind + '|' + x.before, kind:x.after ? '文を直した' : '文を消した', a:x.before, b:x.after });
+    for(const x of d.paras) out.push({ key, t:'para', x, id:key + '|para|' + x.kind + '|' + x.before, kind:!x.after ? '文を消した' : x.img && x.after === x.before ? '画像を付けた' : '文を直した', a:x.before, b:x.after });
     for(const x of d.ins) out.push({ key, t:'ins', x, id:key + '|ins|' + x.id, kind:'文を足した', b:x.text });
     for(const [orig, value] of Object.entries(d.labels)) out.push({ key, t:'label', x:{ orig, value }, id:key + '|choice|' + orig, kind:'選択肢を直した', a:orig, b:value });
     for(const l of d.del) out.push({ key, t:'del', x:l, id:key + '|choice|' + l, kind:'選択肢を消した', a:l });
@@ -8793,8 +9144,8 @@ function fbeSave(act){
     const id = key + '|para|' + e.pk + '|' + e.before;
     d.paras = d.paras.filter(q => !(q.kind === e.pk && q.before === e.before));
     const after = act === 'drop' ? '' : val, pstTxt = e.pk === 'text' && after ? sceneStageText(paraStageOf(e.before, after, e.st0, e.pick)) : '';
-    if(act === 'revert' || after === e.before) unqueue(id);
-    else { const pst = e.pk === 'text' && after ? paraStageOf(e.before, after, e.st0, e.pick) : {}, ent = { kind:e.pk, before:e.before, after, ...(Object.keys(pst).length ? { st:pst } : {}) };
+    if(act === 'revert' || (after === e.before && !e.img)) unqueue(id);
+    else { const pst = e.pk === 'text' && after ? paraStageOf(e.before, after, e.st0, e.pick) : {}, ent = { kind:e.pk, before:e.before, after, ...(Object.keys(pst).length ? { st:pst } : {}), ...(e.img && after ? { img:e.img } : {}) };
       d.paras.push(ent); fbeUnit = { key, t:'para', x:ent }; if(ent.st) fbNote = '演出：' + sceneStageText(ent.st); queueIssue(id, '文の直し', (after ? '直し：' + after : '削る：' + e.before), '### 文の直し\n\n前：\n' + e.before + '\n\n後：\n' + (after || '（この段落を削る）') + (pstTxt ? '\n\n演出：' + pstTxt : '')); }
   } else if(e.kind === 'ins'){
     if(!val) return;
@@ -8837,7 +9188,7 @@ function decorateForEdit(mode){
   const cancel = () => { fbe = null; render(); };
   // 段落を直す欄
   const paraEditor = hasDraft => {
-    const box = boxEl('<textarea class="edit" style="min-height:120px"></textarea>' + btns([['save', '直す'], ...(fbe.kind === 'ins' ? [] : [['below', '下に文章を足す'], ['drop', 'この文章を消す']]), ...(hasDraft ? [['revert', '元に戻す']] : []), ['cancel', 'やめる']]));
+    const box = boxEl('<textarea class="edit" style="min-height:120px"></textarea>' + btns([['save', '直す'], ...(fbe.kind === 'ins' ? [] : [['below', '下に文章を足す'], ...(fbe.insId ? [] : [['pimg', fbe.img ? '画像を付けました（選び直す）' : '画像を付ける'], ...(fbe.img ? [['pimgdrop', '画像を外す']] : [])]), ['drop', 'この文章を消す']]), ...(hasDraft ? [['revert', '元に戻す']] : []), ['cancel', 'やめる']]));
     const f = box.firstChild; f.value = fbe.value; f.oninput = () => { fbe.value = f.value; stShow(); };
     // 演出：もとの文（前の段落）と、今書いている文を比べて、決まり方が変わった所を、その場面の演出にする
     const withStage = fbe.kind === 'para' && fbe.pk === 'text' && !fbe.insId;
@@ -8854,7 +9205,19 @@ function decorateForEdit(mode){
       box.querySelectorAll('[data-pst]').forEach(q => { const k = q.dataset.pst, val = dv[k] || STAGE_DEFAULT[k]; q.options[0].textContent = (String(a1[k]) !== String(a0[k]) ? '自動：' : fbe.st0 && fbe.st0[k] ? '前の演出のまま：' : 'もとのまま：') + (STAGE_NAMES[k][val] || val); });
     }
     stShow();
-    return wire(box, { save:() => fbeSave(), drop:() => fbeSave('drop'), revert:() => fbeSave('revert'), cancel, below:() => { fbe = { kind:'ins', pk:fbe.pk, afterOf:fbe.before || fbe.afterOf, value:'' }; render(); } });
+    return wire(box, { save:() => fbeSave(), drop:() => fbeSave('drop'), revert:() => fbeSave('revert'), cancel, pimgdrop:() => { fbe.img = null; render(); }, pimg:() => {
+      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
+      const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+      f.onchange = () => shrinkImage(f.files[0], async d => {
+        const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
+        if(!m) return;
+        fbNote = '画像を、リポジトリに置いています…'; render();
+        const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 }));
+        if(r.status !== 200){ fbNote = '画像を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
+        assetCache[id] = d; if(fbe) fbe.img = id; fbNote = ''; render();
+      });
+      f.click();
+    }, below:() => { fbe = { kind:'ins', pk:fbe.pk, afterOf:fbe.before || fbe.afterOf, value:'' }; render(); } });
   };
   const paraEl = (pk, before, shown, dr, ins) => {
     if(fbe && fbe.kind === 'para' && fbe.pk === pk && (ins ? fbe.insId === ins.id : fbe.before === before && !fbe.insId)) return paraEditor(!!dr || !!ins);
@@ -8862,7 +9225,8 @@ function decorateForEdit(mode){
     p.className = 'para' + ((dr && !d.ok.paras.has(pk + '|' + before)) || (ins && !d.ok.ins.has(ins.id)) ? ' draft' : '') + (shown === '' ? ' gone' : '') + (editOn ? ' editable' : '');
     p.textContent = shown === '' ? before : shown;
     if(shown === '' && !editOn) p.style.display = 'none';
-    if(editOn) p.onclick = () => { fbe = { kind:'para', pk, before, st0:dr && dr.st ? dr.st : null, insId:ins ? ins.id : null, afterOf:ins ? ins.afterOf : null, value:shown === '' ? before : shown }; fbNote = ''; render(); };
+    if(dr && assetOk(dr.img) && shown !== '' && assetUrl(dr.img)){ const im = document.createElement('img'); im.className = 'draftimg'; im.style.margin = '10px 0 0'; im.src = assetUrl(dr.img); im.alt = ''; p.appendChild(im); }
+    if(editOn) p.onclick = () => { fbe = { kind:'para', pk, before, st0:dr && dr.st ? dr.st : null, insId:ins ? ins.id : null, afterOf:ins ? ins.afterOf : null, value:shown === '' ? before : shown, img:dr && assetOk(dr.img) ? dr.img : null }; fbNote = ''; render(); };
     return p;
   };
   for(const [pk, sel, orig] of [['msg', '.msg', v.msg], ['text', '.text', v.text]]){
@@ -9075,6 +9439,10 @@ function resultHtml(){
   const open = ps.filter(p => started(p) && !ended(p));
   if(open.length) return '<div class="result">開票の結果は、' + open.map(p => CHARS[p.char].name).join('と') + 'の一日が終わると出る。</div>';
   const r = tallyResult(), n = x => x.toLocaleString('ja-JP'), pct = x => (x / r.total * 100).toFixed(2) + '%';
+  const shut = CHAR_IDS.filter(c => !bookOpen(c));
+  if(!store.get('cleared', '')) store.set('cleared', current);
+  const got = shut.filter(bookOpen), more = got.length || (store.get('cleared', '') === current && CHAR_IDS.some(c => CHARS[c].need && CHARS[c].need.clear && c !== current && !(loadPlayer(c).history || []).length))
+    ? '<div class="result">' + (got.length ? got : CHAR_IDS.filter(c => CHARS[c].need && CHARS[c].need.clear && c !== current)).map(c => escText(CHARS[c].name) + 'の本').join('と') + 'が、読めるようになった。</div>' : '';
   const row = (k, o, sum) => '<tr><td>' + TALLY.names[k] + '</td><td class="num">' + n(o[k]) + '</td>' + (sum ? '<td class="num">' + pct(o[k]) + '</td>' : '') + '</tr>';
   const order = ['whitmore', 'carver', 'okafor'].sort((a, b) => r.t[b] - r.t[a]);
   let h = '<div class="result"><b>ウィノア州　州知事選挙　非公式集計</b><br>州務長官事務所　開票率100%（暫定投票を除く）';
@@ -9097,7 +9465,7 @@ function resultHtml(){
   if(started(r.st.chief)) own.push('ブレナン署長は、一日のあいだ、どの投票所でも立て札から先へは入らなかった。投票もしていない。');
   h += '<br><br>' + own.join('<br>');
   if(r.notes.length) h += '<br><br><b>この一日のうち、数に出たこと</b><br>' + r.notes.join('<br>');
-  return h + '</div>';
+  return more + h + '</div>';
 }
 
 overlayPoses();
