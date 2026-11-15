@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.37",
+ "version": "v0.3.38",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -764,8 +764,7 @@
      "head": "正門の鉄の扉が開くと、青い立て札がいっせいに上がった。支持者"
     },
     "204": {
-     "place": "church",
-     "head": "第9投票区の投票所は、聖マルコ教会の隣の集会室だ。歩道にカメ"
+     "place": "church"
     },
     "205": {
      "place": "church"
@@ -802,8 +801,7 @@
      "head": "最後に、司会者が30秒くれた。マイクの向こうの壁に、時計があ"
     },
     "218": {
-     "place": "hosp",
-     "head": "講堂の扉を開けると、院長が壇上で、統合の日程を読み上げていた"
+     "place": "hosp"
     },
     "219": {
      "place": "car"
@@ -847,8 +845,7 @@
      "head": "列は、駐車場の脇まで伸びている。体育館の入口から30メートル"
     },
     "252": {
-     "place": "school",
-     "head": "列の最後尾から、男が1人、立て札の外まで出てきた。作業着で、"
+     "place": "school"
     },
     "253": {
      "place": "radio",
@@ -1459,8 +1456,10 @@
     "bridge",
     "busOut",
     "church",
+    "churchWalk",
     "civ",
     "elm",
+    "elmRoof",
     "gate",
     "hosp",
     "last",
@@ -1479,6 +1478,8 @@
     "school",
     "shown",
     "stop",
+    "stopWalk",
+    "suit",
     "tipChurch",
     "tipHosp",
     "voted"
@@ -1707,8 +1708,7 @@
      "place": "factory"
     },
     "565": {
-     "place": "oak",
-     "head": "バスの扉が閉まる。窓の中で、列の先頭にいた男が、帽子の青い札"
+     "place": "oak"
     },
     "566": {
      "place": "church",
