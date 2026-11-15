@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.34",
+ "version": "v0.3.35",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -20,6 +20,7 @@
     "busHome",
     "cards",
     "corridorClear",
+    "d106",
     "dChurch",
     "dHosp",
     "dMain",
@@ -55,6 +56,7 @@
     "reported",
     "ricoGone",
     "ride",
+    "riseSide",
     "sawDir",
     "sawJanitor",
     "sawRoom",
@@ -1186,6 +1188,7 @@
     "answered",
     "asked",
     "ballots",
+    "calledAt",
     "chairs",
     "counted",
     "d401",
@@ -1211,7 +1214,9 @@
     "gauze",
     "gun",
     "hallClear",
+    "hallSed",
     "lateMeal",
+    "lateSpeech",
     "letVote",
     "lobby3",
     "met",
@@ -1430,8 +1435,7 @@
      "place": "hosp"
     },
     "453": {
-     "place": "hosp",
-     "head": "シャッターの前に、病衣が5人いる。夜のうちに病棟を出て、ここ"
+     "place": "hosp"
     },
     "454": {
      "place": "hosp",
