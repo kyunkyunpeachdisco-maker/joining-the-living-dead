@@ -494,7 +494,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.32';
+const APP_VERSION = 'v0.3.33';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -2089,7 +2089,7 @@ Object.assign(CAM_DEFS, {
   alt('v_h_school', 'v_school', '22B', 'リンカーン小学校 駐車場', [-11, 7, 9], [6, 1.5, -3]);
   CAM_DEFS.v_h_gate.out = { ...CAM_DEFS.v_h_gate.out, night:false, fog:[28, 90], lamps:[] }; // 工場の正門は、もとの映像が夕方用。ヒーローが行くのは午前
 }
-for(const [cam, list] of Object.entries({ v_hosp:[403], v_dock:[406] })) list.forEach(n => PARA_CAMS[n] = cam);
+for(const [cam, list] of Object.entries({ v_hosp:[444, 403], v_dock:[453, 406] })) list.forEach(n => PARA_CAMS[n] = cam); // 病院長の本
 for(const [cam, list] of Object.entries({ v_home:[801, 802, 803, 805, 808, 827], v_oak:[812, 813, 846], v_maple:[818, 819], v_oak3:[833, 814], v_yard:[834], v_oak4:[836, 898], v_school:[850, 849, 851, 860, 861, 862, 897], v_gym:[865, 853, 854, 855, 875, 876, 869, 871, 872, 899] })) list.forEach(n => PARA_CAMS[n] = cam); // 有権者の朝（短い場面をつなぐ所）
 for(const [cam, list] of Object.entries({ v_north:[500, 510, 541, 542, 543, 544, 550], v_church:[505, 506], v_h_elm:[530, 551, 561], v_h_maple:[531, 552, 562], v_h_hosp:[532, 553, 563], v_h_gate:[533, 554, 564], v_h_stop:[534, 555, 565], v_h_church:[535, 556, 566, 559], v_h_bridge:[536, 557, 567], v_h_school:[537, 558, 568] })) list.forEach(n => PARA_CAMS[n] = cam); // ヒーローの本
 for(const [cam, list] of Object.entries({ v_ps:[302, 313, 317], v_school:[316, 355, 303, 318, 359, 335, 314, 360], v_hosp:[310, 305, 306, 338], v_north:[308, 309, 357], v_bridge:[352, 311, 312, 358], v_county:[333, 336, 315] })) list.forEach(n => PARA_CAMS[n] = cam); // 署長の本
@@ -6514,6 +6514,9 @@ const TALLY = {
     ['dir_with_banner', -300, 600, 0, '院長は、知事の演説のあいだ、「病院を残せ」の横断幕の側に立っていた。'],
     ['dir_spoke', -200, 400, 0, '院長は講堂で、統合の日程を読み終えたあと、その日に診た人数を自分の言葉で言い足した。'],
     ['dir_let_vote', 0, 300, 100, '院長は夕方、日勤の職員11人を投票に行かせた。'],
+    ['dir_report', -150, -150, -50, '院長は、噛まれた傷の届け出を、その場で出させた。黄色い札を嫌って、投票所へ行かなかった人がいる。'],
+    ['dir_emergency_ballot', 1, 1, 1, '院長は夕方、事務員を郡庁舎へ走らせて、救急のベッドの3人に、不在者投票の用紙を届けさせた。'],
+    ['dir_told_vote', -150, 300, 50, '院長は講堂で、統合の日程が理事会で5対2で決まったことを、職員に言った。'],
     ['dir_hold_report', 250, 300, 150, '院長は、噛まれた傷の届け出を、翌朝にまとめて出させた。黄色い札を嫌って帰る人が減った。'],
     ['bridge_swept', 150, 250, 50, '署長は、ケスラー橋の歩道の4人を欄干の側へつないだ。歩いて橋を渡る人が、通れるようになった。'],
     ['hero_elm', 0, 320, 40, 'ナイトウォッチは朝、エルム通りの白い家から、家族3人を出した。通りの人たちは、午後に投票へ行った。'],
@@ -8215,9 +8218,12 @@ function resultHtml(){
     vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
     vf.janitorTold && 'モーガンは朝、リンカーン小学校の廊下に立っていた用務員と給食の2人のことを、係員に知らせた。',
     vf.toldH && 'モーガンは朝、受付に来なかったヘンダーソンさんのことを、体育館の係員に話した。',
+    vf.hidWound && 'モーガンは、傷のないほうの袖だけをまくって、投票所の入口を通った。',
+    vf.reported && 'モーガンは、州立病院で手当てを受けて、傷を届け出た。',
     vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。',
     String(r.st.voter.status || '').startsWith('left') && r.st.voter.wounds > 0 && 'モーガンは、腕に傷のあるまま、リコの車の後ろの席に乗った。隣には、リコの子どもが2人いた。',
-    loadWorld().events.some(e => e.type === 'flag' && e.name === 'gov_hid_wound') && 'ホイットモア知事は、手首の傷を届け出ないまま、夜の席に着いた。'].filter(Boolean);
+    loadWorld().events.some(e => e.type === 'flag' && e.name === 'gov_hid_wound') && 'ホイットモア知事は、手首の傷を届け出ないまま、夜の席に着いた。',
+    loadWorld().events.some(e => e.type === 'flag' && e.name === 'dir_refused_eight') && 'ハーラン院長は、警察が運んできた8人の受け取りを断った。護送車は、8人を乗せたまま署へ戻った。'].filter(Boolean);
   if(quiet.length) h += '<br><br><b>この一日のうち、数に出なかったこと</b><br>' + quiet.join('<br>');
   return more + h + '</div>';
 }

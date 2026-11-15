@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.32",
+ "version": "v0.3.33",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -12,6 +12,7 @@
     "items": {}
    },
    "flags": [
+    "askedRota",
     "askedYard",
     "backClear",
     "blocked",
@@ -20,7 +21,6 @@
     "dChurch",
     "dHosp",
     "dMain",
-    "diner",
     "dockClear",
     "fetch",
     "flyer",
@@ -49,6 +49,7 @@
     "sawJanitor",
     "sawRoom",
     "sched",
+    "seat",
     "told",
     "toldH",
     "toldLine",
@@ -431,8 +432,7 @@
      "head": "用紙を白い封筒に入れて封をし、それを緑の封筒に入れた。選挙管"
     },
     "76": {
-     "place": "bridge",
-     "head": "バスがケスラー橋にさしかかる。たもとに測量の杭が打ってあって"
+     "place": "bridge"
     },
     "77": {
      "place": "depot"
@@ -538,8 +538,7 @@
      "place": "school"
     },
     "873": {
-     "place": "school",
-     "head": "「用務員さんは、けさ来てますか」 係員は、名簿から目を上げた"
+     "place": "school"
     },
     "874": {
      "place": "school",
@@ -1173,19 +1172,56 @@
     "items": {}
    },
    "flags": [
+    "answered",
+    "asked",
+    "ballots",
+    "chairs",
+    "counted",
     "d401",
     "d403",
     "d404",
     "d405",
     "d406",
+    "d411",
+    "d434",
+    "d435",
+    "d438",
+    "d440",
+    "d442",
+    "d447",
+    "d449",
+    "d450",
+    "d451",
+    "d452",
+    "d453",
+    "d454",
     "dockIn",
+    "families",
+    "gauze",
     "gun",
     "hallClear",
+    "lateMeal",
     "letVote",
+    "lobby3",
+    "met",
+    "minutes",
+    "morgue",
+    "night",
+    "press",
+    "promised",
+    "readBoard",
+    "readNight",
+    "readPlan",
     "report",
+    "resign",
+    "split",
     "spoke",
     "stood",
-    "wardClear"
+    "told52",
+    "took8",
+    "triage",
+    "wardClear",
+    "worked"
    ],
    "spots": {
     "d_office": {
@@ -1293,7 +1329,12 @@
      "head": "火曜日、午前6時半。州立グレンフォード病院、3階の院長室。 "
     },
     "401": {
-     "head": "主任は、声を落とした。 「院長。噛まれた傷は全部、保健局へ届"
+     "place": "hosp",
+     "head": "救急の主任が、カルテを抱えたまま、こちらへ来た。声を落とす。"
+    },
+    "402": {
+     "place": "hosp",
+     "head": "主任は、戻ってきた。 「もう1つ。噛まれた人と、そうでない人"
     },
     "403": {
      "place": "hosp"
@@ -1303,14 +1344,88 @@
     },
     "405": {
      "place": "hosp",
-     "head": "師長は、詰所の時計を見てから言った。 「院長。日勤の者が、投"
+     "head": "詰所の前に、日勤の看護師が集まっている。師長は、時計を見てか"
     },
     "406": {
-     "place": "hosp",
-     "head": "巡査は、書類ばさみを出した。 「署のフェンスにつないであった"
+     "place": "hosp"
     },
     "407": {
      "place": "hosp"
+    },
+    "411": {
+     "place": "hosp"
+    },
+    "430": {
+     "place": "hosp",
+     "head": "夜勤の報告。 救急の受診 212人 うち、保健局への届け出 "
+    },
+    "431": {
+     "place": "hosp",
+     "head": "今日の予定は、2つだけだ。 11時半 知事が、正面の芝生で演"
+    },
+    "432": {
+     "place": "hosp",
+     "head": "封筒の中は、先月の理事会の議事録だった。統合の日程は、賛成5"
+    },
+    "434": {
+     "place": "hosp",
+     "head": "壁ぎわに、ストレッチャーが2台。どちらもシーツが頭まで掛けて"
+    },
+    "435": {
+     "place": "hosp",
+     "head": "受付の事務員が、窓口から身を乗り出した。 「院長。あの3人で"
+    },
+    "438": {
+     "place": "hosp"
+    },
+    "439": {
+     "place": "hosp"
+    },
+    "440": {
+     "place": "hosp"
+    },
+    "441": {
+     "place": "hosp"
+    },
+    "442": {
+     "place": "hosp",
+     "head": "処置室の前のベッドで、点滴を受けている女の人が、看護師の袖を"
+    },
+    "444": {
+     "place": "hosp",
+     "head": "演台のまわりに、人が集まりはじめている。知事の車が、門を入っ"
+    },
+    "445": {
+     "place": "hosp"
+    },
+    "446": {
+     "place": "hosp"
+    },
+    "447": {
+     "place": "hosp"
+    },
+    "448": {
+     "place": "hosp"
+    },
+    "449": {
+     "place": "hosp"
+    },
+    "450": {
+     "place": "hosp"
+    },
+    "451": {
+     "place": "hosp"
+    },
+    "452": {
+     "place": "hosp"
+    },
+    "453": {
+     "place": "hosp",
+     "head": "シャッターの前に、病衣が5人いる。夜のうちに病棟を出て、ここ"
+    },
+    "454": {
+     "place": "hosp",
+     "head": "講堂では、用務員が1人で、折りたたみの椅子を並べていた。20"
     }
    }
   },

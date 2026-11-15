@@ -6,7 +6,7 @@
 const WOUND = '袖口が裂けて、左の手首の上に赤い筋が残った。爪の跡か歯の跡か、見ただけでは決められない。';
 const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
 const to_ = (to, s, w) => (typeof to === 'function' ? to(s, w) : to);
-const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + WOUND : ok; return to_(to, s, w); } });
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + WOUND : ok; return to_(to, s, w); } });
 const pick = (label, to, fn, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ fn(s, w); return to_(to, s, w); } });
 const done = (s, k) => { if(s.flags['did_' + k]) return; s.flags.done = (s.flags.done || 0) + 1; s.flags['did_' + k] = 1; };
 const did = (s, k) => !!s.flags['did_' + k];
@@ -245,7 +245,7 @@ BOOKS.governor = {
       text:s => ({ double:'横断幕の側は静かにならなかった。青い旗の側からは、拍手が起きた。カメラは、拍手のほうを撮っている。', delay:'横断幕の側が静まった。演台の下で、グレースが額に手を当てている。原稿にない言葉だった。', ignore:'「答えろ」という声が、3回続いた。原稿をめくる手は、止めなかった。' })[s.flags.answer]
         + '\n\n聴衆の後ろで、プラカードを持った3人が、演台のほうへ歩き出した。歩き方が揃っていない。前の列の人たちが、左右に分かれて道を空けていく。\n\nルイス巡査部長が、演台の脇から言った。\n「知事、降りてください」',
       choices:[
-        c('演説を続ける', 0, 212, { run(s, w){ s.flags.stayed = 1; setFlag(w, s, 'gov_stayed'); const who = flag(s, w, 'chief_front') ? '巡査部長と、市警の署長が' : '巡査部長ともう1人の警官が'; s.msg = attacked(s, .25) ? '「保健局の指針に従って、どうか安全に投票を。投票所は夜8時までです。さて、ケスラー橋の話をしましょう」\n' + who + '、2人を押さえた。3人目は演台の縁に手を掛けて、原稿を押さえていたこちらの手首をつかんだ。声は上げなかった。マイクは、そのあいだも入っていた。\n' + WOUND : '「保健局の指針に従って、どうか安全に投票を。投票所は夜8時までです。さて、ケスラー橋の話をしましょう」\n' + who + '、3人を演台の手前で押さえた。プラカードが1枚、芝生に倒れる。橋の話を、原稿の最後の行まで話した。'; return 212; } }),
+        c('演説を続ける', 0, 212, { danger:true, run(s, w){ s.flags.stayed = 1; setFlag(w, s, 'gov_stayed'); const who = flag(s, w, 'chief_front') ? '巡査部長と、市警の署長が' : '巡査部長ともう1人の警官が'; s.msg = attacked(s, .25) ? '「保健局の指針に従って、どうか安全に投票を。投票所は夜8時までです。さて、ケスラー橋の話をしましょう」\n' + who + '、2人を押さえた。3人目は演台の縁に手を掛けて、原稿を押さえていたこちらの手首をつかんだ。声は上げなかった。マイクは、そのあいだも入っていた。\n' + WOUND : '「保健局の指針に従って、どうか安全に投票を。投票所は夜8時までです。さて、ケスラー橋の話をしましょう」\n' + who + '、3人を演台の手前で押さえた。プラカードが1枚、芝生に倒れる。橋の話を、原稿の最後の行まで話した。'; return 212; } }),
         c('演台を降りる', 0, 212, { run(s){ s.msg = '演台を降りた。マイクは入ったままで、警官の声と、何かが倒れる音を拾っている。橋の話は、できなかった。'; return 212; } }),
       ] },
     212:{ time:s => s.clock + 20, place:'hosp', enter(s){ done(s, 'speech'); },
@@ -259,7 +259,7 @@ BOOKS.governor = {
       text:'講堂の扉を開けると、院長が壇上で、統合の日程を読み上げていた。職員が200人ほど座っている。院長はこちらに気づいて、読むのをやめた。\n\n誰も拍手をしなかった。前の列の看護師が立った。\n「知事。今日ここには、朝から340人来ています。北の病院まで、40分かけて運びますか」',
       choices:[
         pick('「運びません。今日来た人は、今日ここで診る」と答える', 235, s => { s.flags.briefAns = 'today'; s.msg = '「そのための予算は、今日のぶんまである」と続けた。看護師は座った。院長が、日程の続きを読み始める。椅子のきしむ音が、後ろのほうで1つした。'; }),
-        pick('「統合の日程は、変わりません」と答える', 235, (s, w) => { s.flags.briefAns = 'plan'; setFlag(w, s, 'gov_brief_plan'); s.msg = '看護師は、立ったままだった。隣の看護師が、袖を引いて座らせた。院長は、日程の紙を、読まずに畳んだ。'; }),
+        pick('「統合の日程は、変わりません」と答える', 235, (s, w) => { s.flags.briefAns = 'plan'; setFlag(w, s, 'gov_brief_plan'); s.msg = '看護師は、立ったままだった。隣の看護師が、袖を引いて座らせた。院長は、壇の上で、日程の紙に目を落としている。'; }),
       ] },
 
     // ===== 車の中（決まった時刻を過ぎると入る） =====

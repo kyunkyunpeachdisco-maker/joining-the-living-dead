@@ -51,7 +51,7 @@ const radio = c('内ポケットの受信機を、耳に当てる', 0, 0, { cond
 const home = c('エルム通りのアパートへ戻る', 0, 0, { cond:s => !s.flags.civ, run:(s, w) => run('apt')(s, w) });
 // 助ける：かかる分、危なさ、開票に出る印。着いたあとの場面へ進む
 const save = (key, flag, min) => (s, w) => { s.flags[key] = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock += min; setFlag(w, s, flag); };
-const method = (label, key, flag, min, chance, ok, hit, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ save(key, flag, min)(s, w); if(extra.mark) s.flags[extra.mark] = 1; s.msg = attacked(s, chance) ? hit + '\n' + (s.wounds > 1 ? WOUND2 : WOUND) : ok; return CALLS[key].B; } });
+const method = (label, key, flag, min, chance, ok, hit, extra = {}) => c(label, 0, 0, { danger:chance >= .3, ...extra, run(s, w){ save(key, flag, min)(s, w); if(extra.mark) s.flags[extra.mark] = 1; s.msg = attacked(s, chance) ? hit + '\n' + (s.wounds > 1 ? WOUND2 : WOUND) : ok; return CALLS[key].B; } });
 const leave = c('ここは見送って、受信機を耳に当てる', 0, 0, { run:H });
 // 間に合わなかった現場で、まだできることに手を貸す
 const late = (label, to, min, text) => c(label, 0, 0, { run(s){ s.flags.late = (s.flags.late || 0) + 1; s.clock += min; s.msg = text; return to; } });
@@ -303,7 +303,7 @@ BOOKS.hero = {
       text:s => '入口の列は、20人ほど残っている。最後尾は、駐車場の端まで出ていた。その後ろから、3人が歩いてくる。足は遅い。列の者は、振り向いては、前へ詰めた。\n\n係員が、腕時計を見た。締め切りは8時。8時に列に並んでいる者は、8時を過ぎても投票できる。列を離れた者は、できない。'
         + (s.flags.voted ? '' : '\n\nポケットの中に、「投票しました」の丸い札は、まだない。'),
       choices:[
-        c('最後尾の後ろに立って、8時まで、3人を押し戻す', 0, 0, { run(s, w){ s.flags.last = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock = CLOSE; setFlag(w, s, 'hero_last');
+        c('最後尾の後ろに立って、8時まで、3人を押し戻す', 0, 0, { danger:true, run(s, w){ s.flags.last = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock = CLOSE; setFlag(w, s, 'hero_last');
           s.msg = attacked(s, .3) ? '9回目に押し戻したとき、押した手を、両手でつかまれた。引き寄せられる。手首に、歯が当たった。8時に、係員が最後尾の後ろに札を立てた。\n' + (s.wounds > 1 ? WOUND2 : WOUND)
             : '最後尾から5歩下がって、立った。3人が寄ってくるたびに、胸を押して、駐車場の端まで下がらせる。数えていたら、11回だった。8時に、係員が最後尾の後ろに札を立てた。列は、そこから先へは伸びない。';
           return 526; } }),

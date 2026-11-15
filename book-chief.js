@@ -6,7 +6,7 @@
 const WOUND = '制服の袖が裂けていた。手首の上に、赤い筋が1本。爪か歯かは、見ただけではわからない。';
 const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
 const to_ = (to, s, w) => (typeof to === 'function' ? to(s, w) : to);
-const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, typeof chance === 'function' ? chance(s) : chance) ? to_(hit, s) + '\n' + WOUND : to_(ok, s); return to_(to, s, w); } });
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, typeof chance === 'function' ? chance(s) : chance) ? to_(hit, s) + '\n' + WOUND : to_(ok, s); return to_(to, s, w); } });
 const pick = (label, to, fn, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ fn(s, w); return to_(to, s, w); } });
 // 街の印を、あとの時刻で残す（その場に残した者が、あとでしたこと）
 const later = (w, s, name, t) => { const c0 = s.clock; s.clock = Math.max(c0, t); setFlag(w, s, name); s.clock = c0; };
@@ -303,7 +303,7 @@ BOOKS.chief = {
         + (s.flags.erline ? '救急の列の側では、部下が両手を広げて立っている。列の者は、演台のほうを見ていない。' : '救急の列から、何人かが芝生へ出てきて、演台のほうを見ている。')
         + '\n\nいちばん後ろで、プラカードを持った3人が、演台のほうへ歩き出した。歩き方が揃っていない。1枚は、上下が逆だ。前の列の人たちが、左右に分かれて道を空けていく。',
       choices:[
-        c('自分で前に出て、3人を演台の手前で止める', 0, 306, { run(s, w){ setFlag(w, s, 'chief_front');
+        c('自分で前に出て、3人を演台の手前で止める', 0, 306, { danger:true, run(s, w){ setFlag(w, s, 'chief_front');
           s.msg = attacked(s, (s.flags.spare === 'hosp' ? .15 : .3) + (s.flags.erline ? .1 : 0))
             ? '聴衆のあいだを抜けて、3人の前に立った。2人は警棒で止めた。3人目のプラカードが顔の前へ倒れてきて、その陰から手が出た。\n' + WOUND
             : '聴衆のあいだを抜けて、3人の前に立った。警棒を横にして、演台の手前で押し戻す。' + (s.flags.erline ? 'ルイス巡査部長が、後ろから順に腕を取った。' : '部下が、後ろから順に腕を取った。') + '知事は、話すのをやめなかった。';
