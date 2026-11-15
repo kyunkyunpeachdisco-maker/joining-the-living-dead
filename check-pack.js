@@ -140,6 +140,10 @@ const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v), arr = v =>
     }
   };
   for(const [key, d] of Object.entries(isObj(o.keys) ? o.keys : {})){
+    if(/^guide:(play|make)$/.test(key)){ // 説明のページ（遊び方・作り方）の直し
+      for(const q of arr(d && d.paras)) if(!isObj(q) || q.kind !== 'guide' || typeof q.before !== 'string' || typeof q.after !== 'string') err('keys.' + key, '説明の直しは、{ "kind":"guide", "before":"もとの文", "after":"直した文" } の形');
+      continue;
+    }
     const m = key.match(/^([a-z]+):(\*|\d+|@[a-z0-9_]+)((?:>\d+)*)$/);
     if(!m){ err('keys.' + key, '場面の名前は、「本:段落の番号」「本:@場所の名前」「本:*」「本:番号>足した選択肢の番号」の形'); continue; }
     const book = m[1], L = likeOf(book);
