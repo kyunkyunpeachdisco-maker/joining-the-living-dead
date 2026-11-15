@@ -38,13 +38,17 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .barbtns{flex:none;display:flex;gap:6px;align-self:flex-start}
 .barbtns button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:14px}
 .barbtns button.on{color:var(--text);border-color:var(--gold)}
-.tabs{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:2px 12px 10px;background:#0d0e12;max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.tabs .mg{padding:10px 0 8px;border-top:1px solid var(--line)}.tabs .mg:first-child{border-top:0}
-.tabs .mh{font-size:11px;color:#8d8778;letter-spacing:.12em;margin-bottom:6px}
-.tabs .mb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.tabs .mb button{width:100%;text-align:left;padding:10px 12px;line-height:1.35}
-.tabs .mb button small{display:block;font-size:11px;color:#8d8778}
-.tabs #saveBtn,.tabs #dropBtn,.tabs #roombtn{grid-column:1/-1}
+.tabs{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:0 12px 6px;background:#0d0e12;max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.tabs .mt{display:flex;margin:0 -4px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0d0e12;z-index:1}
+.tabs .mt button{flex:1;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;color:var(--dim);padding:11px 0 9px;font-size:15px}
+.tabs .mt button.on{color:var(--text);border-bottom-color:var(--gold)}
+.tabs .ml button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;background:none;border:0;border-bottom:1px solid #1f1f24;border-radius:0;color:var(--text);padding:13px 4px;font-size:16px;line-height:1.35;text-align:left}
+.tabs .ml button:last-child{border-bottom:0}
+.tabs .ml button span{min-width:0}
+.tabs .ml button small{flex:none;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#8d8778}
+.tabs .ml button.on{color:var(--gold);border-color:#1f1f24}
+.tabs .ml hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.tabs .ml .reset{color:#b98a80}
 .tabs[hidden]{display:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:14px}
@@ -182,6 +186,9 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 main{max-width:640px;margin:0 auto;padding:16px 30px 48px 16px}
 .notice{border-left:3px solid var(--red);background:#1a0f10;padding:8px 12px;margin-bottom:12px;font-size:14px;line-height:1.7;white-space:pre-line}
 .msg{border-left:3px solid var(--gold);background:#1a1710;padding:8px 12px;margin-bottom:12px;font-size:14px;line-height:1.7;white-space:pre-line}
+.msg.res{border-left:0;background:none;padding:0;margin:4px 0 0;font-family:var(--f-mincho);font-size:17px;line-height:1.9}
+.resnav{margin-top:20px}
+.resnav button{display:block;width:100%;text-align:left;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:16px;line-height:1.5;font-family:inherit}
 .no{font-family:var(--f-mincho);color:var(--gold);font-size:28px;margin:4px 0 8px}
 .text{font-family:var(--f-mincho);font-size:17px;line-height:1.9;white-space:pre-line}
 .menu-title{margin-top:20px;font-size:13px;color:var(--gold);letter-spacing:.05em}
@@ -243,8 +250,8 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .chg-a{color:#8d8778;text-decoration:line-through;white-space:pre-line;margin:4px 0}.chg-b{white-space:pre-line;margin:4px 0}
 .pposter{float:left;width:34%;height:auto;margin:.4em 14px 4px 0}
 .text .para::after{content:'';display:block;clear:both}
-#fbDrawer.max{left:0;width:100vw;top:0!important;z-index:30}
-#fbDrawer.max #fbBody{max-height:100dvh;height:100dvh;box-sizing:border-box;border:0;border-radius:0}
+#fbDrawer.max{left:0;width:100vw;top:var(--vv-top,0px)!important;z-index:30}
+#fbDrawer.max #fbBody{max-height:var(--vv-h,100dvh);height:var(--vv-h,100dvh);box-sizing:border-box;border:0;border-radius:0}
 #fbDrawer.max .edgetab{display:none}
 .edgetab .tabn{position:absolute;left:-8px;top:-8px;writing-mode:horizontal-tb;font-style:normal;font-size:10px;letter-spacing:0;background:#a8780a;color:#111;border-radius:8px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px;box-sizing:border-box}
 #fbDrawer.max .fb.panel{padding:16px!important;margin:0!important;border:0!important}
@@ -288,7 +295,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 #drawer .edgetab,#fbDrawer .edgetab{position:absolute;right:auto;left:-27px;top:0}
 #fbBody{padding:12px 14px!important}
 #fbDrawer.max #fbBody{padding:0!important}
-.cm{display:flex;flex-direction:column;min-height:100dvh;background:#0a0b0e;color:#e8e2d6;font-size:15px;line-height:1.6}
+.cm{display:flex;flex-direction:column;min-height:var(--vv-h,100dvh);background:#0a0b0e;color:#e8e2d6;font-size:15px;line-height:1.6}
 .cm button{font:inherit}
 .cm-top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #2a2a2e;position:sticky;top:0;background:#0a0b0e;z-index:2}
 .cm-top b{font-size:17px}.cm-top .ttl{font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-top span{color:#8d8778;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -297,7 +304,8 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-new{margin:10px 14px;border:1px solid #e0b04a;color:#e0b04a;background:none;border-radius:10px;padding:11px;text-align:center}
 .cm-chips{display:flex;gap:6px;padding:10px 14px 10px;overflow-x:auto;scrollbar-width:none}.cm-chips button{white-space:nowrap;background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.cm-chips button.on{border-color:#e0b04a;color:#e0b04a}
 .cm-list{flex:1}.cm-none{color:#8d8778;padding:16px 14px;font-size:14px}
-.cm-row{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border:0;border-top:1px solid #1f1f24;background:none;color:inherit}
+.cm-row{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border:0;border-top:1px solid #1f1f24;background:none;color:inherit;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.cm-row.sel{background:#1b1c22}
 .cm-row .x{flex:1;min-width:0;display:block}.cm-row .t,.cm-row .s{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-row .t{font-size:16px;color:#f3e8cc}.cm-row .s{color:#8d8778;font-size:13px}
 .cm-row .w{color:#8d8778;font-size:12px;text-align:right;white-space:nowrap}
 .cm-tag{font-style:normal;border:1px solid #3a3a40;border-radius:6px;font-size:11px;color:#c9c2b3;padding:0 6px;margin-right:6px;vertical-align:2px}
@@ -323,7 +331,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-in .note{margin:0 0 8px;padding:6px 10px;border-radius:8px;background:#1b1b20;color:#e8e2d6;font-size:13px}
 .cm-in{position:sticky;bottom:0;background:#0a0b0e;border-top:1px solid #2a2a2e;padding:10px 14px 14px;z-index:2}
 .cm-r{display:flex;gap:8px;align-items:flex-end}.cm-r button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:10px;height:44px;min-width:44px;font-size:18px}.cm-r button.on{border-color:#e0b04a;color:#e0b04a}.cm-r .go{border-color:#e0b04a;color:#e0b04a;font-size:15px;padding:0 14px}
-.cm-r textarea{flex:1 1 0;width:0!important;min-width:0;min-height:44px!important;height:44px;max-height:160px;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;box-sizing:border-box}.cm-r button{flex:none;width:auto!important;margin:0!important}
+.cm-r textarea{flex:1 1 0;width:0!important;min-width:0;min-height:44px!important;height:44px;max-height:40dvh;margin:0!important;font-size:16px;border-radius:10px;padding:9px 12px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;box-sizing:border-box}.cm-r button{flex:none;width:auto!important;margin:0!important}
 .cm-ai{display:flex;align-items:center;gap:6px;color:#8d8778;font-size:13px;margin:0 0 8px}
 .cm-qbar{display:flex;justify-content:space-between;gap:8px;border-left:3px solid #e0b04a;padding:2px 8px;margin-bottom:8px;color:#8d8778;font-size:13px}.cm-qbar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-qbar button{background:none;border:0;color:#8d8778;font-size:16px}
 .cm-plus{display:grid;gap:8px;margin-bottom:10px}.cm-plus>button,.cm-para{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:8px;padding:9px 12px;text-align:left;font-size:14px}.cm-para{display:block;width:100%;margin-top:6px}
@@ -333,6 +341,15 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:#17171c;border-top:1px solid #3a3a40;border-radius:16px 16px 0 0;padding:10px 14px 18px;display:grid}
 .cm-sheet .e{display:flex;justify-content:space-between;padding:4px 4px 10px;border-bottom:1px solid #2a2a2e}.cm-sheet .e button{font-size:26px;background:none;border:0}
 .cm-sheet>button{background:none;border:0;border-bottom:1px solid #2a2a2e;color:#e8e2d6;text-align:left;padding:14px 8px;font-size:16px}.cm-sheet>button:last-child{border-bottom:0}
+.cm-sheet .h{color:#8d8778;font-size:13px;padding:2px 8px 8px;border-bottom:1px solid #2a2a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-sheet .p{margin:0;padding:12px 8px 4px;font-size:14px;color:#c9c2b3}
+.cm-sheet>button.warn{color:#ff8a7a}
+.cm-dlg{position:fixed;left:16px;right:16px;top:calc(var(--vv-top,0px) + 16vh);z-index:41;background:#17171c;border:1px solid #3a3a40;border-radius:14px;padding:16px;display:grid;gap:12px;max-width:420px;margin:0 auto}
+.cm-dlg b{font-size:16px}
+.cm-dlg input{margin:0!important;width:100%!important;font-size:16px;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;border-radius:10px;padding:10px 12px;box-sizing:border-box}
+.cm-dlg .b{display:flex;justify-content:flex-end;gap:10px}
+.cm-dlg .b button{width:auto;flex:none;margin:0;white-space:nowrap;background:none;border:1px solid #3a3a40;color:#e8e2d6;border-radius:8px;padding:8px 16px;font-size:15px}
+.cm-dlg .b .go{border-color:var(--gold);color:var(--gold)}
 #drawerBody,#fbBody{max-height:calc(100dvh - 130px);overflow:auto;-webkit-overflow-scrolling:touch;background:#0a0b0e;border:1px solid #4a4436;border-right:0;border-radius:0 0 0 6px;padding:8px;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
 #drawerBody .map,#drawerBody .planmap{margin:0}
 #top{overflow-x:clip}
@@ -415,6 +432,13 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .fr-page a{color:var(--gold);word-break:break-all}
 .fr-nav{display:flex;gap:10px;margin-top:12px;position:sticky;bottom:0;background:#050607;padding:10px 0 14px;z-index:2}
 .fr-top{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;background:#050607;padding:10px 0 8px}
+.gunit{outline:1px dashed #6a5f3e;outline-offset:3px;border-radius:3px;cursor:pointer}
+.gunit.on{outline-color:#c9a23c}
+.gedit{display:block}
+.gedit textarea{font-size:16px;width:100%;box-sizing:border-box;background:#0f1013;color:#e8e2d2;border:1px solid #4a4436;border-radius:6px;padding:8px;margin:8px 0;font-family:inherit;min-height:140px;line-height:1.7}
+.gedit .row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.gedit button,.fr-gedit button{font-size:15px;padding:8px 14px;border:1px solid #4a4436;border-radius:6px;background:#17181c;color:#e8e2d2;font-family:inherit}
+.fr-gedit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 0;font-size:14px;color:#a79f8d}
 .fr-top .no{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.2em;color:var(--red)}
 #front .fr-top button{font-size:14px;padding:8px 12px;text-align:center}
 .fr-nav button{flex:1;text-align:center!important}
@@ -496,7 +520,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-15 12:11 95b2ec2';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-15 23:24 6ad7653';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const FEEDBACK_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead-feedback', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -947,7 +971,7 @@ const SPOTS = {
     text:(s, w, aware) => (evening(s)
       ? '街灯の間隔が広くて、足もとが暗い。窓に明かりのある家は、数えるほどだ。\n\n' + (!down(s, w, 'maple') ? '車道のまんなかに、3人立っている。手前のは部屋着の女の人で、' + (aware ? 'こっちを向いていた。あとの2人も、遅れて向きを変える。' : '街灯を見上げていた。あとの2人も、同じ明かりのほうを向いている。')
           : (up(s, w, 'maple') ? '車道のまんなかに、' + up(s, w, 'maple') + '人立っている。' + (aware ? 'こっちを向いていた。' : '街灯を見上げていた。') : '車道のまんなかに、立っている者はいない。') + '落ち葉の上に、' + down(s, w, 'maple') + '人、倒れている。')
-      : 'メープル通りは、出たという話を聞かない通りだった。芝生に落ち葉が積もっていて、どの家も車はもう出たあとだ。ずっと先の車道を、3人が遠ざかっていく。いちばん後ろは部屋着の女の人で、歩くたびに体が左右に振れる。'
+      : 'メープル通りで人が襲われたという話は、まだ聞かない。芝生に落ち葉が積もっていて、どの家も車はもう出たあとだ。ずっと先の車道を、3人が遠ざかっていく。いちばん後ろは部屋着の女の人で、歩くたびに体が左右に振れる。'
         + (s.flags.flyer ? '' : '\n\n3軒先の玄関で、赤い上着の運動員がドアノブにチラシを掛けていた。こっちを見つけて手を上げる。\n「おはようございます。投票はもうお済みですか」'))
       + '\n\n東へ行けば小学校の前に出る。2番街を南へ下れば、オーク通りの2丁目だ。',
     run:(s, w) => (down(s, w, 'maple')
@@ -3757,6 +3781,18 @@ function fateTarget(s){
   return null;
 }
 
+// 結果のページを出しているあいだ、取っておく映像の切り替え（「次へ」を押したときに流す）
+let resCut = null;
+// 結果のページの「次へ」：次の場面を出す。時間は進まない
+function resNext(){
+  if(!canAct()) return;
+  const s = loadPlayer(current);
+  s.resNext = ''; s.resClock = 0; s.msg = '';
+  store.set('player-' + current, s);
+  if(resCut){ const cut = resCut; resCut = null; cut(); }
+  render();
+  window.scrollTo(0, 0);
+}
 function act(choice){
   if(!canAct() || choice.held) return;
   if(trialOn() && choice.menu === undefined) trial.moved++;
@@ -3801,6 +3837,7 @@ function act(choice){
     }
   }
   if(s.book === 'monster' && s.clock >= DAWN) target = 699;
+  const clockMid = s.clock; // 次の場面へ移る前の時刻（結果のページに出す）
   go(s, w, target);
   if(s.book !== 'monster' && !s.moved && !choice.risky && !choice.shot) spotLinger(s, w);
   s.moved = false;
@@ -3808,7 +3845,12 @@ function act(choice){
   const blindAfter = inBlindSpot(s);
   markRoom(s);
   if(!blindAfter) s.lastCam = camFor(s);
-  if(videoOn && Cut.built && Cut.raf && !Cut.built.plan && !isEnd(s, target)){
+  // 選んだ結果は、それだけで1ページとして出す（場面が変わるとき）。次の場面と、映像の切り替えは、「次へ」を押してから。
+  // 行き先を自分で選んだ、ただの移動（危ない所を通らないもの）は、そのまま次の場面を出す
+  const resOn = !!s.msg && s.para !== paraBefore && !(choice.dest && !choice.risky);
+  s.resNext = resOn ? (choice.next || (s.place !== placeBefore && PLACES[s.place] ? PLACES[s.place] + 'へ' : '次へ')) : '';
+  s.resClock = resOn ? clockMid : 0;
+  const cutMove = () => { if(videoOn && Cut.built && Cut.raf && !Cut.built.plan && !isEnd(s, target)){
     const b = Cut.built, moved = s.place !== placeBefore;
     if(camFor(s) !== camBefore){
       // 別のカメラへ：行き先の方向へ歩いて出ていく（カメラのない部屋から出てきたときは、もう映っていないので歩かない）
@@ -3823,7 +3865,8 @@ function act(choice){
       // カメラのない部屋から戻る：扉から現れる
       Cut.exitStart = 0; Cut.actors.enterFrom = b.enter || b.door || null; Cut.actors.enterStart = performance.now();
     }
-  }
+  } };
+  if(resOn) resCut = cutMove; else { resCut = null; cutMove(); }
 
   sendStat(s);
   refreshHolds(s, w, s.place !== placeBefore || s.para !== paraBefore);
@@ -5611,16 +5654,21 @@ function placeTabs(){
   document.getElementById('videoTab').style.top = y + 'px';
   document.getElementById('drawer').style.top = (y + 54) + 'px';
   document.getElementById('fbDrawer').style.top = (y + (document.getElementById('drawer').hidden ? 54 : 108)) + 'px';
+  // ☰ のメニューは、実際に見えている範囲の下端までに収める（iOS では 100dvh が見えている高さと合わないことがある）
+  const tabs = document.getElementById('tabs');
+  if(!tabs.hidden){ const vv = window.visualViewport, bottom = vv ? vv.offsetTop + vv.height : window.innerHeight; tabs.style.maxHeight = Math.max(160, Math.floor(bottom - tabs.getBoundingClientRect().top - 8)) + 'px'; }
 }
 addEventListener('resize', () => placeTabs());
+if(window.visualViewport) visualViewport.addEventListener('resize', () => placeTabs());
 // ☰ から開く画面（部屋・カスタム版・リポジトリの連携・本を足す）を開いているあいだは、映像をしまう
 const panelOpen = () => roomPanel || packPanel || linkPanel || bookPanel;
 function syncTuck(anim){
-  const wrap = document.getElementById('cutscene'), d = document.getElementById('drawer'), tuck = (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD) || panelOpen(), was = wrap.classList.contains('tucked');
+  // ☰ のメニューを開いているあいだも、映像をしまう（映像の分だけ上の帯が画面より高くなり、メニューの下が切れるため）
+  const wrap = document.getElementById('cutscene'), d = document.getElementById('drawer'), tuck = (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD) || panelOpen() || menuOpen, was = wrap.classList.contains('tucked');
   document.getElementById('videoTab').classList.toggle('on', videoOn && !tuck);
   if(tuck === was) return;
   if(!anim || !videoOn){ wrap.classList.toggle('tucked', tuck); return; }
-  if(tuck){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); wrap.classList.toggle('tucked', (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD) || panelOpen()); }, 230); }
+  if(tuck){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); wrap.classList.toggle('tucked', (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD) || panelOpen() || menuOpen); }, 230); }
   else { wrap.classList.remove('tucked'); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); }
 }
 function townMapSvg(s, w, choices, live){
@@ -5883,7 +5931,9 @@ function planMapSvg(s, plan, taps = null, risks = {}){
 
 // ===== 映像：今いる場所の監視カメラ。初代プレイステーション風の荒い3Dで、状況をそのまま映す =====
 // 低い解像度で描いて引き伸ばし、頂点を粗い格子に吸い付かせ、1秒12コマで動かす
-const RES_W = 320, RES_H = 180, FPS = 12;
+// 人物は丸みのある体（humanoid2）で、倍の解像度で描く。?fig=1 のときだけ、前の箱の人物と 320×180 に戻す
+const FIG2 = !/[?&]fig=1(&|$)/.test(location.search);
+const RES_W = FIG2 ? 640 : 320, RES_H = FIG2 ? 360 : 180, FPS = 12;
 const EXIT_MS = 1300, ENTER_MS = 1100; // 歩いて出ていく・入ってくる時間
 let videoOn = store.get('video', true);
 const Cut = { key:null, renderer:null, scene:null, camera:null, update:null, raf:0, loading:null, start:0, last:0, state:{}, actors:null, clockBase:0, clockAt:0 };
@@ -6462,7 +6512,7 @@ function psxMat(T, params){
   const m = new T.MeshLambertMaterial(params);
   m.onBeforeCompile = sh => {
     sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>',
-      '#include <project_vertex>\n  gl_Position.xy = floor(gl_Position.xy / gl_Position.w * vec2(120.0, 68.0) + 0.5) / vec2(120.0, 68.0) * gl_Position.w;');
+      '#include <project_vertex>\n  gl_Position.xy = floor(gl_Position.xy / gl_Position.w * PSX_GRID + 0.5) / PSX_GRID * gl_Position.w;'.replace(/PSX_GRID/g, FIG2 ? 'vec2(320.0, 180.0)' : 'vec2(120.0, 68.0)'));
   };
   return m;
 }
@@ -6533,7 +6583,53 @@ function sideTex(T, o, flip){
     if(o.zombie){ R('#8a0c0c', 0, 11, 4, 4); R('rgba(40,50,30,.5)', 3, 6, 3, 3); }
   });
 }
+// 細かい服の絵（FIG2）で使う：位置と大きさから決まる乱数（同じ人は毎回同じ形になる）
+function figRnd(...keys){
+  let s = 0x2545f491;
+  for(const k of keys) for(const ch of String(k)) s = Math.imul(s ^ ch.charCodeAt(0), 0x9e3779b1) >>> 0;
+  return () => { s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+// ふちの欠けた塊
+function figBlob(g, rnd, cx, cy, rx, ry, n = 16){
+  g.beginPath();
+  for(let i = 0; i < n; i++){ const a = i / n * Math.PI * 2, k = .62 + rnd() * .5; g[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k); }
+  g.closePath(); g.fill();
+}
+// 血のしみ：塊と、下への垂れと、まわりの飛び散り（px 単位）
+function figStain(g, color, x, y, w, h, key){
+  const rnd = figRnd('s', color, w, h, key), cx = x + w / 2, cy = y + h / 2, rx = Math.max(2.5, w / 2), ry = Math.max(2.5, h / 2);
+  g.fillStyle = color; figBlob(g, rnd, cx, cy, rx, ry);
+  figBlob(g, rnd, cx + (rnd() - .5) * rx * .6, cy + (rnd() - .5) * ry * .6, rx * .6, ry * .55, 12);
+  const drips = Math.floor(rnd() * 3) + (h > w ? 1 : 0);
+  for(let i = 0; i < drips; i++){
+    const dx = cx + (rnd() - .5) * rx * 1.2, dw = 1.5 + rnd() * 2.5, len = ry * (.6 + rnd() * 1.4);
+    g.beginPath(); g.moveTo(dx - dw / 2, cy); g.lineTo(dx + dw / 2, cy); g.lineTo(dx + dw * .3, cy + ry * .5 + len); g.lineTo(dx - dw * .3, cy + ry * .5 + len); g.closePath(); g.fill();
+    g.beginPath(); g.arc(dx, cy + ry * .5 + len, dw * .55, 0, Math.PI * 2); g.fill();
+  }
+  const dots = 3 + Math.floor(rnd() * 5);
+  for(let i = 0; i < dots; i++){
+    const a = rnd() * Math.PI * 2, d = 1.1 + rnd() * .8;
+    g.beginPath(); g.arc(cx + Math.cos(a) * rx * d, cy + Math.sin(a) * ry * d, .6 + rnd() * 1.6, 0, Math.PI * 2); g.fill();
+  }
+}
+// 破れ目：ぎざぎざの穴から、下の肌が見える
+function figTear(g, color, x, y, w, h, key){
+  const cx = x + w / 2, cy = y + h / 2;
+  g.fillStyle = 'rgba(0,0,0,.35)'; figBlob(g, figRnd('t', w, h, key), cx, cy, w / 2 + 1.5, h / 2 + 1.5, 14);
+  g.fillStyle = color; figBlob(g, figRnd('t', w, h, key), cx, cy, w / 2, h / 2, 14);
+}
 function clothTex(T, o){
+  if(FIG2) return texCanvas(T, 64, 64, g => { // 細かく描き直す（並びは下の荒い絵と同じ。1マス＝4px）
+    const S = 4;
+    g.fillStyle = o.base; g.fillRect(0, 0, 64, 64);
+    if(o.detail){ g.save(); g.scale(S, S); o.detail(g); g.restore(); }
+    const twice = (f, x, y, w, h) => [-64, 0, 64].forEach(d => f(x * S + d, y * S, w * S, h * S, o.base + x + ',' + y));
+    if(o.torn) [[1, 11, 3, 5], [12, 5, 4, 3], [7, 14, 3, 2]].forEach(([x, y, w, h]) => twice((a, b, c, d, k) => figTear(g, o.skin, a, b, c, d, k), x, y, w, h));
+    if(o.blood){
+      [[3, 4, 4, 3], [9, 8, 5, 4], [6, 12, 3, 4], [11, 1, 3, 2]].forEach(([x, y, w, h]) => twice((a, b, c, d, k) => figStain(g, 'rgba(115,10,10,.9)', a, b, c, d, k), x, y, w, h));
+      [[4, 6, 2, 7], [10, 11, 1, 5]].forEach(([x, y, w, h]) => twice((a, b, c, d, k) => figStain(g, 'rgba(60,0,0,.9)', a, b, c, d, k), x, y, w, h));
+    }
+  });
   return texCanvas(T, 16, 16, g => {
     g.fillStyle = o.base; g.fillRect(0, 0, 16, 16);
     if(o.detail) o.detail(g);
@@ -6545,9 +6641,20 @@ function clothTex(T, o){
   });
 }
 // 胴に巻く服の絵。R(色, 横, 縦, 幅, 高さ) の「横」は胸のまんなかからの位置（＋が本人の左）。胸の正面は −4〜3、背中は ±20〜24
+// FIG2 では4倍の細かさ（192×128 など）で描き、血はしみ・垂れ・飛び散りに、ゾンビの肌の色の継ぎは破れ目にする
 function wrapTex(T, h, draw){
-  return texCanvas(T, 48, h, g => {
-    const R = (color, x, y, w, hh) => { g.fillStyle = color; const px = ((44 + x) % 48 + 48) % 48; g.fillRect(px, y, w, hh); if(px + w > 48) g.fillRect(px - 48, y, w, hh); };
+  const S = FIG2 ? 4 : 1, W = 48 * S;
+  const skins = FIG2 ? ZOMBIE_LOOKS.map(L => L.skin) : [];
+  return texCanvas(T, W, h * S, g => {
+    const R = (color, x, y, w, hh) => {
+      const px = ((44 + x) % 48 + 48) % 48;
+      if(FIG2 && w < 48 && (color === BLOOD || color === BLOOD_DARK || (y > 0 && skins.includes(color)))){
+        const f = color === BLOOD || color === BLOOD_DARK ? figStain : figTear;
+        for(const d of [-W, 0, W]) f(g, color, px * S + d, y * S, w * S, hh * S, h + ',' + px + ',' + y);
+        return;
+      }
+      g.fillStyle = color; g.fillRect(px * S, y * S, w * S, hh * S); if(px + w > 48) g.fillRect((px - 48) * S, y * S, w * S, hh * S);
+    };
     draw(R, g);
   });
 }
@@ -6555,6 +6662,7 @@ function limb(T, rt, rb, h, mat){ const m = new T.Mesh(new T.CylinderGeometry(rt
 function at(m, x, y, z){ m.position.set(x, y, z); return m; }
 
 function humanoid(T, o){
+  if(FIG2) return humanoid2(T, o);
   const g = new T.Group();
   const hex = c => typeof c === 'string' ? parseInt(c.slice(1), 16) : c;
   const skin = fmat(T, { color:hex(o.skinColor) });
@@ -6620,6 +6728,153 @@ function humanoid(T, o){
   return g;
 }
 
+// ===== 試作の人物（?fig=2）：輪切りの断面を積んで、胸・腰・もも・ふくらはぎの丸みを作る。関節の組み方は humanoid と同じなので、動きはそのまま使える =====
+// rings の1段は [高さ, 半幅, 前の厚み, 後ろの厚み(省略で前と同じ), 前後のずれ, 左右のずれ]。p は断面の角ばり（2 で楕円、大きいほど四角に近い）
+// u0 は、正面が絵の横のどこに来るか（胴は wrapTex に合わせて 11/12）。cap0・cap1 は、最初と最後の段を閉じる頂点の、段からの高さ
+function loftGeo(T, rings, o = {}){
+  const N = o.seg || 10, e = 2 / (o.p || 2), u0 = o.u0 ?? .5, pos = [], uv = [], idx = [];
+  const sp = v => Math.sign(v) * Math.pow(Math.abs(v), e), up = rings[rings.length - 1][0] > rings[0][0];
+  const yA = rings[0][0], yB = rings[rings.length - 1][0], vOf = y => (y - Math.min(yA, yB)) / Math.abs(yB - yA);
+  const tri = (a, b, c) => up ? idx.push(a, b, c) : idx.push(a, c, b);
+  for(const [y, w, f, b = f, z = 0, x = 0] of rings){
+    for(let j = 0; j <= N; j++){
+      const a = (j / N - u0) * Math.PI * 2, s = Math.sin(a), c = Math.cos(a);
+      pos.push(x + w * sp(s), y, z + (c >= 0 ? f : b) * sp(c)); uv.push(j / N, vOf(y));
+    }
+  }
+  const R = N + 1;
+  for(let i = 0; i < rings.length - 1; i++) for(let j = 0; j < N; j++){ const a = i * R + j, b = a + R; tri(a, a + 1, b); tri(a + 1, b + 1, b); }
+  const pole = (ri, off, last) => {
+    const [y, , , , z = 0, x = 0] = rings[ri], p = pos.length / 3; pos.push(x, y + off, z); uv.push(.5, vOf(y));
+    for(let j = 0; j < N; j++){ const a = ri * R + j; last ? tri(a, a + 1, p) : tri(a + 1, a, p); }
+  };
+  if(o.cap0 != null) pole(0, o.cap0, false);
+  if(o.cap1 != null) pole(rings.length - 1, o.cap1, true);
+  const geo = new T.BufferGeometry();
+  geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const n = geo.attributes.normal.array; // 継ぎ目の両側の向きをそろえて、筋を消す
+  for(let i = 0; i < rings.length; i++){
+    const a = i * R * 3, b = (i * R + N) * 3, v = [0, 1, 2].map(k => n[a + k] + n[b + k]), l = Math.hypot(...v) || 1;
+    for(let k = 0; k < 3; k++) n[a + k] = n[b + k] = v[k] / l;
+  }
+  if(o.rx) geo.rotateX(o.rx);
+  return geo;
+}
+// 頭に巻く顔の絵（64×64。横のまんなか＝正面、上＝頭のてっぺん）
+function headTex(T, o){
+  return texCanvas(T, 64, 64, g => {
+    const R = (c, x, y, w, h) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+    R(o.skin, 0, 0, 64, 64);
+    if(o.bald){ // はげ頭：頭頂は肌、耳の高さから下の後ろに、馬蹄形に髪が残る。後頭部とうなじの境に影
+      R('rgba(255,255,230,.10)', 4, 0, 56, 18);                                        // 頭頂のつや
+      g.fillStyle = 'rgba(40,30,20,.35)'; for(const [x, y] of [[8, 12], [52, 9], [30, 4], [14, 22]]) g.fillRect(x, y, 3, 2); // しみ
+      R(o.hair, 0, 30, 16, 16); R(o.hair, 48, 30, 16, 16); R(o.hair, 16, 32, 4, 8); R(o.hair, 44, 32, 4, 8);
+      g.fillStyle = o.hair; for(let x = 0; x < 64; x += 3) if(x < 17 || x > 46) g.fillRect(x, 28 + (x * 7 % 4), 2, 3); // 髪の上のふち
+      R('rgba(0,0,0,.28)', 0, 47, 16, 4); R('rgba(0,0,0,.28)', 48, 47, 16, 4);          // 後頭部の下の影
+    } else {
+      R(o.hair, 0, 0, 64, 14); R(o.hair, 0, 0, 18, 50); R(o.hair, 46, 0, 18, 50);       // 髪：上と後ろ
+      R(o.hair, 18, 14, 4, 18); R(o.hair, 42, 14, 4, 18);                                // もみあげ
+    }
+    R('rgba(0,0,0,.22)', 14, 30, 4, 8); R('rgba(0,0,0,.22)', 46, 30, 4, 8);           // 耳
+    R('rgba(0,0,0,.12)', 22, 52, 20, 12);                                              // あごの下の影
+    if(o.zombie){
+      R('rgba(20,30,10,.35)', 22, 14, 20, 40);
+      R('#120808', 25, 27, 5, 5); R('#120808', 34, 27, 5, 5);                         // 落ちくぼんだ目
+      R('#c8c8a0', 27, 29, 1, 1); R('#c8c8a0', 36, 29, 1, 1);
+      figStain(g, '#7a0a0a', 27, 42, 10, 9, 'm' + o.skin); figStain(g, '#5a0606', 33, 47, 3, 10, 'c' + o.skin); // 口とあごの血
+      R('#200404', 28, 43, 8, 4); R('#b0a888', 29, 43, 6, 1);                         // 開いた口と歯
+    } else {
+      R(o.hair, 25, 26, 5, 1); R(o.hair, 34, 26, 5, 1);                               // 眉
+      R('rgba(0,0,0,.25)', 25, 27, 5, 4); R('rgba(0,0,0,.25)', 34, 27, 5, 4);         // 目のくぼみ
+      R('#1a1010', 27, 29, 2, 2); R('#1a1010', 35, 29, 2, 2);                         // 目
+      R('rgba(0,0,0,.18)', 30, 31, 4, 9);                                             // 鼻の影
+      R('rgba(110,40,40,.75)', 28, 44, 8, 2); R('rgba(0,0,0,.12)', 28, 46, 8, 2);     // 口
+    }
+  });
+}
+function humanoid2(T, o){
+  const g = new T.Group();
+  const hex = c => typeof c === 'string' ? parseInt(c.slice(1), 16) : c;
+  const soft = t => { if(t){ t.magFilter = t.minFilter = T.LinearFilter; t.needsUpdate = true; } return t; };
+  const M = p => psxMat(T, p), L = (rings, op) => loftGeo(T, rings, op), mesh = (geo, mat, x = 0, y = 0, z = 0) => at(new T.Mesh(geo, mat), x, y, z);
+  const skin = M({ color:hex(o.skinColor) }), sleeve = M({ color:hex(o.sleeve) }), hair = M({ color:hex(o.hairColor) });
+  const pants = M({ map:soft(clothTex(T, o.pants)) }), shoe = M({ color:hex(o.shoe ?? 0x1a1a1a) });
+  const hand = o.hand ? M({ color:hex(o.hand) }) : skin;
+  const HIP = .92, TORSO = { seg:12, p:2.6, u0:11 / 12 };
+  // 腰（ズボン）と腹（シャツのすそ・ベルト）は、腰を軸に動く
+  const body = new T.Group(); body.position.y = HIP; g.add(body);
+  body.add(mesh(L([[-.14, .1, .06, .07, -.01], [-.06, .168, .1, .122, -.01], [.02, .168, .098, .115, -.005], [.09, .152, .092, .098]], { ...TORSO, cap0:-.03 }), pants));
+  body.add(mesh(L([[.03, .158, .1, .1], [.1, .152, .1, .093, .005], [.18, .155, .108, .092, .01], [.27, .162, .112, .098, .012]], TORSO), M({ map:soft(o.low) })));
+  if(o.holster) body.add(mesh(L([[.005, .168, .11, .114], [.065, .165, .108, .108]], TORSO), M({ color:0x0b0b0e })), box(T, .055, .15, .1, M({ color:0x0b0b0e }), -.19, -.02, .01));
+  if(o.skirt){ // 白衣・病院着のすそ：腰から膝の下まで、広がって垂れる
+    const sk = mesh(L([[.08, .166, .108, .112], [-.06, .19, .125, .14], [-.3, .222, .145, .165], [-.5, .24, .155, .18]], { ...TORSO, p:2.2 }), M({ map:soft(o.skirt), side:T.DoubleSide }));
+    body.add(sk);
+  } else if(!o.holster){ // 外に出したシャツのすそ（腰回りに少しかぶさる）
+    body.add(mesh(L([[.1, .158, .104, .098], [.02, .17, .108, .12], [-.06, .182, .112, .132]], TORSO), M({ color:hex(o.sleeve), side:T.DoubleSide })));
+  }
+  // 胸：あばらから胸、肩の張り、首の付け根へすぼまる
+  const chest = new T.Group(); chest.position.y = .24; body.add(chest);
+  chest.add(mesh(L([[-.04, .156, .102, .096, .01], [.04, .162, .112, .1, .015], [.12, .176, .124, .104, .02], [.2, .184, .128, .106, .02], [.26, .192, .12, .104, .012], [.32, .192, .1, .1], [.355, .15, .078, .085, -.005], [.385, .075, .058, .065, -.008]], { ...TORSO, cap1:.012 }), M({ map:soft(o.top) })));
+  if(o.collar !== false) chest.add(mesh(L([[.335, .085, .086, .08], [.375, .068, .072, .07, -.004], [.405, .066, .07, .068, -.008]], { seg:8 }), M({ color:hex(o.sleeve), side:T.DoubleSide })));
+  // 首と頭
+  const neck = new T.Group(); neck.position.y = .35; chest.add(neck);
+  neck.add(mesh(L([[-.02, .05, .046, .058], [.06, .043, .042, .046, -.004], [.12, .041, .04, .042, -.008]], { seg:8 }), skin));
+  const head = new T.Group(); head.position.set(0, -.005, .008); head.scale.setScalar(.93); neck.add(head);
+  head.add(mesh(L([[.075, .03, .024, .02, .062], [.1, .056, .058, .044, .04], [.15, .074, .086, .078, .012], [.2, .081, .1, .104, .005], [.245, .083, .1, .108], [.29, .076, .086, .098, -.006], [.325, .045, .05, .062, -.012]], { seg:10, p:2.2, cap0:-.006, cap1:.01 }), M({ map:soft(headTex(T, o.face)) })));
+  const nose = new T.Mesh(new T.ConeGeometry(.017, .045, 4), skin); nose.rotation.x = Math.PI / 2 + .35; nose.position.set(0, .195, .112); head.add(nose);
+  if(o.bald) for(const sd of [-1, 1]){ const ear = mesh(new T.SphereGeometry(.026, 5, 4), skin, sd * .082, .2, -.01); ear.scale.set(.42, 1, .7); head.add(ear); } // はげ頭は耳で、頭の向きと形が分かる
+  if(o.cap){ // 制帽：上・帯・つば・記章
+    const cap = M({ color:hex(o.cap) }), dark = M({ color:0x07090f });
+    head.add(mesh(L([[.27, .088, .104, .106], [.3, .09, .108, .108, -.004], [.33, .11, .13, .12, .008], [.37, .108, .128, .118, .01]], { seg:12, cap1:.005 }), cap));
+    head.add(mesh(L([[.268, .09, .106, .108], [.3, .092, .11, .11, -.004]], { seg:12 }), dark));
+    const visor = mesh(new T.CylinderGeometry(.085, .085, .012, 10, 1, false, -Math.PI / 2, Math.PI), dark, 0, .275, .085); visor.scale.z = .75; visor.rotation.x = .25; head.add(visor);
+    head.add(box(T, .03, .03, .01, new T.MeshBasicMaterial({ color:0xd8b84a }), 0, .335, .132));
+  } else if(!o.bald){ // 髪：頭にかぶさる殻。前は額の上まで、後ろはうなじまで
+    const hc = mesh(new T.SphereGeometry(1, 10, 4, 0, Math.PI * 2, 0, Math.PI * .62), hair, 0, .232, -.01);
+    hc.scale.set(.089, .11, .112); hc.rotation.x = -.5; head.add(hc);
+  }
+  // 腕：肩の丸み・二の腕・前腕・手（手のひらは、もものほうを向く）
+  const armMat = o.bareArms === 'all' ? skin : sleeve, foreMat = o.bareArms ? skin : sleeve;
+  const arm = side => {
+    const sh = new T.Group(); sh.position.set(side * .19, .29, -.005); sh.rotation.z = side * .07; chest.add(sh);
+    sh.add(mesh(L([[.03, .052, .056, .056, 0, side * -.012], [-.04, .06, .062, .06], [-.15, .05, .056, .05], [-.25, .043, .045], [-.3, .041, .042]], { seg:7, cap0:.03, cap1:-.015 }), armMat));
+    // 継ぎ目を隠す丸い当て物：肩・肘・膝
+    const pad = mesh(new T.SphereGeometry(.058, 6, 4), o.bareArms === 'all' ? sleeve : armMat, side * -.012, .008, 0); pad.scale.set(1, 1, 1.06); sh.add(pad);
+    if(o.bareArms === 'all') sh.add(mesh(L([[.05, .074, .076], [-.04, .07, .072], [-.12, .064, .066]], { seg:8, cap0:.02 }), M({ color:hex(o.sleeve), side:T.DoubleSide })));
+    const el = new T.Group(); el.position.y = -.3; sh.add(el);
+    el.add(mesh(new T.SphereGeometry(.043, 5, 4), foreMat));
+    el.add(mesh(L([[.02, .041, .042], [-.05, .044, .045, .042], [-.14, .038, .038, .036], [-.24, .028, .028], [-.265, .027, .026]], { seg:7, cap0:.015 }), foreMat));
+    el.add(mesh(L([[-.25, .02, .025, .025], [-.28, .019, .04, .034, .004], [-.33, .016, .043, .037, .008], [-.37, .014, .035, .03, .012], [-.395, .008, .015, .015, .016]], { seg:6, cap0:.01, cap1:-.008 }), hand));
+    return { sh, el };
+  };
+  const AL = arm(-1), AR = arm(1);
+  // 脚：もも・ふくらはぎ（ズボンはまっすぐ、素足はふくらはぎが膨らむ）・靴
+  const leg = side => {
+    const hip = new T.Group(); hip.position.set(side * .088, HIP, 0); g.add(hip);
+    hip.add(mesh(L([[.07, .09, .095, .11, -.005], [0, .094, .098, .11], [-.1, .088, .095, .096, .005], [-.25, .074, .08, .074, .005], [-.4, .058, .062, .058], [-.46, .054, .058, .056]], { seg:8, cap1:-.01 }), pants));
+    const kn = new T.Group(); kn.position.y = -.44; hip.add(kn);
+    kn.add(mesh(new T.SphereGeometry(.06, 5, 4), o.bareLegs ? skin : pants, 0, 0, .003));
+    kn.add(mesh(L(o.bareLegs
+      ? [[.03, .052, .055, .058], [-.07, .05, .05, .066], [-.15, .046, .046, .062, -.004], [-.27, .035, .037, .04], [-.38, .027, .03, .03], [-.43, .027, .032, .03]]
+      : [[.03, .058, .063, .062], [-.12, .057, .061, .063], [-.41, .056, .06, .06], [-.435, .058, .062, .062]], { seg:8, cap0:.02, cap1:-.005 }), o.bareLegs ? skin : pants));
+    kn.add(mesh(L([[-.07, .036, .024, .03, -.03], [0, .047, .03, .062, -.03], [.08, .049, .03, .045, -.03], [.16, .044, .03, .026, -.03], [.21, .022, .02, .012, -.024]], { seg:6, p:3, cap0:-.005, cap1:.005, rx:Math.PI / 2 }), shoe, 0, -.48, 0));
+    return { hip, kn };
+  };
+  const LL = leg(-1), LR = leg(1);
+  const shadow = new T.Mesh(new T.CircleGeometry(.34, 12), new T.MeshBasicMaterial({ color:0x000000, transparent:true, opacity:.4, depthWrite:false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = .02; g.add(shadow);
+  g.userData = { body, chest, neck, AL, AR, LL, LR, legL:LL.hip, legR:LR.hip, armL:AL.sh, armR:AR.sh, shadow, HIP, phase:Math.random() * 6, zombie:!!o.zombie,
+    crouch(k){
+      const hipY = HIP - .42 * k;
+      body.position.y = hipY; body.rotation.x = .5 * k;
+      [LL, LR].forEach(l => { l.hip.position.y = hipY; l.hip.rotation.x = -1.45 * k; l.kn.rotation.x = 2 * k; });
+      AL.sh.rotation.x = AR.sh.rotation.x = -.75 * k; AL.el.rotation.x = AR.el.rotation.x = -.5 * k;
+      neck.rotation.x = -.3 * k;
+    } };
+  return g;
+}
+
 // 化け物：青白い肌、血の付いた破れた服。着ている物は5通り（会社員・作業着・病院着・上着・Tシャツ）
 const BLOOD = '#8a0c0c', BLOOD_DARK = '#4a0404';
 const ZOMBIE_LOOKS = [
@@ -6643,8 +6898,8 @@ let zombieN = 0;
 function shambler(T){
   const n = zombieN++, L = ZOMBIE_LOOKS[n % ZOMBIE_LOOKS.length];
   const g = humanoid(T, {
-    zombie:true, skinColor:L.skin, hairColor:L.hair, sleeve:L.base, bald:L.bald, hand:L.hand, bareLegs:L.bareLegs,
-    face:{ skin:L.skin, hair:L.hair, hairH:L.bald ? 1 : 3, zombie:true },
+    zombie:true, skinColor:L.skin, hairColor:L.hair, sleeve:L.base, bald:L.bald, hand:L.hand, bareLegs:L.bareLegs, collar:!L.gown && !L.bald,
+    face:{ skin:L.skin, hair:L.hair, hairH:L.bald ? 1 : 3, zombie:true, bald:L.bald },
     top:wrapTex(T, 32, R => { R(L.base, -24, 0, 48, 32); L.top(R); }),
     low:wrapTex(T, 16, R => { R(L.base, -24, 0, 48, 16); L.low(R); }),
     skirt:L.gown ? wrapTex(T, 24, R => { R(L.base, -24, 0, 48, 24); R(BLOOD, -7, 0, 6, 12); R(BLOOD_DARK, -5, 12, 2, 12); R(BLOOD, 6, 10, 8, 9); R('#7aa29a', -24, 22, 48, 2); }) : null,
@@ -7723,7 +7978,7 @@ function soloDistHtml(){
           + '<details class="scr-more"><summary>リポジトリを設定せずに、手で置く方法</summary>'
           + '<p>1. <a href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
           + '2.「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
-          + '3. ☰ の「もらった版で遊ぶ」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
+          + '3. ☰ の「そのほか」の「もらった版で遊ぶ」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
           + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">中身をファイルにする</button></details>')
       + '</div>'
     + (ghLinked() ? '<div class="step"><div class="n">保存</div><h3>リポジトリに保存する</h3><p>書き換えた文章や選択肢は、作業用のリポジトリ（' + escText(ghRepo()) + '）に自動で保存されます。すぐに保存する場合は、［保存する］を押してください。</p><button class="go" id="soloSave">保存する</button></div>' : '');
@@ -7956,12 +8211,30 @@ function sndSwitch(){
 }
 // ===== タイトル・始める前のメニュー・操作説明 =====
 // front：'title'（タイトル）・'menu'（本を選ぶ）・'how'（操作説明）・null（出さない）。自動の試し（webdriver）では、初めから出さない
-let front = room || navigator.webdriver ? null : 'title', howPage = 0, howBack = 'title', howKind = 'play';
+let front = room || navigator.webdriver ? null : 'title', howPage = 0, howBack = 'title', howKind = 'play', howEdit = false, howPick = null, howUnits = [], howKeep = 0;
 const hasProgress = () => { const w = loadWorld(); return !!w.lock || CHAR_IDS.some(id => (loadPlayer(id).history || []).length > 0); };
 // 操作説明のページ。1ページに、1つのこと
 // 説明のページ。読む人の立場で、中身が変わる
 //   遊ぶ側：1人で遊ぶ人 ／ 部屋を作った人 ／ 招待されて入った人
 //   作る側（編集版）：作る人（部屋に入っていない人と、部屋を作った人）／ 招待されて一緒に作る人
+// 説明のページの書き換え（編集版）。直しは、場面の文の直しと同じ置き場所に入る（鍵は guide:play ／ guide:make、paras の kind は guide）。
+// もとの文（before）が、いま画面に出す文と1字も違わないときだけ、直した文（after）に替える。読む人の立場で文が違うので、当たらなければ、もとの文のまま
+const guideKey = kind => 'guide:' + kind;
+const guideMap = kind => { const m = new Map(); for(const q of shownOf(guideKey(kind)).paras) if(q && q.kind === 'guide' && typeof q.before === 'string' && typeof q.after === 'string' && q.after && q.after !== q.before) m.set(q.before, q.after); return m; };
+// 書き換えた文は、記号を文字として出す。改行（<br>）と太字（<b>）だけ、そのまま通す
+const guideSafe = t => escText(t).replace(/&lt;br&gt;/g, '<br>').replace(/&lt;(\/?)b&gt;/g, '<$1b>');
+function guideSave(k, revert){
+  const u = howUnits[k], ta = document.getElementById('gTa');
+  if(!u) return;
+  const key = guideKey(howKind), d = draftOf(key), id = key + '|para|guide|' + u.orig, val = revert ? u.orig : (ta ? ta.value : '').trim().replace(/\r?\n/g, '<br>');
+  if(!val) return;
+  d.paras = d.paras.filter(q => !(q.kind === 'guide' && q.before === u.orig));
+  if(val === u.orig) unqueue(id);
+  else { const ent = { kind:'guide', before:u.orig, after:val }, name = howKind === 'make' ? '作り方' : '遊び方';
+    d.paras.push(ent); fbeUnit = { key, t:'para', x:ent };
+    queueIssue(id, '文の直し', '説明の直し：' + val.replace(/<br>/g, ' '), '### 説明（' + name + '）の直し\n\n前：\n' + u.orig + '\n\n後：\n' + val, undefined, { at:'all', title:'[説明 ' + name + '] ' + val.replace(/<br>/g, ' ').replace(/\s+/g, ' ').slice(0, 40) }); }
+  draftSet(key, d); howPick = null; frontRender();
+}
 function howPages(kind){
   // 文の形は、市販のゲームの説明書（任天堂の電子説明書）を手本にしている：
   //   最初のページは「どんなゲーム？」を文章で／画面の見かたは、番号ごとに名前と短い1文／操作は「〜を押してください」／保存（ロック）の話は1か所にまとめる
@@ -7980,34 +8253,39 @@ function howPages(kind){
     return [
       { t:'編集版でできること', text:'編集版では、ゲームの文章や選択肢を書き換えられます。場所や本を足すこともできます。<br><br>書き換えたゲームは、リンクかファイルで人に配れます。部屋を作ると、何人かで一緒に書き換えられます。文章や選択肢を、AI に書かせることもできます。' },
       ...(room ? [] : [{ t:'準備する', text:'編集版を遊ぶための準備として、リポジトリの作成を推奨しています。<br><br>リポジトリは、GitHub に作る自分用のファイル置き場です。GitHub は、無料で使えるサービスです。リポジトリは、作業用と配る用の2つを作ります。リポジトリを設定すると、次のことができます。<br><br>・書き換えたものが、自動で保存されます。<br>・好きな画像を、ゲームに入れられます。<br>・書き換えたゲームを、リンクで配れます。<br>・自分がゲームを閉じていても、ほかの人が部屋を使えます。<br>・文章や選択肢を、AI に書かせられます。', after:'※ リポジトリを設定しなくても、文章や選択肢を書き換えて、ファイルで配ることはできます。', btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。'], ['選択肢に持ち物や体力を付ける', '選択肢を足すとき、選択肢の文と、選んだら起きることの文を入れると、文の下に「体力が1減る」のような案が表示されます。案を押すと、案が選択肢に付きます。映像の中の主人公の動きは、入れた文から自動で決まります。どの言葉で何が出るかの決まりは、［☰］の「作る」にある［自動提案］を押すと、変えられます。']] },
+      { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys, list:[['文に画像を付ける', '文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、画像を付けたい文を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、文の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［作る］の［本を足す］を押して、主人公の名前などを入れてください。本が読めるようになる条件を付ける場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。'], ['選択肢に持ち物や体力を付ける', '選択肢を足すとき、選択肢の文と、選んだら起きることの文を入れると、文の下に「体力が1減る」のような案が表示されます。案を押すと、案が選択肢に付きます。映像の中の主人公の動きは、入れた文から自動で決まります。どの言葉で何が出るかの決まりは、［☰］の［作る］の［自動提案］を押すと、変えられます。']] },
       { t:'配る', text:room ? '配るのは、部屋の全員のゲームと同じ中身です。' : '', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。'],
       ], after:'※ ' + (room ? '部屋の画面' : '配る画面') + 'の［版の一覧］で、前の版を選べます。［違いを見る］を押すと、選んだ版で変わった所が表示されます。［この版を配る］を押すと、選んだ版をもう一度配れます。' + (room ? '［部屋に戻す］を押すと、部屋の中身が、選んだ版の中身に戻ります。' : '［手元に戻す］を押すと、選んだ版の中身から書き換えを続けられます。'), btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
-      { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、一緒に作れます。部屋の人が書き換えたものは、全員のゲームに入ります。', after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。［☰］の［部屋］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
-      { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。' + (room ? '' : '部屋の中で、') + '画面の右端の［通信］を押すと表示されます。', legend:[B('新しいスレッド') + '：メッセージを書いて［送る］を押すと、スレッドが始まります。スレッドは、話題ごとのまとまりです。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。', B('採用待ち') + '：まだ全員のゲームに入っていない書き換えを表示します。'], after:'※ メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。' },
+      { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、一緒に作れます。部屋の人が書き換えたものは、全員のゲームに入ります。', after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。［☰］の［部屋］の［部屋の画面を開く］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。' + (room ? '' : '部屋の中で、') + '画面の右端の［通信］を押すと、通信が表示されます。' + (room ? '' : '部屋に入っていないときの［通信］は、自分だけのメモを書く画面です。'), legend:[B('新しいスレッド') + '：メッセージを書いて［送る］を押すと、スレッドが始まります。スレッドは、話題ごとのまとまりです。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。', B('採用待ち') + '：まだ全員のゲームに入っていない書き換えを表示します。'], after:'※ メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。<br>※ スレッドの一覧で、自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が表示されます。パソコンでは、右クリックします。書き換えのスレッドは、削除できません。' },
       { t:'AI に書かせる', text:'GitHub のリポジトリを扱える AI なら、どれでも使えます。Claude Code、Codex、Antigravity などです。先に、AI に自分の GitHub のアカウントをつないでください。', list:[
         ['AI に直接頼む', 'AI で作業用のリポジトリを開いて、書いてほしいことを頼んでください。'],
         ['通信から頼む', '通信で［AI に頼む］にチェックを入れて、頼みごとを送ってください。AI で作業用のリポジトリを開いて「頼みごとに対応して」と頼むと、AI がゲームを書き換えて、通信に返事を書きます。' + (room ? 'AI で作業用のリポジトリを開くのは、部屋を作った人です。' : '')],
-        ['AI が書いたものを見る', '［☰］の［更新］を押すと、AI の書き換えがゲームに入ります。'],
+        ['AI が書いたものを見る', '［☰］の［作る］の［更新］を押すと、AI の書き換えがゲームに入ります。'],
       ], after:'※ Claude Code を使う場合は、次のリンクを貼って「準備して」と頼むと、Claude Code がリポジトリの設定を手伝います。' + guide },
     ];
   }
   const names = openIds().map(id => CHARS[id].name).join('、');
   const P = [
     { t:'どんなゲーム？', text:'州知事選挙の投票日を、' + n + '人の立場から読み進めるゲームブックです。舞台は、アメリカ中西部の架空の州ウィノアの州都グレンフォード。街では、ゾンビが人を襲っています。<br><br>主人公は、' + names + 'の' + n + '人です。1人に1冊の「本」があります。' + n + '冊は同じ一日の話で、' + (room ? 'ほかの人がしたことは、あなたの本にも残ります。たとえば、ほかの人がゾンビを倒すと、あなたの本にもそのゾンビは出てきません。' : 'ある本でしたことは、ほかの本にも残ります。たとえば、ある本でゾンビを倒すと、ほかの本にもそのゾンビは出てきません。') + '<br><br>一日の終わりに、選挙の開票結果が出ます。結果は、' + n + '人のしたことで変わります。' },
-    room ? { t:'ゲームの始めかた', text:'［☰］の［部屋］を押して、進めたい本の［ロックする］を押してください。1冊をロックできるのは、1人です。ロックしていない本も、開くとこれまでの話を読めます。<br><br>' + reach }
-      : { t:'ゲームの始めかた', text:'タイトル画面で［はじめる］を押して、読む本を選んでください。本を選ぶと、その本をロックするかを聞かれます。', list:[['［ロックする］', '進んだ分は保存されます。'], ['［ロックしない］', '進んだ分は保存されません。']], after:'ロックできる本は、1冊です。別の本を進める場合は、［☰］の［保存してロックを外す］を押してから、本を選んでください。<br>※［保存せずにロックを外す］を押すと、本が、ロックしたときの状態に戻ります。' },
-    { img:'how-play-0', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる本の主人公、ロックの状態、時刻、体力、持ち物です。', B('戻す') + '：直前の選択を取り消します。', B('☰') + '：メニューを表示します。', B('映像／地図') + '：街の監視カメラの映像と、街の地図を表示します。', B('主人公') + '：監視カメラに映っている主人公です。'] },
+    room ? { t:'ゲームの始めかた', text:'［☰］の［部屋］の［部屋の画面を開く］を押して、進めたい本の［ロックする］を押してください。1冊をロックできるのは、1人です。ロックしていない本も、開くとこれまでの話を読めます。<br><br>' + reach }
+      : { t:'ゲームの始めかた', text:'タイトル画面で［はじめる］を押して、読む本を選んでください。本を選ぶと、ロックするかを聞かれます。', list:[['［ロックする］', '進んだ分は保存されます。'], ['［ロックしない］', '進んだ分は保存されません。']], after:'ロックできるのは、1人につき1冊です。別の本を進める場合は、画面の右上の［☰］を押して、［本］の［保存してロックを外す］を押してから、本を選んでください。<br>※［保存せずにロックを外す］を押すと、本が、ロックしたときの状態に戻ります。' },
+    { img:'how-play-0', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる本の主人公、ロックの状態、時刻、体力、持ち物です。', B('戻す') + '：直前の選択を取り消します。', B('☰') + '：メニューを表示します。', B('映像／地図') + '：街の監視カメラの映像と、街の地図を表示します。', B('主人公') + '：監視カメラに映っている主人公です。'], ...(TEST_BUILD ? { after:'※ 編集版では、画面の右端に［通信］も表示されます。［通信］の説明は、［☰］の［そのほか］の［作り方］にあります。' } : {}) },
     { t:'ゲームの進めかた', list:[
       ['時刻', '選択肢を選ぶと、時刻が進みます。投票所は、朝7時から夜8時まで開いています。'],
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : 'ある本が次の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
       ['持ち物', '持ち物によって、選べる選択肢が増えます。画面の上の［持ち物］に下線が出ているときは、［持ち物］を押すと、主人公のいる場所に持ち物を置けます。'],
-      ['体力', 'ゾンビに襲われると、体力が1減ります。体力がなくなると、主人公はゾンビになります。'],
-      ['感染', 'ゾンビに襲われると、感染することがあります。感染したまま時間がたつと、主人公はゾンビになります。'],
-      ...(room ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、一緒に遊べます。部屋では、1人が1冊を受け持ちます。画面の右端の［通信］を押すと、部屋の人と話せます。']]),
+      ['体力と感染', 'ゾンビに襲われると、体力が1減ります。主人公が感染することもあります。体力がなくなるか、感染したまま時間がたつと、主人公はゾンビになります。'],
+      ...(room ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、同じ部屋で一緒に遊べます。部屋では、1人が1冊をロックします。' + (TEST_BUILD ? '' : '部屋に入ると、画面の右端に［通信］が表示されます。') + (TEST_BUILD ? '画面の右端の［通信］を押すと、部屋の人と話せます。' : '［通信］を押すと、部屋の人と話せます。') + '']]),
     ] },
+    // 部屋に入っている人には、通信の画面の説明を出す（公開版でも、部屋の中では［通信］を使う）
+    ...(room ? [{ t:'通信', text:'通信は、部屋の人と話す画面です。画面の右端の［通信］を押すと、通信が表示されます。', list:[
+      ['スレッドを始める', 'スレッドは、話題ごとのまとまりです。メッセージを書いて［送る］を押すと、スレッドが始まります。最初のメッセージが、スレッドの名前になります。'],
+      ['スレッドで話す', 'スレッドを押すと、スレッドの中で話せます。'],
+      ['名前の変更と削除', 'スレッドの一覧で、自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が表示されます。パソコンでは、右クリックします。'],
+    ] }] : []),
   ];
   return P;
 }
@@ -8034,17 +8312,28 @@ function frontHtml(){
       + '</div><button class="plain" id="frBack">タイトルへ</button></div>';
   }
   const P = howPages(howKind), i = Math.max(0, Math.min(P.length - 1, howPage)), q = P[i], closeLabel = howBack === 'title' ? 'タイトルへ' : '閉じる';
+  const G = guideMap(howKind), mine = new Set(draftOf(guideKey(howKind)).paras.filter(z => z.kind === 'guide').map(z => z.before)), edit = TEST_BUILD && howEdit;
+  howUnits = [];
+  const gx = t => {
+    if(!t) return t;
+    const now = G.has(t) ? G.get(t) : t, shown = G.has(t) ? guideSafe(now) : t;
+    if(!edit) return shown;
+    const k = howUnits.push({ orig:t }) - 1;
+    return howPick === k ? '<span class="gedit"><textarea id="gTa">' + escText(now.replace(/<br>/g, '\n')) + '</textarea><span class="row"><button data-gsave="' + k + '">直す</button>' + (mine.has(t) ? '<button data-grevert="' + k + '">もとに戻す</button>' : '') + '<button data-gcancel="1">やめる</button></span></span>'
+      : '<span class="gunit' + (G.has(t) ? ' on' : '') + '" data-gk="' + k + '">' + shown + '</span>';
+  };
   return '<div class="fr-in" style="justify-content:flex-start;padding-top:0">'
     + '<div class="fr-top"><span class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</span><button data-frclose="1">× ' + closeLabel + '</button></div>'
-    + '<div class="fr-page"><h3>' + q.t + '</h3>'
-    + (q.lead ? '<p class="fr-text">' + q.lead + '</p>' : '')
+    + '<div class="fr-page"><h3>' + gx(q.t) + '</h3>'
+    + (q.lead ? '<p class="fr-text">' + gx(q.lead) + '</p>' : '')
     + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg?v=' + encodeURIComponent(TEST_BUILD ? BUILD.slice(-7) : APP_VERSION) + '" alt="" onerror="this.remove()">' : '')
-    + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + t + '</li>').join('') + '</ol>' : '')
-    + (q.text ? '<p class="fr-text">' + q.text + '</p>' : '')
-    + (q.list ? '<dl>' + q.list.map(r => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl>' : '')
+    + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + gx(t) + '</li>').join('') + '</ol>' : '')
+    + (q.text ? '<p class="fr-text">' + gx(q.text) + '</p>' : '')
+    + (q.list ? '<dl>' + q.list.map(r => '<dt>' + gx(r[0]) + '</dt><dd>' + gx(r[1]) + '</dd>').join('') + '</dl>' : '')
     + (q.btn ? '<button class="main" id="' + q.btn[0] + '" style="display:block;width:100%;text-align:center;margin:6px 0 12px">' + q.btn[1] + '</button>' : '')
-    + (q.after ? '<p class="fr-text" style="border-top:1px solid var(--line);padding-top:12px">' + q.after + '</p>' : '')
+    + (q.after ? '<p class="fr-text" style="border-top:1px solid var(--line);padding-top:12px">' + gx(q.after) + '</p>' : '')
     + '</div>'
+    + (TEST_BUILD ? '<div class="fr-gedit"><button id="frGedit">' + (howEdit ? '✔ 編集を終える' : '✎ 編集する') + '</button>' + (howEdit ? '<span>書き換えたい文を押してください。</span>' : '') + '</div>' : '')
     + '<div class="fr-nav"><button id="frPrev"' + (i ? '' : ' style="visibility:hidden"') + '>← 前へ</button>' + (i < P.length - 1 ? '<button id="frNext" class="main">次へ →</button>' : '<button data-frclose="1" class="main">' + closeLabel + '</button>') + '</div></div>';
 }
 function frontRender(){
@@ -8053,7 +8342,7 @@ function frontRender(){
   sndScene();
   el.hidden = !front; document.body.style.overflow = front ? 'hidden' : '';
   if(!front){ el.innerHTML = ''; return; }
-  el.innerHTML = frontHtml(); el.scrollTop = 0;
+  el.innerHTML = frontHtml(); el.scrollTop = howKeep; howKeep = 0;
   const on = (id, fn) => { const e = document.getElementById(id); if(e) e.onclick = fn; }, go = f => { front = f; frontRender(); if(!f) render(); };
   on('frStart', () => go('menu'));
   on('frResume', () => { go(null); askLock(); });
@@ -8065,9 +8354,16 @@ function frontRender(){
   on('frPack', () => { menuOpen = false; packPanel = true; roomPanel = false; linkPanel = false; go(null); window.scrollTo(0, 0); });
   on('frRoomT', () => { menuOpen = false; roomPanel = true; packPanel = linkPanel = bookPanel = false; screenBack = 'title'; go(null); });
   on('frLink', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'title'; go(null); });
-  on('frPrev', () => { howPage--; frontRender(); });
-  on('frNext', () => { howPage++; frontRender(); });
-  el.querySelectorAll('[data-frclose]').forEach(q => { q.onclick = () => go(howBack); });
+  on('frPrev', () => { howPage--; howPick = null; frontRender(); });
+  on('frNext', () => { howPage++; howPick = null; frontRender(); });
+  el.querySelectorAll('[data-frclose]').forEach(q => { q.onclick = () => { howEdit = false; howPick = null; go(howBack); }; });
+  // 説明のページの書き換え（編集版）
+  const stay = fn => () => { howKeep = el.scrollTop; fn(); };
+  on('frGedit', stay(() => { howEdit = !howEdit; howPick = null; frontRender(); }));
+  el.querySelectorAll('[data-gk]').forEach(q => { q.onclick = stay(() => { howPick = +q.dataset.gk; frontRender(); const ta = document.getElementById('gTa'); if(ta) ta.focus(); }); });
+  el.querySelectorAll('[data-gcancel]').forEach(q => { q.onclick = stay(() => { howPick = null; frontRender(); }); });
+  el.querySelectorAll('[data-gsave]').forEach(q => { q.onclick = stay(() => guideSave(+q.dataset.gsave, false)); });
+  el.querySelectorAll('[data-grevert]').forEach(q => { q.onclick = stay(() => guideSave(+q.dataset.grevert, true)); });
   on('howLinkBtn', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'how'; go(null); });
   on('howPackBtn2', () => { menuOpen = false; roomPanel = true; packPanel = linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
   on('howPackBtn', () => { menuOpen = false; if(room){ roomPanel = true; packPanel = false; } else { packMode = 'dist'; packPanel = true; roomPanel = false; } linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
@@ -8793,6 +9089,8 @@ function statHtml(v){
 function viewHtml(v, opt){
   let html = '';
   if(opt.notices && opt.notices.length) html += `<div class="notice">${opt.notices.join('\n')}</div>`;
+  // 選んだ結果のページ：結果の文だけを出す。次の場面の番号・文・選択肢は、「次へ」のあとに出す
+  if(opt.resNext && v.msg) return html + `<div class="msg res">${escText(v.msg)}</div><div class="resnav"><button id="resNext">${escText(opt.resNext)}</button></div>`;
   if(v.msg) html += `<div class="msg">${escText(v.msg)}</div>`;
   html += `<div class="no">${v.para}</div>`;
   html += `<div class="text">${escText(v.text)}</div>`;
@@ -8881,6 +9179,7 @@ function lineChanges(a, c){
 }
 let mapOpen = false, helpOpen = false; // 横から出る地図・☰ の「遊び方」
 let menuOpen = false; // 右上の ☰ で開くメニュー
+let menuTab = 'book'; // メニューの中で、いま選んでいるタブ（book＝本、room＝部屋、make＝作る、etc＝そのほか）。開き直しても、前のタブのまま
 
 function render(){
   if(trial && trial.c !== current){ if(trial.moved) trialKeep[trial.c] = trial; trial = null; }
@@ -8890,24 +9189,28 @@ function render(){
   if(room){ if(mine(current)) me = current; } else if(w.lock && CHARS[w.lock]) me = w.lock; // ロックしている本（部屋では、受け持っている本）が、いま進めている本
   const histLen = (s.history || []).length;
   const mode = (trialOn() ? histIndex === null : room ? canAct() : w.lock === current) ? 'live' : histIndex !== null && histIndex < histLen ? 'history' : 'readonly';
+  let resOn = false; // 選んだ結果のページを出しているか
 
   // 上の帯は状況と小さなボタンだけ。切り替えや設定は ☰ の中に畳む
   document.getElementById('barbtns').innerHTML = (mode === 'live' && undoCount() ? `<button class="${undoOpen ? 'on' : ''}" id="undobtn">戻す</button>` : '') + `<button class="${menuOpen ? 'on' : ''}" id="menubtn" aria-label="メニュー">☰</button>`;
   const tabs = document.getElementById('tabs');
   tabs.hidden = !menuOpen;
-  // ☰ の中身：することごとに、見出しを付けて分ける
-  const grp = (t, inner) => (inner ? '<div class="mg"><div class="mh">' + t + '</div><div class="mb">' + inner + '</div></div>' : '');
-  tabs.innerHTML =
-    grp('本を選ぶ', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}">${CHARS[id].name}の本${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join(''))
-    + grp('ロック', !room && w.lock ? '<button id="saveBtn">保存してロックを外す</button>' + (canDrop() ? '<button id="dropBtn">保存せずにロックを外す</button>' : '') : '')
-    + grp(TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ', '<button class="mapbtn' + (roomPanel ? ' on' : '') + '" id="roombtn">' + (room ? '部屋 ' + room : '部屋') + '</button>')
-    + grp('作る', (TEST_BUILD ? '<button class="mapbtn' + (flowOpen ? ' on' : '') + '" id="flowbtn">流れ</button><button class="mapbtn' + (bookPanel === true ? ' on' : '') + '" id="bookbtn">本を足す</button><button class="mapbtn' + (bookPanel === 'auto' ? ' on' : '') + '" id="autobtn">自動提案</button><button class="mapbtn' + (chgPanel ? ' on' : '') + '" id="chgbtn">変えた所' + (chgList().length ? '<small>' + chgList().length + ' 件</small>' : '') + '</button>' : '') + (TEST_BUILD && (room || !CUSTOM && ghLinked()) ? '<button class="mapbtn" id="soloPullBtn">更新' + (soloPullNote ? '<small>' + soloPullNote + '</small>' : '') + '</button>' : '')
-      + (!room && TEST_BUILD && !EMBED ? '<button class="mapbtn" id="distbtn">配る</button>' : '')
-      + (room || !TEST_BUILD ? '' : '<button class="mapbtn' + (linkPanel ? ' on' : '') + '" id="linkbtn">リポジトリの設定' + (ghLinked() ? '<small>済み</small>' : '') + '</button>'))
-    + grp('そのほか', `<button class="mapbtn" id="helpbtn">遊び方</button>` + (TEST_BUILD ? '<button class="mapbtn" id="makebtn">作り方</button>' : '') + '<button class="mapbtn" id="sndbtn">音：' + (Snd.on ? '入' : '切') + '</button>'
-      + (room ? '' : '<button class="mapbtn" id="packbtn">もらった版で遊ぶ' + (PACK ? '<small>' + escText(PACK) + '</small>' : '') + '</button>')
-      + (room ? '' : '<button class="mapbtn" id="titlebtn">タイトルへ</button>')
-      + (room ? '' : '<button class="reset" id="reset">最初から</button>'))
+  // ☰ の中身：上にタブを置いて、選んだ1組だけを、1列の行で出す（行の右に、いまの状態）
+  const mrow = (id, label, st, on, cls) => '<button class="' + (cls || 'mapbtn') + (on ? ' on' : '') + '" id="' + id + '"><span>' + label + '</span>' + (st ? '<small>' + st + '</small>' : '') + '</button>';
+  const menuSets = [
+    ['book', '本', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}"><span>${CHARS[id].name}の本</span>${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join('')
+      + (!room && w.lock ? '<hr><button id="saveBtn"><span>保存してロックを外す</span></button>' + (canDrop() ? '<button id="dropBtn"><span>保存せずにロックを外す</span></button>' : '') : '')],
+    ['room', '部屋', mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel)],
+    ['make', '作る', TEST_BUILD ? mrow('flowbtn', 'フロー', '', flowOpen) + mrow('bookbtn', '本を足す', '', bookPanel === true) + mrow('autobtn', '自動提案', '', bookPanel === 'auto') + mrow('chgbtn', '変えた所', chgList().length ? chgList().length + ' 件' : '', chgPanel)
+      + (room || !CUSTOM && ghLinked() ? mrow('soloPullBtn', '更新', soloPullNote) : '')
+      + (!room && !EMBED ? mrow('distbtn', '配る') : '')
+      + (room ? '' : mrow('linkbtn', 'リポジトリの設定', ghLinked() ? '済み' : '', linkPanel)) : ''],
+    ['etc', 'そのほか', mrow('helpbtn', '遊び方') + (TEST_BUILD ? mrow('makebtn', '作り方') : '') + mrow('sndbtn', '音', Snd.on ? '入' : '切')
+      + (room ? '' : mrow('packbtn', 'もらった版で遊ぶ', PACK ? escText(PACK) : '') + mrow('titlebtn', 'タイトルへ') + mrow('reset', '最初から', '', false, 'reset'))],
+  ].filter(x => x[2]);
+  if(!menuSets.some(x => x[0] === menuTab)) menuTab = menuSets[0][0];
+  tabs.innerHTML = '<div class="mt" role="tablist">' + menuSets.map(([k, n]) => '<button role="tab" data-mtab="' + k + '"' + (k === menuTab ? ' class="on" aria-selected="true"' : '') + '>' + n + '</button>').join('') + '</div>'
+    + '<div class="ml">' + menuSets.find(x => x[0] === menuTab)[2] + '</div>'
     + (TEST_BUILD ? '' : `<div style="font-size:11px;color:#6a6458;text-align:right;padding-top:6px">${APP_VERSION}</div>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
   const lkReal = room ? null : realIO(() => loadWorld().lock), lkOn = room ? mine(current) : lkReal === current;
   const whose = `<span><b>${CHARS[current].name}</b>${lkOn ? '<span class="lk on">ロック中</span>' : !room && !lkReal ? '<button class="lk" id="lockAsk">ロックなし</button>' : room && own[current] ? '' : '<span class="lk">ロックなし</span>'}</span>`;
@@ -8945,7 +9248,8 @@ function render(){
     if(mode === 'live') markRoom(s);
     const v = buildView(s, w);
     lastView = v;
-    document.getElementById('stat').innerHTML = whose + statHtml(v);
+    resOn = mode === 'live' && !!s.resNext && !!v.msg;
+    document.getElementById('stat').innerHTML = whose + statHtml(resOn && s.resClock ? { ...v, clock:s.resClock } : v);
     if(mode === 'live' && trialOn()){
       const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'ロックしていません。';
       html += '<div class="lockbar"><b>' + other + '</b>進んだ分は保存されません' + (trial.moved ? '<button id="trialBack">もとの場面に戻る</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
@@ -8957,11 +9261,11 @@ function render(){
     else if(!w.lock) html += `<div class="lockbar"><b>${CHARS[current].name}の本</b>　ロックすると、この本を進められます<button id="lockBtn">ロックして進める</button>${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     else html += `<div class="lockbar other"><b>${CHARS[w.lock].name}がロック中</b>のため、この本は進められません${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     if(showMap && planOf(s)) html += planMapSvg(s, planOf(s).plan);
-    if(showMap) html += mode === 'live' ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
+    if(showMap) html += mode === 'live' && !resOn ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
     if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
-    let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length });
-    const spNow = s.status === 'active' ? spotOf(s) : null;
+    let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length, resNext:resOn ? s.resNext : '' });
+    const spNow = s.status === 'active' && !resOn ? spotOf(s) : null;
     if(spNow){
       const canGo = mode === 'live' && !wait.length;
       const taps = {}, risks = {}; for(const ch of v.choices){ const rm = ch.dest && bookOf(s).spots[ch.dest].room; if(!rm) continue; if(ch.risky) risks[rm] = 1; else if(canGo) taps[rm] = ch.dest; }
@@ -8970,15 +9274,15 @@ function render(){
     }
     html += vh;
     const ended = s.status !== 'active' && s.status !== 'monster';
-    if(!ended && mode === 'live' && !bookOf(s).noJump){
+    if(!ended && mode === 'live' && !bookOf(s).noJump && !resOn){
       html += `<div class="jump"><label>番号へ進む</label><input id="jumpNo" type="number" inputmode="numeric" placeholder="場面の番号"><button id="jumpGo">進む</button></div>`;
     }
     // 結末まで来たら選ぶものがないので、交代のボタンを本文の下にも出す
-    if(ended && mode === 'live') html += '<div class="choices"><button id="endSave">保存してロックを外す</button></div>';
+    if(ended && mode === 'live' && !resOn) html += '<div class="choices"><button id="endSave">保存してロックを外す</button></div>';
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
-    setCutscene(cctvState(s, w));
+    if(!resOn || !Cut.built) setCutscene(cctvState(s, w)); // 結果のページのあいだ、映像は、もとの場面のまま
   }
-  html += resultHtml();
+  if(!resOn) html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb panel"><div class="note">' + roomNote + '</div></div>' + html;
   // ☰ から開く画面は、遊ぶ画面には差しこまず、別の画面（#screen）に出す
   if(chgPanel && (roomPanel || packPanel || linkPanel || bookPanel)) chgPanel = false;
@@ -9015,6 +9319,7 @@ function render(){
   if(mode === 'live'){
     const choices = lastView.choices;
     document.querySelectorAll('.choices button').forEach(b => b.onclick = () => act(choices[+b.dataset.i]));
+    { const rn = document.getElementById('resNext'); if(rn) rn.onclick = resNext; }
     document.querySelectorAll('[data-spot]').forEach(el => el.onclick = () => { const ch = choices.find(c => c.dest === el.dataset.spot && !c.risky); if(ch) act(ch); });
   }
   on('histOpen', () => { histIndex = Math.max(0, histLen - 1); render(); window.scrollTo(0, 0); });
@@ -9046,9 +9351,13 @@ function render(){
   on('cmOldBtn', () => { cmOld = true; fbNote = ''; render(); });
   on('cmOldNo', () => { cmOld = false; fbMax = false; fbNote = ''; render(); });
   on('cmClose', () => { fbOpen = false; fbNote = ''; render(); });
-  on('cmNameBtn', () => { cmRename = cmTitle(roomItems[cmThread] || {}); render(); const el = document.getElementById('cmNameIn'); if(el){ el.focus(); el.select(); } });
-  { const el = document.getElementById('cmNameIn'); if(el){ el.value = cmRename || ''; el.oninput = () => { cmRename = el.value; }; el.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); threadRename(cmThread, el.value); } }; } }
-  on('cmNameOk', () => threadRename(cmThread, cmRename));
+  { const shut = () => { cmRowMenu = ''; cmRowMode = ''; cmRename = null; render(); };
+    on('cmRowNo', shut); on('cmRowBack', shut); }
+  on('cmRowRen', () => { cmRowMode = 'ren'; cmRename = cmTitle(roomItems[cmRowMenu] || {}); render(); const el = document.getElementById('cmNameIn'); if(el){ el.focus(); el.select(); } });
+  on('cmRowDel', () => { cmRowMode = 'del'; render(); });
+  on('cmRowDelYes', () => { const k = cmRowMenu; cmRowMenu = ''; cmRowMode = ''; threadDelete(k); });
+  { const el = document.getElementById('cmNameIn'); if(el){ el.value = cmRename || ''; el.oninput = () => { cmRename = el.value; }; el.onkeydown = e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); threadRename(cmRowMenu, el.value); } }; } }
+  on('cmNameOk', () => threadRename(cmRowMenu, cmRename));
   on('cmBack', () => { cmRename = null; cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
   on('cmNewBtn', () => { cmNew = true; cmPlus = false; fbNote = ''; render(); const t = document.getElementById('fbText'); if(t) t.focus(); });
   on('cmNewNo', () => { cmNew = false; cmPlus = false; render(); });
@@ -9058,7 +9367,7 @@ function render(){
   on('cmQuoteNo', () => { cmQuote = null; render(); });
   on('cmTagBtn', () => { cmPlus = false; cmAppend('\n' + cmNowTag() + '\n'); });
   cmNoteFade();
-  document.querySelectorAll('[data-open]').forEach(el => { el.onclick = () => { cmThread = el.dataset.open; cmNew = false; cmSheet = ''; cmQuote = null; cmPlus = false; cmScroll = true; fbNote = ''; render(); }; });
+  document.querySelectorAll('[data-open]').forEach(el => { cmHoldBind(el); el.onclick = () => { if(cmRowMenu) return; cmThread = el.dataset.open; cmNew = false; cmSheet = ''; cmQuote = null; cmPlus = false; cmScroll = true; fbNote = ''; render(); }; });
   document.querySelectorAll('[data-cmf]').forEach(el => { el.onclick = () => { cmFilter = el.dataset.cmf; render(); }; });
   document.querySelectorAll('[data-msg]').forEach(el => { el.onclick = e => { if(e.target.closest('a,button,textarea,input')) return; cmSheet = el.dataset.msg; fbDelAsk = ''; render(); }; });
   document.querySelectorAll('[data-go]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmGo(el.dataset.go); }; });
@@ -9094,12 +9403,12 @@ function render(){
   on('fbImgDrop', () => { fbImg = ''; render(); });
   document.querySelectorAll('[data-pickfile]').forEach(el => { el.onclick = () => pickFile(f => { if(el.dataset.pickfile) fbReFile[el.dataset.pickfile] = f; else fbFile = f; }); });
   document.querySelectorAll('[data-file]').forEach(el => { el.onclick = e => { e.stopPropagation(); threadFile(el.dataset.file, el.dataset.fname); }; });
-  document.querySelectorAll('[data-re]').forEach(el => { el.value = fbRe[el.dataset.re] || ''; el.oninput = () => { fbRe[el.dataset.re] = el.value; }; });
+  document.querySelectorAll('[data-re]').forEach(el => { el.value = fbRe[el.dataset.re] || ''; cmGrow(el); el.oninput = () => { fbRe[el.dataset.re] = el.value; cmGrow(el); }; });
   document.querySelectorAll('[data-resend]').forEach(el => { el.onclick = () => threadReply(el.dataset.resend); });
   document.querySelectorAll('[data-vote]').forEach(el => { el.onclick = () => { const [k, i] = el.dataset.vote.split('|'); threadVote(k, +i); }; });
   document.querySelectorAll('[data-img]').forEach(el => { el.onclick = () => threadImage(el.dataset.img); });
   const fbT = document.getElementById('fbText'), fbK = document.getElementById('fbKind');
-  if(fbT){ fbT.value = fbDrafts[fbMode]; fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; }; }
+  if(fbT){ fbT.value = fbDrafts[fbMode]; cmGrow(fbT); fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; cmGrow(fbT); }; }
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
   decorateForEdit(mode);
   placePosters();
@@ -9108,6 +9417,7 @@ function render(){
   on('undoClose', () => { undoOpen = false; render(); });
   document.querySelectorAll('.undolist button[data-undo]').forEach(b => b.onclick = () => undoTo(+b.dataset.undo));
   on('menubtn', () => { menuOpen = !menuOpen; render(); });
+  document.querySelectorAll('.tabs [data-mtab]').forEach(b => b.onclick = () => { menuTab = b.dataset.mtab; render(); });
   on('viewLocker', e => { histIndex = null; current = e.target.dataset.view; store.set('current', current); render(); });
   const hist = loadPlayer(current).history || [];
   on('histFirst', () => { histIndex = 0; render(); });
@@ -9132,7 +9442,7 @@ function render(){
   }
   on('videoTab', () => {
     const wrap = document.getElementById('cutscene');
-    if(wrap.classList.contains('tucked')){ if(panelOpen()){ roomPanel = packPanel = linkPanel = bookPanel = false; mapOpen = false; fbOpen = false; render(); if(videoOn) return; } if(fbOpen){ fbOpen = false; mapOpen = false; render(); if(videoOn) return; } mapOpen = false; document.getElementById('drawer').classList.remove('open'); document.getElementById('mapTab').classList.remove('on'); syncTuck(true); if(videoOn) return; }
+    if(wrap.classList.contains('tucked')){ if(panelOpen()){ roomPanel = packPanel = linkPanel = bookPanel = false; mapOpen = false; fbOpen = false; render(); if(videoOn) return; } if(fbOpen){ fbOpen = false; mapOpen = false; render(); if(videoOn) return; } if(menuOpen){ menuOpen = false; render(); if(videoOn) return; } mapOpen = false; document.getElementById('drawer').classList.remove('open'); document.getElementById('mapTab').classList.remove('on'); syncTuck(true); if(videoOn) return; }
     if(videoOn){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); videoOn = false; store.set('video', false); render(); }, 230); }
     else { videoOn = true; store.set('video', true); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); render(); }
   });
@@ -9320,7 +9630,42 @@ const cmDay = t => { const d = new Date(t); return (d.getMonth() + 1) + '月' + 
 const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
 const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[[\w-]+:\d+\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
-let cmRename = null; // スレッドの題を直している最中の文（直していなければ null）
+let cmRename = null; // スレッドの名前を変えている最中の文（変えていなければ null）
+let cmRowMenu = '', cmRowMode = ''; // スレッドの一覧で、長押しして出したメニュー（スレッドの鍵）と、その中の画面（''＝メニュー、'ren'＝名前を変更、'del'＝削除の確かめ）
+let cmHoldT = 0;
+// スレッドの一覧の行：長押し（PC は右クリック）で、メニューを出す。自分が始めたスレッドだけ
+function cmHoldBind(el){
+  const k = el.dataset.open; if(!mineKey(k)) return;
+  const openMenu = () => { cmRowMenu = k; cmRowMode = ''; cmRename = null; fbNote = ''; render(); };
+  el.oncontextmenu = e => { e.preventDefault(); clearTimeout(cmHoldT); openMenu(); };
+  el.onpointerdown = e => {
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    const x = e.clientX, y = e.clientY;
+    const stop = () => { clearTimeout(cmHoldT); removeEventListener('pointerup', stop, true); removeEventListener('pointercancel', stop, true); removeEventListener('pointermove', move, true); };
+    const move = m => { if(Math.hypot(m.clientX - x, m.clientY - y) > 10) stop(); }; // 指が動いたら（一覧を送っている）、やめる
+    clearTimeout(cmHoldT);
+    addEventListener('pointerup', stop, true); addEventListener('pointercancel', stop, true); addEventListener('pointermove', move, true);
+    cmHoldT = setTimeout(() => {
+      stop();
+      // 指を離したときのクリックで、出したばかりのメニューが閉じないようにする
+      const kill = c => { c.stopPropagation(); c.preventDefault(); };
+      const end = () => { removeEventListener('pointerup', end, true); removeEventListener('pointercancel', end, true); setTimeout(() => removeEventListener('click', kill, true), 80); };
+      addEventListener('click', kill, { capture:true, once:true });
+      addEventListener('pointerup', end, true); addEventListener('pointercancel', end, true);
+      openMenu();
+    }, 500);
+  };
+}
+// 長押しで出すメニューの中身
+function cmRowSheetHtml(){
+  const k = cmRowMenu, it = roomItems[k];
+  if(!k || !it || !mineKey(k)){ cmRowMenu = ''; cmRowMode = ''; return ''; }
+  const shade = '<div class="cm-shade" id="cmRowNo"></div>';
+  if(cmRowMode === 'ren') return shade + '<div class="cm-dlg"><b>名前を変更</b><input id="cmNameIn" maxlength="40"><div class="b"><button id="cmRowBack">やめる</button><button id="cmNameOk" class="go">決める</button></div></div>';
+  return shade + '<div class="cm-sheet"><div class="h">' + escText(cmTitle(it)) + '</div>'
+    + (cmRowMode === 'del' ? '<p class="p">' + (room ? 'このスレッドを、部屋の全員の通信から削除します。' : 'このメモを削除します。') + '元に戻せません。</p><button id="cmRowDelYes" class="warn">削除する</button><button id="cmRowBack">やめる</button>'
+      : '<button id="cmRowRen">名前を変更</button>' + (it.free ? '<button id="cmRowDel" class="warn">削除</button>' : '')) + '</div>';
+}
 const cmTitle = it => { if(it && typeof it.name === 'string' && it.name.trim()) return it.name.trim().slice(0, 40); const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
 const cmWaiting = x => unitOk(x[1].draft) && !x[1].adopted;
 const adoptMode = () => { const m = store.get('adopt-mode', 'auto'); return ['auto', 'peer', 'host'].includes(m) ? m : 'auto'; };
@@ -9352,7 +9697,7 @@ function cmListHtml(){
   const row = x => {
     const [k, it] = x, rs = visRes(it), last = rs.length ? rs[rs.length - 1][1] : null, un = isUnread(x) ? Math.max(1, sizeOf(it) - (seen[k] || 0)) : 0;
     const tag = unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
-    return '<button class="cm-row" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span></span>'
+    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span></span>'
       + '<span class="w">' + cmTime(cmWhen(it)) + (un ? '<br><i class="cm-n">' + (itemCallsMe(x) ? '@' : '') + un + '</i>' : '') + '</span></button>';
   };
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
@@ -9361,7 +9706,7 @@ function cmListHtml(){
     + '<div class="cm-list">' + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : '') + '</p>') + '</div>'
     + (room ? '' : '<button class="cm-new" id="cmOldBtn" style="border-color:#3a3a40;color:#c9c2b3">作者へ意見を送る' + (store.get('outbox', []).length ? '（待ち ' + store.get('outbox', []).length + '）' : '') + '</button>')
     + '<details class="cm-set"' + (room ? '' : ' hidden') + '><summary>名前・アイコン・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30"><div class="cm-icons">' + ICONS.map(e => '<button data-icon="' + e + '"' + (store.get('fb-icon', '') === e ? ' class="on"' : '') + '>' + e + '</button>').join('') + '<button data-icon=""' + (ICONS.includes(store.get('fb-icon', '')) ? '' : ' class="on"') + ' style="width:auto;padding:0 10px;font-size:13px">なし</button></div>'
-    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + '</div>';
+    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + cmRowSheetHtml() + '</div>';
 }
 // 書く欄。k があれば、そのスレッドへの返信。なければ、新しいスレッド
 function cmInputHtml(k){
@@ -9382,6 +9727,28 @@ function cmInputHtml(k){
     + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
     + '</div>';
 }
+// 通信の書く欄の高さを、中身に合わせる（上限は見えている高さの4割。超えたら欄の中でスクロール）
+function cmGrow(el){
+  if(!el.closest('.cm-r')) return;
+  const vv = window.visualViewport, cap = Math.round((vv ? vv.height : window.innerHeight) * 0.4);
+  el.style.maxHeight = cap + 'px';
+  if(!el.value){ el.style.height = ''; return; } // 空なら、もとの高さ
+  el.style.height = '0px'; // いったん縮めて、中身の高さ（scrollHeight）を測る
+  el.style.height = Math.min(el.scrollHeight + 2, cap) + 'px'; // +2 は上下の枠線（box-sizing:border-box のため）
+}
+// iOS の Safari は、キーボードが出てもページの高さを縮めず、見えている範囲（visualViewport）だけが縮んでずれる。
+// キーボードが出ているあいだは、全面の通信の画面を、見えている範囲に合わせる（--vv-top / --vv-h）
+let cmKb = false;
+function cmFitVisual(h, top){
+  const vv = window.visualViewport;
+  if(h === undefined){ if(!vv) return; h = vv.height; top = vv.offsetTop; if(vv.scale > 1.05) h = window.innerHeight; } // 指で拡大しているときは合わせない
+  const kb = window.innerHeight - h > 100, st = document.documentElement.style;
+  if(kb){ st.setProperty('--vv-top', Math.round(top) + 'px'); st.setProperty('--vv-h', Math.round(h) + 'px'); }
+  else { st.removeProperty('--vv-top'); st.removeProperty('--vv-h'); }
+  const a = document.activeElement; if(a && a.matches && a.matches('.cm-r textarea')) cmGrow(a);
+  if(kb !== cmKb){ cmKb = kb; const fb = document.getElementById('fbBody'); if(fbOpen && cmThread && fb) fb.scrollTop = fb.scrollHeight; } // 会話は、いちばん新しい所を見せる
+}
+if(window.visualViewport){ visualViewport.addEventListener('resize', () => cmFitVisual()); visualViewport.addEventListener('scroll', () => cmFitVisual()); }
 let cmNoteT = 0;
 function cmNoteFade(){ clearTimeout(cmNoteT); if(fbNote && !/ません|ください/.test(fbNote)) cmNoteT = setTimeout(() => { fbNote = ''; document.querySelectorAll('.cm-in .note').forEach(e => e.remove()); }, 6000); }
 function cmThreadHtml(k){
@@ -9426,17 +9793,17 @@ function cmThreadHtml(k){
           + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : ''))
       + '</div>';
   }
-  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button>' + (cmRename !== null ? '<input id="cmNameIn" maxlength="40" style="flex:1;min-width:0;margin:0;font-size:16px"><button id="cmNameOk">決める</button>' : '<b class="ttl">' + escText(cmTitle(it)) + '</b>' + (mineKey(k) ? '<button id="cmNameBtn" aria-label="題を直す">✎</button>' : '')) + '</div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
 }
 function commHtml(){
   if(!room && !cmMemoLoaded){ roomItems = clean(store.get('memo-items', {})) || {}; cmMemoLoaded = true; }
   if(cmThread && !roomItems[cmThread]) cmThread = null;
   if(cmThread) return cmThreadHtml(cmThread);
-  if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの題になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
+  if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの名前になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
   return cmListHtml();
 }
 async function threadRename(k, name){
-  const it = roomItems[k]; name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 40); cmRename = null;
+  const it = roomItems[k]; name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 40); cmRename = null; cmRowMenu = ''; cmRowMode = '';
   if(!it || !name){ render(); return; }
   if(!room){ it.name = name; memoSave(); render(); return; }
   try { const res = await roomFetch(roomPath('items/' + k), { method:'PATCH', body:JSON.stringify({ name }) }); if(!res.ok) throw 0; it.name = name; roomSig = ''; }
@@ -9682,7 +10049,7 @@ function fbMic(){
   if(fbRec){ fbRec.stop(); return; }
   const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   r.lang = 'ja-JP'; r.continuous = true; r.interimResults = false;
-  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal){ const tx = e.results[i][0].transcript; if(room && cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + tx; else fbDrafts.opinion += tx; } const t = document.getElementById(room && cmThread ? 'cmReText' : 'fbText'); if(t) t.value = room && cmThread ? fbRe[cmThread] || '' : fbDrafts.opinion; };
+  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal){ const tx = e.results[i][0].transcript; if(room && cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + tx; else fbDrafts.opinion += tx; } const t = document.getElementById(room && cmThread ? 'cmReText' : 'fbText'); if(t){ t.value = room && cmThread ? fbRe[cmThread] || '' : fbDrafts.opinion; cmGrow(t); } };
   r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクを使う許しが、出ていません。' : '声を聞き取れませんでした。'; };
   r.onend = () => { fbRec = null; render(); };
   fbRec = r;
@@ -9823,7 +10190,7 @@ function placeFormWire(box, s){
   $('plHide').onchange = () => { p.hide = $('plHide').checked; };
   on('plImgDrop', () => { p.img = null; render(); });
   on('plImg', () => {
-    if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
+    if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
     const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
     f.onchange = () => shrinkImage(f.files[0], async d => { const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(!m) return; const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 })); if(r.status !== 200){ fbNote = '絵を、置けませんでした。'; render(); return; } assetCache[id] = d; p.img = id; fbNote = ''; render(); });
     f.click();
@@ -10090,7 +10457,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
   + '  - add（足した選択肢）の1つ：{ "id":1, "label":"選択肢の文", "result":"選んだあとに出る文", "to":"stay", "fx":{…} }。id は、その場面の中で重ならない数字。to は "stay"（その場にとどまる）・"off"（カメラの外へ出る）・"spot:<場所の名前>"（その場所へ移る）・もとの選択肢の文（その選択肢へ合流する）\n'
   + '    - fx：hp（体力の増減）・inf（感染の増減）・min（かかる分）・get / lose（持ち物の名前の並び）・one:true（1回だけ選べる）・hide:true（番号を入れたときだけ出る隠し選択肢）・st（演出。paras の st と同じ。pose は、catalog.json の poses の名前）\n'
   + '    - 選べる条件 fx.cond：have / lack（持ち物）・flag / noflag（街の印）・after / before（その場面で、その選択肢を、選んだあと / まだ選んでいない）・hp / inf / z（体力・感染・その場のゾンビ。{ "min":1 } や { "max":0 }）・at（時刻）・from / to（来た場所・行ける場所）。fx.cor に、同じ形の組を並べると「または」になる\n'
-  + '  - auto … 自動提案の決まり。overlay.json のいちばん上に { "auto": [ { "on":"gait", "val":"run", "words":"走っ|走る|駆け", "not":"走り書き" }, { "on":"get", "words":"手に取っ|受け取っ" } ] } のように書く。足した選択肢の文（選択肢の文と、選んだら起きることの文）に words の言葉があると、演出が決まり、起きること・条件の案が出る。auto を書くと、もとの決まりは全部それに置き換わる（もとの決まりは、編集版の ☰ の「自動提案」の画面に並んでいる。一部だけ変えたいときは、その画面の中身を写してから直す）。上にある決まりが先。on は、gait（足の運び。val は run・sneak）、pose（しぐさ。val はしぐさの名前）、pos（立つ位置。val は door・hide）、z（ゾンビ。val は 1・2）、get（words の前の「〜を」の物を、手に入れる案）、lose（なくす案）、have（words の前の物を、持っているときだけ選べる案）、hp（体力。val は -2〜2）、min（words の前の「20分」「1時間」を、かかる時間の案に）、one（1回だけ選べる案）。words と not は、そのままの字として探す（正規表現は使えない）。「|」で区切る。not の言葉がある文では、拾わない。any:true を付けると、「男が」「ゾンビが」のような、ほかの人がしたことでも拾う。打ち消し（〜ずに・〜なかった）と、せりふ（「」の中）は、初めから拾わない。\n'
+  + '  - auto … 自動提案の決まり。overlay.json のいちばん上に { "auto": [ { "on":"gait", "val":"run", "words":"走っ|走る|駆け", "not":"走り書き" }, { "on":"get", "words":"手に取っ|受け取っ" } ] } のように書く。足した選択肢の文（選択肢の文と、選んだら起きることの文）に words の言葉があると、演出が決まり、起きること・条件の案が出る。auto を書くと、もとの決まりは全部それに置き換わる（もとの決まりは、編集版の ☰ の「作る」の「自動提案」の画面に並んでいる。一部だけ変えたいときは、その画面の中身を写してから直す）。上にある決まりが先。on は、gait（足の運び。val は run・sneak）、pose（しぐさ。val はしぐさの名前）、pos（立つ位置。val は door・hide）、z（ゾンビ。val は 1・2）、get（words の前の「〜を」の物を、手に入れる案）、lose（なくす案）、have（words の前の物を、持っているときだけ選べる案）、hp（体力。val は -2〜2）、min（words の前の「20分」「1時間」を、かかる時間の案に）、one（1回だけ選べる案）。words と not は、そのままの字として探す（正規表現は使えない）。「|」で区切る。not の言葉がある文では、拾わない。any:true を付けると、「男が」「ゾンビが」のような、ほかの人がしたことでも拾う。打ち消し（〜ずに・〜なかった）と、せりふ（「」の中）は、初めから拾わない。\n'
   + '  - poses … 足したしぐさ。overlay.json のいちばん上に { "poses": { "salute": { "name":"敬礼する", "words":"敬礼", "armR":[2.2, 2.0] } } } のように書くと、演出の「しぐさ」に出て、文に words の言葉があれば、自動で選ばれる。名前は、小文字の英数字。数字は、関節の角度（ラジアン、-4〜4）：hip 腰の高さ（立った高さを1として）、leg ももを前へ上げる、knee 膝を曲げる、body 上体を前へ倒す、head うつむく、armL・armR [肩を前へ上げる（1.5 で水平、3 で真上）, ひじを曲げる]、lie 体ごと後ろへ倒す、y 体を浮かせる高さ、wave 振る腕（"L" か "R"）、shake 小刻みに動かす（1）。もとからあるしぐさ（crouch・kneel・sit・lie・bend・aim・fend・handsup・wave・point・phone・knock・cross・down・cover・hide）と同じ名前は、使えない\n'
   + '  - spots … 足した場所。overlay.json のいちばん上に { "spots": { "voter": { "ukanamono": { "name":"金物屋の前", "text":"着いたときの文", "from":"main", "go":"金物屋の前へ行く", "back":"メインストリートへ戻る", "at":[190, 200], "z":2, "hide":false, "cam":"same", "img":null } } } } のように書く。"voter" は本の名前（voter・governor・chief・director）。場所の名前（ukanamono）は、小文字の英数字。from は、つながるもとの場所の名前（公開のリポジトリの book-*.js の SPOTS にある）。at は、地図の上の位置。cam は "same"（つながる場所と同じ映像）か ""（映像なし）。img は、映像の代わりに出す絵の名前\n'
   + '  - books … 足した本（キャラ）。overlay.json のいちばん上に { "books": { "breporter": { "name":"新聞記者", "osd":"ペレス記者", "like":"voter", "start":"main", "clock":480, "base":7000 } } } のように書く。本の名前（breporter）は、小文字の英字 3〜12 文字。like は、街の歩き方と姿を借りる、もとの本（voter・governor・chief・director）。start は、始まる場所（like の本の SPOTS の名前）。clock は、始まる時刻（0時からの分）。base は、段落の番号の初め（7000・7200・…・8800 のうち、ほかの本と重ならないもの）。その本の場面の名前は「breporter:<段落の番号>」（番号は、base ＋ like の本の SPOTS の並び順）。出来事は、keys の add（足した選択肢）で書く\n'
@@ -10109,6 +10476,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
   + '- 物の条件： "cond":{ "have":["橋の鍵"] }（持っているときだけ）、"lack":[…]（持っていないときだけ）\n'
   + '- 隠し番号： "hide":"417"（その場面でだけ）、"any":true を足すと、どの場面でも。条件と組み合わせると、「鍵を持っている人だけが、橋で 417 を打ちこめる」になる\n\n'
   + '作り方の型：①鍵になる物か印を1つ決める ②それを手に入れる・起こす選択肢を、どれかの本に足す ③それぞれの本に、「あるとき」の選択肢と、「ないとき」の選択肢を、同じ場面に足す（条件は have と lack、または flag と noflag で、ちょうど裏返しにする） ④起きることの文は、本ごとに、その人の立場で書く。同じ出来事を、本ごとに違う側から見せるのが、ねらい ⑤本をまたぐので、時刻に気をつける。物を置く人・印を付ける人の時刻が、受け取る人の時刻より前になるように、場面を選ぶ\n\n'
+  + '## 説明のページ（遊び方・作り方）を直す\n\noverlay.json の keys に、"guide:play"（遊び方）か "guide:make"（作り方）を書く。中身は paras だけ：{ "kind":"guide", "before":"画面に出ているもとの文", "after":"直した文" }。before は、見出し・段落・箇条書きの1項目など、文のひとまとまりを、1字も違わずに書く。改行は <br>、太字は <b>…</b>。ほかの記号は、文字として出る。読む人の立場（1人で遊ぶ、部屋に入っている、など）で、もとの文が違う。当たらなければ、もとの文のまま出る。ゲームの画面では、編集版の説明のページの［✎ 編集する］で直せる。\n\n'
   + '## 点検\n\n書き換えたら、点検の道具を回す。ブラウザは要らない（node だけ）。道具は、公開のリポジトリにある。\n\n    curl -sL https://raw.githubusercontent.com/kyunkyunpeachdisco-maker/joining-the-living-dead/HEAD/check-pack.js -o check-pack.js\n    node check-pack.js book/overlay.json\n\n× は、間違い（名前や番号が原本にない、形が違う、絵のファイルがない、など）。直す。△ は、目安（もとの文が、原本の中に見つからない。原本が変わったか、状況で変わる文）。\n\n'
   + '## 原本が変わって、直しが当たらなくなったとき\n\n直しは、もとの文（before・afterOf・選択肢の文）が、原本の文と1字も違わず同じときにだけ当たる。原本の文が変わると、当たらなくなる（ゲームは動く。その直しが出ないだけ）。\n\n'
   + '1. overlay.json の base.ver（合わせて作った版）と、report.json を読む。\n2. 原本は、公開のリポジトリ kyunkyunpeachdisco-maker/joining-the-living-dead にある（本の文は book-*.js）。base.ver の版と、いちばん新しい版を取ってきて、見比べる（リリースごとに、コミットがある）。\n3. 当たらなくなった直しごとに、前の版でのもとの文が、新しい版でどの文になったかを探し、overlay.json の before・afterOf・選択肢の文を、新しい文に書き換える。直した中身（after・足した文・条件）は、変えない。\n4. もとの場面や選択肢が、新しい版でなくなっていて、当て直せないものは、消さずに残して、一覧にして人に聞く。\n5. 書き換えたら、base.ver を新しい版にする。\n\n'
@@ -10473,7 +10841,7 @@ function bookPanelWire(){
     setTimeout(() => location.reload(), 600);
   };
 }
-// ===== 流れ：この本の場面と、選択肢の行き先の一覧。番号を押すと、その場面へ移る（試すための機能） =====
+// ===== フロー（画面の名前。前は「流れ」「場面のつながり」）：この本の場面と、選択肢の行き先の一覧。番号を押すと、その場面へ移る（試すための機能） =====
 let flowOpen = false, flowView = 'map', flowAt = 0; // 図で見るか一覧で見るか・図の真ん中の場面
 function flowHtml(){
   const s = loadPlayer(current), w = loadWorld(), B = bookOf(s), copy = () => JSON.parse(JSON.stringify(s));
@@ -10507,10 +10875,10 @@ function flowHtml(){
     ins.forEach((e, i) => { g += link(8 + bw, y(i, ins.length), 180 - bw / 2, cy) + box(8 + bw / 2, y(i, ins.length), e.from + ' ' + name(e.from), '「' + e.l + '」', (e.from === s.para ? 'here' : ''), e.from); });
     outs.forEach((e, i) => { g += link(180 + bw / 2, cy, W - 8 - bw, y(i, outs.length)) + box(W - 8 - bw / 2, y(i, outs.length), '「' + e.l + '」', e.draft ? '足した選択肢：' + e.note : e.to ? e.to + ' ' + name(e.to) : '選んだときに決まる', (e.draft ? 'draft ' : '') + (e.to === s.para ? 'here' : ''), e.to); });
     g += box(180, cy, at + ' ' + name(at), at === s.para ? '今いる場面' : '見ている場面', 'cur' + (at === s.para ? ' here' : ''), null);
-    return '<div class="fb panel"><b>流れ：' + CHARS[s.char].name + 'の本</b>'
+    return '<div class="fb panel"><b>フロー：' + CHARS[s.char].name + 'の本</b>'
       + '<div class="row" style="margin:8px 0"><button id="flowList">一覧で見る</button>' + (at !== s.para ? '<button id="flowHere">今いる場面へ戻す</button>' : '') + (can && at !== s.para ? '<button data-jump="' + at + '">この場面へ移る</button>' : '') + '</div>'
       + '<p>真ん中が、見ている場面。左は、ここへ来る道。右は、ここから出る道。箱を押すと、その場面が真ん中に来ます。点線の箱は、足した選択肢。赤い枠は、今いる場面。</p>'
-      + '<svg class="flowmap" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="場面のつながり">' + g + '</svg>'
+      + '<svg class="flowmap" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="フロー">' + g + '</svg>'
       + '<p>' + esc(at + '　' + name(at)) + (ins.length ? '' : '　ここへ来る道は、見つかりません（本の初めの場面か、行き先が選んだときに決まる選択肢から来る場面）。') + '</p></div>';
   }
   const rows = nos.map(no => {
@@ -10521,7 +10889,7 @@ function flowHtml(){
       + d.off.map(l => '<span>× ' + escText(l) + '（選べなくした・下書き）</span>').join('') + d.del.map(l => '<span>× ' + escText(l) + '（消した・下書き）</span>').join('')
       + '</div></div>';
   }).join('');
-  return '<div class="fb panel"><b>流れ：' + CHARS[s.char].name + 'の本</b>'
+  return '<div class="fb panel"><b>フロー：' + CHARS[s.char].name + 'の本</b>'
     + '<div class="row" style="margin:8px 0"><button id="flowMap">図で見る</button></div>'
     + '<p>' + (can ? '番号を押すと、その場面へ移ります。試すための機能です。上の「戻す」で、移る前に戻れます。' : '自分が進めている本なら、番号を押して、その場面へ移れます。') + '明るい字は、通った場面。金色の線が、今いる場面。</p>' + rows + '</div>';
 }
@@ -10529,7 +10897,7 @@ function flowJump(no){
   if(!TEST_BUILD || !canAct()) return;
   const w = loadWorld(), s = loadPlayer(current);
   if(s.status !== 'active' || !bookOf(s).paras[no]) return;
-  pushUndo(w, s); record(s, '（流れから ' + no + ' へ移る）');
+  pushUndo(w, s); record(s, '（フローから ' + no + ' へ移る）');
   s.msg = ''; s.menu = null; s.aware = null; s.follow = null; s.offcam = false; s.pose = null; s.spos = null; s.scam = null; s.after = null;
   go(s, w, no);
   const p = paraOf(s); if(p.spot){ s.spots = s.spots || []; if(!s.spots.includes(p.spot)) s.spots.push(p.spot); }
@@ -10668,7 +11036,7 @@ function decorateForEdit(mode){
     }
     stShow();
     return wire(box, { save:() => fbeSave(), drop:() => fbeSave('drop'), revert:() => fbeSave('revert'), cancel, pimgdrop:() => { fbe.img = null; render(); }, pimg:() => {
-      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
+      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
       const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
       f.onchange = () => shrinkImage(f.files[0], async d => {
         const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
@@ -10809,7 +11177,7 @@ function decorateForEdit(mode){
     e.querySelectorAll('[data-hide]').forEach(q => { q.value = fbe.fx.hide || ''; q.oninput = () => { const n = q.value.replace(/\D/g, '').slice(0, 4); if(n) fbe.fx.hide = n; else delete fbe.fx.hide; }; });
     e.querySelectorAll('[data-imgas]').forEach(q => { q.value = fbe.fx.img.as || 'cam'; q.onchange = () => { fbe.fx.img = { ...fbe.fx.img, as:q.value }; }; });
     return wire(e, { save:() => fbeSave(), drop:() => fbeSave('drop'), cancel, imgdrop:() => { delete fbe.fx.img; render(); }, img:() => {
-      if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
+      if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
       const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
       f.onchange = () => shrinkImage(f.files[0], async d => {
         const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
