@@ -51,7 +51,7 @@ const radio = c('内ポケットの受信機を、耳に当てる', 0, 0, { cond
 const home = c('エルム通りのアパートへ戻る', 0, 0, { cond:s => !s.flags.civ, run:(s, w) => run('apt')(s, w) });
 // 助ける：かかる分、危なさ、開票に出る印。着いたあとの場面へ進む
 const save = (key, flag, min) => (s, w) => { s.flags[key] = 1; s.flags.saved = (s.flags.saved || 0) + 1; s.clock += min; setFlag(w, s, flag); };
-const method = (label, key, flag, min, chance, ok, hit, extra = {}) => c(label, 0, 0, { danger:chance >= .3, ...extra, run(s, w){ save(key, flag, min)(s, w); if(extra.mark) s.flags[extra.mark] = 1; s.msg = attacked(s, chance) ? hit + '\n' + (s.wounds > 1 ? WOUND2 : WOUND) : ok; return CALLS[key].B; } });
+const method = (label, key, flag, min, chance, ok, hit, extra = {}) => c(label, 0, 0, { danger:chance >= .3, odds:chance, ...extra, run(s, w){ save(key, flag, min)(s, w); if(extra.mark) s.flags[extra.mark] = 1; s.msg = attacked(s, chance) ? hit + '\n' + (s.wounds > 1 ? WOUND2 : WOUND) : ok; return CALLS[key].B; } });
 const leave = c('ここは見送って、受信機を耳に当てる', 0, 0, { run:H });
 // 間に合わなかった現場で、まだできることに手を貸す
 const late = (label, to, min, text) => c(label, 0, 0, { run(s){ s.flags.late = (s.flags.late || 0) + 1; s.clock += min; s.msg = text; return to; } });

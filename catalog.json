@@ -1,6 +1,6 @@
 {
  "about": "Joining the Living Dead の、使える部品の一覧表。本体（index.html）と本（book-*.js）から、リリースのたびに自動で作る。追加分（book/overlay.json）を書くときは、まずこれを見る。もとの文は、books.<本>.file のファイルにある",
- "version": "v0.3.33",
+ "version": "v0.3.34",
  "books": {
   "voter": {
    "file": "book-voter.js",
@@ -12,16 +12,19 @@
     "items": {}
    },
    "flags": [
+    "alleyGone",
     "askedRota",
     "askedYard",
     "backClear",
     "blocked",
+    "busHome",
     "cards",
     "corridorClear",
     "dChurch",
     "dHosp",
     "dMain",
     "dockClear",
+    "erWaited",
     "fetch",
     "flyer",
     "front",
@@ -29,22 +32,29 @@
     "greeted",
     "guide",
     "gun",
+    "gunHeld",
     "gymIn",
     "hallClear",
     "heard",
     "heardJanitor",
     "hendersonDown",
+    "hendersonShot",
     "hidWound",
     "inHall",
     "janitorTold",
     "late",
+    "line8",
     "lineDone",
+    "lost",
+    "loud",
     "lured",
     "luredHit",
     "nurseDone",
     "nurseUp",
     "provisional",
     "reported",
+    "ricoGone",
+    "ride",
     "sawDir",
     "sawJanitor",
     "sawRoom",
@@ -438,9 +448,7 @@
      "place": "depot"
     },
     "84": {},
-    "85": {
-     "head": "救急の待合で20分待たされた。看護師が傷を洗って、注射を1本"
-    },
+    "85": {},
     "87": {},
     "91": {
      "head": "事務所の中では、20人ほどが長机に並んで電話をかけていた。壁"
@@ -454,8 +462,7 @@
      "place": "church"
     },
     "97": {
-     "place": "bridge",
-     "head": "ケスラー橋の手前で、車が動かなくなった。街を出るほうの車線が"
+     "place": "bridge"
     },
     "98": {
      "place": "depot"
@@ -505,6 +512,10 @@
     },
     "846": {
      "place": "oak"
+    },
+    "847": {
+     "place": "oak",
+     "head": "ヘンダーソンさんは、こっちへ歩いてくる。はだしの足が、霜を踏"
     },
     "850": {
      "place": "school"
@@ -1392,8 +1403,7 @@
      "head": "処置室の前のベッドで、点滴を受けている女の人が、看護師の袖を"
     },
     "444": {
-     "place": "hosp",
-     "head": "演台のまわりに、人が集まりはじめている。知事の車が、門を入っ"
+     "place": "hosp"
     },
     "445": {
      "place": "hosp"

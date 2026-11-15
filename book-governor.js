@@ -6,7 +6,7 @@
 const WOUND = '袖口が裂けて、左の手首の上に赤い筋が残った。爪の跡か歯の跡か、見ただけでは決められない。';
 const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
 const to_ = (to, s, w) => (typeof to === 'function' ? to(s, w) : to);
-const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + WOUND : ok; return to_(to, s, w); } });
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, odds:chance, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, chance) ? hit + '\n' + WOUND : ok; return to_(to, s, w); } });
 const pick = (label, to, fn, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ fn(s, w); return to_(to, s, w); } });
 const done = (s, k) => { if(s.flags['did_' + k]) return; s.flags.done = (s.flags.done || 0) + 1; s.flags['did_' + k] = 1; };
 const did = (s, k) => !!s.flags['did_' + k];

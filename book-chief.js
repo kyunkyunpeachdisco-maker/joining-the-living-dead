@@ -6,7 +6,7 @@
 const WOUND = '制服の袖が裂けていた。手首の上に、赤い筋が1本。爪か歯かは、見ただけではわからない。';
 const attacked = (s, chance) => { if(Math.random() >= chance) return false; bite(s); return true; };
 const to_ = (to, s, w) => (typeof to === 'function' ? to(s, w) : to);
-const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, typeof chance === 'function' ? chance(s) : chance) ? to_(hit, s) + '\n' + WOUND : to_(ok, s); return to_(to, s, w); } });
+const risk = (label, chance, to, ok, hit, extra = {}) => c(label, 0, 0, { danger:true, odds:chance, ...extra, run(s, w){ if(extra.before) extra.before(s, w); s.msg = attacked(s, typeof chance === 'function' ? chance(s) : chance) ? to_(hit, s) + '\n' + WOUND : to_(ok, s); return to_(to, s, w); } });
 const pick = (label, to, fn, extra = {}) => c(label, 0, 0, { ...extra, run(s, w){ fn(s, w); return to_(to, s, w); } });
 // 街の印を、あとの時刻で残す（その場に残した者が、あとでしたこと）
 const later = (w, s, name, t) => { const c0 = s.clock; s.clock = Math.max(c0, t); setFlag(w, s, name); s.clock = c0; };

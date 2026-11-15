@@ -494,7 +494,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.33';
+const APP_VERSION = 'v0.3.34';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -2090,7 +2090,7 @@ Object.assign(CAM_DEFS, {
   CAM_DEFS.v_h_gate.out = { ...CAM_DEFS.v_h_gate.out, night:false, fog:[28, 90], lamps:[] }; // 工場の正門は、もとの映像が夕方用。ヒーローが行くのは午前
 }
 for(const [cam, list] of Object.entries({ v_hosp:[444, 403], v_dock:[453, 406] })) list.forEach(n => PARA_CAMS[n] = cam); // 病院長の本
-for(const [cam, list] of Object.entries({ v_home:[801, 802, 803, 805, 808, 827], v_oak:[812, 813, 846], v_maple:[818, 819], v_oak3:[833, 814], v_yard:[834], v_oak4:[836, 898], v_school:[850, 849, 851, 860, 861, 862, 897], v_gym:[865, 853, 854, 855, 875, 876, 869, 871, 872, 899] })) list.forEach(n => PARA_CAMS[n] = cam); // 有権者の朝（短い場面をつなぐ所）
+for(const [cam, list] of Object.entries({ v_home:[801, 802, 803, 805, 808, 827], v_oak:[812, 813, 846, 847], v_maple:[818, 819], v_oak3:[833, 814], v_yard:[834], v_oak4:[836, 898], v_school:[850, 849, 851, 860, 861, 862, 897], v_gym:[865, 853, 854, 855, 875, 876, 869, 871, 872, 899] })) list.forEach(n => PARA_CAMS[n] = cam); // 有権者の朝（短い場面をつなぐ所）
 for(const [cam, list] of Object.entries({ v_north:[500, 510, 541, 542, 543, 544, 550], v_church:[505, 506], v_h_elm:[530, 551, 561], v_h_maple:[531, 552, 562], v_h_hosp:[532, 553, 563], v_h_gate:[533, 554, 564], v_h_stop:[534, 555, 565], v_h_church:[535, 556, 566, 559], v_h_bridge:[536, 557, 567], v_h_school:[537, 558, 568] })) list.forEach(n => PARA_CAMS[n] = cam); // ヒーローの本
 for(const [cam, list] of Object.entries({ v_ps:[302, 313, 317], v_school:[316, 355, 303, 318, 359, 335, 314, 360], v_hosp:[310, 305, 306, 338], v_north:[308, 309, 357], v_bridge:[352, 311, 312, 358], v_county:[333, 336, 315] })) list.forEach(n => PARA_CAMS[n] = cam); // 署長の本
 for(const [cam, list] of Object.entries({ v_res:[200, 201, 202, 203, 225], v_resb:[245], v_church:[204, 246, 247, 205], v_hq:[207, 248, 208], v_school:[251, 252], v_hosp:[210, 211, 212, 218], v_radio:[253, 216, 254, 217], v_factory:[220, 221] })) list.forEach(n => PARA_CAMS[n] = cam); // 州知事の本
@@ -2700,6 +2700,8 @@ const TUNE = TEST_BUILD ? Object.assign({ z:{} }, store.get('tune', {})) : { z:{
 const spotBaseZ = (s, w, sp) => { const t = TUNE.z[s.book + ':' + sp.no], raw = t != null ? t : Math.max(0, typeof sp.z === 'function' ? sp.z(s, w) : sp.z || 0); return Math.max(0, raw - killsAt(s, w, sp)); };
 // その場所で、これまでに倒された数（どの本の人が撃ったものでも。自分の時計より前のもの）
 const killsAt = (s, w, sp) => { const key = locKey(sp); let n = 0; for(const e of w.events) if(e.type === 'shot' && e.kill && e.at === key && e.t <= s.clock) n++; return n; };
+// その場所で、撃たれて倒れた数（もとからいた者も、あとから出てきた者も。どの本の人が撃ったものでも）。本の文で「倒れている」と書くときの数
+const fallenAt = (s, w, sp) => { const key = locKey(sp); let n = 0; for(const e of w.events) if(e.type === 'shot' && (e.down || e.kill) && e.at === key && e.t <= s.clock) n++; return n; };
 function spotZ(s, w, sp){
   const base = spotBaseZ(s, w, sp);
   return base + (s.follow && s.follow.n > 0 && bookOf(s).spots[s.follow.at] === sp ? s.follow.n : 0) + ((s.zplus || {})[sp.no] || 0);
@@ -2713,6 +2715,8 @@ const SPOT_LINES = {
   follow:n => n + '人が、あとをついてくる。', shake:'戸を閉めた。ついてきた者は、外に残った。', lost:'ついてきた者は、途中で足を止めた。',
   shot:'撃った。ひとりが倒れた。', shotLast:'撃った。最後のひとりが倒れた。', shotAware:'残りが、こちらを向いた。', shotMore:'銃声を聞いて、もうひとりが出てきた。',
   shotMiss:'撃った。当たらなかった。', shotGrab:'次を狙うより先に、横から腕をつかまれた。振りほどいた。',
+  // 場所の文の終わりに足す：銃声で出てきた者、ついてきた者（本の場所の文は、もとからいた者のことしか書かないので）
+  moreHere:n => '銃声で出てきたのが' + n + '人、まだ近くにいる。', tailHere:n => 'ついてきたのが' + n + '人、すぐ後ろまで来ている。',
 };
 // ===== 置いていく・拾う =====
 // 場所の名前：本が違っても、同じ通り（同じカメラ）・同じ部屋なら、同じ場所
@@ -2757,7 +2761,8 @@ function shootChoice(s, w, sp, id){
     else if(s.follow && s.follow.n > 0 && s.follow.at === id){ s.follow.n -= 1; if(!s.follow.n) s.follow = null; } // ついてきた者から先に
     else if((s.zplus || {})[sp.no] > 0) s.zplus[sp.no] -= 1; // あとから出てきた者
     else kill = true;
-    addEvent(w, s, 'shot', s.place, { at:locKey(sp), kill });
+    addEvent(w, s, 'shot', s.place, { at:locKey(sp), kill, down:!miss }); // kill：もとからいた者を倒した。down：誰かを倒した（あとから出てきた者・ついてきた者も入る）
+    if(kill && sp.shot) sp.shot(s, w); // その場所の本が、倒したあとのことを決める（最後のひとりが倒れたら片づいたことにする、など）
     const left = spotZ(s, w, sp);
     let t = spotLine(s, miss ? 'shotMiss' : left ? 'shot' : 'shotLast');
     if(left){ s.aware = id; t += '\n' + spotLine(s, 'shotAware'); } else s.aware = null;
@@ -2812,7 +2817,7 @@ function spotChoices(s, w){
   for(const to of spotAdj(s, w, sp)){
     const d = B.spots[to], name = sp.go?.[to];
     if(!spotBlocked(s, w, sp, to)){ list.push({ label:name || `${d.name}へ`, cost:0, dest:to, run:(s, w) => spotMove(s, w, to) }); continue; }
-    list.push({ label:sp.runLabel?.[to] || `${d.name}へ、走って抜ける`, cost:0, dest:to, risky:true, gait:'run', run(s, w){
+    list.push({ label:(typeof sp.runLabel === 'function' ? sp.runLabel(s, w) : sp.runLabel)?.[to] || `${d.name}へ、走って抜ける`, cost:0, dest:to, risky:true, gait:'run', run(s, w){
       const chance = 1 - (1 - (aware ? .12 : .06)) ** z; // 1体ごとに、気づかれていなければ6%、気づかれていれば12%
       s.msg = Math.random() < chance ? run.hit + hurt(s) : run.ok;
       return spotMove(s, w, to);
@@ -2836,6 +2841,10 @@ function spotChoices(s, w){
 function spotText(s, w){
   const sp = spotOf(s), aware = s.aware === paraOf(s).spot && spotZ(s, w, sp) > 0;
   let t = typeof sp.text === 'function' ? sp.text(s, w, aware) : sp.text;
+  // 銃声で出てきた者と、ついてきた者（いま出たばかりの知らせと重なるときは、足さない）
+  const more = (s.zplus || {})[sp.no] || 0, tail = s.follow && s.follow.n > 0 && s.follow.at === paraOf(s).spot ? s.follow.n : 0, said = s.msg || '';
+  if(more && !said.includes(spotLine(s, 'shotMore'))) t += '\n\n' + spotLine(s, 'moreHere', more);
+  if(tail && !said.includes(spotLine(s, 'follow', tail))) t += '\n\n' + spotLine(s, 'tailHere', tail);
   const here = dropsHere(s, w, sp);
   if(here.length) t += '\n\n' + here.map(e => itemCount(e.name, e.n)).join('と、') + 'が、置いてある。';
   if(shotHere(s, w, sp)) t += '\n\n薬莢が落ちている。誰かが、ここで撃った。';
@@ -8217,7 +8226,9 @@ function resultHtml(){
     vf.toldLine && 'モーガンは朝、リンカーン小学校の列に近づいた男のことを、係員に知らせた。場所は取っておけない決まりで、最後尾に並び直した。',
     vf.waited && 'モーガンは、聖マルコ教会の墓地の柵の切れ目を、配達の車で40分ふさいだ。そのあいだに、列の全員が集会室へ入った。',
     vf.janitorTold && 'モーガンは朝、リンカーン小学校の廊下に立っていた用務員と給食の2人のことを、係員に知らせた。',
+    vf.hendersonShot && 'モーガンは朝、オーク通り2丁目で、ヘンダーソンさんを撃った。',
     vf.toldH && 'モーガンは朝、受付に来なかったヘンダーソンさんのことを、体育館の係員に話した。',
+    vf.ride === 2 && 'モーガンは夕方、チラシの番号に電話をかけて、カーヴァーの陣営の車で、投票所まで送ってもらった。',
     vf.hidWound && 'モーガンは、傷のないほうの袖だけをまくって、投票所の入口を通った。',
     vf.reported && 'モーガンは、州立病院で手当てを受けて、傷を届け出た。',
     vf.told && 'モーガンは聖マルコ教会で、黄色い札を外して列に並び直した男のことを、係員に知らせた。',
