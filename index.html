@@ -494,7 +494,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.35';
+const APP_VERSION = 'v0.3.36';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -1165,7 +1165,7 @@ function collectNotices(s, w){
     if(e.type === 'shot'){
       out.push(e.place === s.place ? 'すぐ近くで銃声がした！' : near(e.place, s.place) ? `${where}の方から銃声が響いた。化け物の群れが、そちらへ流れていく。` : '遠くで、かすかに銃声がした。');
     } else if(e.type === 'noise'){
-      out.push(e.text || `${where}の方で、大きな音がした。`);
+      out.push((e.place === s.place && e.here) || e.text || `${where}の方で、大きな音がした。`);
     } else if(e.type === 'horde' && near(e.place, s.place)){
       out.push(`${where}の方で、化け物の群れが騒いでいる。`);
     } else if(e.type === 'escape'){
