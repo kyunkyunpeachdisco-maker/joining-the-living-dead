@@ -327,7 +327,27 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-card{border:1px solid #3a3a40;border-radius:12px;overflow:hidden}.cm-card .h{padding:8px 12px;font-size:13px;color:#c9c2b3;background:#15151a}.cm-card .d{padding:10px 12px;font-size:14px;overflow-wrap:anywhere}.cm-card .done{padding:0 12px 10px;color:#8d8778;font-size:13px}
 .cm-acts{display:flex;gap:8px;padding:0 12px 12px}.cm-acts button{flex:1;border-radius:8px;padding:9px;font-size:14px;border:1px solid #3a3a40;background:none;color:#e8e2d6}.cm-acts .go,.cm-acts .on{border-color:#e0b04a;color:#e0b04a}.cm-m .cm-acts{padding:8px 0 0}
 .cm-poll{margin-top:8px;display:grid;gap:6px}.cm-poll button{position:relative;overflow:hidden;display:flex;justify-content:space-between;border:1px solid #3a3a40;border-radius:8px;padding:8px 12px;background:none;color:inherit;text-align:left}.cm-poll button i{position:absolute;left:0;top:0;bottom:0;background:#4a3d1a;opacity:.7}.cm-poll button span{position:relative}.cm-poll button.on{border-color:#f0d890;box-shadow:inset 0 0 0 1px #f0d890}.cm-poll button.on span{color:#fff;font-weight:bold}
-.cm-m .b{position:relative}.cm-m .mo{float:right;margin:-4px -6px 0 8px;padding:0 4px;font-style:normal;font-size:20px;line-height:1;color:#a8a090;cursor:pointer}.cm-m.me .mo{color:#b8a878}
+.cm-m .b{position:relative;padding-right:30px}.cm-m .mo{position:absolute;right:4px;top:3px;margin:0;padding:0 4px;font-style:normal;font-size:20px;line-height:1;color:#a8a090;cursor:pointer;background:none;border:0}.cm-m.me .mo{color:#b8a878}.cm-m.pend .b{padding-right:12px}
+@media (pointer:coarse){.cm-m .b,.cm-card .d,.cm-rx button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
+@media (pointer:coarse){.para.mz-hold{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}} /* 本文を長く押してメタゾンビを呼び出すとき、文字の選択と取りあわない */
+.cm-m.pend{opacity:.5}.cm-m.pend.fail{opacity:.85}.cm-m.fail .b{outline:1px solid #ff8a7a}
+.cm-m .st{font-size:12px;color:#8d8778;margin-top:3px;text-align:right}.cm-m.fail .st{color:#ff8a7a}
+.cm-m .st button,.cm-row .ob button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:8px;padding:4px 10px;font-size:13px;margin-left:6px}
+.cm-row.pend{opacity:.55}.cm-row.pend.fail{opacity:1}.cm-row.fail .s{color:#ff8a7a}.cm-row .ob{display:block;margin-top:6px}.cm-row .ob button{margin:0 6px 0 0}
+.cm-unl{display:flex;align-items:center;gap:8px;color:#ff8a7a;font-size:12px}.cm-unl::before,.cm-unl::after{content:'';flex:1;border-top:1px solid #ff8a7a}
+.cm-below{position:absolute;left:50%;transform:translateX(-50%);top:-48px;background:#e0b04a;color:#111;border:0;border-radius:99px;padding:7px 16px;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.6);white-space:nowrap}
+.cm-sug{position:absolute;left:14px;right:14px;bottom:100%;margin-bottom:4px;background:#17171c;border:1px solid #3a3a40;border-radius:10px;max-height:38vh;overflow:auto;display:grid;z-index:3}
+.cm-sug button{background:none;border:0;border-bottom:1px solid #2a2a2e;color:#e8e2d6;text-align:left;padding:10px 12px;font-size:15px}.cm-sug button:last-child{border-bottom:0}.cm-sug small{color:#8d8778}
+.cm-r .go:disabled{opacity:.4}
+.cm-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e0b04a;margin-top:9px}
+.cm-row .f{display:block;color:#e0b04a;font-size:12px}.cm-row.un .t{font-weight:700}
+.cm-chips2{overflow:visible;align-items:center}.cm-cs{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}.cm-cs::-webkit-scrollbar{display:none}
+.cm-chips .cm-allread{flex:none;border-color:transparent;color:#c9c2b3;padding:4px 4px 4px 8px}.cm-chips .cm-allread:disabled{opacity:.4}
+.cm-hl{color:#e0b04a;font-weight:700}
+.cm-ref{color:#c9c2b3}.cm-ref.off{display:inline-block;color:#8d8778}
+.cm-who{padding:12px 8px;border-bottom:1px solid #2a2a2e;font-size:15px;overflow-wrap:anywhere}.cm-who:last-child{border-bottom:0}.cm-who b{font-size:20px;margin-right:8px}
+.cm-m.flash .b,.cm-card.flash{animation:cmFlash 2.4s ease-out}
+@keyframes cmFlash{0%,55%{box-shadow:0 0 0 3px #e0b04a}100%{box-shadow:0 0 0 0 rgba(224,176,74,0)}}
 .cm-in .note{margin:0 0 8px;padding:6px 10px;border-radius:8px;background:#1b1b20;color:#e8e2d6;font-size:13px}
 .cm-in{position:sticky;bottom:0;background:#0a0b0e;border-top:1px solid #2a2a2e;padding:10px 14px 14px;z-index:2}
 .cm-r{display:flex;gap:8px;align-items:flex-end}.cm-r button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:10px;height:44px;min-width:44px;font-size:18px}.cm-r button.on{border-color:#e0b04a;color:#e0b04a}.cm-r .go{border-color:#e0b04a;color:#e0b04a;font-size:15px;padding:0 14px}
@@ -518,7 +538,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.42';
+const APP_VERSION = 'v0.3.43';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -590,6 +610,20 @@ function loadPlayer(id){ return store.get('player-' + id, null) || newPlayer(id)
 
 // ===== 本から使う小道具 =====
 function c(label, cost, to, extra = {}){ return { label, cost, to, ...extra }; }
+// 結果の段落（res の付いた段落）の選択肢：行き先が別の場所なら「〈場所〉へ」、同じ場所なら「次へ」。label があれば、それを使う。
+// 行き先を関数で決めるものは、状態の写しで試して、行き先の場所を調べる（写しなので、本当の状態は変わらない）
+function resGo(next, label){
+  return (s, w) => {
+    let lb = label;
+    if(!lb){
+      let to = next;
+      if(typeof next === 'function'){ try { to = next(JSON.parse(JSON.stringify(s)), JSON.parse(JSON.stringify(w))); } catch(e){ to = null; } }
+      const B = bookOf(s), p = to && B.paras[to], pl = p && (p.place || (p.spot && B.spots && B.spots[p.spot] && B.spots[p.spot].place));
+      lb = pl && pl !== s.place && PLACES[pl] ? PLACES[pl] + 'へ' : '次へ';
+    }
+    return [typeof next === 'function' ? c(lb, 0, 0, { run:next }) : c(lb, 0, next)];
+  };
+}
 function fmt(m){ const h = Math.floor(m / 60) % 24, mm = m % 60; return `${h}:${String(mm).padStart(2, '0')}`; }
 function has(s, item, n = 1){ return (s.items[item] || 0) >= n; }
 function addItem(s, item, n = 1){ s.items[item] = (s.items[item] || 0) + n; if(s.items[item] <= 0) delete s.items[item]; }
@@ -1037,9 +1071,11 @@ function choicesOf(s, w){
 
 // ===== 進める =====
 function go(s, w, target){
+  const fromNo = s.para, fromP = bookOf(s).paras[fromNo];
   s.para = target;
   const p = paraOf(s);
   if(!p) throw new Error(`段落 ${target} が見つかりません（${s.book}）`);
+  s.resFrom = p.res ? (fromP && fromP.res ? s.resFrom : fromNo) : null; // 結果の段落のあいだ、映像や見取り図は、来た場面のまま（sceneOf）
   if(p.time != null) s.clock = Math.max(s.clock, typeof p.time === 'function' ? p.time(s) : p.time);
   if(p.place) s.place = p.place;
   if(p.enter) p.enter(s, w);
@@ -2156,20 +2192,23 @@ for(const [cam, list] of Object.entries({ v_home:[1, 5, 8, 27, 111], v_oak:[12, 
 // カメラのない部屋（個人の部屋・船の中・屋敷の中など）。入ると、直前のカメラのまま映し続ける
 const NO_CAM = new Set(['chief', 'room302', 'lounge', 'duty_h', 'locker', 'captain', 'shipclinic', 'hold', 'shipdeck', 'fisherhut',
   'dining', 'study', 'greenhouse', 'bedroom', 'labstairs', 'lab', 'house_c', 'cellar', 'apartment', 'v_home']);
+// 場面（映像・見取り図・場所）を決める段落：結果の段落のあいだは、そこへ来る前の場面の段落（結果の段落の文と選択肢は、結果の段落のもの）
+function sceneNo(s){ return s.resFrom != null && paraOf(s)?.res && bookOf(s).paras[s.resFrom] ? s.resFrom : s.para; }
+function sceneOf(s){ return bookOf(s).paras[sceneNo(s)] || paraOf(s); }
 function inBlindSpot(s){
-  if(s.offcam || paraOf(s).nocam) return true; // nocam：カメラのない場面（記載台。投票の秘密）
+  if(s.offcam || sceneOf(s).nocam) return true; // nocam：カメラのない場面（記載台。投票の秘密）
   if(planOf(s)) return false;
-  const p = paraOf(s);
-  return !p.hub && !p.encounter && s.book !== 'monster' && (NO_CAM.has(PARA_CAMS[s.para]) || !!p.inside);
+  const p = sceneOf(s), no = sceneNo(s);
+  return !p.hub && !p.encounter && s.book !== 'monster' && (NO_CAM.has(PARA_CAMS[no]) || !!p.inside);
 }
 function camFor(s){
   const pl = planOf(s);
   if(pl) return `plan:${pl.plan}:${pl.floor}`;
-  const p = paraOf(s);
+  const p = sceneOf(s), no = sceneNo(s);
   if(s.book === 'monster' && s.lastCam) return s.lastCam; // ゾンビになったあとは、最後に映っていたカメラのまま
-  if(p.hub || p.encounter || s.book === 'monster' || !PARA_CAMS[s.para]) return s.place;
-  if(NO_CAM.has(PARA_CAMS[s.para])) return s.lastCam || s.place;
-  return s.clock >= 1010 && CAM_DEFS[PARA_CAMS[s.para] + 'n'] ? PARA_CAMS[s.para] + 'n' : PARA_CAMS[s.para];
+  if(p.hub || p.encounter || s.book === 'monster' || !PARA_CAMS[no]) return s.place;
+  if(NO_CAM.has(PARA_CAMS[no])) return s.lastCam || s.place;
+  return s.clock >= 1010 && CAM_DEFS[PARA_CAMS[no] + 'n'] ? PARA_CAMS[no] + 'n' : PARA_CAMS[no];
 }
 
 // ===== 建物の見取り図（旧作ホラー風）。3Dの建物・カメラ・出入り・館内図はすべてこれに従う =====
@@ -2750,7 +2789,7 @@ function applySpots(){
   // 足した場所がなくなっていて、そこにいた人は、その本の初めの場所へ戻す
   for(const c of CHAR_IDS){ const p = store.get('player-' + c, null); if(p && BOOKS[p.book] && !BOOKS[p.book].paras[p.para]){ p.para = BOOKS[p.book].start; p.aware = null; p.follow = null; store.set('player-' + c, p); } }
 }
-function spotOf(s){ const p = paraOf(s); return p && p.spot ? bookOf(s).spots[p.spot] : null; }
+function spotOf(s){ const p = sceneOf(s); return p && p.spot ? bookOf(s).spots[p.spot] : null; }
 // その場にいる数。ついてきた者は、今いる場所の数に足す
 const TUNE = TEST_BUILD ? Object.assign({ z:{} }, store.get('tune', {})) : { z:{} };
 const spotBaseZ = (s, w, sp) => { const t = TUNE.z[s.book + ':' + sp.no], raw = t != null ? t : Math.max(0, typeof sp.z === 'function' ? sp.z(s, w) : sp.z || 0); return Math.max(0, raw - killsAt(s, w, sp)); };
@@ -2895,7 +2934,7 @@ function spotChoices(s, w){
   return [...list, ...extra.filter(ch => !ch.cond || ch.cond(s, w))];
 }
 function spotText(s, w){
-  const sp = spotOf(s), aware = s.aware === paraOf(s).spot && spotZ(s, w, sp) > 0;
+  const sp = spotOf(s), aware = s.aware === sceneOf(s).spot && spotZ(s, w, sp) > 0;
   let t = typeof sp.text === 'function' ? sp.text(s, w, aware) : sp.text;
   // 銃声で出てきた者と、ついてきた者（いま出たばかりの知らせと重なるときは、足さない）
   const more = (s.zplus || {})[sp.no] || 0, tail = s.follow && s.follow.n > 0 && s.follow.at === paraOf(s).spot ? s.follow.n : 0, said = s.msg || '';
@@ -2970,7 +3009,7 @@ function syncTuck(anim){
   else { wrap.classList.remove('tucked'); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); }
 }
 function townMapSvg(s, w, choices, live){
-  const B = bookOf(s), here = paraOf(s).spot, mapId = B.spots[here].map || '', M = mapId ? B.maps[mapId] : B.map, seen = new Set([...(s.spots || []), here]);
+  const B = bookOf(s), here = sceneOf(s).spot, mapId = B.spots[here].map || '', M = mapId ? B.maps[mapId] : B.map, seen = new Set([...(s.spots || []), here]);
   const onMap = sp => sp.at && (sp.map || '') === mapId;
   const P = ([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`;
   const rx = y => M.river.x + M.river.amp * Math.sin(y / 30);
@@ -3035,10 +3074,10 @@ function townMapSvg(s, w, choices, live){
 function planOf(s){
   const P = PLANS[s.place];
   if(!P || s.book === 'monster') return null;
-  const p = paraOf(s);
-  const e = PLAN_PARA[s.para];
+  const p = sceneOf(s), no = sceneNo(s);
+  const e = PLAN_PARA[no];
   // 部屋の決まっていない段落（その場所の通りや拠点での出来事）は拠点の部屋
-  const room = p.hub || p.encounter ? P.hub : e && e.plan === s.place ? e.room : !e && !PARA_CAMS[s.para] ? P.hub : null;
+  const room = p.hub || p.encounter ? P.hub : e && e.plan === s.place ? e.room : !e && !PARA_CAMS[no] ? P.hub : null;
   return room ? { plan:s.place, room, floor:P.rooms[room].floor } : null;
 }
 // その階から別の階へ行くときに使う階段の部屋
@@ -3296,7 +3335,7 @@ function npcStep(n, t, st){
 
 // 画面の今の状況（render のたびに渡す）
 function cctvState(s, w){
-  const p = paraOf(s);
+  const p = sceneOf(s);
   const ended = s.status === 'stranded' || s.status === 'monster-done';
   const sp = spotOf(s), pz = sp && planOf(s) ? bookOf(s).planZ?.[s.place] : null;
   const other = others(s.char).find(o => o.status === 'active' && w.events.some(e => e.type === 'pass' && e.by === o.char && e.place === s.place && e.t <= s.clock && s.clock - e.t <= 30));
@@ -3312,7 +3351,7 @@ function cctvState(s, w){
     hideOk:sp ? !!sp.hide : p.zombies == null || !!p.hide, inDoor:p.inside === 'door',
     aware:sp ? s.aware === p.spot : !!zsHere(s)?.aware, alert:zsHere(s)?.alert || 0, encounter:!!p.encounter, other:other ? other.char : null,
     blackout:s.clock >= BLACKOUT, clock:s.clock,
-    lights:flag(s, w, 'subway_lights'), gasDark:flag(s, w, 'gas_dark'), boatGone:!!w.boatUsed, npc:npcState(s.para, s, w),
+    lights:flag(s, w, 'subway_lights'), gasDark:flag(s, w, 'gas_dark'), boatGone:!!w.boatUsed, npc:npcState(sceneNo(s), s, w),
   };
   if(!st.prey && sp && !sp.room && !st.plan && !st.monster && !st.ended && st.zombies >= 3) st.prey = { n:st.zombies >= 5 ? 2 : 1, pose:'fend', amb:true };
   return st;
@@ -3740,6 +3779,7 @@ function buildPlace(st){
   Cut.scene = scene; Cut.camera = built.camera; Cut.update = built.update; Cut.built = built;
   Cut.mainPos = built.camera.position.clone(); Cut.mainQuat = built.camera.quaternion.clone(); Cut.hidShown = null;
   Cut.actors = makeActors(T, scene, built, st);
+  mzGhostPlace(T, scene, built);
   if(built.plan){ planArrive(st); Cut.arrive = null; }
   if(Cut.arrive){
     Cut.actors.enterFrom = (Cut.arrive.from && built.exits?.[Cut.arrive.from]) || built.enter || built.door || null;
@@ -3760,6 +3800,7 @@ function buildPlace(st){
     wrap.classList.toggle('glitch', Math.random() < (Cut.state.encounter ? 0.35 : 0.03));
     Cut.update(t, Cut.state);
     Cut.actors.update(t, Cut.state);
+    mzGhostUpdate(t);
     if(Cut.built.plan) planDirector(); else if(!!Cut.actors.hiding !== Cut.hidShown) applyHideCam(!!Cut.actors.hiding);
     camExtra();
     Cut.renderer.render(Cut.scene, Cut.camera);
@@ -5322,8 +5363,8 @@ function linkPanelHtml(){
       + '<p><b>作業用（非公開）</b>　書き換えたもの、画像、部屋の記録が入ります。見られるのは、自分とトークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
       + '<p style="margin-top:16px"><b>配る用（公開）</b>　リンクで配るときに使います。誰でも見られますが、入るのは書き換えた内容と画像だけです。あとからでも作れます。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で配る用を作る</a></div>'
     + '<div class="step"><div class="n">手順 2</div><h3>トークンを作る</h3><p>下の「GitHub でトークンを作る」を押して、開いた画面で次のように選びます。</p>'
-      + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 手順 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents を Read and write']])
-      + '<p>「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
+      + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 手順 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents と Issues を、どちらも Read and write']])
+      + '<p>Issues は、GitHub で、やることを1件ずつ書いておくものです。ゲームは、文章に直す所が残っていそうな場面のことを、Issues に書きます。「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
       + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
     + '<div class="step"><div class="n">手順 3</div><h3>トークンを貼る</h3>'
       + '<p>コピーしたトークンを貼って、「連携する」を押します。手順 1 で作ったリポジトリを、自動で探して連携します。</p>'
@@ -5558,7 +5599,7 @@ function howPages(kind){
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。受け取った人は、ファイルをブラウザで開くと遊べます。'],
       ], after:'※ ' + (room ? '部屋の画面' : 'リンクで配ったあとは、配る画面') + 'の［版の一覧］で、前の版を選べます。［違いを見る］を押すと、選んだ版と1つ前の版との違いが表示されます。［この版を配る］を押すと、選んだ版をもう一度配れます。' + (room ? '［部屋に戻す］を押すと、部屋の中身が、選んだ版の中身に戻ります。' : '［手元に戻す］を押すと、書き換えたものが、選んだ版の中身に置きかわります。'), btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
-      { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、同じ部屋で一緒にゲームを書き換えられます。' + (room ? '' : '部屋を作った人が、リポジトリを設定せずにゲームを閉じると、部屋が使えなくなります。'), after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。部屋を作ったあと、［☰］の［部屋］の［部屋の画面を開く］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
+      { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、同じ部屋で一緒にゲームを書き換えられます。' + (room ? '' : '部屋を作った人が、リポジトリを設定せずにゲームを閉じると、部屋が使えなくなります。'), after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。部屋を作ったあと、［☰］の［部屋］の［部屋の画面を開く］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。<br>※ 部屋を作った人は、部屋から人を外せます。部屋の画面で、外したい人の［外す］を押してください。リポジトリのある部屋では、招待リンクに、トークンが入っています。トークンは、リポジトリに書きこむための鍵です。外された人も、トークンでリポジトリを書き換えられます。書き換えを止めるには、部屋の画面で［トークンを作り直す］を開いてください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
       { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。画面の右端の［通信］を押すと、通信が表示されます。' + (room ? '' : '部屋に入っていないときの通信は、自分だけのメモを書く画面です。'), legend:[B('新しいスレッド') + '：スレッドは、話題ごとのまとまりです。メッセージを書いて［送る］を押すと、スレッドが始まります。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。部屋を作った人が［採用する］を押すか、［誰か1人が賛成したら入る］を選んだ部屋で、書き換えた人のほかの誰かが［賛成］を押すと、書き換えたものが全員のゲームに入ります。', B('採用待ち') + '：部屋の人が書き換えたもののうち、まだ全員のゲームに入っていないものを表示します。'], after:'※ ' + (room ? '' : '部屋に入っているときは、') + 'メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。<br>※ スレッドの一覧で、自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が表示されます。パソコンでは、右クリックします。書き換えのスレッドは、削除できません。' },
       { t:'AI に本文や選択肢を書かせる', text:'Claude Code、Codex、Antigravity など、GitHub のリポジトリを扱える AI なら、どれでも使えます。先に、AI と GitHub をつないでください。', list:[
         ['AI に直接頼む', 'AI で作業用のリポジトリを開いて、書いてほしいことを頼んでください。'],
@@ -5574,9 +5615,9 @@ function howPages(kind){
       : { t:'ゲームの始めかた', text:'タイトル画面で［はじめる］を押して、読む本を選んでください。本を選ぶと、ロックするかを聞かれます。', list:[['［ロックする］', '進んだ分は保存されます。'], ['［ロックしない］', '進んだ分は保存されません。']], after:'ロックできるのは、1人につき1冊です。別の本を進める場合は、画面の右上の［☰］を押して、［本］の［保存してロックを外す］を押してから、本を選んでください。<br>※［保存せずにロックを外す］を押すと、本が、ロックしたときの状態に戻ります。' },
     { img:EMBED && !room ? 'how-play-0' : 'how-play-0-test', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる本の主人公、ロックの状態、時刻、体力、持ち物です。', B('☰') + '：メニューを表示します。', B('映像／地図') + '：監視カメラの映像と、街の地図を表示します。', B('主人公') + '：監視カメラに映っている主人公です。', ...(EMBED && !room ? [] : [B('通信') + (room ? '：部屋の人と話す画面を表示します。' : '：自分だけのメモを書く画面を表示します。' + (TEST_BUILD ? '' : 'いちばん下に書いて［送る］を押すと、メモが一覧に残ります。')) + (opinionOk() && !room ? '一覧のいちばん上の［' + authorWho() + 'へ］を押すと、' + authorWho() + 'に意見を送る画面が開きます。' : '') + (room ? '' : '部屋に入ると、部屋の人と話す画面になります。部屋は、「ゲームの進めかた」の「みんなで遊ぶ」で説明します。') + (TEST_BUILD && !room ? '通信の説明は、［☰］の［そのほか］の［作り方］にあります。' : '')])] },
     // メニュー：写真のタブの番号ごとに、中身を言う（［作る］は編集版だけ。部屋の中では、ロックは部屋の画面でする）
-    { img:TEST_BUILD ? 'how-play-1-test' : 'how-play-1', full:true, t:'メニュー', lead:'画面の右上の［☰］を押すと、メニューが表示されます。上のタブを押すと、中身が切り替わります。', legend:[
+    { img:TEST_BUILD ? 'how-play-1-test' : EMBED ? 'how-play-1-file' : 'how-play-1', full:true, t:'メニュー', lead:'画面の右上の［☰］を押すと、メニューが表示されます。上のタブを押すと、中身が切り替わります。', legend:[
       B('本') + '：読む本を選べます。［戻す］を押すと、選択肢を選ぶ前の場面に戻れます。' + (room ? '自分が選択肢を選んだあとに、ほかの人も選んでいると、戻れません。' : '［戻す］の下には、［保存してロックを外す］と［保存せずにロックを外す］があります。'),
-      B('部屋') + (room ? '：［部屋の画面を開く］から、本をロックしたり、ロックを外したりできます。' : '：何人かで一緒に遊ぶための部屋を作ったり、招待された部屋に入ったりできます。部屋は、次のページの「みんなで遊ぶ」で説明します。'),
+      ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の画面を開く］から、本をロックしたり、ロックを外したりできます。部屋を作った人は、部屋から人を外すこともできます。' : '：何人かで一緒に遊ぶための部屋を作ったり、招待された部屋に入ったりできます。部屋は、次のページの「みんなで遊ぶ」で説明します。')]),
       ...(TEST_BUILD ? [B('作る') + '：ゲームを書き換えるときに使います。説明は、［そのほか］の［作り方］にあります。'] : []),
       B('そのほか') + '：［遊び方］で、遊び方の説明を開きます。' + (TEST_BUILD ? '［作り方］で、ゲームの書き換え方の説明を開きます。' : '') + '［音］で、音を出すかどうかを切り替えます。' + (room ? '' : '［もらった版で遊ぶ］で、ほかの人が書き換えたゲームを読みこめます。［タイトルへ］で、タイトル画面に戻ります。［最初から］で、全部の本の進み具合を消して、朝からやり直します。')] },
     { t:'ゲームの進めかた', list:[
@@ -5584,7 +5625,7 @@ function howPages(kind){
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : 'ある本が次の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
       ['持ち物', '持ち物によって、選べる選択肢が増えます。画面の上の［持ち物］に下線が出ているときは、［持ち物］を押すと、主人公のいる場所に持ち物を置けます。'],
       ['体力と感染', 'ゾンビに襲われると、体力が1減ります。主人公が感染することもあります。体力がなくなるか、感染したまま時間がたつと、主人公はゾンビになります。'],
-      ...(room ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、同じ部屋で一緒に遊べます。部屋では、1人が1冊をロックします。' + (EMBED && !TEST_BUILD ? '部屋に入ると、画面の右端に［通信］が表示されます。［通信］を押すと、部屋の人と話せます。' : '') + '']]),
+      ...(room || EMBED ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、同じ部屋で一緒に遊べます。部屋では、1人が1冊をロックします。部屋を作った人は、部屋から人を外せます。［☰］の［部屋］の［部屋の画面を開く］を押して、外したい人の［外す］を押してください。']]),
     ] },
     // 部屋に入っている人には、通信の画面の説明を出す（公開版でも、部屋の中では［通信］を使う）
     ...(room ? [{ t:'通信', text:'通信は、部屋の人と話す画面です。画面の右端の［通信］を押すと、通信が表示されます。', list:[
@@ -5605,7 +5646,7 @@ function frontHtml(){
       + '<p class="fr-sub">ゾンビが人を襲う街の、州知事選挙の投票日。<br>' + openIds().map(id => escText(CHARS[id].name)).join('、') + '。<br>同じ一日を、それぞれの本で読み進める。</p>'
       + '<div class="fr-btns">'
       + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
-      + '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>'
+      + (EMBED ? '' : '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>')
       + '<button id="frHow">遊び方</button>'
       + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・配る・みんなで作る</small></button>' : '')
       + '</div>'
@@ -5772,7 +5813,7 @@ async function repoSync(){
 function repoDoc(){
   const base = repoBase(), cfg = repoSeen.files[base + 'room.json'];
   if(!cfg || !cfg.data || cfg.data.deleted) return null;
-  const doc = { v:2, open:cfg.data.open === true, gap:cfg.data.gap || 0, adopt:cfg.data.adopt || 'auto', host:cfg.data.host, own:{}, members:{}, items:{}, stats:{} }, mem = {};
+  const doc = { v:2, open:cfg.data.open === true, gap:cfg.data.gap || 0, adopt:cfg.data.adopt || 'auto', host:cfg.data.host, own:{}, members:{}, items:{}, stats:{}, ban:{} }, mem = {};
   for(const [p, f] of Object.entries(repoSeen.files)){
     const m = p.slice(base.length).match(/^(own|m)\/([A-Za-z0-9_-]+)\.json$/);
     if(!m || !f.data || typeof f.data !== 'object') continue;
@@ -5781,23 +5822,29 @@ function repoDoc(){
   for(const [dev, f] of Object.entries(liveFiles)) if(dev !== DEV && (!mem[dev] || (f.rev || 0) >= (mem[dev].rev || 0))) mem[dev] = f;
   mem[DEV] = Object.assign({}, mem[DEV], myFile, { name:store.get('fb-name', '').slice(0, 30), icon:store.get('fb-icon', ''), at:myBeat || (mem[DEV] && mem[DEV].at) || Date.now() });
   const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  // 部屋から外した人：部屋の人には数えない。進み具合・ロック・答え・絵文字・既読は読まない。書いたものは、外す前の分だけ残す（Mattermost でチャンネルから外したときと同じ）
+  for(const [dev, b] of Object.entries(roomBan())) if(segOk(dev)) doc.ban[dev] = { name:String((b && b.name) || '').slice(0, 30), at:Number(b && b.at) || 1 };
+  const banned = dev => (doc.ban[dev] ? doc.ban[dev].at : 0), before = (dev, x) => !banned(dev) || (Number(x && x.o) || 0) < banned(dev);
+  for(const c of Object.keys(doc.own)) if(doc.own[c] && banned(String(doc.own[c].dev || ''))) delete doc.own[c];
   for(const [dev, f] of Object.entries(mem)){
+    for(const [k, it] of Object.entries(obj(f.items))) if(segOk(k) && k.startsWith(dev + '-') && it && typeof it === 'object' && before(dev, it)) doc.items[k] = { ...it, re:{}, votes:{}, seen:{}, rx:{} };
+    if(banned(dev)) continue;
     doc.members[dev] = { name:String(f.name || ''), at:Number(f.at) || 0, icon:String(f.icon || '').slice(0, 8) };
     for(const c of CHAR_IDS){ // 本の進み具合は、その本をロックしている人の分だけを信じる（誰もロックしていなければ、いちばん新しいもの）
       const o = doc.own[c], cur = Number(doc['at_' + c]) || 0, at = Number(f['at_' + c]) || 0;
       if(typeof f['p_' + c] !== 'string' || (o ? o.dev !== dev : at <= cur)) continue;
       doc['p_' + c] = f['p_' + c]; doc['w_' + c] = f['w_' + c]; doc['at_' + c] = at;
     }
-    for(const [k, it] of Object.entries(obj(f.items))) if(segOk(k) && k.startsWith(dev + '-') && it && typeof it === 'object') doc.items[k] = { ...it, re:{}, votes:{}, seen:{}, rx:{} };
     for(const [k, v] of Object.entries(obj(f.stats))) if(segOk(k)) doc.stats[k] = v;
   }
   for(const [dev, f] of Object.entries(mem)){
-    for(const [k, rs] of Object.entries(obj(f.re))) if(doc.items[k]) for(const [rid, r] of Object.entries(obj(rs))) if(segOk(rid) && rid.startsWith(dev + '-') && r && typeof r === 'object') doc.items[k].re[rid] = { ...r, rx:{} };
+    for(const [k, rs] of Object.entries(obj(f.re))) if(doc.items[k]) for(const [rid, r] of Object.entries(obj(rs))) if(segOk(rid) && rid.startsWith(dev + '-') && r && typeof r === 'object' && before(dev, r)) doc.items[k].re[rid] = { ...r, rx:{} };
+    if(banned(dev)) continue;
     for(const [k, v] of Object.entries(obj(f.votes))) if(doc.items[k]) doc.items[k].votes[dev] = v;
     for(const k of Object.keys(obj(f.seen))) if(doc.items[k]) doc.items[k].seen[dev] = 1;
     for(const [k, es] of Object.entries(obj(f.rx))) if(doc.items[k]) for(const e of Object.keys(obj(es))) if(/^e\d$/.test(e)) (doc.items[k].rx[e] = doc.items[k].rx[e] || {})[dev] = 1;
   }
-  for(const [dev, f] of Object.entries(mem)) for(const [key, es] of Object.entries(obj(f.rx))){
+  for(const [dev, f] of Object.entries(mem)) if(!banned(dev)) for(const [key, es] of Object.entries(obj(f.rx))){
     if(doc.items[key]) continue;
     for(let at = key.indexOf('__'); at > 0; at = key.indexOf('__', at + 1)){
       const it = doc.items[key.slice(0, at)], r = it && it.re[key.slice(at + 2)];
@@ -5809,6 +5856,9 @@ function repoDoc(){
   for(const [k, v] of Object.entries(obj(cl && cl.data && cl.data.items))) if(doc.items[k] && v && typeof v === 'object'){ if(typeof v.reply === 'string') doc.items[k].reply = v.reply.slice(0, 2000); if(v.done === true) doc.items[k].done = true; }
   return doc;
 }
+// 部屋から外した端末：{ 端末:{ name, at（外した時刻） } }。部屋を作った人が room.json に書く
+function roomBan(){ const f = room && repoSeen.files[repoBase() + 'room.json'], b = f && f.data && f.data.ban; return b && typeof b === 'object' && !Array.isArray(b) ? b : {}; }
+const isBanned = d => !!d && Object.prototype.hasOwnProperty.call(roomBan(), d);
 // ホストが、部屋の設定を書く
 async function repoConfig(change){
   const path = repoBase() + 'room.json';
@@ -5877,7 +5927,7 @@ function liveSend(){ clearTimeout(liveT); liveT = setTimeout(() => { if(liveOn()
 // ロックや部屋の設定が変わったことを知らせる（受け取った人は、リポジトリを読み直す）
 function liveChanged(){ if(liveOn()) liveAll({ t:'changed' }); }
 function liveGot(dev, data){
-  if(!segOk(dev) || dev === DEV || !data || typeof data !== 'object' || Array.isArray(data) || JSON.stringify(data).length > 900000) return false;
+  if(!segOk(dev) || dev === DEV || isBanned(dev) || !data || typeof data !== 'object' || Array.isArray(data) || JSON.stringify(data).length > 900000) return false;
   liveFiles[dev] = data; clearTimeout(liveGotT); liveGotT = setTimeout(roomRefresh, 200);
   return true;
 }
@@ -5940,7 +5990,8 @@ function joinAnswer(d, ok){
 }
 // 本文の上に出す知らせ：入りたい人がいる（部屋を作った人）・許可を待っている（入る人）
 function joinBannerHtml(){
-  if(!room || !roomLocal()) return '';
+  if(!room){ let k = null; try { k = JSON.parse(localStorage.getItem(BASE + 'kicked') || 'null'); } catch(e){} return k ? '<div class="lockbar" style="border-color:var(--red)"><b>部屋から外されました</b>　部屋 ' + escText(String(k)) + ' を作った人が、あなたを外しました。<button id="kickedOk">閉じる</button></div>' : ''; }
+  if(!roomLocal()) return '';
   if(isHost() && joinPending.size) return '<div class="lockbar" style="border-color:var(--gold)"><b>部屋に入りたい人がいます</b>' + [...joinPending].map(([d, q]) => '<span style="flex-basis:100%">' + escText(q.name || '名前なし') + '　<button data-joinok="' + d + '">許可する</button> <button data-joinno="' + d + '">断る</button></span>').join('') + '</div>';
   if(joinState === 'wait') return '<div class="lockbar" style="border-color:var(--gold)"><b>許可を待っています</b>　部屋を作った人が許可すると、入れます。</div>';
   if(joinState === 'denied') return '<div class="lockbar" style="border-color:var(--red)"><b>入れませんでした</b>　部屋を作った人が、断りました。<button id="roomLeave2">部屋を出る</button></div>';
@@ -5955,6 +6006,7 @@ function hostAccept(c){
       const d = String(msg.dev || ''), k = String(msg.key || ''), keys = store.get('peer-keys', {});
       if(!/^[a-z0-9]{4,12}$/.test(d) || !/^[a-f0-9]{32}$/.test(k) || (keys[d] && keys[d] !== k)){ setTimeout(() => c.close(), 200); return; }
       if(!keys[d]){ keys[d] = k; store.set('peer-keys', keys); }
+      if(isBanned(d)){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => c.close(), 300); return; } // 部屋から外した端末
       // リポジトリのない部屋は、部屋を作った人が許可した端末だけを入れる（一度許可した端末は、次からそのまま入れる）
       if(roomLocal() && !store.get('room-allowed', {})[d]){
         if(joinDenied.has(d)){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => c.close(), 300); return; }
@@ -5985,6 +6037,7 @@ function roomRefresh(){
   if(!room) return;
   const data = repoDoc();
   if(!data) return;
+  if(data.ban && data.ban[DEV]){ roomKicked(); return; }
   const sig = roomSigOf(data);
   if(sig === roomSig) return;
   if(roomApply(data)){ syncHolds(); roomItems = clean(data.items || {}) || {}; roomMembers = clean(data.members || {}) || {}; roomSig = sig; chatNotify(); if(typing()) pendingRender = true; else render(); }
@@ -6004,7 +6057,7 @@ function ghPanelHtml(){
     + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'トークン（github_pat_…）') + '" autocomplete="off">'
     + '<div class="row"><button id="ghSave">覚える</button>' + (ghLinked() ? '<button id="ghForget">設定を消す</button>' : '') + '</div>'
     + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
-    + '<details style="margin-top:12px"><summary>トークンの扱い</summary><p>連携したまま部屋を作ると、トークンは招待リンクに入って、部屋の人に渡ります。リンクを持っている人は、このリポジトリの中身を書き換えられます。入れたい人にだけ渡してください。ほかのリポジトリには効きません。<br>部屋を作るとき、リポジトリに案内ファイル（CLAUDE.md）がなければ自動で作ります。すでにあれば触りません。</p></details>'
+    + '<details style="margin-top:12px"><summary>部屋を作ると起きること</summary><p>連携したまま部屋を作ると、部屋に人を招く招待リンクに、トークンが含まれます。招待リンクを持っている人は、作業用と配る用のリポジトリの中身を書き換えられます。招待リンクは、一緒に作る人にだけ渡してください。<br>部屋を作るとき、作業用のリポジトリに CLAUDE.md と AGENTS.md がなければ、自動で作ります。2つとも、AI にリポジトリの中身を説明するファイルです。すでにあるファイルは、書き換えません。</p></details>'
     + '</div>';
 }
 // 部屋への読み書き。前と同じ頼み方のまま、自分の分はまとめて、ロックと設定はすぐに、リポジトリへ書く
@@ -6052,7 +6105,7 @@ async function roomFetch(url, opts = {}){
     delete repoSeen.dirs.own; if(r.status === 200) liveChanged();
     return res(r.status);
   }
-  if((a === 'open' || a === 'gap' || a === 'adopt') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
+  if((a === 'open' || a === 'gap' || a === 'adopt' || a === 'ban') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
   if(a === 'members') return res(200); // 「いる」印は、自分の分を書くときに一緒に付く
   if(a === 'items' && k){
     if(!sub){ if(m === 'DELETE'){ delete obj('items')[k]; } else obj('items')[k] = Object.assign({}, m === 'PATCH' ? obj('items')[k] : null, body); myTouch('fast'); return res(200); }
@@ -6071,30 +6124,50 @@ let roomOpen = true; // 部屋が開いているか（ホストが閉じると�
 const itemKey = id => { let x = 5381; for(const c of String(id)) x = ((x << 5) + x + c.charCodeAt(0)) >>> 0; return DEV + '-' + x.toString(36); };
 const roomPath = path => ROOM_DB + room + '/' + path + '.json';
 // テスト用の部屋：書いたものを、部屋にためる。書いた時刻は残さず、「この時刻より後に見せてよい」という印だけを付ける
+// 通信の書きこみ（新しいスレッド・返信）か。届かなかったら、その書きこみの所に［もう一度送る］［消す］を出す
+const cmChat = x => !!x && (!!x.re || !!x.free);
 async function roomSendItems(){
   if(flushing) return;
-  if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。書いたものは、残っています。'; render(); return; }
+  if(!roomOpen){ const box = store.get('outbox', []); if(box.some(x => cmChat(x) && !x.fail)) store.set('outbox', box.map(x => (cmChat(x) ? { ...x, fail:true } : x))); fbNote = 'この部屋は、ホストが閉じました。書いたものは、残っています。'; render(); return; }
   flushing = true;
   let did = false;
   try {
     for(;;){
-      const it = store.get('outbox', [])[0];
+      const it = store.get('outbox', []).find(x => x && !x.fail);
       if(!it) break;
       did = true;
-      const key = itemKey(it.id);
-      if(it.img){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + key + '.json', { method:'PUT', body:JSON.stringify(it.img) }); if(!r0.ok) throw 0; }
-      if(it.file && it.file.data){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + key + '.json', { method:'PUT', body:JSON.stringify(it.file.data) }); if(!r0.ok) throw 0; }
-      const item = { label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by:store.get('fb-name', '') || '（名前なし）', at:it.at || '', text:it.text || '', ask:!!it.ask, opts:it.opts || null, draft:it.draft || null, claude:!!it.claude, img:!!it.img, file:it.file ? { name:String(it.file.name || 'file').slice(0, 80), size:+it.file.size || 0 } : null, pos:it.pos || null, free:!!it.free, o:it.after || Date.now() };
-      const res = await roomFetch(roomPath('items/' + key), { method:'PATCH', body:JSON.stringify(item) });
-      if(!res.ok) throw 0;
-      roomItems[key] = Object.assign(roomItems[key] || {}, clean(item)); roomSig = '';
-      const sent = store.get('sent', {}); sent[it.id] = key; store.set('sent', sent);
-      store.set('outbox', store.get('outbox', []).filter(x => x.id !== it.id));
-      fbNote = it.after ? store.get('send-at', '') + ' を過ぎたら、届いたものとして扱われます。' : '届きました。';
+      try { await roomSendOne(it); }
+      catch(e){ store.set('outbox', store.get('outbox', []).map(x => (x.id === it.id ? { ...x, fail:true } : x))); if(!cmChat(it)) fbNote = '届きませんでした。電波のよい所で開き直すと、もう一度送ります。書いたものは、残っています。'; }
     }
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で開き直すと、もう一度送ります。書いたものは、残っています。'; }
-  flushing = false;
+  } finally { flushing = false; }
   if(did) render();
+}
+async function roomSendOne(it){
+  const by = store.get('fb-name', '') || '（名前なし）';
+  if(it.re){ // 返信
+    const k = it.re, id = it.rid, r = { by, text:String(it.text || '').slice(0, 4000), showAt:it.after || 0, o:it.after || Date.now(), img:!!it.img, ...(it.file ? { file:{ name:String(it.file.name || 'file').slice(0, 80), size:+it.file.size || 0 } } : {}) };
+    if(!segOk(String(k)) || !segOk(String(id))) throw 0;
+    if(it.file && it.file.data){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(it.file.data) }); if(!r0.ok) throw 0; }
+    if(it.img){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(it.img) }); if(!r0.ok) throw 0; imgCache[k + '_' + id] = it.img; }
+    const res = await roomFetch(roomPath('items/' + k + '/re/' + id), { method:'PUT', body:JSON.stringify(r) });
+    if(!res.ok) throw 0;
+    const top = roomItems[k]; if(top){ top.re = top.re && typeof top.re === 'object' ? top.re : {}; top.re[id] = clean(r); }
+    roomSig = '';
+    store.set('outbox', store.get('outbox', []).filter(x => x.id !== it.id));
+    if(it.after) fbNote = store.get('send-at', '') + ' を過ぎたら、ほかの人に見えます。';
+    return;
+  }
+  const key = itemKey(it.id);
+  if(it.img){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + key + '.json', { method:'PUT', body:JSON.stringify(it.img) }); if(!r0.ok) throw 0; }
+  if(it.file && it.file.data){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + key + '.json', { method:'PUT', body:JSON.stringify(it.file.data) }); if(!r0.ok) throw 0; }
+  const item = { label:it.label, title:it.title, body:it.body, showAt:it.after || 0, by, at:it.at || '', text:it.text || '', ask:!!it.ask, opts:it.opts || null, draft:it.draft || null, claude:!!it.claude, img:!!it.img, file:it.file ? { name:String(it.file.name || 'file').slice(0, 80), size:+it.file.size || 0 } : null, pos:it.pos || null, free:!!it.free, o:it.after || Date.now() };
+  const res = await roomFetch(roomPath('items/' + key), { method:'PATCH', body:JSON.stringify(item) });
+  if(!res.ok) throw 0;
+  roomItems[key] = Object.assign(roomItems[key] || {}, clean(item)); roomSig = '';
+  const sent = store.get('sent', {}); sent[it.id] = key; store.set('sent', sent);
+  store.set('outbox', store.get('outbox', []).filter(x => x.id !== it.id));
+  if(it.after) fbNote = store.get('send-at', '') + ' を過ぎたら、届いたものとして扱われます。';
+  else if(!cmChat(it)) fbNote = '届きました。';
 }
 const roomUrl = (code = room) => ROOM_DB + code + '.json';
 // 部屋から読んだものは、ほかの人が書けるもの。形を確かめ、文字の中の < > は記号として働かない字に替える
@@ -6125,7 +6198,7 @@ function roomPayload0(){
 // 読みこんだものが、前と同じかを見る印（自分の本の分は数えない）
 const hashStr = t => { let x = 5381; for(let i = 0; i < t.length; i++) x = ((x << 5) + x + t.charCodeAt(i)) | 0; return x; };
 const hereNow = m => !!m && typeof m === 'object' && Date.now() - m.at < 300000; // 5分以内に、自分の分を書いた人
-const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.adopt || '', d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
+const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.adopt || '', Object.keys(d.ban || {}).sort().join(), d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
 // 街を組み直す：自分の本の出来事はこの端末のもの、ほかの本の出来事は部屋のもの
 function roomApply(data){ if(trial && !trial.moved) trialEnd(); return realIO(() => roomApply0(data)); } // まだ手を打っていない試しは、届いた進み具合で作り直す
 function roomApply0(data){
@@ -6180,13 +6253,14 @@ async function roomPull(force){
     const data = await (await roomFetch(roomUrl())).json();
     if(data === null){ roomNote = 'この部屋は、もうありません。☰ の「部屋」から出てください。'; roomOpen = false; render(); return; }
     if(data.v !== 2){ roomNote = 'この部屋は、前の作りのものです。☰ の「部屋」から出て、新しく作ってください。'; roomOpen = false; render(); return; }
+    if(data.ban && data.ban[DEV]){ roomKicked(); return; }
     const name = store.get('fb-name', '').slice(0, 30);
     const meNow = data.members && data.members[DEV];
     if(data.open === true && !(meNow && meNow.name === name && Date.now() - meNow.at < 25000)){ data.members = Object.assign(data.members || {}, { [DEV]:{ name, at:Date.now() } }); roomFetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify(data.members[DEV]) }).catch(() => {}); }
     const sig = roomSigOf(data);
     if(!force && sig === roomSig) return;
     if(roomApply(data)){ syncHolds(); roomItems = clean(data.items || {}) || {}; roomMembers = clean(data.members || {}) || {}; roomSig = sig; chatNotify(); if(force) roomNote = ''; if(typing()) pendingRender = true; else render(); }
-  } catch(e){ if(force){ roomNote = joinState ? '' : roomLocal() ? '部屋を作った人につながりません。その人がこのページを開いているあいだだけ、つながります。自分がロックした本は、そのまま進められます。' : 'リポジトリにつながりません。電波のよい所で開き直してください。自分がロックした本は、そのまま進められます。'; render(); } }
+  } catch(e){ if(e === 401 && !roomLocal()){ roomNote = isHost() ? 'トークンが、使えなくなっています。作り直したトークンは、部屋の画面で［トークンを作り直す］を開いて、貼ってください。' : '招待リンクが、使えなくなっています。部屋を作った人に、新しい招待リンクをもらって、開いてください。'; render(); return; } if(force){ roomNote = joinState ? '' : roomLocal() ? '部屋を作った人につながりません。その人がこのページを開いているあいだだけ、つながります。自分がロックした本は、そのまま進められます。' : 'リポジトリにつながりません。電波のよい所で開き直してください。自分がロックした本は、そのまま進められます。'; render(); } }
 }
 // 本を受け持つ。同時に押した人がいれば、先に届いたほうのものになる
 async function roomClaim(c){ trialEnd();
@@ -6261,6 +6335,41 @@ async function roomClose(open){
   render();
 }
 function roomLeave(){ try { localStorage.removeItem(BASE + 'room'); } catch(e){} setTimeout(() => location.reload(), 300); }
+// 部屋を作った人に、部屋から外された。部屋を出て、開き直したあとに知らせる
+let kickedOnce = false;
+function roomKicked(){ if(kickedOnce) return; kickedOnce = true; try { localStorage.setItem(BASE + 'kicked', JSON.stringify(room)); } catch(e){} try { history.scrollRestoration = 'manual'; } catch(e){} roomLeave(); } // 開き直したら、いちばん上（知らせ）から見せる
+// 部屋の人を外す（on）・外したのを取り消す。部屋を作った人だけ
+let banAsk = '';
+async function roomBanSet(d, on){
+  if(!isHost() || !segOk(d) || d === DEV) return;
+  const b = { ...roomBan() }, who = on ? String((roomMembers[d] || {}).name || '名前なし') : String((b[d] && b[d].name) || '名前なし');
+  if(on) b[d] = { name:String((roomMembers[d] || {}).name || '').slice(0, 30), at:Date.now() }; else delete b[d];
+  banAsk = '';
+  let note = '';
+  try {
+    const r = await roomFetch(roomPath('ban'), { method:'PUT', body:JSON.stringify(b) });
+    if(!r.ok) throw 0;
+    if(on){
+      for(const [c, dv] of hostConns) if(dv === d){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => { try { c.close(); } catch(e){} }, 300); }
+      const own = store.get('own', {});
+      for(const c of CHAR_IDS) if(own[c] && own[c].dev === d) try { await roomFetch(roomPath('own/' + c), { method:'DELETE' }); } catch(e){}
+      const a = store.get('room-allowed', {}); if(a[d]){ delete a[d]; store.set('room-allowed', a); }
+      note = who + 'を、部屋から外しました。';
+    } else note = who + 'を、また部屋に入れるようにしました。' + (roomLocal() ? who + 'が招待リンクを開いたら、［許可する］を押してください。' : '［招待リンクをコピーする］を押して、招待リンクを送ると、' + who + 'は部屋に入れます。');
+  } catch(e){ note = '部屋につながりません。' + (on ? '外せていません。' : '取り消せていません。'); }
+  roomSig = ''; await roomPull(true); roomNote = note; render();
+}
+// 部屋から外した人を締め出す：作り直したトークンに入れ替える（部屋を作った人だけ。リポジトリのある部屋）
+async function roomPatSwap(){
+  const el = document.getElementById('banPat'), pat = el ? el.value.trim() : '';
+  if(!/^(github_pat_|gh[pousr]_)[A-Za-z0-9_]+$/.test(pat)){ roomNote = 'トークンを貼ってください（github_pat_ で始まるもの）。'; render(); return; }
+  if(pat === ghPat()){ roomNote = 'いまのトークンと同じです。GitHub で作り直したトークンを貼ってください。'; render(); return; }
+  try { const r = await fetch('https://api.github.com/repos/' + ghRepo(), { headers:{ Authorization:'Bearer ' + pat, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } }); if(!r.ok) throw r.status; }
+  catch(e){ roomNote = [401, 403, 404].includes(e) ? 'このトークンでは、作業用のリポジトリを開けません。貼り間違いがないかと、トークンの Repository access を確かめてください。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
+  store.set('gh-pat', pat);
+  roomNote = 'トークンを入れ替えました。［招待リンクをコピーする］を押して、新しい招待リンクを、残りの人に送ってください。';
+  render();
+}
 const roomHost = () => store.get('host-of', '') === room;
 let roomDelAsk = false;
 async function roomDelete(){
@@ -6272,6 +6381,27 @@ async function roomDelete(){
   } catch(e){ roomDelAsk = false; roomNote = '部屋につながりません。消えていません。'; render(); }
 }
 const ownerName = o => o.dev === DEV ? 'あなた' : escText(o.name || '名前なし');
+// 部屋の人の一覧。部屋を作った人には、［外す］と、外した人の一覧と、トークンを入れ替える手順を出す
+let banPatOpen = false;
+function roomPeopleHtml(){
+  const host = isHost(), nm = n => escText(String(n || '') || '名前なし');
+  const people = Object.entries(roomMembers).filter(([d, m]) => m && typeof m === 'object' && !isBanned(d)).sort(([a], [b]) => (a === DEV ? -1 : b === DEV ? 1 : 0));
+  const rows = people.map(([d, m]) => '<div class="rowl"><span>' + nm(m.name) + '<small>' + (d === DEV ? 'あなた' : hereNow(m) ? 'いまゲームを開いています' : '') + '</small></span>'
+    + (host && d !== DEV ? (banAsk === d ? '<button class="sm" data-banyes="' + d + '">外す</button><button class="sm" id="banNo">やめる</button>' : '<button class="sm" data-ban="' + d + '">外す</button>') : '') + '</div>'
+    + (host && banAsk === d ? '<p>' + nm(m.name) + 'を、部屋から外します。' + nm(m.name) + 'は、部屋に入れなくなります。' + nm(m.name) + 'が通信に書いたメッセージは、残ります。</p>' : '')).join('');
+  const out = Object.entries(roomBan()).filter(([d]) => segOk(d));
+  return '<div class="step"><div class="n">部屋の人</div><h3>部屋に入っている人</h3>' + rows
+    + (host ? '<p style="margin-top:12px">部屋から外したい人の［外す］を押します。' + (roomLocal() ? '外された人が、また招待リンクを開いても、部屋に入れません。' : '外された人も、招待リンクに入っていたトークンで、リポジトリを書き換えられます。書き換えを止めるには、外したあとに、下の［トークンを作り直す］を開いてください。') + '</p>' : '<p style="margin-top:12px">部屋から人を外せるのは、部屋を作った人です。</p>')
+    + (host && out.length ? '<p><b>外した人</b></p>' + out.map(([d, b]) => '<div class="rowl"><span>' + nm(b && b.name) + '</span><button class="sm" data-unban="' + d + '">取り消す</button></div>').join('') : '')
+    + (host && !roomLocal() ? '<details class="scr-more" id="banPatBox"' + (banPatOpen ? ' open' : '') + '><summary>トークンを作り直す</summary>'
+      + '<p>トークンを作り直すと、前のトークンは使えなくなります。</p>'
+      + '<p>1. 下の［GitHub でトークンの一覧を開く］を押します。GitHub の画面に、トークンが並びます。リポジトリの設定のときに作ったトークンは、名前が joining-the-living-dead で始まります。そのトークンを押して、［Regenerate token］を押します。次の画面の Expiration は、トークンの期限です。はじめは 30 days なので、90 days か、Custom で1年後に変えます。緑の［Regenerate token］を押して、表示された新しいトークンをコピーします。</p>'
+      + '<a class="go" href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">GitHub でトークンの一覧を開く</a>'
+      + '<p style="margin-top:12px">2. コピーしたトークンを下に貼って、［入れ替える］を押します。</p>'
+      + '<input id="banPat" type="password" placeholder="github_pat_…" autocomplete="off"><button class="go" id="banPatSave">入れ替える</button>'
+      + '<p style="margin-top:12px">3. 上の［招待リンクをコピーする］を押して、新しい招待リンクを、部屋に残る人に送ります。部屋に残る人は、新しい招待リンクを開くまで、部屋を使えません。</p></details>' : '')
+    + '</div>';
+}
 function roomPanelHtml(){
   const head = '<div class="fb panel">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
   if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人が1冊ずつ進めます。それぞれの端末から、同時に遊べます。' + (TEST_BUILD ? '部屋の中では、一緒に書き換えることもできます。' : '') + '</p>'
@@ -6297,6 +6427,7 @@ function roomPanelHtml(){
       + '<p style="margin-top:12px">進められるのは、自分がロックした本だけです。ロックしたら、左上の「← 戻る」で本に戻って読み進めます。</p><p>ロックを外せば、別の本に替えられます。外した本は、ほかの人が続きから進められます。ゲームを閉じても、ロックは残ります。</p></div>'
     + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手が入るには、部屋を作った人の許可が要ります。') : isHost() ? '相手は、開くだけで入れます。リンクには、リポジトリに書きこむためのトークンが入ります。部屋に入れたい人にだけ渡してください。ほかの人に渡ってしまったときは、GitHub でそのトークンを消すと止められます。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
       + '<button class="go" id="roomCopy">招待リンクをコピーする</button></div>'
+    + roomPeopleHtml()
     + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅（話の中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れている人より、話の中の時刻で ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
@@ -6445,8 +6576,13 @@ async function threadFile(id, name){
   } catch(e){ fbNote = 'ファイルを読めませんでした。'; render(); }
 }
 let roomItems = {}, fbImg = '', fbWhere = 'here', fbLoreOpen = false, fbAskOpen = false, fbOpts = '', fbOtherOpen = false, pendingRender = false;
-const fbRe = {}, imgCache = {};
-const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
+const imgCache = {};
+// 文字を入れている最中か（そのあいだは、届いたもので画面を描き直さない）。ただし、パソコンで通信の書く欄にいるときは、
+// 変換の途中でなければ描き直す（描き直したあと、同じ欄に戻す）。スマホは、描き直すとキーボードが閉じるので、待つ
+let cmComposing = false;
+document.addEventListener('compositionstart', () => { cmComposing = true; }, true);
+document.addEventListener('compositionend', () => { cmComposing = false; }, true);
+const typing = () => { const a = document.activeElement; if(!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false; return !(a.matches('.cm-r textarea[data-slot]') && !cmComposing && window.matchMedia && matchMedia('(pointer:fine)').matches); };
 let fbSetOpen = false, fbe = null, editOn = false, draftShown = null, flushing = false;
 // 今の場面の文（出来事の文・本文・選択肢）
 function sceneText(){ const v = lastView; return v ? (v.msg ? v.msg + '\n\n' : '') + v.text + '\n\n【選択肢】\n' + v.labels.map(l => '・' + l).join('\n') : ''; }
@@ -6493,8 +6629,9 @@ function render(){
     ['book', '本', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}"><span>${CHARS[id].name}の本</span>${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join('')
       + (mode === 'live' && undoCount() ? '<hr>' + mrow('undobtn', '戻す', '', undoOpen) : '')
       + (!room && w.lock ? '<hr><button id="saveBtn"><span>保存してロックを外す</span></button>' + (canDrop() ? '<button id="dropBtn"><span>保存せずにロックを外す</span></button>' : '') : '')],
-    ['room', '部屋', mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel)],
+    ['room', '部屋', EMBED ? '' : mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel)],
     ['make', '作る', TEST_BUILD ? mrow('flowbtn', 'フロー', '', flowOpen) + mrow('bookbtn', '本を足す', '', bookPanel === true) + mrow('autobtn', '自動提案', '', bookPanel === 'auto') + mrow('chgbtn', '変えた所', chgList().length ? chgList().length + ' 件' : '', chgPanel)
+      + (CUSTOM ? '' : mrow('mzbtn', 'メタゾンビ図鑑', mzOn() && mzItems().length ? mzItems().filter(z => z.state === 'open').length + '体' : '', mzPanel))
       + (room || !CUSTOM && ghLinked() ? mrow('soloPullBtn', '更新', soloPullNote) : '')
       + (!room && !EMBED ? mrow('distbtn', '配る') : '')
       + (room ? '' : mrow('linkbtn', 'リポジトリの設定', ghLinked() ? '済み' : '', linkPanel)) : ''],
@@ -6542,6 +6679,8 @@ function render(){
     const v = buildView(s, w);
     lastView = v;
     resOn = mode === 'live' && !!s.resNext && !!v.msg;
+    // 結果の段落（res の付いた段落）と結果のページのあいだは、映像は、もとの場面のまま。地図や番号から、ほかの場面へは移れない
+    const hold = resOn || !!paraOf(s)?.res;
     document.getElementById('stat').innerHTML = whose + statHtml(resOn && s.resClock ? { ...v, clock:s.resClock } : v);
     if(mode === 'live' && trialOn()){
       const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'ロックしていません。';
@@ -6554,33 +6693,34 @@ function render(){
     else if(!w.lock) html += `<div class="lockbar"><b>${CHARS[current].name}の本</b>　ロックすると、この本を進められます<button id="lockBtn">ロックして進める</button>${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     else html += `<div class="lockbar other"><b>${CHARS[w.lock].name}がロック中</b>のため、この本は進められません${histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : ''}</div>`;
     if(showMap && planOf(s)) html += planMapSvg(s, planOf(s).plan);
-    if(showMap) html += mode === 'live' && !resOn ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
+    if(showMap) html += mode === 'live' && !hold ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
     if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
     let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length, resNext:resOn ? s.resNext : '' });
-    const spNow = s.status === 'active' && !resOn ? spotOf(s) : null;
+    const spNow = s.status === 'active' && !hold ? spotOf(s) : null;
     if(spNow){
       const canGo = mode === 'live' && !wait.length;
       const taps = {}, risks = {}; for(const ch of v.choices){ const rm = ch.dest && bookOf(s).spots[ch.dest].room; if(!rm) continue; if(ch.risky) risks[rm] = 1; else if(canGo) taps[rm] = ch.dest; }
       const mapHtml = planOf(s) ? planMapSvg(s, planOf(s).plan) : spNow.at ? townMapSvg(s, w, v.choices, false) : '';
       drawerHtml = mapHtml;
     }
-    else if(s.status === 'active' && !resOn && planOf(s)) drawerHtml = planMapSvg(s, planOf(s).plan); // 場面の段落でも、建物の中にいるあいだは、見取り図を出す（見るだけ。押して移ることはできない）
+    else if(s.status === 'active' && !hold && planOf(s)) drawerHtml = planMapSvg(s, planOf(s).plan); // 場面の段落でも、建物の中にいるあいだは、見取り図を出す（見るだけ。押して移ることはできない）
     html += vh;
     const ended = s.status !== 'active' && s.status !== 'monster';
-    if(!ended && mode === 'live' && !bookOf(s).noJump && !resOn){
+    if(!ended && mode === 'live' && !bookOf(s).noJump && !hold){
       html += `<div class="jump"><label>番号へ進む</label><input id="jumpNo" type="number" inputmode="numeric" placeholder="場面の番号"><button id="jumpGo">進む</button></div>`;
     }
     // 結末まで来たら選ぶものがないので、交代のボタンを本文の下にも出す
     if(ended && mode === 'live' && !resOn) html += '<div class="choices"><button id="endSave">保存してロックを外す</button></div>';
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
-    if(!resOn || !Cut.built) setCutscene(cctvState(s, w)); // 結果のページのあいだ、映像は、もとの場面のまま
+    if(!hold || !Cut.built) setCutscene(cctvState(s, w)); // 結果のページ・結果の段落のあいだ、映像は、もとの場面のまま
   }
   if(!resOn) html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb panel"><div class="note">' + roomNote + '</div></div>' + html;
   // ☰ から開く画面は、遊ぶ画面には差しこまず、別の画面（#screen）に出す
   if(chgPanel && (roomPanel || packPanel || linkPanel || bookPanel)) chgPanel = false;
-  const screenHtml = chgPanel && TEST_BUILD ? changesHtml() : roomPanel ? roomPanelHtml() : packPanel ? packPanelHtml() : linkPanel && !room ? linkPanelHtml() : bookPanel && TEST_BUILD ? bookPanelHtml() : '';
+  if(mzPanel && (chgPanel || roomPanel || packPanel || linkPanel || bookPanel)) mzPanel = false;
+  const screenHtml = mzPanel && TEST_BUILD ? mzPanelHtml() : chgPanel && TEST_BUILD ? changesHtml() : roomPanel ? roomPanelHtml() : packPanel ? packPanelHtml() : linkPanel && !room ? linkPanelHtml() : bookPanel && TEST_BUILD ? bookPanelHtml() : '';
   if(!packPanel && packNote) html = '<p class="help">' + escText(packNote) + '</p>' + html;
   html = joinBannerHtml() + html;
   if(flowOpen && TEST_BUILD) html = flowHtml() + html;
@@ -6601,10 +6741,13 @@ function render(){
   const fbD = document.getElementById('fbDrawer');
   const fbCan = TEST_BUILD || !!room || !EMBED;
   fbD.hidden = !fbCan; fbD.classList.toggle('open', fbOpen && fbCan);
-  document.getElementById('fbBody').innerHTML = fbOpen && fbCan ? (cmOld && opinionOk() ? authorHtml() : commHtml()) : '';
+  const fbB = document.getElementById('fbBody'), cmFocus = cmFocusOf();
+  if(!fbB.dataset.sc){ fbB.dataset.sc = '1'; let t = 0; fbB.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(cmOnScroll, 120); }, { passive:true }); }
+  cmAtBottom = cmBottomNow(fbB); // 描き直す前に、いちばん下を見ていたか
+  fbB.innerHTML = fbOpen && fbCan ? (cmOld && opinionOk() ? authorHtml() : commHtml()) : '';
   document.getElementById('fbTab').classList.toggle('on', fbOpen);
   fbD.classList.toggle('max', fbOpen && fbCan);
-  if(room && fbOpen && cmThread && cmScroll){ const fb = document.getElementById('fbBody'); fb.scrollTop = fb.scrollHeight; cmScroll = false; }
+  cmAfterRender(fbB);
   chatBadge();
   syncTuck();
   placeTabs();
@@ -6628,16 +6771,16 @@ function render(){
   document.querySelectorAll('[data-claim]').forEach(el => { el.onclick = () => { current = el.dataset.claim; store.set('current', current); roomClaim(current); }; });
   document.querySelectorAll('[data-free]').forEach(el => { el.onclick = () => roomRelease(el.dataset.free); });
   const fbSet = document.getElementById('fbSet'); if(fbSet) fbSet.ontoggle = () => { fbSetOpen = fbSet.open; };
-  on('fbTab', () => { fbOpen = !fbOpen; if(fbOpen){ mapOpen = false; if(room) roomPull(); } else { fbNote = ''; fbMax = false; } render(); });
+  on('fbTab', () => { fbOpen = !fbOpen; cmHoldUnread = ''; if(fbOpen){ mapOpen = false; if(room) roomPull(); if(cmThread && roomItems[cmThread]){ cmOpenAt = room ? { k:cmThread, n:store.get('seen-items', {})[cmThread] || 0 } : null; cmScroll = true; cmShown = null; cmBelow = false; } } else { fbNote = ''; fbMax = false; } render(); });
   on('fbReset', () => { fbDrafts.edit = fbOrig; render(); });
-  on('fbCancel', () => { fbOpen = false; fbMax = false; fbNote = ''; cmOld = false; render(); });
+  on('fbCancel', () => { fbOpen = false; fbMax = false; fbNote = ''; cmOld = false; cmHoldUnread = ''; render(); });
   const fbN = document.getElementById('fbName');
   if(fbN){ fbN.value = store.get('fb-name', ''); fbN.oninput = () => store.set('fb-name', fbN.value.trim()); }
   on('fbSend', sendFeedback);
   on('fbMic', fbMic);
   on('cmOldBtn', () => { cmOld = true; fbNote = ''; render(); });
   on('cmOldNo', () => { cmOld = false; fbMax = false; fbNote = ''; render(); });
-  on('cmClose', () => { fbOpen = false; fbNote = ''; cmOld = false; render(); });
+  on('cmClose', () => { fbOpen = false; fbNote = ''; cmOld = false; cmHoldUnread = ''; render(); });
   on('cmAuthor', () => { cmOld = true; fbNote = ''; render(); });
   on('cmAuthorBack', () => { cmOld = false; fbNote = ''; render(); });
   { const shut = () => { cmRowMenu = ''; cmRowMode = ''; cmRename = null; render(); };
@@ -6647,33 +6790,44 @@ function render(){
   on('cmRowDelYes', () => { const k = cmRowMenu; cmRowMenu = ''; cmRowMode = ''; threadDelete(k); });
   { const el = document.getElementById('cmNameIn'); if(el){ el.value = cmRename || ''; el.oninput = () => { cmRename = el.value; }; el.onkeydown = e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); threadRename(cmRowMenu, el.value); } }; } }
   on('cmNameOk', () => threadRename(cmRowMenu, cmRename));
-  on('cmBack', () => { cmRename = null; cmThread = null; cmSheet = ''; cmQuote = null; cmPlus = false; fbEdit = null; fbNote = ''; render(); });
+  on('cmBack', () => { cmRename = null; cmThread = null; cmSheet = ''; cmPlus = false; fbEdit = null; fbNote = ''; cmHoldUnread = ''; cmOpenAt = null; cmBelow = false; cmRxWho = ''; render(); });
   on('cmNewBtn', () => { cmNew = true; cmPlus = false; fbNote = ''; render(); const t = document.getElementById('fbText'); if(t) t.focus(); });
   on('cmNewNo', () => { cmNew = false; cmPlus = false; render(); });
   on('cmPlusBtn', () => { cmPlus = !cmPlus; render(); });
   on('cmSend', cmSendReply);
   on('cmSheetNo', () => { cmSheet = ''; fbDelAsk = ''; render(); });
-  on('cmQuoteNo', () => { cmQuote = null; render(); });
+  on('cmRxNo', () => { cmRxWho = ''; render(); });
   on('cmTagBtn', () => { cmPlus = false; cmAppend('\n' + cmNowTag() + '\n'); });
+  on('cmBelow', () => { const fb = document.getElementById('fbBody'); cmBelow = false; fb.scrollTop = fb.scrollHeight; const b = document.getElementById('cmBelow'); if(b) b.remove(); cmMarkVisible(); });
+  on('cmAllRead', () => { cmAsk = 'allread'; render(); });
+  { const no = () => { cmAsk = ''; render(); }; on('cmAskNo', no); on('cmAskNo2', no); }
+  on('cmAllReadYes', () => { const seen = store.get('seen-items', {}); for(const [k, it] of cmListed()) seen[k] = Math.max(seen[k] || 0, sizeOf(it)); store.set('seen-items', seen); cmAsk = ''; render(); });
   cmNoteFade();
-  document.querySelectorAll('[data-open]').forEach(el => { cmHoldBind(el); el.onclick = () => { if(cmRowMenu) return; cmThread = el.dataset.open; cmNew = false; cmSheet = ''; cmQuote = null; cmPlus = false; cmScroll = true; fbNote = ''; render(); }; });
+  document.querySelectorAll('[data-open]').forEach(el => { cmHoldBind(el); el.onclick = () => { if(cmRowMenu) return; cmOpen(el.dataset.open); }; });
   document.querySelectorAll('[data-cmf]').forEach(el => { el.onclick = () => { cmFilter = el.dataset.cmf; render(); }; });
-  document.querySelectorAll('[data-msg]').forEach(el => { el.onclick = e => { if(e.target.closest('a,button,textarea,input')) return; cmSheet = el.dataset.msg; fbDelAsk = ''; render(); }; });
+  // 書きこみ：長押し（パソコンは右クリック）か、右上の ⋯ で、メニューを出す。短く押しても出さない
+  document.querySelectorAll('[data-msg]').forEach(el => cmHold(el, () => { cmSheet = el.dataset.msg; fbDelAsk = ''; cmRxWho = ''; render(); }));
+  document.querySelectorAll('[data-mo]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmSheet = el.dataset.mo; fbDelAsk = ''; cmRxWho = ''; render(); }; });
+  // 付いたリアクション：押すと付け外し、長押しで付けた人
+  document.querySelectorAll('.cm-rx [data-rxw]').forEach(el => cmHold(el, () => { cmRxWho = el.dataset.rxw; cmSheet = ''; render(); }));
   document.querySelectorAll('[data-go]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmGo(el.dataset.go); }; });
-  document.querySelectorAll('[data-cmq]').forEach(el => { el.onclick = () => { const m = cmMsgOf(el.dataset.cmq); cmSheet = ''; if(m) cmQuote = { by:m.by, text:cmPlain(m.text).slice(0, 80) }; render(); const t = document.getElementById('cmReText'); if(t) t.focus(); }; });
+  document.querySelectorAll('[data-ref]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmGoMsg(el.dataset.ref); }; });
+  document.querySelectorAll('[data-hit]').forEach(el => { el.onclick = () => cmGoMsg(el.dataset.hit); });
+  document.querySelectorAll('[data-cmq]').forEach(el => { el.onclick = () => cmQuoteIn(el.dataset.cmq); });
+  document.querySelectorAll('[data-cmfollow]').forEach(el => { el.onclick = () => { const k = el.dataset.cmfollow, it = roomItems[k]; if(it) cmSetFollow(k, !cmFollowing(k, it)); cmSheet = ''; cmRowMenu = ''; cmRowMode = ''; render(); }; });
+  document.querySelectorAll('[data-cmread]').forEach(el => { el.onclick = () => { const k = el.dataset.cmread, it = roomItems[k], seen = store.get('seen-items', {}); if(it){ seen[k] = sizeOf(it); store.set('seen-items', seen); } cmRowMenu = ''; cmRowMode = ''; render(); }; });
+  document.querySelectorAll('[data-cmunread]').forEach(el => { el.onclick = () => { cmMarkUnread(el.dataset.cmunread, null); cmRowMenu = ''; cmRowMode = ''; render(); }; });
+  document.querySelectorAll('[data-cmunfrom]').forEach(el => { el.onclick = () => { const [k, rk] = el.dataset.cmunfrom.split('|'); cmMarkUnread(k, rk || ''); cmSheet = ''; render(); }; });
+  document.querySelectorAll('[data-obretry]').forEach(el => { el.onclick = () => { store.set('outbox', store.get('outbox', []).map(x => (x.id === el.dataset.obretry ? { ...x, fail:false } : x))); roomSendItems(); render(); }; });
+  document.querySelectorAll('[data-obdel]').forEach(el => { el.onclick = () => { store.set('outbox', store.get('outbox', []).filter(x => x.id !== el.dataset.obdel)); render(); }; });
   document.querySelectorAll('[data-cmcopy]').forEach(el => { el.onclick = () => { const m = cmMsgOf(el.dataset.cmcopy); cmSheet = ''; if(m) navigator.clipboard.writeText(m.text).then(() => { fbNote = 'コピーしました。'; render(); }, () => { fbNote = 'コピーできませんでした。'; render(); }); else render(); }; });
   document.querySelectorAll('[data-cmat]').forEach(el => { el.onclick = () => cmAppend('@' + el.dataset.cmat + ' '); });
   document.querySelectorAll('[data-cmpara]').forEach(el => { el.onclick = () => { const ps = lastView ? String(lastView.text || '').split(/\n+/).map(x => x.trim()).filter(Boolean) : [], p = ps[+el.dataset.cmpara]; cmPlus = false; if(p) cmAppend('> ' + p.slice(0, 200) + '\n' + cmNowTag() + '\n'); }; });
   const ra = document.getElementById('roomAdopt'); if(ra) ra.onchange = () => { store.set('adopt-skip', itemList().filter(cmWaiting).map(x => x[0]).slice(-200)); roomFetch(roomPath('adopt'), { method:'PUT', body:JSON.stringify(ra.value) }).then(() => { roomSig = ''; roomPull(true); }).catch(() => { roomNote = '部屋につながりません。'; render(); }); };
   const fbCl = document.getElementById('fbClaude'); if(fbCl) fbCl.onchange = () => { fbClaude = fbCl.checked; };
-  on('fbMaxBtn', () => { fbMax = !fbMax; render(); });
   document.querySelectorAll('[data-icon]').forEach(el => { el.onclick = () => { store.set('fb-icon', el.dataset.icon); if(room){ myDirty = true; myFlush(); liveSend(); } render(); }; });
   on('fbNotify', () => { Notification.requestPermission().then(() => render()); });
-  on('fbChNew', () => { fbChOpen = !fbChOpen; render(); });
-  on('fbChMake', () => { const n = document.getElementById('fbChName').value.replace(/[\s#@"'<>&]/g, '').slice(0, 20); if(!n) return; const chs = store.get('chs', []); if(!chs.includes('ch:' + n)) chs.push('ch:' + n); store.set('chs', chs); fbView = 'ch:' + n; fbChOpen = false; fbFind = ''; render(); });
   const fbFi = document.getElementById('fbFind'); if(fbFi){ fbFi.value = fbFind; fbFi.onchange = () => { fbFind = fbFi.value; render(); }; }
-  document.querySelectorAll('[data-view]').forEach(el => { el.onclick = () => { fbView = el.dataset.view; fbFind = ''; render(); }; });
-  document.querySelectorAll('[data-at]').forEach(el => { el.onclick = () => { fbDrafts.opinion += (fbDrafts.opinion && !/\s$/.test(fbDrafts.opinion) ? ' ' : '') + '@' + el.dataset.at + ' '; render(); const t = document.getElementById('fbText'); if(t) t.focus(); }; });
   document.querySelectorAll('[data-adopt]').forEach(el => { el.onclick = () => { const [k, on] = el.dataset.adopt.split('|'); adoptItem(k, on === '1'); }; });
   document.querySelectorAll('[data-rx]').forEach(el => { el.onclick = () => { const a = el.dataset.rx.split('|'), i = +a.pop(); threadRx(a.join('|'), i); }; });
   document.querySelectorAll('[data-edit]').forEach(el => { el.onclick = () => { const [k, rk] = el.dataset.edit.split('|'), it = roomItems[k]; if(!it) return; fbEdit = { id:el.dataset.edit, value:rk ? it.re[rk].text : it.text }; render(); }; });
@@ -6684,7 +6838,7 @@ function render(){
   document.querySelectorAll('[data-delno]').forEach(el => { el.onclick = () => { fbDelAsk = ''; render(); }; });
   document.querySelectorAll('[data-delyes]').forEach(el => { el.onclick = () => threadDelete(el.dataset.delyes); });
   document.querySelectorAll('[data-reimg]').forEach(el => { el.onclick = () => { const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.onchange = () => shrinkImage(f.files[0], d => { fbReImg[el.dataset.reimg] = d; render(); }); f.click(); }; });
-  markSeen();
+  cmMarkVisible();
   const fbQ = document.getElementById('fbAsk'); if(fbQ) fbQ.ontoggle = () => { fbAskOpen = fbQ.open; };
   const fbO = document.getElementById('fbOpts'); if(fbO){ fbO.value = fbOpts; fbO.oninput = () => { fbOpts = fbO.value; }; }
   const fbF = document.getElementById('fbImgFile'); if(fbF) fbF.onchange = () => fbPickImage(fbF.files[0]);
@@ -6692,14 +6846,13 @@ function render(){
   on('fbImgDrop', () => { fbImg = ''; render(); });
   document.querySelectorAll('[data-pickfile]').forEach(el => { el.onclick = () => pickFile(f => { if(el.dataset.pickfile) fbReFile[el.dataset.pickfile] = f; else fbFile = f; }); });
   document.querySelectorAll('[data-file]').forEach(el => { el.onclick = e => { e.stopPropagation(); threadFile(el.dataset.file, el.dataset.fname); }; });
-  document.querySelectorAll('[data-re]').forEach(el => { el.value = fbRe[el.dataset.re] || ''; cmGrow(el); el.oninput = () => { fbRe[el.dataset.re] = el.value; cmGrow(el); }; });
-  document.querySelectorAll('[data-resend]').forEach(el => { el.onclick = () => threadReply(el.dataset.resend); });
   document.querySelectorAll('[data-vote]').forEach(el => { el.onclick = () => { const [k, i] = el.dataset.vote.split('|'); threadVote(k, +i); }; });
   document.querySelectorAll('[data-img]').forEach(el => { el.onclick = () => threadImage(el.dataset.img); });
-  const fbT = document.getElementById('fbText'), fbK = document.getElementById('fbKind');
-  if(fbT){ fbT.value = fbDrafts[fbMode]; cmGrow(fbT); fbT.oninput = () => { fbDrafts[fbMode] = fbT.value; cmGrow(fbT); }; }
+  cmComposerWire(cmFocus);
+  const fbK = document.getElementById('fbKind');
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
   decorateForEdit(mode);
+  mzRefresh(); mzCallShow();
   placePosters();
   on('undobtn', () => { menuOpen = false; undoOpen = true; render(); window.scrollTo(0, 0); });
   on('lockAsk', () => askLock());
@@ -6737,7 +6890,7 @@ function render(){
   });
   on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); });
   on('roombtn', () => { roomPanel = true; packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); });
-  on('screenClose', () => { const back = screenBack; screenBack = null; chgPanel = false; roomPanel = packPanel = linkPanel = bookPanel = false; roomNote = ''; ghNote = ''; render(); if(back && !room){ front = back; frontRender(); } });
+  on('screenClose', () => { const back = screenBack; screenBack = null; chgPanel = mzPanel = false; mzAsk = ''; mzNote = ''; roomPanel = packPanel = linkPanel = bookPanel = false; roomNote = ''; ghNote = ''; render(); if(back && !room){ front = back; frontRender(); } });
   on('roomNew', () => roomCreate());
   on('roomToggle', () => roomClose(!roomOpen));
   const rg = document.getElementById('roomGap'); if(rg) rg.onchange = () => { roomFetch(roomPath('gap'), { method:'PUT', body:JSON.stringify(+rg.value) }).then(() => { roomSig = ''; roomPull(true); }).catch(() => { roomNote = '部屋につながりません。'; render(); }); };
@@ -6746,6 +6899,14 @@ function render(){
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
   on('roomLeave', roomLeave);
   on('roomDel', () => { roomDelAsk = true; render(); });
+  // 部屋の人を外す・取り消す、トークンを入れ替える、外されたという知らせを閉じる
+  document.querySelectorAll('[data-ban]').forEach(el => { el.onclick = () => { banAsk = el.dataset.ban; render(); }; });
+  document.querySelectorAll('[data-banyes]').forEach(el => { el.onclick = () => roomBanSet(el.dataset.banyes, true); });
+  document.querySelectorAll('[data-unban]').forEach(el => { el.onclick = () => roomBanSet(el.dataset.unban, false); });
+  on('banNo', () => { banAsk = ''; render(); });
+  on('banPatSave', roomPatSwap);
+  { const bp = document.getElementById('banPatBox'); if(bp) bp.ontoggle = () => { banPatOpen = bp.open; }; }
+  on('kickedOk', () => { try { localStorage.removeItem(BASE + 'kicked'); } catch(e){} render(); });
   on('roomExport', exportCustom);
   on('missSave', missSave);
   on('roomPublish', publishPack);
@@ -6768,6 +6929,14 @@ function render(){
   on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room + (roomLocal() ? '&l=1' : '&r=' + ghRepo() + '&k=' + ghPat())).then(() => { roomNote = roomLocal() ? '招待リンクをコピーしました。部屋に入れたい人に渡してください。' : '招待リンクをコピーしました。このリンクには、リポジトリに書きこむためのトークンが入っています。部屋に入れたい人にだけ渡してください。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
   on('soloPullBtn', () => (room ? roomPullNow() : soloPull(true)));
   on('chgbtn', () => { chgPanel = true; roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
+  // メタゾンビ図鑑
+  on('mzbtn', () => { mzPanel = true; mzAsk = ''; mzNote = ''; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); if(mzOn()) mzLoad(true).then(render, render); });
+  on('mzSeedBtn', () => { if(mzPending(current)) mzSeedBook(current); else { mzAsk = 'seed'; render(); } });
+  on('mzSeedYes', () => mzSeedBook(current));
+  on('mzNo', () => { mzAsk = ''; render(); });
+  document.querySelectorAll('[data-mzgo]').forEach(el => { el.onclick = () => { mzPanel = false; cmGo(el.dataset.mzgo); }; });
+  document.querySelectorAll('[data-mzok]').forEach(el => { el.onclick = () => { mzAsk = 'ok:' + el.dataset.mzok; render(); }; });
+  document.querySelectorAll('[data-mzokyes]').forEach(el => { el.onclick = () => mzNothing(+el.dataset.mzokyes); });
   document.querySelectorAll('[data-chgundo]').forEach(el => { el.onclick = () => { const c = chgList()[+el.dataset.chgundo]; if(c && confirm('「' + c.kind + '」を取り消しますか？')) chgUndo(c.id); }; });
   document.querySelectorAll('[data-chggo]').forEach(el => { el.onclick = () => { chgPanel = false; cmGo(el.dataset.chggo); }; });
   on('bookbtn', () => { bookPanel = true; roomPanel = packPanel = linkPanel = false; menuOpen = false; render(); });
@@ -6907,9 +7076,58 @@ async function soloReplies(){
 function memoNew(text){
   const m = issueMeta(), id = DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   roomItems[id] = { title:'[' + m.name + ' ' + m.para + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), text, by:store.get('fb-name', '') || '自分', o:Date.now(), at:current + ':' + m.para, free:true, ...(fbClaude && TEST_BUILD && ghLinked() ? { claude:true } : {}) };
-  fbClaude = false; memoSave(); fbDrafts.opinion = ''; cmNew = false; cmPlus = false; cmThread = id; cmScroll = true; render();
+  fbClaude = false; memoSave(); cmDraftPut('new', ''); cmNew = false; cmPlus = false; cmThread = id; cmScroll = true; render();
 }
-let cmThread = null, cmNew = false, cmFilter = 'all', cmSheet = '', cmQuote = null, cmPlus = false, cmScroll = false, cmAdopting = false;
+let cmThread = null, cmNew = false, cmFilter = 'follow', cmSheet = '', cmPlus = false, cmScroll = false, cmAdopting = false;
+// cmOpenAt：開いたスレッドと、開く前の既読の数（「ここから未読」の線の位置）。cmHoldUnread：［ここから未読］を押したスレッド（開いているあいだは、見えても既読にしない）
+// cmShown：前に描いたスレッドと書きこみの数。cmAtBottom：描き直す前に、いちばん下を見ていたか。cmBelow：［新しい返信 ↓］を出す。cmToBottom：次に描いたら、いちばん下へ
+// cmGoId：次に描いたら、そこへ行って光らせる書きこみ。cmRxWho：リアクションを付けた人を出している書きこみ。cmAsk：確かめの画面（'allread'）
+let cmOpenAt = null, cmHoldUnread = '', cmShown = null, cmNowShown = null, cmGrew = false, cmAtBottom = true, cmBelow = false, cmToBottom = false, cmGoId = '', cmRxWho = '', cmAsk = '';
+// 書きかけ：'new'（新しいスレッド・新しいメモ）、'author'（作者へ）、スレッドの鍵（そのスレッドへの返信）ごとに、端末に残す
+const cmDraft = slot => String((store.get('cm-drafts', {}) || {})[slot] || '');
+function cmDraftPut(slot, text){
+  const d = store.get('cm-drafts', {}) || {};
+  if(text) d[slot] = String(text).slice(0, 4000); else delete d[slot];
+  const ks = Object.keys(d); if(ks.length > 60) delete d[ks[0]];
+  store.set('cm-drafts', d);
+}
+const cmSlot = () => (cmOld && opinionOk() ? 'author' : cmThread || 'new');
+// 書く欄：書きかけを戻す・残す。空のときと送っているあいだは［送る］を止める。Ctrl（Mac は ⌘）＋Enter で送る。「@」「＠」で名前の候補
+function cmComposerWire(focus){
+  document.querySelectorAll('.cm-r textarea[data-slot]').forEach(el => {
+    const slot = el.dataset.slot, go = el.parentNode.querySelector('.go');
+    el.value = cmDraft(slot); cmGrow(el);
+    const upd = () => { if(go) go.disabled = !el.value.trim() || (slot !== 'author' && !!room && flushing); };
+    upd();
+    el.oninput = () => { cmDraftPut(slot, el.value); cmGrow(el); upd(); cmMention(el); };
+    el.onkeydown = e => { if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing){ e.preventDefault(); if(go && !go.disabled) go.click(); } };
+    el.onblur = () => setTimeout(() => { const s = el.isConnected && document.activeElement !== el && el.closest('.cm-in').querySelector('.cm-sug'); if(s) s.remove(); }, 200);
+    if(go) go.onpointerdown = e => e.preventDefault(); // 押しても、書く欄から離れない（キーボードを出したまま）
+    if(focus && focus.slot === slot && document.activeElement !== el){ el.focus({ preventScroll:true }); try { el.setSelectionRange(Math.min(focus.s, el.value.length), Math.min(focus.e, el.value.length)); } catch(e){} }
+  });
+}
+// 描き直す前に、書く欄にいたか（描き直したあと、同じ欄に戻す）
+const cmFocusOf = () => { const a = document.activeElement; return a && a.matches && a.matches('.cm-r textarea[data-slot]') ? { slot:a.dataset.slot, s:a.selectionStart || 0, e:a.selectionEnd || 0 } : null; };
+// 「@」か「＠」を打ったら、部屋の人の名前を、書く欄の上に出す。押すと入る
+const cmNames = () => [...new Set(Object.entries(roomMembers).filter(([d, m]) => d !== DEV && m && m.name).map(([, m]) => String(m.name)))].concat('all');
+function cmMention(el){
+  const box = el.closest('.cm-in'); if(!box) return;
+  let sug = box.querySelector('.cm-sug');
+  const m = room ? /(^|[^A-Za-z0-9._-])[@＠]([^\s@＠]{0,30})$/.exec(el.value.slice(0, el.selectionStart || 0)) : null;
+  const q = m ? m[2].toLowerCase() : '', names = m ? cmNames().filter(n => n.toLowerCase().startsWith(q)).slice(0, 8) : [];
+  if(!names.length){ if(sug) sug.remove(); return; }
+  if(!sug){ sug = document.createElement('div'); sug.className = 'cm-sug'; box.insertBefore(sug, box.firstChild); }
+  sug.innerHTML = names.map(n => '<button type="button" data-sug="' + escAttr(n) + '">@' + escText(n) + (n === 'all' ? '<small>　部屋の全員</small>' : '') + '</button>').join('');
+  sug.querySelectorAll('[data-sug]').forEach(b => {
+    b.onpointerdown = e => e.preventDefault();
+    b.onclick = () => {
+      const pos = el.selectionStart || 0, mm = /[@＠]([^\s@＠]{0,30})$/.exec(el.value.slice(0, pos)); if(!mm) return;
+      const ins = '@' + b.dataset.sug + ' ', at = pos - mm[0].length;
+      el.value = el.value.slice(0, at) + ins + el.value.slice(pos); el.selectionStart = el.selectionEnd = at + ins.length;
+      el.focus(); el.dispatchEvent(new Event('input'));
+    };
+  });
+}
 const ICONS = ['🙂', '😎', '🤠', '🧐', '😴', '🤖', '👻', '🐱', '🐶', '🦊', '🐸', '🐧', '🦉', '🌵', '🍙', '☕', '🎩', '🔦', '📻', '🚲'];
 // 発言の横のアイコン。dev：書いた人の端末。選んでいなければ、色つきの丸に名前の頭文字
 function cmAv(dev, name){
@@ -6920,17 +7138,21 @@ function cmAv(dev, name){
   return '<i class="cm-av" style="background:hsl(' + h + ' 35% 30%)">' + escText([...String(name || '?').trim()][0] || '?') + '</i>';
 }
 const cmHM = t => { if(!t) return ''; const d = new Date(t); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); };
-const cmDay = t => { const d = new Date(t); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+// 日付の区切り：今日／昨日／M月D日（年が違えば、年も）
+const cmDay = t => { const d = new Date(t), n = new Date(), y = new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1); return d.toDateString() === n.toDateString() ? '今日' : d.toDateString() === y.toDateString() ? '昨日' : (d.getFullYear() !== n.getFullYear() ? d.getFullYear() + '年' : '') + (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmTime = t => { if(!t) return ''; const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') : (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
 const cmWhen = it => { const r = visRes(it); return (r.length && r[r.length - 1][1].o) || it.o || 0; };
-const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[[\w-]+:\d+\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
+const cmPlain = t => String(t || '').replace(/^### (.*)\n+/, '$1：').split('\n').filter(l => !/^[>＞]/.test(l) && !/^\[\[([\w-]+:\d+|msg:[\w-]+(\/[\w-]+)?)\]\]$/.test(l.trim())).join(' ').replace(/\s+/g, ' ').trim();
 let cmRename = null; // スレッドの名前を変えている最中の文（変えていなければ null）
 let cmRowMenu = '', cmRowMode = ''; // スレッドの一覧で、長押しして出したメニュー（スレッドの鍵）と、その中の画面（''＝メニュー、'ren'＝名前を変更、'del'＝削除の確かめ）
 let cmHoldT = 0;
-// スレッドの一覧の行：長押し（PC は右クリック）で、メニューを出す。自分が始めたスレッドだけ
+// スレッドの一覧の行：長押し（PC は右クリック）で、メニューを出す。部屋では、どのスレッドでも。1人のときは、自分のメモ
 function cmHoldBind(el){
-  const k = el.dataset.open; if(!mineKey(k)) return;
-  const openMenu = () => { cmRowMenu = k; cmRowMode = ''; cmRename = null; fbNote = ''; render(); };
+  const k = el.dataset.open; if(!room && !mineKey(k)) return;
+  cmHold(el, () => { cmRowMenu = k; cmRowMode = ''; cmRename = null; fbNote = ''; render(); });
+}
+// 長押し（0.5秒。PC は右クリック）で openMenu を呼ぶ。指が10px動いたら（一覧を送っている）、やめる
+function cmHold(el, openMenu){
   el.oncontextmenu = e => { e.preventDefault(); clearTimeout(cmHoldT); openMenu(); };
   el.onpointerdown = e => {
     if(e.pointerType === 'mouse' && e.button !== 0) return;
@@ -6953,12 +7175,15 @@ function cmHoldBind(el){
 // 長押しで出すメニューの中身
 function cmRowSheetHtml(){
   const k = cmRowMenu, it = roomItems[k];
-  if(!k || !it || !mineKey(k)){ cmRowMenu = ''; cmRowMode = ''; return ''; }
-  const shade = '<div class="cm-shade" id="cmRowNo"></div>';
-  if(cmRowMode === 'ren') return shade + '<div class="cm-dlg"><b>名前を変更</b><input id="cmNameIn" maxlength="40"><div class="b"><button id="cmRowBack">やめる</button><button id="cmNameOk" class="go">決める</button></div></div>';
+  if(!k || !it || (!room && !mineKey(k))){ cmRowMenu = ''; cmRowMode = ''; return ''; }
+  const shade = '<div class="cm-shade" id="cmRowNo"></div>', mine = mineKey(k), nRe = visRes(it).length;
+  if(cmRowMode === 'ren' && mine) return shade + '<div class="cm-dlg"><b>名前を変更</b><input id="cmNameIn" maxlength="40"><div class="b"><button id="cmRowBack">やめる</button><button id="cmNameOk" class="go">決める</button></div></div>';
+  // 並びは Mattermost のスレッドのメニューに合わせる：フォロー → 既読・未読 → （自分のスレッドだけ）名前を変更・削除
+  const u = room ? cmUnreadOf(k, it) : null, canUnread = room && cmMsgList(k, it).some(([id]) => !mineKey(id));
   return shade + '<div class="cm-sheet"><div class="h">' + escText(cmTitle(it)) + '</div>'
-    + (cmRowMode === 'del' ? '<p class="p">' + (room ? 'このスレッドを、部屋の全員の通信から削除します。' : 'このメモを削除します。') + '元に戻せません。</p><button id="cmRowDelYes" class="warn">削除する</button><button id="cmRowBack">やめる</button>'
-      : '<button id="cmRowRen">名前を変更</button>' + (it.free ? '<button id="cmRowDel" class="warn">削除</button>' : '')) + '</div>';
+    + (cmRowMode === 'del' && mine ? '<p class="p">' + (room ? 'このスレッドを、部屋の全員の通信から削除します。' : 'このメモを削除します。') + (nRe ? '返信 ' + nRe + ' 件も消えます。' : '') + '元に戻せません。</p><button id="cmRowDelYes" class="warn">削除する</button><button id="cmRowBack">やめる</button>'
+      : (room ? '<button data-cmfollow="' + k + '">' + (cmFollowing(k, it) ? 'フォローをやめる' : 'フォローする') + '</button>' + (u.n ? '<button data-cmread="' + k + '">既読にする</button>' : canUnread ? '<button data-cmunread="' + k + '">未読にする</button>' : '') : '')
+        + (mine ? '<button id="cmRowRen">名前を変更</button>' + (it.free ? '<button id="cmRowDel" class="warn">削除</button>' : '') : '')) + '</div>';
 }
 const cmTitle = it => { if(it && typeof it.name === 'string' && it.name.trim()) return it.name.trim().slice(0, 40); const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
 const cmWaiting = x => unitOk(x[1].draft) && !x[1].adopted;
@@ -6970,37 +7195,71 @@ function cmChip(at){
   const bk = BOOKS[loadPlayer(s.c).book] || {}, sp = Object.values(bk.spots || {}).find(x => x.no === s.n);
   return '<button class="cm-chip" data-go="' + s.c + ':' + s.n + '">' + escText(CHARS[s.c].name) + 'の本　' + (sp && sp.name ? escText(sp.name) : '場面 ' + s.n) + ' ›</button>';
 }
-// 文の見せ方：行の頭の > は引用、[[本:番号]] は場面の札、リンクは押せる、@名前 は目立たせる
+// 文の見せ方：行の頭の > は引用、[[本:番号]] は場面の札、[[msg:スレッド/返信]] は引用した書きこみの札、リンクは押せる、@名前（全角の＠も）は目立たせる
 function cmText(t){
-  const names = Object.values(roomMembers).map(m => m && m.name).filter(Boolean);
+  const names = [...new Set(Object.values(roomMembers).map(m => m && m.name).filter(Boolean).map(n => escText(n)))].sort((a, b) => b.length - a.length);
+  const at = new RegExp('[@＠](all|' + names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'g');
   return String(t || '').replace(/^### (.*)\n+/, '$1\n').split('\n').map(line => {
     const m = /^\[\[([\w-]+:\d+)\]\]$/.exec(line.trim()); if(m) return cmChip(m[1]);
-    const q = /^[>＞]\s?(.*)$/.exec(line);
-    const h = escText(q ? q[1] : line).replace(/https?:\/\/[^\s<>"']+/g, u => '<a href="' + u.replace(/"/g, '') + '" target="_blank" rel="noopener noreferrer">' + u + '</a>').replace(/@(all|[^\s@<>&、。]{1,30})/g, (x, n) => (n === 'all' || names.includes(n) ? '<b class="cm-at">' + x + '</b>' : x));
-    return q ? '<div class="cm-q">' + h + '</div>' : '<div>' + (h || '&nbsp;') + '</div>';
+    const r = /^\[\[msg:([\w-]+)(?:\/([\w-]+))?\]\]$/.exec(line.trim()); if(r) return cmRefChip(r[1], r[2]);
+    const q = /^(?:[>＞]\s?)+(.*)$/.exec(line);
+    const h = escText(q ? q[1] : line).replace(/https?:\/\/[^\s<>"']+/g, u => '<a href="' + u.replace(/"/g, '') + '" target="_blank" rel="noopener noreferrer">' + u + '</a>').replace(at, x => '<b class="cm-at">' + x + '</b>');
+    return q ? '<div class="cm-q">' + (h || '&nbsp;') + '</div>' : '<div>' + (h || '&nbsp;') + '</div>';
   }).join('');
 }
+// 引用した書きこみの札：押すと、その書きこみへ行って光る
+function cmRefChip(k, rk){
+  const id = k + (rk ? '|' + rk : ''), m = cmMsgOf(id);
+  return m ? '<button class="cm-chip cm-ref" data-ref="' + id + '">↩ ' + escText(m.by) + '：' + escText(cmPlain(m.text).slice(0, 30) || '…') + '</button>' : '<span class="cm-chip cm-ref off">↩ 消された書きこみ</span>';
+}
+// 一覧の絞りこみ（部屋のとき）：フォロー中・未読（フォロー中で未読）・すべて。編集版は、採用待ち・AI も
+function cmListFilter(){
+  if(!room) return null;
+  const fol = store.get('cm-follow', {}), seen = store.get('seen-items', {}), followed = ([k, it]) => cmFollowing(k, it, fol);
+  return { follow:followed, unread:x => followed(x) && cmUnreadOf(x[0], x[1], seen).n > 0, wait:cmWaiting, ai:x => !!x[1].claude }[cmFilter] || null;
+}
+// いま一覧に出ているスレッド（［全部既読］が既読にするもの）
+const cmListed = () => { const f = cmListFilter(); return f ? itemList().filter(f) : itemList(); };
+// 探す：書きこみ1件ずつ（新しい順）。押すと、その書きこみへ行って光る
+function cmHits(q){
+  const out = [];
+  for(const [k, it] of itemList()){
+    const ms = [[k, it.by, it.text || String(it.body || '').split('\n\n---\n')[0], it.o], ...(it.reply ? [[k + '|ai', 'AI', it.reply, it.o]] : []), ...visRes(it).map(([rk, r]) => [k + '|' + rk, r.by, r.text, r.o])];
+    for(const [id, by, text, o] of ms) if([text, by].some(t => String(t || '').toLowerCase().includes(q))) out.push({ id, it, by:by || '名前なし', text:String(text || ''), o:o || 0 });
+  }
+  return out.sort((a, b) => b.o - a.o).slice(0, 60);
+}
 function cmListHtml(){
-  const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), all = itemList();
-  let list = all;
-  if(q) list = list.filter(([, it]) => [it.text, it.by, it.title, it.reply, ...visRes(it).flatMap(([, r]) => [r.text, r.by])].some(t => String(t || '').toLowerCase().includes(q)));
-  const f = { unread:isUnread, me:itemCallsMe, wait:cmWaiting, ai:x => !!x[1].claude }[cmFilter]; if(f) list = list.filter(f);
-  list = list.slice().sort((x, y) => cmWhen(y[1]) - cmWhen(x[1]));
+  const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), all = itemList();
+  const U = new Map(all.map(([k, it]) => [k, room ? cmUnreadOf(k, it, seen) : { n:0, re:0, at:0 }]));
+  const followed = ([k, it]) => cmFollowing(k, it, fol), unread = x => U.get(x[0]).n > 0;
+  const f = cmListFilter();
+  const list = (f ? all.filter(f) : all).slice().sort((x, y) => cmWhen(y[1]) - cmWhen(x[1]));
   const here = Object.values(roomMembers).filter(hereNow).map(m => m.name || '名前なし');
-  const chips = [['all', 'すべて', 0], ['unread', '未読', all.filter(isUnread).length], ['me', '自分宛て', all.filter(x => isUnread(x) && itemCallsMe(x)).length], ...(TEST_BUILD ? [['wait', '採用待ち', all.filter(cmWaiting).length], ['ai', 'AI', 0]] : [])];
+  const chips = [['follow', 'フォロー中', 0], ['unread', '未読', all.filter(x => followed(x) && unread(x)).length], ['all', 'すべて', 0], ...(TEST_BUILD ? [['wait', '採用待ち', all.filter(cmWaiting).length], ['ai', 'AI', 0]] : [])];
+  // 行の印：まだ読んでいない自分宛てがあれば、その数。なければ、未読の返信があれば点
   const row = x => {
-    const [k, it] = x, rs = visRes(it), last = rs.length ? rs[rs.length - 1][1] : null, un = isUnread(x) ? Math.max(1, sizeOf(it) - (seen[k] || 0)) : 0;
+    const [k, it] = x, rs = visRes(it), last = rs.length ? rs[rs.length - 1][1] : null, u = U.get(k);
     const tag = unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
-    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span></span>'
-      + '<span class="w">' + cmTime(cmWhen(it)) + (un ? '<br><i class="cm-n">' + (itemCallsMe(x) ? '@' : '') + un + '</i>' : '') + '</span></button>';
+    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + (u.n ? ' un' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span>' + (u.re ? '<span class="f">新しい返信 ' + u.re + ' 件</span>' : '') + '</span>'
+      + '<span class="w">' + cmTime(cmWhen(it)) + (u.at ? '<br><i class="cm-n" aria-label="自分宛て">' + (u.at > 99 ? '99+' : u.at) + '</i>' : u.n ? '<br><i class="cm-dot" aria-label="未読"></i>' : '') + '</span></button>';
   };
+  // 送っている途中・届かなかった、新しいスレッド
+  const pend = room && !q ? store.get('outbox', []).filter(x => x && x.free && !x.re).reverse().map(x => '<div class="cm-row pend' + (x.fail ? ' fail' : '') + '"><span class="x"><span class="t">' + escText(cmPlain(x.text).slice(0, 40) || '（文なし）') + '</span><span class="s">' + (x.fail ? '届いていません' : '送っています…') + '</span>'
+    + (x.fail ? '<span class="ob"><button data-obretry="' + escAttr(x.id) + '">もう一度送る</button><button data-obdel="' + escAttr(x.id) + '">消す</button></span>' : '') + '</span></div>').join('') : '';
+  const hit = h => { const p = cmPlain(h.text) || String(h.text), i = p.toLowerCase().indexOf(q), s = Math.max(0, i - 12), mark = i < 0 ? escText(p.slice(0, 60)) : (s ? '…' : '') + escText(p.slice(s, i)) + '<b class="cm-hl">' + escText(p.slice(i, i + q.length)) + '</b>' + escText(p.slice(i + q.length, i + q.length + 50));
+    return '<button class="cm-row" data-hit="' + h.id + '"><span class="x"><span class="t">' + escText(cmTitle(h.it)) + '</span><span class="s">' + escText(h.by) + '：' + mark + '</span></span><span class="w">' + cmTime(h.o) + '</span></button>'; };
+  const hits = q ? cmHits(q) : null;
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
-    + '<input id="fbFind" class="cm-find" placeholder="' + (room ? 'スレッドを探す' : 'メモを探す') + '" maxlength="40">'
-    + (room ? '<div class="cm-chips">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
-    + '<div class="cm-list">' + (opinionOk() && !q ? '<button class="cm-row" id="cmAuthor"><span class="x"><span class="t">✉ ' + authorWho() + 'へ</span><span class="s">気になったこと・直してほしいことを送る</span></span><span class="w"></span></button>' : '') + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (q || f ? '見つかりません。' : '') + '</p>') + '</div>'
+    + '<input id="fbFind" class="cm-find" placeholder="' + (room ? '書きこみを探す' : 'メモを探す') + '" maxlength="40">'
+    + (room && !q ? '<div class="cm-chips cm-chips2"><div class="cm-cs">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div><button id="cmAllRead" class="cm-allread"' + (list.some(unread) ? '' : ' disabled') + '>全部既読</button></div>' : room ? '' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
+    + '<div class="cm-list">' + (opinionOk() && !q ? '<button class="cm-row" id="cmAuthor"><span class="x"><span class="t">✉ ' + authorWho() + 'へ</span><span class="s">気になったこと・直してほしいことを送る</span></span><span class="w"></span></button>' : '')
+    + (hits ? (hits.length ? '<p class="cm-none" style="padding:8px 14px">見つかった書きこみ　' + hits.length + ' 件</p>' + hits.map(hit).join('') : '<p class="cm-none">見つかりません。</p>')
+      : pend + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (room && cmFilter === 'follow' && all.length ? 'フォロー中のスレッドは、ありません。自分が立てた・返信した・呼ばれたスレッドは、自動でフォローします。［すべて］で、部屋のスレッドを全部見られます。' : f ? '見つかりません。' : '') + '</p>')) + '</div>'
 
     + '<details class="cm-set"' + (room ? '' : ' hidden') + '><summary>名前・アイコン・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30"><div class="cm-icons">' + ICONS.map(e => '<button data-icon="' + e + '"' + (store.get('fb-icon', '') === e ? ' class="on"' : '') + '>' + e + '</button>').join('') + '<button data-icon=""' + (ICONS.includes(store.get('fb-icon', '')) ? '' : ' class="on"') + ' style="width:auto;padding:0 10px;font-size:13px">なし</button></div>'
-    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + cmRowSheetHtml() + '</div>';
+    + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + cmRowSheetHtml()
+    + (cmAsk === 'allread' ? '<div class="cm-shade" id="cmAskNo"></div><div class="cm-dlg"><b>全部既読にする</b><span>いま一覧に出ているスレッドを、全部既読にします。</span><div class="b"><button id="cmAskNo2">やめる</button><button id="cmAllReadYes" class="go">既読にする</button></div></div>' : '') + '</div>';
 }
 // 「作者へ」の画面：書いて［送る］を押すと、送り先のリポジトリの GitHub の投稿の画面を開く。書いたものの控えは、この端末に残す
 function authorHtml(){
@@ -7010,7 +7269,7 @@ function authorHtml(){
     + (sent.length ? '<p class="who" style="margin-top:14px">これまでに書いたもの</p>' + sent.map(x => '<p style="margin:6px 0 10px"><span class="who">' + cmTime(x.at) + '　' + escText(x.name || '') + ' ' + escText(String(x.para || '')) + '</span><br>' + escText(x.text) + '</p>').join('') : '')
     + '</div>'
     + '<div class="cm-in">' + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
-    + '<div class="cm-r"><textarea id="fbText" placeholder="' + authorWho() + 'へ書く"></textarea>'
+    + '<div class="cm-r"><textarea id="fbText" data-slot="author" placeholder="' + authorWho() + 'へ書く"></textarea>'
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
     + '<button class="go" id="fbSend">送る</button></div></div></div>';
 }
@@ -7029,7 +7288,7 @@ function cmInputHtml(k){
   const names = ['all', ...Object.entries(roomMembers).filter(([d, m]) => d !== DEV && m && m.name).map(([, m]) => m.name)].slice(0, 12), paras = lastView ? String(lastView.text || '').split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 12) : [];
   const img = k ? !!fbReImg[k] : !!fbImg;
   return '<div class="cm-in">'
-    + (cmQuote ? '<div class="cm-qbar"><span>' + escText(cmQuote.by + '：' + cmQuote.text) + '</span><button id="cmQuoteNo">×</button></div>' : '')
+    + (k && cmBelow ? '<button class="cm-below" id="cmBelow">新しい返信 ↓</button>' : '')
     + (cmPlus ? '<div class="cm-plus">' + (!room ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>') + '<button data-pickfile="' + (k || '') + '">' + ((k ? fbReFile[k] : fbFile) ? 'ファイルを付けました：' + escText((k ? fbReFile[k] : fbFile).name) + '（選び直す）' : 'ファイルを付ける') + '</button>')
       + (lastView ? '<button id="cmTagBtn">いまの場面の札を付ける</button>' : '')
       + (!room ? '' : '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>')
@@ -7038,7 +7297,7 @@ function cmInputHtml(k){
     + (!k && TEST_BUILD && (room ? !roomLocal() : ghLinked()) ? '<label class="cm-ai"><input type="checkbox" id="fbClaude"' + (fbClaude ? ' checked' : '') + '>AI に頼む（作ってほしいもの・直してほしいもの）</label>' : '')
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '')
     + '<div class="cm-r"><button id="cmPlusBtn" class="' + (cmPlus ? 'on' : '') + '" aria-label="付ける">＋</button>'
-    + (k ? '<textarea data-re="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="1000"></textarea>' : '<textarea id="fbText" placeholder="' + (room ? '新しいスレッド' : '新しいメモ') + '"></textarea>')
+    + (k ? '<textarea data-slot="' + k + '" id="cmReText" placeholder="メッセージを書く" maxlength="4000"></textarea>' : '<textarea data-slot="new" id="fbText" placeholder="' + (room ? '新しいスレッド' : '新しいメモ') + '"></textarea>')
     + (window.SpeechRecognition || window.webkitSpeechRecognition ? '<button id="fbMic" aria-label="声で書く">' + (fbRec ? '■' : '🎤') + '</button>' : '')
     + '<button class="go" id="' + (k ? 'cmSend' : 'fbSend') + '">送る</button></div>'
     + '</div>';
@@ -7074,38 +7333,59 @@ function cmThreadHtml(k){
   const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
   const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
   const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
-  const bubble = (id, by, text, mine, extra, cls, when) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '">' + '<div class="n">' + (mine && !cls ? '' : cmAv(String(id).endsWith('|ai') ? 'ai' : String(id).split('|').pop().split('-')[0], by) + escText(by) + '　') + cmHM(when) + '</div>'
-    + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : '<i class="mo" aria-label="返信・リアクション">⋯</i>' + cmText(text)) + (extra || '') + '</div></div>';
-  let h = '';
+  // mi：スレッドの中の順番（0 が最初の書きこみ、1 から返信）。既読の数と、見えた所を合わせるのに使う
+  const bubble = (id, by, text, mine, extra, cls, when, mi) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '" data-mid="' + id + '"' + (mi != null ? ' data-mi="' + mi + '"' : '') + '>' + '<div class="n">' + (mine && !cls ? (/　直した$/.test(by) ? '直した　' : '') : cmAv(String(id).endsWith('|ai') ? 'ai' : String(id).split('|').pop().split('-')[0], by) + escText(by) + '　') + cmHM(when) + '</div>'
+    + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : '<button class="mo" data-mo="' + id + '" aria-label="メニュー">⋯</button>' + cmText(text)) + (extra || '') + '</div></div>';
+  // 付いたリアクション（押すと付け外し、長押しで付けた人）
+  const rxRow = (id, o, mine) => { const c = EMOJI.map((e, i) => { const who = o['e' + i] && typeof o['e' + i] === 'object' ? Object.keys(o['e' + i]) : []; return who.length ? '<button data-rx="' + id + '|' + i + '" data-rxw="' + id + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join(''); return c ? '<div class="cm-rx' + (mine ? ' me' : '') + '">' + c + '</div>' : ''; };
+  // 「ここから未読」の線：開く前に読んでいた所より後ろの、ほかの人の最初の書きこみの前
+  const ms = cmMsgList(k, it), from = room && cmOpenAt && cmOpenAt.k === k ? cmOpenAt.n : -1;
+  let lineAt = -1; if(from >= 0) for(let i = from; i < ms.length; i++) if(!mineKey(ms[i][0])){ lineAt = i; break; }
+  const line = i => (i === lineAt ? '<div class="cm-unl" id="cmNewLine">ここから未読</div>' : '');
+  // 開いているあいだに、ほかの人の書きこみが増えた：いちばん下を見ていれば下へ送る。上を読んでいれば［新しい返信 ↓］
+  cmGrew = !!cmShown && cmShown.k === k && ms.length > cmShown.n;
+  if(cmGrew && !cmAtBottom && !cmToBottom && ms.slice(cmShown.n).some(([id]) => !mineKey(id))) cmBelow = true;
+  if(cmAtBottom) cmBelow = false;
+  cmNowShown = { k, n:ms.length };
+  let h = '', day = '';
+  const dayLine = t => { if(!t) return ''; const d = new Date(t).toDateString(); if(d === day) return ''; day = d; return '<div class="cm-day">' + cmDay(t) + '</div>'; };
+  h += dayLine(it.o) + line(0);
   if(unitOk(it.draft)){
-    h += '<div class="cm-card"><div class="h">' + escText(it.by || '名前なし') + 'が書き換えました</div><div class="d" data-msg="' + k + '">' + cmText(it.text || String(it.body || '').split('\n\n---\n')[0]) + cmChip(it.at) + '</div>'
+    h += '<div class="cm-card" data-mid="' + k + '" data-mi="0"><div class="h">' + escText(it.by || '名前なし') + 'が書き換えました</div><div class="d" data-msg="' + k + '">' + cmText(it.text || String(it.body || '').split('\n\n---\n')[0]) + cmChip(it.at) + '</div>'
       + (it.adopted ? '<div class="done">採用済み。全員のゲームに入っています。</div>' + (isHost() ? '<div class="cm-acts"><button data-adopt="' + k + '|0" style="flex:none;margin-left:auto;padding:5px 10px;font-size:12px;color:#8d8778">採用をやめる</button></div>' : '')
         : isHost() ? '<div class="cm-acts"><button class="go" data-adopt="' + k + '|1">採用する</button></div>'
         : mode === 'peer' && !mineKey(k) ? '<div class="cm-acts"><button class="go' + (rx.e0 && rx.e0[DEV] ? ' on' : '') + '" data-rx="' + k + '|0">賛成' + (agree ? '　' + agree : '') + '</button></div><div class="done">誰か1人が賛成すると、全員のゲームに入ります。</div>'
         : '<div class="done">' + (mode === 'peer' ? 'ほかの人が賛成すると、全員のゲームに入ります。' : mode === 'auto' ? 'まもなく、全員のゲームに入ります。' : '部屋を作った人が採用すると、全員のゲームに入ります。') + '</div>') + '</div>';
   } else {
     h += bubble(k, (it.by || '名前なし') + (it.claude ? '　AI に頼んだこと' : '') + (it.edited ? '　直した' : ''), it.text || String(it.body || '').split('\n\n---\n')[0], mineKey(k),
-      (it.img ? pic(k) : '') + fileBtn(k, it.file) + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + (my === i ? '✓ ' : '') + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '', it.o);
+      (it.img ? pic(k) : '') + fileBtn(k, it.file) + (hasTag ? '' : cmChip(it.at)) + (Array.isArray(it.opts) ? '<div class="cm-poll">' + it.opts.map((o, i) => { const n = votes.filter(v => v === i).length; return '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '><i style="width:' + (votes.length ? Math.round(n * 100 / votes.length) : 0) + '%"></i><span>' + (my === i ? '✓ ' : '') + escText(o) + '</span><span>' + n + '</span></button>'; }).join('') + '</div>' : ''), it.claude ? ' ask' : '', it.o, 0);
   }
-  const chips = EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
-  if(chips) h += '<div class="cm-rx' + (mineKey(k) && !unitOk(it.draft) ? ' me' : '') + '">' + chips + '</div>';
+  h += rxRow(k, rx, mineKey(k) && !unitOk(it.draft));
   if(it.reply) h += bubble(k + '|ai', 'AI', it.reply, false, '', ' ai');
-  let day = it.o ? new Date(it.o).toDateString() : '';
-  for(const [rk, r] of visRes(it)){
-    const d = new Date(r.o || 0).toDateString(); if(r.o && d !== day){ day = d; h += '<div class="cm-day">' + cmDay(r.o) + '</div>'; }
-    h += bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), (r.img ? pic(k + '_' + rk) : '') + fileBtn(k + '_' + rk, r.file), '', r.o);
-    const rrx = r.rx && typeof r.rx === 'object' ? r.rx : {}, rchips = EMOJI.map((e, i) => { const who = rrx['e' + i] && typeof rrx['e' + i] === 'object' ? Object.keys(rrx['e' + i]) : []; return who.length ? '<button data-rx="' + k + '|' + rk + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + ' ' + who.length + '</button>' : ''; }).join('');
-    if(rchips) h += '<div class="cm-rx' + (mineKey(rk) ? ' me' : '') + '">' + rchips + '</div>';
-  }
-  // 話を押したときに出る欄
+  visRes(it).forEach(([rk, r], j) => {
+    h += dayLine(r.o) + line(j + 1) + bubble(k + '|' + rk, (r.by || '名前なし') + (r.edited ? '　直した' : ''), r.text, mineKey(rk), (r.img ? pic(k + '_' + rk) : '') + fileBtn(k + '_' + rk, r.file), '', r.o, j + 1);
+    h += rxRow(k + '|' + rk, r.rx && typeof r.rx === 'object' ? r.rx : {}, mineKey(rk));
+  });
+  // 送っている途中の返信は薄く。届かなかったものには［もう一度送る］［消す］
+  for(const x of store.get('outbox', []).filter(x => x && x.re === k)) h += '<div class="cm-m me pend' + (x.fail ? ' fail' : '') + '"><div class="b">' + cmText(x.text) + (x.img ? '<div class="cm-pic">画像</div>' : '') + (x.file ? '<div class="cm-pic">📎 ' + escText(x.file.name || '') + '</div>' : '') + '</div>'
+    + '<div class="st">' + (x.fail ? '届いていません<button data-obretry="' + escAttr(x.id) + '">もう一度送る</button><button data-obdel="' + escAttr(x.id) + '">消す</button>' : '送っています…') + '</div></div>';
+  // 長押しで出すメニュー。並びは Mattermost に合わせる：リアクション → 引用して返信 → フォロー → ここから未読 → 文をコピーする → 直す → 消す → この場面へ行く
   let sheet = '';
-  if(cmSheet && !fbEdit){
-    const rk = cmSheet.split('|')[1], own = rk ? rk !== 'ai' && mineKey(rk) : mineKey(k) && it.free;
+  if(cmRxWho && !fbEdit){
+    const rk = cmRxWho.split('|')[1], m = rk ? it.re && it.re[rk] : it, o = m && m.rx && typeof m.rx === 'object' ? m.rx : {};
+    const who = d => (d === DEV ? 'あなた' : (roomMembers[d] && roomMembers[d].name) || '名前なし');
+    sheet = '<div class="cm-shade" id="cmRxNo"></div><div class="cm-sheet"><div class="h">リアクションを付けた人</div>'
+      + EMOJI.map((e, i) => { const ds = o['e' + i] && typeof o['e' + i] === 'object' ? Object.keys(o['e' + i]) : []; return ds.length ? '<div class="cm-who"><b>' + e + '</b>' + escText(ds.map(who).join('、')) + '</div>' : ''; }).join('') + '</div>';
+  } else if(cmSheet && !fbEdit){
+    const rk = cmSheet.split('|')[1], own = rk ? rk !== 'ai' && mineKey(rk) : mineKey(k) && it.free, other = rk ? rk !== 'ai' && !mineKey(rk) : !mineKey(k), nRe = visRes(it).length;
     sheet = '<div class="cm-shade" id="cmSheetNo"></div><div class="cm-sheet">'
       + (rk !== 'ai' ? '<div class="e">' + EMOJI.map((e, i) => '<button data-rx="' + cmSheet + '|' + i + '">' + e + '</button>').join('') + '</div>' : '')
-      + (fbDelAsk === cmSheet ? '<button data-delyes="' + cmSheet + '">本当に消す</button><button data-delno="1">やめる</button>'
-        : '<button data-cmq="' + cmSheet + '">返信する</button><button data-cmcopy="' + cmSheet + '">文をコピーする</button>'
-          + (own ? '<button data-edit="' + cmSheet + '">直す</button><button data-del="' + cmSheet + '">消す</button>' : '')
+      + (fbDelAsk === cmSheet ? '<p class="p">' + (rk ? 'この返信を消します。' : (room ? 'このスレッドを、部屋の全員の通信から削除します。' : 'このメモを削除します。') + (nRe ? '返信 ' + nRe + ' 件も消えます。' : '')) + '元に戻せません。</p><button data-delyes="' + cmSheet + '" class="warn">本当に消す</button><button data-delno="1">やめる</button>'
+        : '<button data-cmq="' + cmSheet + '">引用して返信</button>'
+          + (room ? '<button data-cmfollow="' + k + '">' + (cmFollowing(k, it) ? 'フォローをやめる' : 'フォローする') + '</button>' : '')
+          + (room && other ? '<button data-cmunfrom="' + cmSheet + '">ここから未読</button>' : '')
+          + '<button data-cmcopy="' + cmSheet + '">文をコピーする</button>'
+          + (own ? '<button data-edit="' + cmSheet + '">直す</button><button data-del="' + cmSheet + '" class="warn">消す</button>' : '')
           + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : ''))
       + '</div>';
   }
@@ -7135,16 +7415,92 @@ function cmMsgOf(id){
 }
 // 書いている所に、文を足す
 function cmAppend(t){
-  if(cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + t; else fbDrafts.opinion += t;
-  render(); const el = document.getElementById(cmThread ? 'cmReText' : 'fbText'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
+  const slot = cmSlot(); cmDraftPut(slot, cmDraft(slot) + t);
+  render(); const el = document.querySelector('.cm-r textarea[data-slot]'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
 }
 const cmNowTag = () => (lastView ? '[[' + lastView.char + ':' + lastView.para + ']]' : '');
-function cmSendReply(){
-  const k = cmThread, text = (fbRe[k] || '').trim();
-  if(!k || !text) return;
-  fbRe[k] = (cmQuote ? '> ' + cmQuote.by + '：' + cmQuote.text + '\n' : '') + text;
-  cmQuote = null; cmPlus = false; cmScroll = true;
-  threadReply(k);
+function cmSendReply(){ if(cmThread) threadReply(cmThread); }
+// ［引用して返信］：書きこみの文を全部、行の頭に「> 」を付けて書く欄に入れ、元の書きこみへの札を付ける
+function cmQuoteIn(id){
+  const m = cmMsgOf(id), [k, rk] = String(id).split('|'); cmSheet = '';
+  if(!m || !roomItems[k]){ render(); return; }
+  const body = String(m.text).replace(/^### (.*)\n+/, '$1\n').split('\n').filter(l => !/^\[\[[^\]]*\]\]$/.test(l.trim())).map(l => '> ' + l).join('\n');
+  const cur = cmDraft(k);
+  cmDraftPut(k, (cur && !/\n$/.test(cur) ? cur + '\n' : cur) + body.slice(0, 3000) + '\n[[msg:' + k + (rk ? '/' + rk : '') + ']]\n');
+  if(cmThread !== k){ cmOpen(k); } else render();
+  const el = document.querySelector('.cm-r textarea[data-slot]'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; cmGrow(el); }
+}
+// スレッドを開く。goId があれば、その書きこみへ行って光る。なければ、「ここから未読」の線か、いちばん下を見せる
+function cmOpen(k, goId){
+  cmThread = k; cmNew = false; cmSheet = ''; cmPlus = false; fbNote = ''; cmRxWho = ''; cmHoldUnread = ''; cmBelow = false; cmShown = null; fbEdit = null;
+  cmOpenAt = room ? { k, n:store.get('seen-items', {})[k] || 0 } : null;
+  cmGoId = goId || ''; cmScroll = !goId;
+  render();
+}
+function cmGoMsg(id){
+  const k = String(id).split('|')[0];
+  if(!roomItems[k]){ fbNote = 'その書きこみは、もうありません。'; render(); return; }
+  if(cmThread !== k) cmOpen(k, id); else { cmGoId = id; cmSheet = ''; render(); }
+}
+// スレッドの書きこみを、並んでいる順に（0 が最初の書きこみ、1 から返信。AI の返事は数えない）
+const cmMsgList = (k, it) => [[k, it], ...visRes(it)];
+// まだ読んでいない所：既読の数より後ろの、ほかの人の書きこみ。n：数、re：そのうちの返信、at：そのうちの自分宛て
+function cmUnreadOf(k, it, seen){
+  const from = (seen || store.get('seen-items', {}))[k] || 0, ms = cmMsgList(k, it);
+  let n = 0, re = 0, at = 0;
+  for(let i = from; i < ms.length; i++){ const [id, m] = ms[i]; if(mineKey(id)) continue; n++; if(i) re++; if(callsMe(m.text)) at++; }
+  return { n, re, at };
+}
+// フォロー：自分が立てた・返信した・呼ばれたスレッドは自動で。長押しのメニューで、フォローする・やめる（印は、この端末の cm-follow。1＝する、0＝やめた）
+function cmFollowing(k, it, fol){
+  const f = (fol || store.get('cm-follow', {}))[k];
+  if(f === 1) return true; if(f === 0) return false;
+  return mineKey(k) || visRes(it).some(([rk]) => mineKey(rk)) || itemCallsMe([k, it]);
+}
+function cmSetFollow(k, on){ const f = store.get('cm-follow', {}); f[k] = on ? 1 : 0; store.set('cm-follow', f); }
+// ［ここから未読］（rk：返信。'' は最初の書きこみ）・［未読にする］（rk が null：ほかの人の、いちばん新しい書きこみから）
+function cmMarkUnread(k, rk){
+  const it = roomItems[k]; if(!it) return;
+  const ms = cmMsgList(k, it); let i = -1;
+  if(rk === null){ for(let j = ms.length - 1; j >= 0; j--) if(!mineKey(ms[j][0])){ i = j; break; } }
+  else i = rk ? ms.findIndex(([id]) => id === rk) : 0;
+  if(i < 0) return;
+  const seen = store.get('seen-items', {}); seen[k] = i; store.set('seen-items', seen);
+  if(cmThread === k){ cmHoldUnread = k; cmOpenAt = { k, n:i }; }
+}
+// いちばん下を見ているか
+const cmBottomNow = fb => !fb || !fb.firstChild || fb.scrollHeight - fb.scrollTop - fb.clientHeight < 40;
+// 描いたあと：開いたときは「ここから未読」の線か、いちばん下へ。書きこみが増えて、いちばん下を見ていたら、下へ送る
+function cmAfterRender(fb){
+  if(!fbOpen || cmOld || !cmThread || !roomItems[cmThread]){ cmShown = null; cmScroll = false; cmToBottom = false; return; }
+  if(cmScroll){
+    const line = document.getElementById('cmNewLine'), hd = fb.querySelector('.cm-top');
+    fb.scrollTop = line ? fb.scrollTop + line.getBoundingClientRect().top - (hd ? hd.getBoundingClientRect().bottom : fb.getBoundingClientRect().top) - 8 : fb.scrollHeight;
+  } else if(cmToBottom || (cmGrew && cmAtBottom)) fb.scrollTop = fb.scrollHeight;
+  cmScroll = false; cmToBottom = false; cmGrew = false;
+  if(cmGoId){
+    const el = fb.querySelector('[data-mid="' + cmGoId + '"]'); cmGoId = '';
+    if(el){ fb.scrollTop += el.getBoundingClientRect().top - fb.getBoundingClientRect().top - fb.clientHeight / 3; el.classList.add('flash'); }
+  }
+  cmShown = cmNowShown;
+}
+// 既読は、画面に見えた書きこみまで（見えていない新しい書きこみは、既読にしない）
+function cmMarkVisible(){
+  if(!room || !fbOpen || cmOld || !cmThread || cmHoldUnread === cmThread || document.hidden) return;
+  const fb = document.getElementById('fbBody'), k = cmThread, it = roomItems[k]; if(!fb || !it) return;
+  const hd = fb.querySelector('.cm-top'), inp = fb.querySelector('.cm-in'), fr = fb.getBoundingClientRect();
+  const top = hd ? hd.getBoundingClientRect().bottom : fr.top, bot = inp ? Math.min(fr.bottom, inp.getBoundingClientRect().top) : fr.bottom;
+  let last = -1;
+  for(const el of fb.querySelectorAll('[data-mi]')){ const r = el.getBoundingClientRect(); if(r.height && r.bottom > top + 2 && r.top < bot - 2) last = Math.max(last, +el.dataset.mi); }
+  if(last < 0) return;
+  const seen = store.get('seen-items', {});
+  if((seen[k] || 0) < last + 1){ seen[k] = last + 1; store.set('seen-items', seen); chatBadge(); }
+  if(roomOpen && !mineKey(k) && !(it.seen && it.seen[DEV])){ it.seen = Object.assign(it.seen && typeof it.seen === 'object' ? it.seen : {}, { [DEV]:1 }); roomFetch(roomPath('items/' + k + '/seen/' + DEV), { method:'PUT', body:'1' }).catch(() => {}); }
+}
+function cmOnScroll(){
+  if(!fbOpen || !cmThread) return;
+  cmMarkVisible();
+  if(cmBelow && cmBottomNow(document.getElementById('fbBody'))){ cmBelow = false; const b = document.getElementById('cmBelow'); if(b) b.remove(); }
 }
 // 場面の札を押したとき：その本を開く。ロックしていない本なら、その場面へ移る（保存せずに試す）
 function cmGo(at){
@@ -7168,9 +7524,9 @@ async function cmAutoAdopt(){
 }
 // 右端の「意見」から送る
 function sendFeedback(){
-  const text = fbDrafts.opinion.trim();
+  const slot = cmOld && opinionOk() ? 'author' : 'new', text = cmDraft(slot).trim();
   if(!text) return;
-  if(cmOld && opinionOk()){ sendToAuthor(text); fbDrafts.opinion = ''; render(); return; }
+  if(slot === 'author'){ sendToAuthor(text); cmDraftPut('author', ''); render(); return; }
   if(!room && !cmOld){ memoNew(text); return; }
   const extra = {};
   if(room){
@@ -7181,8 +7537,9 @@ function sendFeedback(){
     if(fbFile) extra.file = fbFile;
     if(fbAskOpen){ extra.ask = true; const o = fbOpts.split('\n').map(x => x.trim().slice(0, 60)).filter(Boolean).slice(0, 8); if(o.length) extra.opts = o; }
   }
+  cmDraftPut('new', ''); // 先に消す（送っているあいだに、もう一度押されても、2件にならない）
   queueIssue('op|' + Date.now(), 'その他', text, text, true, extra);
-  fbDrafts.opinion = ''; fbImg = ''; fbFile = null; fbOpts = ''; fbAskOpen = false; cmNew = false; cmPlus = false; render();
+  fbImg = ''; fbFile = null; fbOpts = ''; fbAskOpen = false; cmNew = false; cmPlus = false; render();
 }
 // ===== 話の一覧 =====
 const escAttr = t => escText(t).replace(/"/g, '&quot;');
@@ -7194,85 +7551,36 @@ function itemList(){
   return Object.entries(roomItems).filter(([k, it]) => keyOk(k) && it && typeof it === 'object' && typeof it.title === 'string' && !(it.showAt > now)).sort((x, y) => (x[1].o || 0) - (y[1].o || 0));
 }
 const visRes = it => { const now = Date.now(); return Object.entries(it.re && typeof it.re === 'object' ? it.re : {}).filter(([rk, r]) => keyOk(rk) && r && typeof r.text === 'string' && !(r.showAt > now)).sort((x, y) => (x[1].o || 0) - (y[1].o || 0)); };
-// どの並びに入るか：この場面・全体・覚え書き・チャンネル・ほかの場面
-function whereOf(it){
-  const key = lastView ? lastView.char + ':' + lastView.para : '', a = String(it.at || '');
-  return a === key ? 'here' : a === 'all' || a === 'lore' || a.startsWith('ch:') ? a : 'other';
-}
-const viewName = v => v === 'here' ? 'この場面' : v === 'all' ? '全体' : v === 'lore' ? '設定の覚え書き' : v === 'other' ? 'ほかの場面' : '#' + String(v).slice(3);
 const composeAt = () => (fbFind.trim() || fbView === 'other' ? 'here' : fbView);
-// まだ読んでいない話：話そのものか、付いた返信が、前に見たときより増えている
+// スレッドの書きこみの数（既読の数 seen-items は、この数で数える）
 const sizeOf = it => 1 + visRes(it).length;
-function isUnread([k, it]){
-  const n = sizeOf(it), mineRes = visRes(it).filter(([rk]) => mineKey(rk)).length;
-  if(mineKey(k) && n - mineRes <= 1) return false; // 自分が書いて、ほかの人の返信がない
-  return (store.get('seen-items', {})[k] || 0) < n;
-}
 const myName = () => store.get('fb-name', '');
-const callsMe = t => /@all(?![\w])/i.test(String(t)) || (!!myName() && String(t).includes('@' + myName()));
+// 呼ばれたか：全角の「＠」も「@」と同じに扱う
+const atNorm = t => String(t == null ? '' : t).replace(/＠/g, '@');
+const callsMe = t => { const s = atNorm(t); return /@all(?![\w])/i.test(s) || (!!myName() && s.includes('@' + myName())); };
 const itemCallsMe = ([k, it]) => (!mineKey(k) && callsMe(it.text)) || visRes(it).some(([rk, r]) => !mineKey(rk) && callsMe(r.text));
-function shownItems(){
-  const q = fbFind.trim().toLowerCase(), list = itemList();
-  if(!q) return list.filter(x => whereOf(x[1]) === fbView);
-  return list.filter(([, it]) => [it.text, it.by, it.title, it.reply, ...visRes(it).flatMap(([, r]) => [r.text, r.by])].some(t => String(t || '').toLowerCase().includes(q)));
+// つまみの数字：フォロー中で、まだ読んでいないスレッドの数（まだ読んでいない自分宛てがあれば @ を付ける）
+function cmFollowUnread(){
+  const seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), out = [];
+  for(const [k, it] of itemList()) if(cmFollowing(k, it, fol)){ const u = cmUnreadOf(k, it, seen); if(u.n) out.push([k, it, u]); }
+  return out;
 }
-function chatHeadHtml(){
-  const list = itemList(), un = v => list.filter(x => whereOf(x[1]) === v && isUnread(x)).length;
-  const chs = [...new Set([...store.get('chs', []), ...list.map(x => String(x[1].at || '')).filter(a => a.startsWith('ch:'))])];
-  const views = ['here', 'all', 'lore', ...chs, 'other'];
-  if(!views.includes(fbView)) fbView = 'here';
-  const here = Object.values(roomMembers).filter(hereNow).map(m => m.name || '名前なし');
-  return '<div class="row" style="justify-content:space-between"><span class="who">今いる人：' + escText(here.join('、') || 'いない') + '</span><button id="fbMaxBtn">' + (fbMax ? '小さくする' : '広げる') + '</button></div>'
-    + '<input id="fbFind" placeholder="話を探す" maxlength="40">'
-    + '<div class="row chips">' + views.map(v => '<button data-view="' + escAttr(v) + '"' + (v === fbView && !fbFind.trim() ? ' class="on"' : '') + '>' + escText(viewName(v)) + (un(v) ? '　' + un(v) : '') + '</button>').join('') + '<button id="fbChNew" title="チャンネルを作る" aria-label="チャンネルを作る">＋</button></div>'
-    + (fbChOpen ? '<div class="row"><input id="fbChName" maxlength="20" placeholder="新しいチャンネルの名前" style="flex:1;width:auto"><button id="fbChMake">作る</button></div>' : '');
-}
-function threadsHtml(){
-  const shown = shownItems(), q = fbFind.trim();
-  const tools = (k, rk) => { const id = rk ? k + '|' + rk : k; return fbDelAsk === id ? '<button class="mini" data-delyes="' + id + '">本当に消す</button><button class="mini" data-delno="1">やめる</button>' : '<button class="mini" data-edit="' + id + '">直す</button><button class="mini" data-del="' + id + '">消す</button>'; };
-  const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="row"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
-  const pic = id => (imgCache[id] ? '<img src="' + imgCache[id] + '" alt="付けられた画像">' : '<div class="row"><button data-img="' + id + '">画像を見る</button></div>');
-  const one = x => {
-    const [k, it] = x, w = whereOf(it), votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV];
-    const rx = it.rx && typeof it.rx === 'object' ? it.rx : {}, author = k.split('-')[0];
-    const read = Object.keys(it.seen && typeof it.seen === 'object' ? it.seen : {}).filter(d => d !== author).length;
-    return '<div class="th' + (itemCallsMe(x) ? ' me' : '') + (isUnread(x) ? ' new' : '') + '"><div class="who">' + escText(it.by || '名前なし') + (it.claude ? '　Claude への頼みごと' : '') + (it.ask ? '　みんなへの問い' : it.label && it.label !== 'その他' ? '　' + escText(it.label) : '') + (it.edited ? '　直した' : '') + (it.done ? '　反映済み' : '')
-      + (w === 'other' || q ? '　' + escText(w === 'other' ? String(it.title).split(']')[0] + ']' : viewName(w)) : '') + (read ? '　既読 ' + read : '') + '</div>'
-      + (fbEdit && fbEdit.id === k ? editor(k) : '<div class="tx">' + escText((it.text || String(it.body || '').split('\n\n---\n')[0]).replace(/^### (.*)\n+/, '$1\n')) + '</div>')
-      + (it.img ? pic(k) : '')
-      + (Array.isArray(it.opts) ? '<div class="row">' + it.opts.map((o, i) => '<button data-vote="' + k + '|' + i + '"' + (my === i ? ' class="on"' : '') + '>' + escText(o) + '　' + votes.filter(v => v === i).length + '</button>').join('') + '</div>' : '')
-      + '<div class="row rx">' + EMOJI.map((e, i) => { const who = rx['e' + i] && typeof rx['e' + i] === 'object' ? Object.keys(rx['e' + i]) : []; return '<button data-rx="' + k + '|' + i + '"' + (who.includes(DEV) ? ' class="on"' : '') + '>' + e + (who.length ? ' ' + who.length : '') + '</button>'; }).join('') + (mineKey(k) && it.free ? tools(k) : '') + '</div>'
-      + (unitOk(it.draft) ? '<div class="row">' + (it.adopted ? '<span class="who">採用済み。部屋の全員の本に、入っています</span>' + (isHost() ? '<button class="mini" data-adopt="' + k + '|0">採用をやめる</button>' : '') : isHost() ? '<button data-adopt="' + k + '|1">採用する</button>' : '<span class="who">ホストが採用すると、全員の本に入ります</span>') + '</div>' : '')
-      + (it.reply ? '<div class="re"><b>Claude</b>　' + escText(it.reply) + '</div>' : '')
-      + visRes(it).map(([rk, r]) => '<div class="re">' + (fbEdit && fbEdit.id === k + '|' + rk ? editor(k + '|' + rk) : '<b>' + escText(r.by || '名前なし') + '</b>　' + escText(r.text) + (r.edited ? '　（直した）' : '')) + (r.img ? pic(k + '_' + rk) : '') + (mineKey(rk) ? '<div>' + tools(k, rk) + '</div>' : '') + '</div>').join('')
-      + '<input data-re="' + k + '" placeholder="返信を書く" maxlength="400"><div class="row"><button data-resend="' + k + '">返信する</button><button class="mini" data-reimg="' + k + '">' + (fbReImg[k] ? '画像を付けました' : '画像を付ける') + '</button></div></div>';
-  };
-  return '<div>' + (shown.length ? shown.map(one).join('') : '<p>' + (q ? '見つかりません。' : 'まだ、ありません。') + '</p>') + '</div>';
-}
-// 開いて見えた話は、読んだことにする（自分の端末に覚え、部屋にも「既読」を残す）
-function markSeen(){
-  if(!room || !fbOpen) return;
-  const seen = store.get('seen-items', {}); let ch = false;
-  for(const [k, it] of (cmThread && roomItems[cmThread] ? [[cmThread, roomItems[cmThread]]] : [])){
-    const n = sizeOf(it);
-    if((seen[k] || 0) < n){ seen[k] = n; ch = true; }
-    if(roomOpen && !mineKey(k) && !(it.seen && it.seen[DEV])){ it.seen = Object.assign(it.seen && typeof it.seen === 'object' ? it.seen : {}, { [DEV]:1 }); roomFetch(roomPath('items/' + k + '/seen/' + DEV), { method:'PUT', body:'1' }).catch(() => {}); }
-  }
-  if(ch){ store.set('seen-items', seen); chatBadge(); }
-}
-// つまみの数字：まだ読んでいない話の数（名指しされていれば @ を付ける）
 function chatBadge(){
   const tab = document.getElementById('fbTab');
   if(!room){ if(tab) tab.innerHTML = '通信'; return 0; }
-  const un = itemList().filter(isUnread), n = un.length;
-  if(tab){ const n0 = (un.some(itemCallsMe) ? '@' : '') + (n || ''); tab.innerHTML = '通信' + (n0 ? '<i class="tabn">' + n0 + '</i>' : ''); }
+  const un = cmFollowUnread(), n = un.length;
+  if(tab){ const n0 = (un.some(x => x[2].at) ? '@' : '') + (n || ''); tab.innerHTML = '通信' + (n0 ? '<i class="tabn">' + n0 + '</i>' : ''); }
   document.title = (n ? '(' + n + ') ' : '') + PAGE_TITLE;
   return n;
 }
-// 新しい話が来たら、知らせを出す（許しをもらっていて、欄を開いていないか、ページが裏にあるとき）
+// 新しい話が来たら、知らせを出す（許しをもらっていて、欄を開いていないか、ページが裏にあるとき）。数えるのは、フォロー中のスレッドだけ
 function chatNotify(){
   cmAutoAdopt();
-  const un = itemList().filter(isUnread), n = un.length;
+  // フォローをやめたスレッドでも、まだ読んでいない所で呼ばれたら、またフォローする（Mattermost と同じ）
+  const fol = store.get('cm-follow', {}), seen = store.get('seen-items', {}); let ch = false;
+  for(const [k, it] of itemList()) if(fol[k] === 0 && cmUnreadOf(k, it, seen).at){ fol[k] = 1; ch = true; }
+  if(ch) store.set('cm-follow', fol);
+  const un = cmFollowUnread(), n = un.length;
   if(n > lastUnread && (document.hidden || !fbOpen) && 'Notification' in window && Notification.permission === 'granted'){
     const [, it] = un[un.length - 1], last = visRes(it).pop();
     try { new Notification(PAGE_TITLE, { body:(last ? last[1].by + '：' + last[1].text : it.by + '：' + (it.text || it.title)).slice(0, 80), tag:'jtld-room' }); } catch(e){}
@@ -7294,7 +7602,7 @@ async function threadEditSave(id){
 }
 async function threadDelete(id){
   const [k, rk] = id.split('|');
-  cmSheet = '';
+  cmSheet = ''; if(!rk) cmDraftPut(k, ''); // スレッドごと消すときは、そのスレッドへの書きかけも消す
   if(!room){ if(rk){ if(roomItems[k] && roomItems[k].re) delete roomItems[k].re[rk]; } else delete roomItems[k]; fbDelAsk = ''; memoSave(); render(); return; }
   try {
     const res = await roomFetch(roomPath('items/' + k + (rk ? '/re/' + rk : '')), { method:'DELETE' });
@@ -7339,7 +7647,7 @@ function fbMic(){
   if(fbRec){ fbRec.stop(); return; }
   const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   r.lang = 'ja-JP'; r.continuous = true; r.interimResults = false;
-  r.onresult = e => { for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal){ const tx = e.results[i][0].transcript; if(room && cmThread) fbRe[cmThread] = (fbRe[cmThread] || '') + tx; else fbDrafts.opinion += tx; } const t = document.getElementById(room && cmThread ? 'cmReText' : 'fbText'); if(t){ t.value = room && cmThread ? fbRe[cmThread] || '' : fbDrafts.opinion; cmGrow(t); } };
+  r.onresult = e => { const slot = cmSlot(); for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal) cmDraftPut(slot, cmDraft(slot) + e.results[i][0].transcript); const t = document.querySelector('.cm-r textarea[data-slot="' + slot + '"]'); if(t){ t.value = cmDraft(slot); t.dispatchEvent(new Event('input')); } };
   r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクを使う許しが、出ていません。' : '声を聞き取れませんでした。'; };
   r.onend = () => { fbRec = null; render(); };
   fbRec = r;
@@ -7496,22 +7804,19 @@ function placeFormWire(box, s){
   });
 }
 // 返信する・問いに答える・画像を読む
-async function threadReply(k){
-  const text = (fbRe[k] || '').trim();
-  if(!text) return;
-  if(!room){ const it0 = roomItems[k]; if(it0){ it0.re = it0.re && typeof it0.re === 'object' ? it0.re : {}; it0.re[DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { by:store.get('fb-name', '') || '自分', text:text.slice(0, 1000), o:Date.now() }; memoSave(); fbRe[k] = ''; } render(); return; }
+// 返信する：新しいスレッドと同じく、送る待ちの箱（outbox）に入れてから送る。送っているあいだは薄く並び、届かなかったら残る
+function threadReply(k){
+  const text = cmDraft(k).trim();
+  if(!k || !text) return;
+  if(!room){ const it0 = roomItems[k]; if(it0){ it0.re = it0.re && typeof it0.re === 'object' ? it0.re : {}; it0.re[DEV + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)] = { by:store.get('fb-name', '') || '自分', text:text.slice(0, 4000), o:Date.now() }; memoSave(); cmDraftPut(k, ''); cmPlus = false; cmToBottom = true; } render(); return; }
   if(!roomOpen){ fbNote = 'この部屋は、ホストが閉じました。'; render(); return; }
-  const showAt = sendAfter(), id = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5), r = { by:store.get('fb-name', '') || '（名前なし）', text:text.slice(0, 1000), showAt, o:showAt || Date.now(), img:!!fbReImg[k], ...(fbReFile[k] ? { file:{ name:fbReFile[k].name, size:fbReFile[k].size } } : {}) };
-  try {
-    if(fbReFile[k]){ const r0 = await roomFetch(ROOM_DB + room + '-file/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(fbReFile[k].data) }); if(!r0.ok) throw 0; delete fbReFile[k]; }
-    if(fbReImg[k]){ const r0 = await roomFetch(ROOM_DB + room + '-img/' + k + '_' + id + '.json', { method:'PUT', body:JSON.stringify(fbReImg[k]) }); if(!r0.ok) throw 0; imgCache[k + '_' + id] = fbReImg[k]; delete fbReImg[k]; }
-    const res = await roomFetch(roomPath('items/' + k + '/re/' + id), { method:'PUT', body:JSON.stringify(r) });
-    if(!res.ok) throw 0;
-    const it = roomItems[k]; if(it){ it.re = it.re && typeof it.re === 'object' ? it.re : {}; it.re[id] = clean(r); }
-    const seen = store.get('seen-items', {}); if(it) seen[k] = sizeOf(it); store.set('seen-items', seen);
-    fbRe[k] = ''; roomSig = ''; fbNote = r.showAt ? store.get('send-at', '') + ' を過ぎたら、ほかの人に見えます。' : '';
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
-  render();
+  const showAt = sendAfter(), rid = DEV + '-' + (showAt || Date.now()).toString(36) + Math.random().toString(36).slice(2, 5);
+  const box = store.get('outbox', []);
+  box.push({ id:'re|' + rid, re:k, rid, text:text.slice(0, 4000), after:showAt, ...(fbReImg[k] ? { img:fbReImg[k] } : {}), ...(fbReFile[k] ? { file:fbReFile[k] } : {}) });
+  store.set('outbox', box);
+  delete fbReImg[k]; delete fbReFile[k];
+  cmDraftPut(k, ''); cmPlus = false; cmToBottom = true; cmSetFollow(k, true);
+  roomSendItems(); render();
 }
 async function threadVote(k, i){
   if(!roomOpen) return;
@@ -7739,6 +8044,8 @@ async function adoptItem(k, on){
     await overlayWrite(o => { if(u.t === 'cam'){ o.cams = o.cams || {}; const sc = (o.cams[u.x.scene] = o.cams[u.x.scene] || {}); if(on){ const { id, scene, ...rest } = u.x; sc[id] = rest; } else delete sc[u.x.id]; } else if(u.t === 'book'){ o.books = o.books || {}; if(on){ const { id, ...rest } = u.x; o.books[id] = rest; } else delete o.books[u.x.id]; } else if(u.t === 'spot'){ o.spots = o.spots || {}; const bk = (o.spots[u.x.book] = o.spots[u.x.book] || {}); if(on){ const { id, book, ...rest } = u.x; bk[id] = rest; } else delete bk[u.x.id]; } else o.keys[u.key] = unitApply(Object.assign(DRAFT_BASE(), o.keys[u.key]), u, on); if(on) o.items[k] = { by:String(it.by || ''), at:Date.now() }; else delete o.items[k]; });
     if(!on) store.set('adopt-skip', [...new Set([...store.get('adopt-skip', []), k])].slice(-200));
     it.adopted = on; fbNote = on ? '採用しました。全員のゲームに入ります。' : '採用をやめました。';
+    const mk = on && u.t === 'para' && /^([a-z]+):(\d+)$/.exec(u.key); // 本文の直しを採用したら、その場面のメタゾンビを封印する
+    if(mk) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]));
   } catch(e){ fbNote = 'リポジトリに書けませんでした。電波のよい所で、もう一度押してください。'; }
   roomSig = ''; render(); roomPull();
 }
@@ -8154,6 +8461,350 @@ function flowJump(no){
   store.set('world', w); store.set('player-' + current, s);
   flowOpen = false; draftShown = null; selectedBlock = null; render(); window.scrollTo(0, 0);
 }
+// ===== メタゾンビ（校正の遊び）。校正が済んでいない段落に立つ。1体＝作業用のリポジトリの Issue 1つ =====
+// 最初に置く所：説明の点検（setsumeisho-tenken の lint.js。2026-11-18 の決まり）と同じ決まりで、段落の文を点検して、引っかかった段落。
+// 種類：言い回し（決まった言い回し）／抜け（「何が」「何を」がない）／くり返し（同じ言い回しで終わる文が続く）／正体不明（くじで置いたもの）
+const MZ_WORDS = [
+  [/この端末/, 'ふつう言わない言葉（この端末）'], [/控え/, 'ふつう言わない言葉（控え）'], [/段落/, 'ふつう言わない言葉（段落）'],
+  [/片づけ|片付け/, 'ふつう言わない言葉（片づける）'], [/その場で/, 'ふつう言わない言葉（その場で）'], [/自分の版/, 'ふつう言わない言葉（自分の版）'],
+  [/反映のしかた/, 'ふつう言わない言葉（反映のしかた）'], [/だけで|だけです。$/, '「〜だけ」で手軽さを言っていないか'],
+  [/は[0-9０-９一二三四五]+つです。/, '中身のない前置き（〜は2つです）'], [/例に説明します|以下のとおり|次のとおりです。$/, '中身のない前置き'],
+  [/を開始します|を実施|を行います/, '硬い言い回し'], [/たびに、[^。]*たび/, 'くどいくり返し'], [/それでも話は続きます|かまいません。/, '消しても困らない文ではないか'],
+];
+const MZ_VERB = /(書き換え|配|足|消|直|保存|送|選|押|付け|減|増)[らりるれっえけせてべめ]/;
+// 文の点検。返すもの：[{ kind, why, s（引っかかった文） }]
+function mzLint(text){
+  const lines = String(text || '').replace(/\r/g, '').split('\n'), out = [], sents = l => l.split('。').map(x => x.trim()).filter(Boolean);
+  for(const line of lines){
+    if(!line.trim()) continue;
+    for(const s of sents(line)){
+      for(const [re, why] of MZ_WORDS) if(re.test(s + '。')) out.push({ kind:'言い回し', why, s:s + '。' });
+      if(MZ_VERB.test(s) && !/[をが]/.test(s)) out.push({ kind:'抜け', why:'「何が」「何を」が、この文の中にない', s:s + '。' });
+    }
+  }
+  let prev = null, prevLast = null;
+  const same = (x, y) => x && y && x.length >= 12 && y.length >= 12 && x.slice(-10) === y.slice(-10) && !/ください$/.test(x);
+  for(const line of lines){
+    if(!line.trim()) continue;
+    const ss = sents(line);
+    ss.forEach((s, k) => {
+      if(same(prev, s) || (k === ss.length - 1 && prevLast !== prev && same(prevLast, s))) out.push({ kind:'くり返し', why:'同じ言い回しで終わる文が続いている', s:s + '。' });
+      prev = s;
+    });
+    if(ss.length) prevLast = ss[ss.length - 1];
+  }
+  return out;
+}
+const MZ_JA = /[぀-ヿ一-鿿]/;
+// 段落のもとの文：文字列ならそのまま。関数なら、使い捨ての状態（newPlayer・newWorld。どこにも保存しない）で動かした文と、関数の中に書いてある文の全部
+function mzParaText(book, no){
+  const B = BOOKS[book], p = B && B.paras && B.paras[no];
+  if(!p || p.text == null) return '';
+  if(typeof p.text === 'string') return p.text;
+  const out = [];
+  try { const s = newPlayer(book); s.para = +no; const t = p.text(s, newWorld()); if(typeof t === 'string') out.push(t); } catch(e){}
+  const src = String(p.text);
+  for(const r of [/'([^'\\]*)'/g, /`([^`\\]*)`/g]) for(let m; (m = r.exec(src));) if(MZ_JA.test(m[1])) out.push(m[1]);
+  return [...new Set(out.map(x => x.replace(/\\n/g, '').trim()).filter(x => MZ_JA.test(x)))].join('\n');
+}
+// くじ：本と場所の名前から決まる数（開くたびに変わらない）
+const mzHash = t => { let h = 2166136261; for(const c of String(t)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+// 結果の段落（res）へ来る元の段落：選択肢を、使い捨ての状態で動かして、行き先を調べる（フローの図と同じ調べ方）。
+// 選んだときに乱数で行き先を決める選択肢（run）は、乱数を一番小さい値と一番大きい値に決めて2回動かし、両方の行き先を拾う（すぐ元の乱数に戻す）
+function mzResFrom(book, B){
+  const from = {}, mk = no => { const s = newPlayer(book); s.para = +no; return [s, newWorld()]; };
+  for(const no of Object.keys(B.paras || {})){
+    const p = B.paras[no]; let chs = [];
+    try {
+      const [s, w] = mk(no);
+      if(p.spot){ const sp = B.spots[p.spot]; if(sp && sp.extra) chs = sp.extra(s, w) || []; }
+      else chs = (typeof p.choices === 'function' ? p.choices(s, w) : p.choices) || [];
+    } catch(e){}
+    for(const ch of chs){
+      if(!ch) continue;
+      const tos = typeof ch.to === 'number' && ch.to ? [ch.to] : [];
+      if(typeof ch.run === 'function'){
+        const R = Math.random;
+        for(const v of [0, 0.9999]){ try { Math.random = () => v; const t = ch.run(...mk(no)); if(typeof t === 'number') tos.push(t); } catch(e){} finally { Math.random = R; } }
+      }
+      for(const t of tos) if(B.paras[t] && B.paras[t].res && !(t in from)) from[t] = no;
+    }
+  }
+  return from;
+}
+// 段落の場所：段落の spot、なければ place から。結果の段落は、来る元の段落の場所。分からなければ、場所なし
+function mzSpotOf(B, no, from = {}){
+  for(let i = 0; i < 6; i++){
+    const p = B.paras[no]; if(!p) return null;
+    if(p.res){ if(!(no in from)) return null; no = from[no]; continue; }
+    if(p.spot) return p.spot;
+    if(p.place) for(const [k, sp] of Object.entries(B.spots || {})) if(sp.place === p.place) return k;
+    return null;
+  }
+  return null;
+}
+// 最初に置くメタゾンビ。text(no) は、書き換えを重ねたあとの段落の文を返す関数
+// 返すもの：[{ book, para, kind, why, s, spot }]。点検に引っかかった段落に1体ずつ。
+// 地図の場所のうち、引っかかった段落が1つもない場所には、その場所の段落（場所に着いたときの段落と、その場所の段落）からくじで1体（正体不明）
+function mzSeed(book, B, text){
+  const out = [], bySpot = {}, from = mzResFrom(book, B);
+  for(const [sp, x] of Object.entries(B.spots || {})) if(x && B.paras[x.no]) bySpot[sp] = [String(x.no)];
+  for(const no of Object.keys(B.paras || {})){
+    const t = text(no); if(!MZ_JA.test(t)) continue;
+    const sp = mzSpotOf(B, no, from); if(sp && bySpot[sp] && !bySpot[sp].includes(no)) bySpot[sp].push(no);
+    const hit = mzLint(t);
+    if(hit.length) out.push({ book, para:+no, kind:hit[0].kind, why:hit[0].why, s:hit[0].s, spot:sp });
+  }
+  const hitSpots = new Set(out.map(z => z.spot).filter(Boolean));
+  for(const [sp, nos] of Object.entries(bySpot)){
+    if(hitSpots.has(sp)) continue;
+    const no = nos.slice().sort((a, b) => a - b)[mzHash(book + ':' + sp) % nos.length];
+    out.push({ book, para:+no, kind:'正体不明', why:'くじで置いた', s:'', spot:sp });
+  }
+  return out;
+}
+// 書き換えを重ねたあとの段落の文（下書きと、採用したもの）
+function mzShownText(c, no){
+  let t = mzParaText(c, no); const d = shownOf(c + ':' + no);
+  for(const x of d.paras) if(x.kind === 'text' && x.before) t = t.split(x.before).join(x.after || '');
+  for(const x of d.ins) if(x.kind === 'text' && x.text) t += '\n' + x.text;
+  return t;
+}
+// チケット：作業用のリポジトリの Issue。自己流のファイルにしない（RULES.md）
+//   ラベル … 「メタゾンビ」と「種類:言い回し」など　　閉じる … 封印（直した。completed）／［異常なし］（not planned）
+//   本文 … 本・段落・場所・種類を「### 見出し」の形で（Issue Forms と同じ形）。終わりに、ゲームが読む印（<!-- jtld-mz {...} -->）
+// 編集版で、リポジトリを連携しているときだけ（部屋なら、リポジトリのある部屋）。もらった版で遊んでいるときは出さない
+const MZ_LABEL = 'メタゾンビ', MZ_NAME = { 言い回し:'にじむもの', 抜け:'欠けたもの', くり返し:'重なるもの', 正体不明:'砂嵐のもの' };
+const MZ_COLOR = { 言い回し:'b8a9d9', 抜け:'9fb3c8', くり返し:'c8b49f', 正体不明:'8a8a8a' };
+let mzPanel = false, mzNote = '', mzBusy = '', mzAsk = '', mzLoading = null, mzFailAt = 0, mzErrCode = 0, MZ_GAP = 1100;
+let mzData = store.get('mz-list', null); // 読んだチケットの一覧 { repo, at, items }
+const mzSeedCount = {}; // 本ごとの、最初に置く数（数えるのに少し時間がかかるので、覚えておく）
+const mzOn = () => TEST_BUILD && !CUSTOM && ghLinked() && !(room && roomLocal());
+const mzCan = () => mzOn() && (!room || isHost()); // 最初に置けるのは、1人のときは本人、部屋では部屋を作った人
+const mzItems = () => (mzData && mzData.repo === ghRepo() ? mzData.items : []);
+const mzPending = c => { const p = store.get('mz-seeding', null); return !!p && p.repo === ghRepo() && p.book === c; }; // 置いている途中で止まった本
+const mzHere = (c, no) => mzItems().filter(z => z.book === c && z.para === +no && z.state === 'open');
+const mzSpotName = z => { const B = BOOKS[z.book], sp = B && z.spot && B.spots && B.spots[z.spot]; return sp && sp.name ? sp.name : (CHARS[z.book] ? CHARS[z.book].name + 'の本' : z.book); };
+const mzTitle = z => mzSpotName(z) + 'の、' + MZ_NAME[z.kind];
+const mzBody = z => ['### 本', CHARS[z.book].name + 'の本', '', '### 場面の番号', String(z.para), '', '### 場所', mzSpotName(z), '', '### 種類', z.kind, '',
+  '### 引っかかった文', z.s ? '> ' + String(z.s).replace(/\n+/g, ' ') : '（くじで置いたので、引っかかった文はありません）', '', '### 置いたわけ', z.why, '', '---',
+  '編集版のゲームから置いたメタゾンビです。場面の文章を直すか、直す所がなければゲームのメタゾンビ図鑑で［異常なし］を押すと、メタゾンビは封印されます。',
+  '<!-- jtld-mz ' + JSON.stringify({ v:1, book:z.book, para:z.para, kind:z.kind }) + ' -->'].join('\n');
+function mzApi(path, opt = {}){
+  return fetch('https://api.github.com/repos/' + ghRepo() + '/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify(opt.body) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+}
+// 本の名前から、本の鍵（Issue Forms で人が書いたときは「警察署長の本」など）
+const mzBookKey = t => { t = String(t || '').trim(); if(CHARS[t]) return t; const m = /（([a-z]+)）$/.exec(t); if(m && CHARS[m[1]]) return m[1]; return Object.keys(CHARS).find(id => t === CHARS[id].name || t === CHARS[id].name + 'の本') || ''; };
+function mzParse(x){
+  const body = String((x && x.body) || ''); let d = null;
+  const m = /<!-- jtld-mz (\{[^<>]*\}) -->/.exec(body); if(m) try { d = JSON.parse(m[1]); } catch(e){}
+  const f = k => ((new RegExp('###\\s*' + k + '\\s*\\n+\\s*([^\\n]+)').exec(body) || [])[1] || '').trim();
+  if(!d) d = { book:f('本'), para:f('場面の番号'), kind:f('種類') };
+  const book = mzBookKey(d.book), para = parseInt(d.para, 10);
+  if(!book || !(para > 0)) return null;
+  return { n:x.number, title:String(x.title || ''), state:x.state === 'closed' ? 'closed' : 'open', reason:String(x.state_reason || ''), book, para, kind:MZ_NAME[d.kind] ? d.kind : '正体不明',
+    s:f('引っかかった文').replace(/^>\s*/, '').replace(/^（.*）$/, ''), at:Date.parse(x.created_at) || Date.now(), closedAt:Date.parse(x.closed_at) || 0, url:String(x.html_url || '') };
+}
+// チケットを読む。1分のあいだは、読んだものを使う
+async function mzLoad(force){
+  if(!mzOn()) return;
+  const repo = ghRepo();
+  if(!force && mzData && mzData.repo === repo && Date.now() - mzData.at < 60e3) return;
+  if(mzLoading) return mzLoading;
+  mzLoading = (async () => {
+    const items = [];
+    for(let page = 1; page <= 20; page++){
+      const r = await mzApi('issues?state=all&per_page=100&page=' + page + '&labels=' + encodeURIComponent(MZ_LABEL));
+      if(!r.ok) throw r.status;
+      const a = await r.json();
+      for(const x of a) if(!x.pull_request){ const z = mzParse(x); if(z) items.push(z); }
+      if(a.length < 100) break;
+    }
+    mzData = { repo, at:Date.now(), items }; store.set('mz-list', mzData); mzErrCode = 0;
+  })();
+  try { await mzLoading; } catch(e){ mzFailAt = Date.now(); mzErrCode = typeof e === 'number' ? e : -1; throw e; } finally { mzLoading = null; }
+}
+// 画面を描いたあとに呼ぶ：古ければ、裏で読み直して、描き直す（読めなかったときは、1分あけてから）
+function mzRefresh(){
+  if(!mzOn() || mzLoading || Date.now() - mzFailAt < 60e3) return;
+  if(mzData && mzData.repo === ghRepo() && Date.now() - mzData.at < 60e3) return;
+  mzLoad().then(render, render);
+}
+const mzErrText = e => e === 401 ? 'トークンが使えなくなっています。' + (room && !isHost() ? '部屋を作った人に、新しい招待リンクをもらって、開いてください。' : room ? '部屋の画面で［トークンを作り直す］を開いて、作り直したトークンを貼ってください。' : '［☰］の［作る］にある［リポジトリの設定］で、新しいトークンを貼ってください。')
+  : e === 403 || e === 404 ? 'トークンに、Issues を読み書きする権限がありません。' + (room && !isHost() ? '部屋を作った人に、権限を足してもらってください。' : '権限を足してください。')
+  : 'GitHub につながりません。';
+// 最初に置く数（その本の、まだチケットのない分）
+function mzToSeed(c){
+  if(!mzSeedCount[c]) mzSeedCount[c] = BOOKS[c] ? mzSeed(c, BOOKS[c], no => mzShownText(c, no)) : [];
+  const have = new Set(mzItems().filter(z => z.book === c).map(z => z.para));
+  return mzSeedCount[c].filter(z => !have.has(z.para));
+}
+// 最初に置く：本ごとに。途中で止まっても、もう一度押すと、まだない分だけ置く
+async function mzSeedBook(c){
+  if(!mzCan() || mzBusy) return;
+  mzAsk = ''; mzNote = ''; mzBusy = '数えています…'; render();
+  let made = 0;
+  try {
+    await mzLoad(true);
+    delete mzSeedCount[c]; store.set('mz-seeding', { repo:ghRepo(), book:c });
+    const list = mzToSeed(c);
+    await mzLabels();
+    for(const z of list){
+      mzBusy = 'メタゾンビを置いています… ' + (made + 1) + ' / ' + list.length; render();
+      const r = await mzApi('issues', { method:'POST', body:{ title:mzTitle(z), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
+      if(!r.ok) throw r.status;
+      const y = mzParse(await r.json()); if(y){ mzData.items.push(y); store.set('mz-list', mzData); }
+      made++;
+      await new Promise(ok => setTimeout(ok, MZ_GAP)); // GitHub は、短いあいだに Issue をたくさん作ると止めるので、間をあける
+    }
+    store.remove('mz-seeding'); mzNote = CHARS[c].name + 'の本に、メタゾンビを' + made + '体置きました。';
+  } catch(e){ mzNote = (typeof e === 'number' ? mzErrText(e) : 'メタゾンビを置けませんでした。') + (made ? '置けた' + made + '体は、残っています。［続きを置く］を押すと、残りを置きます。' : ''); }
+  mzBusy = ''; render();
+}
+// ラベルを作る（すでにあれば 422。そのまま進む）
+async function mzLabels(){ for(const [name, color] of [[MZ_LABEL, 'f2f0ea'], ...Object.entries(MZ_COLOR).map(([k, v]) => ['種類:' + k, v])]) await mzApi('labels', { method:'POST', body:{ name, color } }).catch(() => null); }
+// 呼び出す：本文の文章を長く押す（パソコンでは右クリック）と、その場面に1体置く。種類は、その文章を点検して決める（引っかからなければ正体不明）
+let mzCall = null; // { c, no, s }
+async function mzSummon(){
+  const k = mzCall; mzCall = null;
+  if(!k || !mzOn()){ render(); return; }
+  fbNote = 'メタゾンビを呼び出しています…'; render();
+  try {
+    await mzLoad();
+    const B = BOOKS[k.c], hit = mzLint(k.s)[0], who = store.get('fb-name', ''), here = B && Object.keys(B.spots || {}).find(id => B.spots[id].place === loadPlayer(k.c).place);
+    const z = { book:k.c, para:+k.no, kind:hit ? hit.kind : '正体不明', why:(who ? who + 'が' : '') + '呼び出した。', s:k.s, spot:(B && mzSpotOf(B, String(k.no))) || here || null };
+    await mzLabels();
+    const r = await mzApi('issues', { method:'POST', body:{ title:mzTitle(z), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
+    if(!r.ok) throw r.status;
+    const y = mzParse(await r.json()); if(y){ mzData.items.push(y); store.set('mz-list', mzData); }
+    fbNote = 'メタゾンビを呼び出しました。';
+  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを呼び出せませんでした。'; }
+  render();
+}
+// 呼び出すかを確かめる窓（画面を描くたびに、出し直す）
+function mzCallShow(){
+  const old = document.getElementById('mzCallBox'); if(old) old.remove();
+  if(!mzCall) return;
+  const s = String(mzCall.s || ''), box = document.createElement('div'); box.id = 'mzCallBox';
+  box.innerHTML = '<div class="cm-shade" data-mzcallno></div><div class="cm-dlg"><b>メタゾンビを呼び出す</b><span>次の文章のある場面に、メタゾンビを1体呼び出します。</span><span style="color:var(--dim)">' + escText(s.length > 80 ? s.slice(0, 80) + '…' : s) + '</span><div class="b"><button data-mzcallno>やめる</button><button class="go" id="mzCallYes">呼び出す</button></div></div>';
+  document.body.appendChild(box);
+  box.querySelectorAll('[data-mzcallno]').forEach(b => { b.onclick = () => { mzCall = null; render(); }; });
+  box.querySelector('#mzCallYes').onclick = () => mzSummon();
+}
+// 閉じる：how は completed（直して封印）か not_planned（異常なし）。誰がしたかを、コメントに残す（トークンは部屋で1つなので、呼び名を書く）
+async function mzClose(n, how, note){
+  const z = mzItems().find(x => x.n === n); if(!z || z.state !== 'open') return false;
+  const who = store.get('fb-name', '');
+  await mzApi('issues/' + n + '/comments', { method:'POST', body:{ body:(who ? '（' + who + '）' : '') + note } }).catch(() => null);
+  const r = await mzApi('issues/' + n, { method:'PATCH', body:{ state:'closed', state_reason:how } });
+  if(!r.ok) throw r.status;
+  Object.assign(z, mzParse(await r.json()) || { state:'closed', reason:how, closedAt:Date.now() }); store.set('mz-list', mzData);
+  return true;
+}
+async function mzNothing(n){
+  if(mzBusy) return;
+  mzAsk = ''; mzBusy = '封印しています…'; render();
+  try { await mzClose(n, 'not_planned', '異常なし。直す所はありませんでした。'); mzNote = '異常なしで、メタゾンビを封印しました。'; } catch(e){ mzNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを封印できませんでした。'; }
+  mzBusy = ''; render();
+}
+// 文を直したら、その場面のメタゾンビを封印する（1人のときは直したとき。部屋では、採用したとき）。封印したときの文を、Issue に残す
+async function mzSeal(c, no, text){
+  if(!mzOn()) return;
+  try { await mzLoad(); } catch(e){ return; }
+  let n = 0;
+  for(const z of mzHere(c, no)) try { if(await mzClose(z.n, 'completed', '封印しました。直した文：\n\n> ' + String(text || '').replace(/\n+/g, '\n> '))) n++; } catch(e){}
+  if(n){ fbNote = (fbNote ? fbNote + '\n' : '') + 'メタゾンビを封印しました。'; render(); }
+}
+// 図鑑：いまの本のメタゾンビ。立っているもの（古い順）と、封印したもの
+function mzPanelHtml(){
+  const c = current, nm = CHARS[c].name, esc = t => escText(String(t || ''));
+  let h = '<div class="scr"><h2 class="scr-h">メタゾンビ図鑑</h2>';
+  h += '<p class="scr-lead">メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。';
+  if(!mzOn()) return h + '</p><div class="scr-state">' + (room ? 'リポジトリのない部屋には、メタゾンビは出てきません。' : 'メタゾンビ図鑑は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
+  h += 'メタゾンビは1体ずつ、作業用のリポジトリに Issue として書かれます。Issue は、GitHub で、やることを1件ずつ書いておくものです。<br>場面の文章を直すと、その場面のメタゾンビは封印されます。封印されたメタゾンビは、場面からいなくなって、図鑑の下にある「封印したメタゾンビ」に並びます。メタゾンビの Issue も閉じられます。' + (room ? 'ただし、部屋では、直した文章が全員のゲームに入ったときに、メタゾンビが封印されます。' : '') + '直す所がなければ、図鑑に並んだメタゾンビの［異常なし］を押すと、封印できます。<br>場面の本文を長く押すと、メタゾンビを呼び出せます。パソコンでは、本文を右クリックします。</p>';
+  if(mzNote) h += '<div class="note">' + esc(mzNote) + '</div>';
+  if(mzBusy) h += '<div class="note">' + esc(mzBusy) + '</div>';
+  if(!mzData || mzData.repo !== ghRepo()) return h + '<div class="scr-state">' + (mzErrCode ? esc(mzErrText(mzErrCode)) + ([401, 403, 404].includes(mzErrCode) ? '' : '電波のよい所で、メタゾンビ図鑑を開き直してください。') : '読んでいます…') + '</div>' + (mzErrCode === 403 || mzErrCode === 404 ? mzPermHtml() : '') + '</div>';
+  const all = mzItems().filter(z => z.book === c), open = all.filter(z => z.state === 'open').sort((a, b) => a.at - b.at), shut = all.filter(z => z.state !== 'open').sort((a, b) => b.closedAt - a.closedAt);
+  h += '<div class="scr-state' + (open.length ? ' on' : '') + '">' + esc(nm) + 'の本<b>いる：' + open.length + '体</b><b>封印した：' + shut.length + '体</b></div>';
+  if(!all.length){
+    if(!mzCan()) h += '<p>' + esc(nm) + 'の本には、まだメタゾンビがいません。部屋を作った人がメタゾンビを置くと、図鑑に出ます。</p>';
+    else if(mzAsk === 'seed') h += '<div class="step"><p>メタゾンビを' + mzToSeed(c).length + '体置きます。1体ごとに、作業用のリポジトリに Issue を1つ作るので、' + mzToSeed(c).length + '秒ほどかかります。</p><div class="row" style="display:flex;gap:8px"><button class="go" id="mzSeedYes">置く</button><button class="sm" id="mzNo">やめる</button></div></div>';
+    else h += '<p>' + esc(nm) + 'の本には、まだメタゾンビがいません。［この本にメタゾンビを置く］を押すと、ゲームが' + esc(nm) + 'の本を点検して、直す所が残っていそうな場面に、メタゾンビを置きます。点検でメタゾンビが1体も置かれなかった場所には、場所の中の場面を1つくじで選んで、1体置きます。</p><button class="go" id="mzSeedBtn"' + (mzBusy ? ' disabled' : '') + '>この本にメタゾンビを置く</button>';
+  } else if(mzCan() && mzPending(c)) h += '<p>メタゾンビを、途中までしか置けませんでした。［続きを置く］を押すと、残りを置きます。</p><button class="sm" id="mzSeedBtn"' + (mzBusy ? ' disabled' : '') + '>続きを置く</button>';
+  const days = z => { const d = Math.floor((Date.now() - z.at) / 864e5); return d < 1 ? '今日置いた' : d + '日前に置いた'; };
+  for(const z of open) h += '<div class="step mz"><div class="n">Issue #' + z.n + '　' + days(z) + '</div><h3>' + esc(z.title) + '</h3>'
+    + (z.s ? '<p class="chg-a">' + esc(z.s) + '</p>' : '')
+    + '<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="sm" data-mzgo="' + escAttr(z.book + ':' + z.para) + '">この場面へ行く</button>'
+    + (mzAsk === 'ok:' + z.n ? '<button class="go" data-mzokyes="' + z.n + '">異常なしにする</button><button class="sm" id="mzNo">やめる</button>' : '<button class="sm" data-mzok="' + z.n + '">異常なし</button>')
+    + (z.url ? '<a class="sm" href="' + escAttr(z.url) + '" target="_blank" rel="noopener" style="margin-left:auto">GitHub で開く</a>' : '') + '</div></div>';
+  if(shut.length) h += '<p style="margin-top:18px"><b>封印したメタゾンビ</b></p>' + shut.map(z => '<div class="rowl"><span>Issue #' + z.n + '　' + esc(z.title) + '<small style="display:block;color:var(--dim)">' + (z.reason === 'not_planned' ? '異常なし' : '直して封印') + '</small></span>' + (z.url ? '<a class="sm" href="' + escAttr(z.url) + '" target="_blank" rel="noopener">GitHub で開く</a>' : '') + '</div>').join('');
+  return h + '</div>';
+}
+// トークンに Issues の権限がないとき（部屋を作った人と、1人のとき）
+function mzPermHtml(){
+  if(room && !isHost()) return '';
+  return '<div class="step"><h3>トークンに Issues の権限を足す</h3><p>1. 下の［GitHub でトークンの一覧を開く］を押します。名前が joining-the-living-dead で始まるトークンを押して、［Edit］を押します。<br>2. Repository permissions の Issues を Read and write にして、保存します。トークンは変わらないので、貼り直さなくても使えます。<br>3. メタゾンビ図鑑を開き直します。</p><a class="go" href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">GitHub でトークンの一覧を開く</a></div>';
+}
+// 映像に立つ姿（編集版）：真っ白な服と肌に、顔を隠す長い黒髪。日本の幽霊の昔からの姿として作る（RULES.md）。
+// 影を落とさない・いつもカメラのほうを向く・1秒に4コマだけ動く。編集版では、怪奇現象（砂嵐・文が化ける・音）は起こさない。種類ごとの姿と、輪郭の色のずれは、公開版の段で足す
+function mzFigure(T){
+  const white = '#e9e7e1', skin = '#efece6', hair = '#0b0b0d';
+  const g = humanoid(T, {
+    skinColor:skin, hairColor:hair, sleeve:white, shoe:skin, hand:skin, bareLegs:true, bareArms:true,
+    face:{ skin:hair, hair, hairH:16 }, // 顔は、髪で隠れている
+    top:wrapTex(T, 32, R => { R(white, -24, 0, 48, 32); R('#d6d3cc', -24, 0, 48, 2); }),
+    low:wrapTex(T, 16, R => { R(white, -24, 0, 48, 16); }),
+    skirt:wrapTex(T, 24, R => { R(white, -24, 0, 48, 24); R('#d6d3cc', -24, 22, 48, 2); }),
+    pants:{ base:skin },
+  });
+  const hm = fmat(T, { color:0x0b0b0d }), u = g.userData;
+  u.neck.add(box(T, .23, .64, .05, hm, 0, -.06, -.115)); // 背中に垂れる髪
+  u.neck.add(box(T, .21, .44, .03, hm, 0, .05, .128));   // 顔の前に垂れる髪
+  if(u.shadow) u.shadow.visible = false;                  // 影を落とさない
+  g.scale.setScalar(1.04);
+  return g;
+}
+// 場所の映像を組むたびに、姿を1体用意しておく。立っているかは、毎コマ見る
+// 立つ所：カメラの前の、歩ける所。全身が映像の枠に入り、映像の高さの3分の1ほどに映る所を、画面の左右に寄せて選ぶ（まんなかは主人公）
+function mzGhostPlace(T, scene, built){
+  Cut.ghost = null;
+  if(!TEST_BUILD || CUSTOM || !built || !built.camera) return;
+  try {
+    const cam = built.camera; cam.updateMatrixWorld();
+    const dir = new T.Vector3(); cam.getWorldDirection(dir); dir.y = 0; if(dir.lengthSq() < 1e-6) dir.set(0, 0, -1); dir.normalize();
+    const ndc = (x, y, z) => new T.Vector3(x, y, z).project(cam);
+    let best = null, bs = Infinity;
+    for(const d of [2.5, 3.5, 4.5, 6, 8, 10, 13]) for(const sx of [-2.4, -1.6, -.9, .9, 1.6, 2.4]){
+      const x = cam.position.x + dir.x * d - dir.z * sx, z = cam.position.z + dir.z * d + dir.x * sx;
+      if(built.nav && !built.nav.free(x, z)) continue;
+      const foot = ndc(x, 0, z), head = ndc(x, 1.75, z);
+      if(foot.z > 1 || head.z > 1 || Math.abs(foot.x) > .8 || foot.y < -.92 || head.y > .85) continue;
+      const score = Math.abs((head.y - foot.y) - .7) + .4 * Math.abs(Math.abs(foot.x) - .5);
+      if(score < bs){ bs = score; best = [x, z]; }
+    }
+    if(!best) return;
+    const g = mzFigure(T);
+    g.userData.base = best; g.position.set(best[0], 0, best[1]); g.visible = false; scene.add(g); Cut.ghost = g;
+  } catch(e){ Cut.ghost = null; }
+}
+function mzGhostUpdate(t){
+  const g = Cut.ghost; if(!g) return;
+  const k = Math.floor(t * 4); if(k === g.userData.k) return; g.userData.k = k; // 1秒に4コマだけ動く
+  g.visible = mzOn() && !!lastView && mzHere(lastView.char, lastView.para).length > 0;
+  if(!g.visible) return;
+  const b = g.userData.base; g.position.set(b[0] + (Math.random() - .5) * .05, 0, b[1] + (Math.random() - .5) * .05);
+  const cp = Cut.camera.position; g.rotation.y = Math.atan2(cp.x - g.position.x, cp.z - g.position.z); // いつもカメラのほうを向く
+}
+// 本文の下（［✎ 編集する］の行）に出す札：この場面に立っているメタゾンビ
+function mzTagEl(c, no){
+  if(!mzOn()) return null;
+  const zs = mzHere(c, no); if(!zs.length) return null;
+  const box = document.createElement('div'); box.className = 'mz-tag';
+  box.innerHTML = zs.map(z => '<button class="sm" data-mzopen="' + z.n + '">メタゾンビ #' + z.n + '</button>').join('');
+  box.querySelectorAll('[data-mzopen]').forEach(b => { b.onclick = ev => { ev.stopPropagation(); mzPanel = true; mzAsk = ''; mzNote = ''; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); }; });
+  return box;
+}
 // ===== 変えた所の一覧：自分が書き換えたものを並べて、1件ずつ取り消せる =====
 let chgPanel = false;
 function chgPlace(key){
@@ -8255,6 +8906,9 @@ function fbeSave(act){
     queueIssue(key + '|add|' + x.id, '追加の案', '選択肢の追加：' + label, '### 選択肢の追加\n\n新しい選択肢：' + label + '\n\n選んだら起きること：\n' + (result || '（まだ書かれていない）') + '\n\nそのあと：' + toText(x.to) + (fxText(x.fx) ? '\n\n主人公に起きること：' + fxText(x.fx) : '') + (stageText(x) ? '\n\n演出：' + stageText(x) + (Object.keys(stagePick(x)).length ? '' : '（文から自動）') : '') + (condText(x) ? '\n\n選べる' + condText(x) : '') + (e.scene && e.scene !== anyKey() && key !== anyKey() ? '\n\n置く所：' + sceneTrail(e.scene) : ''));
   }
   draftSet(key, d); fbe = null; render();
+  // 1人のとき：本文を直したら、その場面のメタゾンビを封印する（部屋では、採用したときに封印する）
+  const mk = /^([a-z]+):(\d+)$/.exec(key);
+  if(!room && mk && e.kind === 'para' && !e.insId && act !== 'revert' && (act === 'drop' ? '' : val) !== e.before) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]));
 }
 // 文と選択肢を、下書きを重ねて組み直す。編集中は、段落と選択肢を押すとその場で直せる
 function decorateForEdit(mode){
@@ -8306,6 +8960,7 @@ function decorateForEdit(mode){
     if(shown === '' && !editOn) p.style.display = 'none';
     if(dr && assetOk(dr.img) && shown !== '' && assetUrl(dr.img)){ const im = document.createElement('img'); im.className = 'draftimg'; im.style.margin = '10px 0 0'; im.src = assetUrl(dr.img); im.alt = ''; p.appendChild(im); }
     if(editOn) p.onclick = () => { fbe = { kind:'para', pk, before, st0:dr && dr.st ? dr.st : null, insId:ins ? ins.id : null, afterOf:ins ? ins.afterOf : null, value:shown === '' ? before : shown, img:dr && assetOk(dr.img) ? dr.img : null }; fbNote = ''; render(); };
+    if(mzOn() && shown !== ''){ p.classList.add('mz-hold'); cmHold(p, () => { mzCall = { c:v.char, no:v.para, s:String(shown).trim() }; render(); }); } // 長く押すと、メタゾンビを呼び出す
     return p;
   };
   for(const [pk, sel, orig] of [['msg', '.msg', v.msg], ['text', '.text', v.text]]){
@@ -8326,6 +8981,8 @@ function decorateForEdit(mode){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
       const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
       t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。選択肢を足すときは、下の「＋ 選択肢を足す」を押してください。' : ''; render(); };
+      const mz = mzTagEl(v.char, v.para); // この場面に立っているメタゾンビの札（左）
+      if(mz){ wrap.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px'; wrap.appendChild(mz); }
       wrap.appendChild(t); el.after(wrap);
     }
   }
@@ -8336,7 +8993,7 @@ function decorateForEdit(mode){
     const line = (name, t, max, val, unit) => '<label style="margin:6px 0"><span style="flex:none;width:7em">' + name + '</span><input type="range" min="0" max="' + max + '" step="1" data-t="' + t + '" data-u="' + unit + '" value="' + val + '" style="margin:0"><span style="flex:none;width:3em;text-align:right">' + val + unit + '</span></label>';
     const tb = boxEl('<b>この場面の数</b>　つまみで変えて、試せます。変わるのは、自分の画面だけです。'
       + line('ゾンビ', 'z', 8, zNow, '人') + line('気づかれやすさ', 'notice', 30, pc(ATTACK.notice), '%') + line('つかまれやすさ', 'grab', 60, pc(ATTACK.grab), '%')
-      + btns([['tsend', 'この数を、案として送る'], ['treset', '元の数に戻す']]));
+      + btns([...(room ? [['tsend', 'この数を、案として送る']] : []), ['treset', '元の数に戻す']]));
     tb.querySelectorAll('input').forEach(i => {
       i.oninput = () => { i.nextSibling.textContent = i.value + i.dataset.u; };
       i.onchange = () => {
@@ -8587,7 +9244,8 @@ if(room){
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden' && myDirty) myFlush(true); });
   setInterval(() => { if(document.visibilityState === 'visible' && Date.now() - myBeat > 170000){ myDirty = true; myFlush(); } }, 60000);
   roomPull(true).then(() => {
-    if(TEST_BUILD && store.get('outbox', []).length) roomSendItems();
+    // 開き直したら、残っているものを送り直す（通信の書きこみで、届かなかったと出ているものは、［もう一度送る］を押したときだけ）
+    { const box = store.get('outbox', []); if(box.some(x => x && x.fail && !cmChat(x))) store.set('outbox', box.map(x => (x && x.fail && !cmChat(x) ? { ...x, fail:false } : x))); if(store.get('outbox', []).some(x => x && !x.fail)) roomSendItems(); }
     if(!store.get('fb-name', '')){ roomPanel = true; roomNote = '最初に呼び名を入れて、進める本をロックしてください。'; render(); }
   });
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') roomPull(); });
