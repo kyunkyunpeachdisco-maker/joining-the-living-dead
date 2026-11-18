@@ -330,6 +330,38 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-m .b{position:relative;padding-right:30px}.cm-m .mo{position:absolute;right:4px;top:3px;margin:0;padding:0 4px;font-style:normal;font-size:20px;line-height:1;color:#a8a090;cursor:pointer;background:none;border:0}.cm-m.me .mo{color:#b8a878}.cm-m.pend .b{padding-right:12px}
 @media (pointer:coarse){.cm-m .b,.cm-card .d,.cm-rx button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
 @media (pointer:coarse){.para.mz-hold{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}} /* 本文を長く押してメタゾンビを呼び出すとき、文字の選択と取りあわない */
+/* メタゾンビ：通信のスレッド・図鑑・封印の印 */
+.cm-tag.mz{border-color:#6a3a34;color:#e0c0b8}
+.mz-av{background:repeating-radial-gradient(circle at 30% 40%,#222 0 1px,#777 1px 2px,#111 2px 3px)!important;animation:cctv-static .2s steps(2) infinite}
+.cm-m.mz-voice .b{font-family:var(--f-mincho);letter-spacing:.06em;color:#dccfc8}
+.mz-card .d > div + div{margin-top:4px}
+.mz-acts{flex-wrap:wrap}.mz-acts button{flex:1 1 40%}.mz-acts a{flex:1 1 40%;text-align:center;border-radius:8px;padding:9px;font-size:14px;border:1px solid #3a3a40;color:#c9c2b3;text-decoration:none}
+.mz-stamp{display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;border:2px solid #c0392b;color:#c0392b;border-radius:50%;font-style:normal;font-weight:bold;font-family:var(--f-mincho);transform:rotate(-12deg);margin-right:8px;vertical-align:middle}
+.mz-sealed{padding:10px 12px!important}
+.step.mz-row{display:flex;gap:12px;align-items:center;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;padding:12px}
+.mz-pic{position:relative;flex:none;width:96px;height:54px;background:#000;overflow:hidden;border-radius:4px}
+.mz-pic.none{background:repeating-radial-gradient(circle at 30% 40%,#222 0 1px,#555 1px 2px,#111 2px 3px);animation:cctv-static .2s steps(3) infinite}
+.mz-pic img{display:block;width:100%;height:100%;object-fit:cover}
+.mz-pic .mz-stamp{position:absolute;right:2px;bottom:2px;margin:0;background:rgba(240,236,228,.75)}
+.mz-tx{display:flex;flex-direction:column;gap:3px;min-width:0}.mz-tx .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.04em;color:var(--gold)}.mz-tx b{font-family:var(--f-mincho);font-size:16px}.mz-tx small{font-size:12px;color:var(--dim)}
+.mz-blob rect{animation:mz-blink .3s steps(2) infinite}
+@keyframes mz-blink{50%{opacity:.2}}
+/* 配った版の怪奇現象：化ける文（押すと元の文）・カメラのない場面・題字の乱れ */
+.mz-g{cursor:pointer}
+.mz-g i{font-style:normal}
+.mz-g-nj{filter:blur(.5px);text-shadow:0 0 6px rgba(140,140,160,.9),2px 0 3px rgba(170,30,30,.55);animation:mz-nj 3s ease-in-out infinite alternate}
+.mz-g-nj i{opacity:.35;filter:blur(1.2px);margin:0 -.3em}
+@keyframes mz-nj{to{filter:blur(1.3px);letter-spacing:.16em}}
+.mz-g-kk{letter-spacing:.04em;color:#cfc4b8}
+.mz-g-kr i{opacity:.45}.mz-g-kr i + i{opacity:.25}.mz-g-kr i + i + i{opacity:.12}
+.text.mz-ns{position:relative;cursor:pointer}
+.text.mz-ns::after{content:"";position:absolute;inset:-4px;border-radius:4px;background:repeating-radial-gradient(circle at 30% 40%,rgba(30,30,30,.9) 0 1px,rgba(120,120,120,.8) 1px 2px,rgba(15,15,15,.9) 2px 3px);animation:cctv-static .15s steps(3) infinite;pointer-events:none}
+#cutscene.mz-nosig .cctv-nosig{display:flex}
+#cutscene.mz-nosig .cctv-nosig::after{content:"";position:absolute;left:60%;bottom:6%;width:11%;height:64%;border-radius:40% 40% 8% 8%;background:radial-gradient(ellipse 60% 22% at 50% 14%,rgba(0,0,0,.95) 0 60%,transparent 62%),linear-gradient(rgba(236,234,228,.6),rgba(236,234,228,.3));filter:blur(1.4px);animation:mz-blink .25s steps(2) infinite}
+#front.mz-c1 .fr-title{text-shadow:-1px 0 rgba(255,40,40,.5),1px 0 rgba(40,110,255,.5)}
+#front.mz-c2 .fr-title{text-shadow:-2px 0 rgba(255,40,40,.6),2px 0 rgba(40,110,255,.6);animation:mz-shake 2.4s steps(1) infinite}
+#front.mz-c3 .fr-title{text-shadow:-3px 0 rgba(255,40,40,.7),3px 0 rgba(40,110,255,.7);animation:mz-shake .9s steps(1) infinite;filter:blur(.4px)}
+@keyframes mz-shake{0%,86%{transform:none}88%{transform:translate(3px,-1px) skewX(-6deg)}91%{transform:translate(-4px,1px)}94%{transform:translate(2px,0) skewX(4deg)}}
 .cm-m.pend{opacity:.5}.cm-m.pend.fail{opacity:.85}.cm-m.fail .b{outline:1px solid #ff8a7a}
 .cm-m .st{font-size:12px;color:#8d8778;margin-top:3px;text-align:right}.cm-m.fail .st{color:#ff8a7a}
 .cm-m .st button,.cm-row .ob button{border:1px solid #3a3a40;background:none;color:#e8e2d6;border-radius:8px;padding:4px 10px;font-size:13px;margin-left:6px}
@@ -538,7 +570,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.43';
+const APP_VERSION = 'v0.3.44';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -3800,10 +3832,11 @@ function buildPlace(st){
     wrap.classList.toggle('glitch', Math.random() < (Cut.state.encounter ? 0.35 : 0.03));
     Cut.update(t, Cut.state);
     Cut.actors.update(t, Cut.state);
-    mzGhostUpdate(t);
+    mzGhostUpdate(t); mzPubTick(t);
     if(Cut.built.plan) planDirector(); else if(!!Cut.actors.hiding !== Cut.hidShown) applyHideCam(!!Cut.actors.hiding);
     camExtra();
     Cut.renderer.render(Cut.scene, Cut.camera);
+    mzShotTick(); // メタゾンビの写真は、描いた直後に取る（描く前に消える作りなので）
     drawOsd(now);
   };
   Cut.raf = requestAnimationFrame(loop);
@@ -5294,8 +5327,10 @@ async function soloPublish(){
     const base = (await packDataPublic()).base, g = await ghApi('book/overlay.json');
     if(!g.ok && g.status !== 404) throw g.status;
     const repo = clean(Object.assign({ v:1, keys:{} }, g.ok ? ghDecode(await g.json()) : null)) || {}, o = soloMerge(repo), data = { v:1, base, keys:o.keys, items:{}, poses:repo.poses || overlay.poses || {}, spots:o.spots, books:o.books, cams:o.cams, ...(autoNow() ? { auto:autoNow() } : {}) };
+    const ml = await mzPubList(); if(ml) data.mz = ml; // メタゾンビの居場所（配った版で、怪奇現象を起こす）
     const r = await pubWrite(api, data, 0, pubMemo);
     if(r.status !== 200) throw r.status;
+    await mzPubForm(api, slug);
     store.set('pub-from', { n:r.n, data:verPick(data) }); pubMemo = '';
     for(const id of usedAssets(data)){ const d = await assetData(id), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(m) await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] }), { api }); }
     const link = packLink(slug, '');
@@ -5314,7 +5349,7 @@ function soloDistHtml(){
     + '<div class="step"><div class="n">配り方 1</div><h3>ファイルで配る</h3><p>ファイルを作って、メールやチャットで送ってください。受け取った人は、ファイルを開くと遊べます。</p><button class="go" id="soloExport">ファイルを作る</button></div>'
     + '<div class="step"><div class="n">配り方 2</div><h3>リンクで配る</h3><p>リンクを作って、送ってください。受け取った人は、リンクを開くと遊べます。</p>'
       + (ghLinked()
-        ? '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px"><button class="go" id="soloPublish">' + (store.get('pub-done', '') && store.get('pub-done', '') === store.get('pub-repo', '') ? '配っている版を新しくする' : 'リンクを作る') + '</button><p style="margin-top:10px">ゲームを書き換えたあとは、もう一度押してください。リンクの先のゲームが、新しい版になります。リンクは変わりません。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : '')
+        ? '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="soloPublish">' + (store.get('pub-done', '') && store.get('pub-done', '') === store.get('pub-repo', '') ? '配っている版を新しくする' : 'リンクを作る') + '</button><p style="margin-top:10px">ゲームを書き換えたあとは、もう一度押してください。リンクの先のゲームが、新しい版になります。リンクは変わりません。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : '')
         : '<p>リポジトリを設定すると、ボタン1つでリンクを作れます。</p><button class="sm" id="toLink">リポジトリの設定を開く</button>'
           + '<details class="scr-more"><summary>リポジトリを設定せずに、手で置く方法</summary>'
           + '<p>1. <a href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
@@ -5401,8 +5436,11 @@ function sndInit(){
     const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 6;
     Snd.an = c.createAnalyser(); Snd.an.fftSize = 2048;
     Snd.master.connect(comp); comp.connect(Snd.an); Snd.an.connect(c.destination);
-    Snd.mus = c.createGain(); Snd.mus.gain.value = .5; Snd.mus.connect(Snd.master);
+    // 音楽は、ひずみ（Snd.shape。ふだんは素通し）と、途切れ（Snd.gate）を通す。配った版のメタゾンビが使う
+    Snd.mus = c.createGain(); Snd.mus.gain.value = .5; Snd.shape = c.createWaveShaper(); Snd.shapeL = 0; Snd.gate = c.createGain();
+    Snd.mus.connect(Snd.shape); Snd.shape.connect(Snd.gate); Snd.gate.connect(Snd.master);
     Snd.sfx = c.createGain(); Snd.sfx.gain.value = .9; Snd.sfx.connect(Snd.master);
+    Snd.mz = c.createGain(); Snd.mz.gain.value = .8; Snd.mz.connect(Snd.master);
     const len = c.sampleRate, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
     for(let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     Snd.noise = buf;
@@ -5587,7 +5625,7 @@ function howPages(kind){
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、本文や選択肢を書き換えられます。書き換えたものは、部屋の全員に見えます。書き換えたものがいつ全員のゲームに入るかは、部屋を作った人が決めています。' },
       { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys },
-      { t:'通信', text:'画面の右端の［通信］を押すと、部屋の人と話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '［AI に頼む］にチェックを入れて、頼みごとを送ってください。部屋を作った人が AI に対応させると、通信に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に、GitHub の画面で、部屋のリポジトリを使える人に加えてもらってください。']])] },
+      { t:'通信', text:'画面の右端の［通信］を押すと、部屋の人と話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '［AI に頼む］にチェックを入れて、頼みごとを送ってください。部屋を作った人が AI に対応させると、通信に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に、GitHub の画面で、部屋のリポジトリを使える人に加えてもらってください。'], ['メタゾンビ', 'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。メタゾンビ1体ごとに、通信にスレッドがあります。スレッドの［✎ 直す］を押して、場面の文章を直してください。メタゾンビは、場面の文章が直ると封印されて、いなくなります。いつ封印されるかは、部屋を作った人が決めています。直す所がなければ、スレッドの［異常なし］を押してください。<br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。メタゾンビ図鑑は、［☰］の［作る］の［メタゾンビ図鑑］で開きます。<br>スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドとメタゾンビ図鑑に表示されます。［☰］の［部屋］の［部屋の画面を開く］で、自分の呼び名を入れられます。<br>メタゾンビの強さは、1から5までです。メタゾンビは、放っておくと強くなります。全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。部屋の画面の［招待リンクをコピーする］で、人を招待してください。メタゾンビを封印しても、進めます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
     const linkWay = ['リンクで配る', (room ? '部屋の画面で［リンクで配る］' : 'リンクで配るには、先にリポジトリを設定してください。配る画面で［リンクを作る］') + 'を押して、できたリンクを送ってください。ゲームを書き換えたあとは、' + (room ? 'もう一度［リンクで配る］' : '［配っている版を新しくする］') + 'を押してください。リンクは変わらず、版の番号が1つ上がります。'];
@@ -5601,6 +5639,16 @@ function howPages(kind){
       ], after:'※ ' + (room ? '部屋の画面' : 'リンクで配ったあとは、配る画面') + 'の［版の一覧］で、前の版を選べます。［違いを見る］を押すと、選んだ版と1つ前の版との違いが表示されます。［この版を配る］を押すと、選んだ版をもう一度配れます。' + (room ? '［部屋に戻す］を押すと、部屋の中身が、選んだ版の中身に戻ります。' : '［手元に戻す］を押すと、書き換えたものが、選んだ版の中身に置きかわります。'), btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
       { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、同じ部屋で一緒にゲームを書き換えられます。' + (room ? '' : '部屋を作った人が、リポジトリを設定せずにゲームを閉じると、部屋が使えなくなります。'), after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。部屋を作ったあと、［☰］の［部屋］の［部屋の画面を開く］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。<br>※ 部屋を作った人は、部屋から人を外せます。部屋の画面で、外したい人の［外す］を押してください。リポジトリのある部屋では、招待リンクに、トークンが入っています。トークンは、リポジトリに書きこむための鍵です。外された人も、トークンでリポジトリを書き換えられます。書き換えを止めるには、部屋の画面で［トークンを作り直す］を開いてください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
       { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。画面の右端の［通信］を押すと、通信が表示されます。' + (room ? '' : '部屋に入っていないときの通信は、自分だけのメモを書く画面です。'), legend:[B('新しいスレッド') + '：スレッドは、話題ごとのまとまりです。メッセージを書いて［送る］を押すと、スレッドが始まります。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。部屋を作った人が［採用する］を押すか、［誰か1人が賛成したら入る］を選んだ部屋で、書き換えた人のほかの誰かが［賛成］を押すと、書き換えたものが全員のゲームに入ります。', B('採用待ち') + '：部屋の人が書き換えたもののうち、まだ全員のゲームに入っていないものを表示します。'], after:'※ ' + (room ? '' : '部屋に入っているときは、') + 'メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。<br>※ スレッドの一覧で、自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が表示されます。パソコンでは、右クリックします。書き換えのスレッドは、削除できません。' },
+      ...(room && roomLocal() ? [] : [{ t:'メタゾンビ', text:'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。ゲームが本の文章を点検して、メタゾンビを自動で置きます。' + (room ? '' : 'メタゾンビが置かれるのは、作業用のリポジトリを設定したあとです。') + '<br><br>Issue は、GitHub で、やることを1件ずつ書いておくものです。メタゾンビは1体ずつ、作業用のリポジトリの Issue になります。メタゾンビの番号は、Issue の番号です。メタゾンビ1体ごとに、通信にスレッドができます。通信の一覧の［メタゾンビ］を押すと、メタゾンビのスレッドが並びます。<br><br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。メタゾンビ図鑑は、［☰］の［作る］の［メタゾンビ図鑑］か、下の［メタゾンビ図鑑を開く］で開きます。', list:[
+        ['封印する', 'メタゾンビは、場面の文章が直ると封印されて、いなくなります。メタゾンビのスレッドで［✎ 直す］を押して、場面の文章を直してください。' + (room ? '初めは、直した文章が全員のゲームに入ると、メタゾンビは封印されます。部屋の画面の［メタゾンビが封印されるとき］で［直したとき］を選ぶと、場面の文章を直したらすぐに封印されます。' : '') + '直す所がなければ、スレッドの［異常なし］を押してください。封印したメタゾンビは、通信の一覧の［封印済み］に並びます。'],
+        ['呼び出す', '本文を長押しすると、メタゾンビを1体呼び出せます。パソコンでは、本文を右クリックします。通信のメッセージを長押しして、［メタゾンビにする］を押しても、呼び出せます。'],
+        ['種類', '点検で引っかかった所に置かれるメタゾンビの種類は、言い回し・抜け・くり返しです。言い回しは「〜だけで」などが残っている所、抜けは「何が」「何を」が抜けている所、くり返しは同じ言い回しで終わる文が続いている所です。点検でメタゾンビが1体も置かれなかった地図の場所には、主人公が場所にいるときの場面からくじで1つ選んで、1体置きます。くじで置いたメタゾンビの種類は、正体不明です。'],
+        ['強くなる', 'メタゾンビの強さは、1から5までです。メタゾンビは、置いてからの日数と、メタゾンビに出会った人の数で、強くなります。メタゾンビのいる場面に来ると、メタゾンビに出会ったことになります。強さが3になると、メタゾンビが通信に書きこんできます。'
+          + (room ? '呪いの濃さは、封印していないメタゾンビの強さを、全部の本で足した数です。書き換えたものの入れ方を［部屋を作った人が採用する］にしていても、呪いの濃さが40以上になると、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。' : '')
+          + '全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。' + (room ? '部屋に人を招待するか、メタゾンビを封印すると、進めます。' : '［☰］の［部屋］で部屋を作って人を招待するか、メタゾンビを封印すると、進めます。')],
+        ...(room ? [['担当', 'スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドとメタゾンビ図鑑に表示されます。部屋の画面で、自分の呼び名を入れられます。']] : []),
+        ['配った版', '配った版では、メタゾンビのいる場面で、映像や文章に、怪しいことが起きます。配る画面の［配った版にメタゾンビを出す］のチェックを外すと、怪しいことは起きません。配った版で遊んだ人は、通信の［この版を作った人へ］から、報告を送れます。届いた報告は、通信とメタゾンビ図鑑に並びます。報告のスレッドの［受ける］を押すと、報告がメタゾンビになって、次に配る版にも出ます。'],
+      ], after:'※ 封印したあとに、場面の文章が、人が直さないまま変わると、メタゾンビは戻ってきます。たとえば、AI が文章を書き換えたときです。', btn:['howMzBtn', 'メタゾンビ図鑑を開く'] }]),
       { t:'AI に本文や選択肢を書かせる', text:'Claude Code、Codex、Antigravity など、GitHub のリポジトリを扱える AI なら、どれでも使えます。先に、AI と GitHub をつないでください。', list:[
         ['AI に直接頼む', 'AI で作業用のリポジトリを開いて、書いてほしいことを頼んでください。'],
         ['通信から頼む', '通信のメッセージを書く所の上の［AI に頼む］にチェックを入れて、頼みごとを送ってください。' + (room ? '' : '［AI に頼む］は、リポジトリを設定すると表示されます。') + 'AI で作業用のリポジトリを開いて「頼みごとに対応して」と送ると、AI が作業用のリポジトリを書き換えて、通信に返事を書きます。' + (room ? 'AI で作業用のリポジトリを開くのは、部屋を作った人です。' : '')],
@@ -5625,6 +5673,7 @@ function howPages(kind){
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : 'ある本が次の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
       ['持ち物', '持ち物によって、選べる選択肢が増えます。画面の上の［持ち物］に下線が出ているときは、［持ち物］を押すと、主人公のいる場所に持ち物を置けます。'],
       ['体力と感染', 'ゾンビに襲われると、体力が1減ります。主人公が感染することもあります。体力がなくなるか、感染したまま時間がたつと、主人公はゾンビになります。'],
+      ...(mzPub() ? [['メタゾンビ', 'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。メタゾンビのいる場面では、映像や文章に、怪しいことが起きます。にじんだり、欠けたりして読めない文章は、押すと読めます。メタゾンビは、放っておくと強くなります。強くなったメタゾンビは、通信に書きこんできます。メタゾンビの書きこみの［' + authorWho() + 'へ知らせる］で、気になったことを知らせると、封印のスタンプがもらえます。封印のスタンプの数は、知らせた数です。' + authorWho() + 'が場面の文章を直すと、メタゾンビは封印されて、いなくなります。封印されたメタゾンビは、通信の一覧の上の［封印済み］を押すと並びます。']] : []),
       ...(room || EMBED ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、同じ部屋で一緒に遊べます。部屋では、1人が1冊をロックします。部屋を作った人は、部屋から人を外せます。［☰］の［部屋］の［部屋の画面を開く］を押して、外したい人の［外す］を押してください。']]),
     ] },
     // 部屋に入っている人には、通信の画面の説明を出す（公開版でも、部屋の中では［通信］を使う）
@@ -5691,7 +5740,7 @@ function frontRender(){
   sndScene();
   el.hidden = !front; document.body.style.overflow = front ? 'hidden' : '';
   if(!front){ el.innerHTML = ''; return; }
-  el.innerHTML = frontHtml(); el.scrollTop = howKeep; howKeep = 0;
+  el.innerHTML = frontHtml(); el.scrollTop = howKeep; howKeep = 0; mzTitleCurse();
   const on = (id, fn) => { const e = document.getElementById(id); if(e) e.onclick = fn; }, go = f => { front = f; frontRender(); if(!f) render(); };
   on('frStart', () => go('menu'));
   on('frResume', () => { go(null); askLock(); });
@@ -5715,6 +5764,7 @@ function frontRender(){
   el.querySelectorAll('[data-grevert]').forEach(q => { q.onclick = stay(() => guideSave(+q.dataset.grevert, true)); });
   on('howLinkBtn', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'how'; go(null); });
   on('howPackBtn2', () => { menuOpen = false; roomPanel = true; packPanel = linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
+  on('howMzBtn', () => { menuOpen = false; mzPanel = true; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
   on('howPackBtn', () => { menuOpen = false; if(room){ roomPanel = true; packPanel = false; } else { packMode = 'dist'; packPanel = true; roomPanel = false; } linkPanel = bookPanel = false; screenBack = 'how'; go(null); });
   el.querySelectorAll('[data-frpage]').forEach(q => { q.onclick = () => { howPage = +q.dataset.frpage; frontRender(); }; });
   el.querySelectorAll('[data-frbook]').forEach(q => { q.onclick = () => { selectedBlock = null; histIndex = null; current = q.dataset.frbook; store.set('current', current); front = null; frontRender(); if(!loadWorld().lock) takeLock(); else render(); window.scrollTo(0, 0); }; });
@@ -5749,9 +5799,9 @@ async function loadPack(){
       : await fetch('https://raw.githubusercontent.com/' + PACK + '/HEAD/book/overlay.json?t=' + Date.now());
     if(!r.ok) throw r.status;
     const o = clean(JSON.parse(await r.text()));
-    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {}, auto:(o && o.auto) || null, rel:(o && o.rel) || null }; store.set('pack-cache', overlay); overlayPoses();
+    overlay = { base:(o && o.base) || null, keys:(o && o.keys) || {}, items:{}, poses:(o && o.poses) || {}, spots:(o && o.spots) || {}, books:(o && o.books) || {}, cams:(o && o.cams) || {}, auto:(o && o.auto) || null, rel:(o && o.rel) || null, mz:(o && Array.isArray(o.mz)) ? o.mz.filter(z => z && typeof z === 'object' && CHARS[z.b] && +z.p > 0).slice(0, 600) : null }; store.set('pack-cache', overlay); overlayPoses();
     if(await pinToBase()) return;
-    render();
+    render(); mzTitleCurse();
   } catch(e){ packNote = 'カスタム版の中身（' + PACK + '）を、読めませんでした。' + (store.get('pack-cache', null) ? '前に読んだものを使っています。' : 'もとの版のまま出しています。'); render(); }
 }
 const repoSeen = { dirs:{}, files:{} }; // dirs[名前] = その入れ物の印　files[道] = { sha, data }
@@ -5852,6 +5902,7 @@ function repoDoc(){
     }
   }
   for(const k of Object.keys(overlay.items || {})) if(doc.items[k]) doc.items[k].adopted = true;
+  doc.mz = mzRoomCount(Object.fromEntries(Object.entries(mem).filter(([dev]) => !banned(dev)))); doc.mzseal = cfg.data.mzseal === 'propose' ? 'propose' : 'adopt'; // メタゾンビ：出会った人と［戻す］の回数、封印のしかた
   const cl = repoSeen.files[base + 'claude.json'];
   for(const [k, v] of Object.entries(obj(cl && cl.data && cl.data.items))) if(doc.items[k] && v && typeof v === 'object'){ if(typeof v.reply === 'string') doc.items[k].reply = v.reply.slice(0, 2000); if(v.done === true) doc.items[k].done = true; }
   return doc;
@@ -6038,6 +6089,7 @@ function roomRefresh(){
   const data = repoDoc();
   if(!data) return;
   if(data.ban && data.ban[DEV]){ roomKicked(); return; }
+  if(data.mz && typeof data.mz === 'object') roomMz = data.mz;
   const sig = roomSigOf(data);
   if(sig === roomSig) return;
   if(roomApply(data)){ syncHolds(); roomItems = clean(data.items || {}) || {}; roomMembers = clean(data.members || {}) || {}; roomSig = sig; chatNotify(); if(typing()) pendingRender = true; else render(); }
@@ -6105,7 +6157,7 @@ async function roomFetch(url, opts = {}){
     delete repoSeen.dirs.own; if(r.status === 200) liveChanged();
     return res(r.status);
   }
-  if((a === 'open' || a === 'gap' || a === 'adopt' || a === 'ban') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
+  if((a === 'open' || a === 'gap' || a === 'adopt' || a === 'ban' || a === 'mzseal') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
   if(a === 'members') return res(200); // 「いる」印は、自分の分を書くときに一緒に付く
   if(a === 'items' && k){
     if(!sub){ if(m === 'DELETE'){ delete obj('items')[k]; } else obj('items')[k] = Object.assign({}, m === 'PATCH' ? obj('items')[k] : null, body); myTouch('fast'); return res(200); }
@@ -6198,7 +6250,7 @@ function roomPayload0(){
 // 読みこんだものが、前と同じかを見る印（自分の本の分は数えない）
 const hashStr = t => { let x = 5381; for(let i = 0; i < t.length; i++) x = ((x << 5) + x + t.charCodeAt(i)) | 0; return x; };
 const hereNow = m => !!m && typeof m === 'object' && Date.now() - m.at < 300000; // 5分以内に、自分の分を書いた人
-const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.adopt || '', Object.keys(d.ban || {}).sort().join(), d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
+const roomSigOf = d => JSON.stringify([d.open, d.gap || 0, d.adopt || '', d.mzseal || '', Object.keys(d.ban || {}).sort().join(), d.own || null, hashStr(JSON.stringify(d.items || null)), Object.entries(d.members || {}).filter(([, m]) => hereNow(m)).map(([k, m]) => k + m.name).sort().join(), CHAR_IDS.map(c => (d.own && d.own[c] && d.own[c].dev === DEV ? 0 : d['at_' + c] || 0))]);
 // 街を組み直す：自分の本の出来事はこの端末のもの、ほかの本の出来事は部屋のもの
 function roomApply(data){ if(trial && !trial.moved) trialEnd(); return realIO(() => roomApply0(data)); } // まだ手を打っていない試しは、届いた進み具合で作り直す
 function roomApply0(data){
@@ -6222,7 +6274,7 @@ function roomApply0(data){
   roomApplying = true;
   try {
     store.set('world', { ...w, events, once, votes, lock:null });
-    store.set('own', own); store.set('ats', ats); store.set('gap', Math.max(0, Math.min(600, Number(data.gap) || 0))); store.set('adopt-mode', ['auto', 'peer', 'host'].includes(data.adopt) ? data.adopt : 'auto');
+    store.set('own', own); store.set('ats', ats); store.set('gap', Math.max(0, Math.min(600, Number(data.gap) || 0))); store.set('adopt-mode', ['auto', 'peer', 'host'].includes(data.adopt) ? data.adopt : 'auto'); store.set('mz-seal-mode', data.mzseal === 'propose' ? 'propose' : 'adopt');
     for(const [id, p] of Object.entries(players)){
       const local = store.get('player-' + id, null), hist = Array.isArray(p.history) ? p.history : [];
       const history = local && (local.history || []).length === hist.length ? local.history : hist.map(h => ({ ...h, text:'（まだ読んでいない場面）', msg:'', labels:[], items:'' }));
@@ -6254,6 +6306,7 @@ async function roomPull(force){
     if(data === null){ roomNote = 'この部屋は、もうありません。☰ の「部屋」から出てください。'; roomOpen = false; render(); return; }
     if(data.v !== 2){ roomNote = 'この部屋は、前の作りのものです。☰ の「部屋」から出て、新しく作ってください。'; roomOpen = false; render(); return; }
     if(data.ban && data.ban[DEV]){ roomKicked(); return; }
+    if(data.mz && typeof data.mz === 'object') roomMz = data.mz;
     const name = store.get('fb-name', '').slice(0, 30);
     const meNow = data.members && data.members[DEV];
     if(data.open === true && !(meNow && meNow.name === name && Date.now() - meNow.at < 25000)){ data.members = Object.assign(data.members || {}, { [DEV]:{ name, at:Date.now() } }); roomFetch(roomPath('members/' + DEV), { method:'PUT', body:JSON.stringify(data.members[DEV]) }).catch(() => {}); }
@@ -6430,10 +6483,11 @@ function roomPanelHtml(){
     + roomPeopleHtml()
     + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅（話の中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れている人より、話の中の時刻で ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
-    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' + (mzLoose() && adoptMode() === 'host' ? '<p class="note" style="margin-top:8px">呪いの濃さは、封印していないメタゾンビの強さを、全部の本で足した数です。呪いの濃さが40以上なので、いまは、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。メタゾンビを封印して、呪いの濃さが40を下回ると、入れ方が［部屋を作った人が採用する］に戻ります。</p>' : '') + '</div>' : '')
+    + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>メタゾンビが封印されるとき</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>全員のゲームに入ったとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>直したとき</option></select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
         + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、そのファイルを開けば遊べます。</p>'
-        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px"><button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
+        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
         + '<details class="scr-more"><summary>中身だけをファイルにする</summary><p>採用したもの（overlay.json）だけを書き出します。リポジトリに手で置くときに使います。</p><button class="sm" id="roomPackFile">中身をファイルにする</button></details></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
@@ -6456,6 +6510,7 @@ function undoTo(i){
   if(!canAct()) return;
   const u = store.get('undo', []), to = u[i];
   if(!to || !undoOk(to)) return;
+  mzBackAt(current, loadPlayer(current).para); // メタゾンビの強さ：戻す前にいた場面のメタゾンビの［戻す］の回数
   store.set('world', to.w);
   const s = { ...to.s };
   if(to.h) s.history = loadPlayer(current).history.slice(0, to.h);
@@ -6631,7 +6686,7 @@ function render(){
       + (!room && w.lock ? '<hr><button id="saveBtn"><span>保存してロックを外す</span></button>' + (canDrop() ? '<button id="dropBtn"><span>保存せずにロックを外す</span></button>' : '') : '')],
     ['room', '部屋', EMBED ? '' : mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel)],
     ['make', '作る', TEST_BUILD ? mrow('flowbtn', 'フロー', '', flowOpen) + mrow('bookbtn', '本を足す', '', bookPanel === true) + mrow('autobtn', '自動提案', '', bookPanel === 'auto') + mrow('chgbtn', '変えた所', chgList().length ? chgList().length + ' 件' : '', chgPanel)
-      + (CUSTOM ? '' : mrow('mzbtn', 'メタゾンビ図鑑', mzOn() && mzItems().length ? mzItems().filter(z => z.state === 'open').length + '体' : '', mzPanel))
+      + (CUSTOM ? '' : mrow('mzbtn', 'メタゾンビ図鑑', mzOn() && mzItems().length ? mzItems().filter(mzLive).length + '体' : '', mzPanel))
       + (room || !CUSTOM && ghLinked() ? mrow('soloPullBtn', '更新', soloPullNote) : '')
       + (!room && !EMBED ? mrow('distbtn', '配る') : '')
       + (room ? '' : mrow('linkbtn', 'リポジトリの設定', ghLinked() ? '済み' : '', linkPanel)) : ''],
@@ -6696,10 +6751,13 @@ function render(){
     if(showMap) html += mode === 'live' && !hold ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
     if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
-    let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length, resNext:resOn ? s.resNext : '' });
+    // 人手が足りない：強いメタゾンビのいる場面から先へ進めない（編集版。部屋に人を招待するか、封印すれば進める）
+    const gate = mode === 'live' && !resOn ? mzGate(s.char, s.para) : 0;
+    if(gate) html += '<div class="lockbar other">強さ5のメタゾンビが増えたので、先へ進むには、部屋の人があと ' + gate + ' 人要ります。' + (room ? '部屋に人を招待するか' : '［☰］の［部屋］で部屋を作って人を招待するか') + '、場面のメタゾンビを封印すると、進めます。</div>';
+    let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length && !gate, resNext:resOn ? s.resNext : '' });
     const spNow = s.status === 'active' && !hold ? spotOf(s) : null;
     if(spNow){
-      const canGo = mode === 'live' && !wait.length;
+      const canGo = mode === 'live' && !wait.length && !gate;
       const taps = {}, risks = {}; for(const ch of v.choices){ const rm = ch.dest && bookOf(s).spots[ch.dest].room; if(!rm) continue; if(ch.risky) risks[rm] = 1; else if(canGo) taps[rm] = ch.dest; }
       const mapHtml = planOf(s) ? planMapSvg(s, planOf(s).plan) : spNow.at ? townMapSvg(s, w, v.choices, false) : '';
       drawerHtml = mapHtml;
@@ -6707,13 +6765,14 @@ function render(){
     else if(s.status === 'active' && !hold && planOf(s)) drawerHtml = planMapSvg(s, planOf(s).plan); // 場面の段落でも、建物の中にいるあいだは、見取り図を出す（見るだけ。押して移ることはできない）
     html += vh;
     const ended = s.status !== 'active' && s.status !== 'monster';
-    if(!ended && mode === 'live' && !bookOf(s).noJump && !hold){
+    if(!ended && mode === 'live' && !bookOf(s).noJump && !hold && !gate){
       html += `<div class="jump"><label>番号へ進む</label><input id="jumpNo" type="number" inputmode="numeric" placeholder="場面の番号"><button id="jumpGo">進む</button></div>`;
     }
     // 結末まで来たら選ぶものがないので、交代のボタンを本文の下にも出す
     if(ended && mode === 'live' && !resOn) html += '<div class="choices"><button id="endSave">保存してロックを外す</button></div>';
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
     if(!hold || !Cut.built) setCutscene(cctvState(s, w)); // 結果のページ・結果の段落のあいだ、映像は、もとの場面のまま
+    mzPubNoSignal(s);
   }
   if(!resOn) html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb panel"><div class="note">' + roomNote + '</div></div>' + html;
@@ -6771,7 +6830,7 @@ function render(){
   document.querySelectorAll('[data-claim]').forEach(el => { el.onclick = () => { current = el.dataset.claim; store.set('current', current); roomClaim(current); }; });
   document.querySelectorAll('[data-free]').forEach(el => { el.onclick = () => roomRelease(el.dataset.free); });
   const fbSet = document.getElementById('fbSet'); if(fbSet) fbSet.ontoggle = () => { fbSetOpen = fbSet.open; };
-  on('fbTab', () => { fbOpen = !fbOpen; cmHoldUnread = ''; if(fbOpen){ mapOpen = false; if(room) roomPull(); if(cmThread && roomItems[cmThread]){ cmOpenAt = room ? { k:cmThread, n:store.get('seen-items', {})[cmThread] || 0 } : null; cmScroll = true; cmShown = null; cmBelow = false; } } else { fbNote = ''; fbMax = false; } render(); });
+  on('fbTab', () => { fbOpen = !fbOpen; cmHoldUnread = ''; if(fbOpen){ mapOpen = false; if(room) roomPull(); if(cmThread && cmItem(cmThread)){ cmOpenAt = room || /^mz_/.test(cmThread) ? { k:cmThread, n:store.get('seen-items', {})[cmThread] || 0 } : null; cmScroll = true; cmShown = null; cmBelow = false; } } else { fbNote = ''; fbMax = false; } render(); });
   on('fbReset', () => { fbDrafts.edit = fbOrig; render(); });
   on('fbCancel', () => { fbOpen = false; fbMax = false; fbNote = ''; cmOld = false; cmHoldUnread = ''; render(); });
   const fbN = document.getElementById('fbName');
@@ -6785,7 +6844,7 @@ function render(){
   on('cmAuthorBack', () => { cmOld = false; fbNote = ''; render(); });
   { const shut = () => { cmRowMenu = ''; cmRowMode = ''; cmRename = null; render(); };
     on('cmRowNo', shut); on('cmRowBack', shut); }
-  on('cmRowRen', () => { cmRowMode = 'ren'; cmRename = cmTitle(roomItems[cmRowMenu] || {}); render(); const el = document.getElementById('cmNameIn'); if(el){ el.focus(); el.select(); } });
+  on('cmRowRen', () => { cmRowMode = 'ren'; cmRename = cmTitle(cmItem(cmRowMenu) || {}); render(); const el = document.getElementById('cmNameIn'); if(el){ el.focus(); el.select(); } });
   on('cmRowDel', () => { cmRowMode = 'del'; render(); });
   on('cmRowDelYes', () => { const k = cmRowMenu; cmRowMenu = ''; cmRowMode = ''; threadDelete(k); });
   { const el = document.getElementById('cmNameIn'); if(el){ el.value = cmRename || ''; el.oninput = () => { cmRename = el.value; }; el.onkeydown = e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); threadRename(cmRowMenu, el.value); } }; } }
@@ -6814,8 +6873,8 @@ function render(){
   document.querySelectorAll('[data-ref]').forEach(el => { el.onclick = e => { e.stopPropagation(); cmGoMsg(el.dataset.ref); }; });
   document.querySelectorAll('[data-hit]').forEach(el => { el.onclick = () => cmGoMsg(el.dataset.hit); });
   document.querySelectorAll('[data-cmq]').forEach(el => { el.onclick = () => cmQuoteIn(el.dataset.cmq); });
-  document.querySelectorAll('[data-cmfollow]').forEach(el => { el.onclick = () => { const k = el.dataset.cmfollow, it = roomItems[k]; if(it) cmSetFollow(k, !cmFollowing(k, it)); cmSheet = ''; cmRowMenu = ''; cmRowMode = ''; render(); }; });
-  document.querySelectorAll('[data-cmread]').forEach(el => { el.onclick = () => { const k = el.dataset.cmread, it = roomItems[k], seen = store.get('seen-items', {}); if(it){ seen[k] = sizeOf(it); store.set('seen-items', seen); } cmRowMenu = ''; cmRowMode = ''; render(); }; });
+  document.querySelectorAll('[data-cmfollow]').forEach(el => { el.onclick = () => { const k = el.dataset.cmfollow, it = cmItem(k); if(it) cmSetFollow(k, !cmFollowing(k, it)); cmSheet = ''; cmRowMenu = ''; cmRowMode = ''; render(); }; });
+  document.querySelectorAll('[data-cmread]').forEach(el => { el.onclick = () => { const k = el.dataset.cmread, it = cmItem(k), seen = store.get('seen-items', {}); if(it){ seen[k] = sizeOf(it); store.set('seen-items', seen); } cmRowMenu = ''; cmRowMode = ''; render(); }; });
   document.querySelectorAll('[data-cmunread]').forEach(el => { el.onclick = () => { cmMarkUnread(el.dataset.cmunread, null); cmRowMenu = ''; cmRowMode = ''; render(); }; });
   document.querySelectorAll('[data-cmunfrom]').forEach(el => { el.onclick = () => { const [k, rk] = el.dataset.cmunfrom.split('|'); cmMarkUnread(k, rk || ''); cmSheet = ''; render(); }; });
   document.querySelectorAll('[data-obretry]').forEach(el => { el.onclick = () => { store.set('outbox', store.get('outbox', []).map(x => (x.id === el.dataset.obretry ? { ...x, fail:false } : x))); roomSendItems(); render(); }; });
@@ -6852,8 +6911,9 @@ function render(){
   const fbK = document.getElementById('fbKind');
   if(fbK) fbK.onchange = () => { fbKind = fbK.value; };
   decorateForEdit(mode);
-  mzRefresh(); mzCallShow();
+  mzRefresh(); mzCallShow(); mzArrive(mode);
   placePosters();
+  mzPubDecorate(); mzPubArrive(mode);
   on('undobtn', () => { menuOpen = false; undoOpen = true; render(); window.scrollTo(0, 0); });
   on('lockAsk', () => askLock());
   on('undoClose', () => { undoOpen = false; render(); });
@@ -6930,13 +6990,27 @@ function render(){
   on('soloPullBtn', () => (room ? roomPullNow() : soloPull(true)));
   on('chgbtn', () => { chgPanel = true; roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
   // メタゾンビ図鑑
-  on('mzbtn', () => { mzPanel = true; mzAsk = ''; mzNote = ''; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); if(mzOn()) mzLoad(true).then(render, render); });
-  on('mzSeedBtn', () => { if(mzPending(current)) mzSeedBook(current); else { mzAsk = 'seed'; render(); } });
-  on('mzSeedYes', () => mzSeedBook(current));
-  on('mzNo', () => { mzAsk = ''; render(); });
-  document.querySelectorAll('[data-mzgo]').forEach(el => { el.onclick = () => { mzPanel = false; cmGo(el.dataset.mzgo); }; });
+  on('mzbtn', () => { mzPanel = true; mzAsk = ''; mzNote = ''; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); if(mzOn()) mzLoad(true).then(() => { render(); mzWork(); }, render); });
+  // 図鑑の1体を押す：その場面へ行って、スレッドを開く
+  document.querySelectorAll('[data-mzthread]').forEach(el => { el.onclick = () => { const z = mzOfKey(el.dataset.mzthread); mzPanel = false; if(z) cmGo(z.book + ':' + z.para); mzOpenThread(el.dataset.mzthread); }; });
+  // スレッドの中：直す・異常なし・担当・受ける・送れなかった返信
+  document.querySelectorAll('[data-mzfix]').forEach(el => { el.onclick = () => mzFix(el.dataset.mzfix); });
   document.querySelectorAll('[data-mzok]').forEach(el => { el.onclick = () => { mzAsk = 'ok:' + el.dataset.mzok; render(); }; });
-  document.querySelectorAll('[data-mzokyes]').forEach(el => { el.onclick = () => mzNothing(+el.dataset.mzokyes); });
+  document.querySelectorAll('[data-mzokyes]').forEach(el => { el.onclick = () => mzNothing(el.dataset.mzokyes); });
+  document.querySelectorAll('[data-mzno]').forEach(el => { el.onclick = () => { mzAsk = ''; render(); }; });
+  document.querySelectorAll('[data-mzwho]').forEach(el => { el.onclick = () => mzWho(el.dataset.mzwho); });
+  document.querySelectorAll('[data-mzacc]').forEach(el => { el.onclick = () => mzAccept(el.dataset.mzacc); });
+  document.querySelectorAll('[data-mzretry]').forEach(el => { el.onclick = () => { store.set('mz-out', (store.get('mz-out', []) || []).map(x => (x.id === el.dataset.mzretry ? { ...x, fail:false } : x))); mzSend(); render(); }; });
+  document.querySelectorAll('[data-mzdel]').forEach(el => { el.onclick = () => { store.set('mz-out', (store.get('mz-out', []) || []).filter(x => x.id !== el.dataset.mzdel)); render(); }; });
+  // 通信の書きこみから：［メタゾンビにする］
+  document.querySelectorAll('[data-mzmk]').forEach(el => { el.onclick = () => mzMakeOpen(el.dataset.mzmk); });
+  { const no = () => { mzMake = null; render(); }; on('mzDlgNo', no); on('mzDlgNo2', no); }
+  { const el = document.getElementById('mzMkName'); if(el && mzMake){ el.value = mzMake.name; el.oninput = () => { if(mzMake) mzMake.name = el.value; }; } }
+  on('mzMkYes', mzMakeDo);
+  // 配った版：通信に入ってきたメタゾンビから、作った人に知らせる
+  document.querySelectorAll('[data-mzrep]').forEach(el => { el.onclick = () => mzRepOpen(el.dataset.mzrep); });
+  { const el = document.getElementById('mzPubOn'); if(el) el.onchange = () => store.set('mz-pub', el.checked); }
+  { const el = document.getElementById('roomMzSeal'); if(el) el.onchange = () => { roomFetch(roomPath('mzseal'), { method:'PUT', body:JSON.stringify(el.value === 'propose' ? 'propose' : 'adopt') }).then(() => { roomSig = ''; roomPull(true); }).catch(() => { roomNote = '部屋につながりません。'; render(); }); }; }
   document.querySelectorAll('[data-chgundo]').forEach(el => { el.onclick = () => { const c = chgList()[+el.dataset.chgundo]; if(c && confirm('「' + c.kind + '」を取り消しますか？')) chgUndo(c.id); }; });
   document.querySelectorAll('[data-chggo]').forEach(el => { el.onclick = () => { chgPanel = false; cmGo(el.dataset.chggo); }; });
   on('bookbtn', () => { bookPanel = true; roomPanel = packPanel = linkPanel = false; menuOpen = false; render(); });
@@ -7148,7 +7222,7 @@ let cmRowMenu = '', cmRowMode = ''; // スレッドの一覧で、長押しし�
 let cmHoldT = 0;
 // スレッドの一覧の行：長押し（PC は右クリック）で、メニューを出す。部屋では、どのスレッドでも。1人のときは、自分のメモ
 function cmHoldBind(el){
-  const k = el.dataset.open; if(!room && !mineKey(k)) return;
+  const k = el.dataset.open; if(!room && !mineKey(k) && !(mzOn() && /^mz_p?\d/.test(k))) return;
   cmHold(el, () => { cmRowMenu = k; cmRowMode = ''; cmRename = null; fbNote = ''; render(); });
 }
 // 長押し（0.5秒。PC は右クリック）で openMenu を呼ぶ。指が10px動いたら（一覧を送っている）、やめる
@@ -7174,16 +7248,16 @@ function cmHold(el, openMenu){
 }
 // 長押しで出すメニューの中身
 function cmRowSheetHtml(){
-  const k = cmRowMenu, it = roomItems[k];
-  if(!k || !it || (!room && !mineKey(k))){ cmRowMenu = ''; cmRowMode = ''; return ''; }
-  const shade = '<div class="cm-shade" id="cmRowNo"></div>', mine = mineKey(k), nRe = visRes(it).length;
+  const k = cmRowMenu, it = cmItem(k), mz = !!(it && it.mz);
+  if(!k || !it || (!room && !mineKey(k) && !mz)){ cmRowMenu = ''; cmRowMode = ''; return ''; }
+  const shade = '<div class="cm-shade" id="cmRowNo"></div>', mine = mineKey(k) || mz, nRe = visRes(it).length; // メタゾンビのスレッドは、誰でも名前を変えられる（Issue の題を変える）
   if(cmRowMode === 'ren' && mine) return shade + '<div class="cm-dlg"><b>名前を変更</b><input id="cmNameIn" maxlength="40"><div class="b"><button id="cmRowBack">やめる</button><button id="cmNameOk" class="go">決める</button></div></div>';
   // 並びは Mattermost のスレッドのメニューに合わせる：フォロー → 既読・未読 → （自分のスレッドだけ）名前を変更・削除
   const u = room ? cmUnreadOf(k, it) : null, canUnread = room && cmMsgList(k, it).some(([id]) => !mineKey(id));
   return shade + '<div class="cm-sheet"><div class="h">' + escText(cmTitle(it)) + '</div>'
     + (cmRowMode === 'del' && mine ? '<p class="p">' + (room ? 'このスレッドを、部屋の全員の通信から削除します。' : 'このメモを削除します。') + (nRe ? '返信 ' + nRe + ' 件も消えます。' : '') + '元に戻せません。</p><button id="cmRowDelYes" class="warn">削除する</button><button id="cmRowBack">やめる</button>'
       : (room ? '<button data-cmfollow="' + k + '">' + (cmFollowing(k, it) ? 'フォローをやめる' : 'フォローする') + '</button>' + (u.n ? '<button data-cmread="' + k + '">既読にする</button>' : canUnread ? '<button data-cmunread="' + k + '">未読にする</button>' : '') : '')
-        + (mine ? '<button id="cmRowRen">名前を変更</button>' + (it.free ? '<button id="cmRowDel" class="warn">削除</button>' : '') : '')) + '</div>';
+        + (mine ? '<button id="cmRowRen">名前を変更</button>' + (it.free && !mz ? '<button id="cmRowDel" class="warn">削除</button>' : '') : '')) + '</div>';
 }
 const cmTitle = it => { if(it && typeof it.name === 'string' && it.name.trim()) return it.name.trim().slice(0, 40); const t = String(it.text || it.title || ''), m = unitOk(it.draft) && /\n後：\n([^\n]+)/.exec(t); return ((m ? (it.label && it.label !== 'その他' ? it.label + '：' : '') + m[1] : cmPlain(t)).slice(0, 40)) || '（文なし）'; };
 const cmWaiting = x => unitOk(x[1].draft) && !x[1].adopted;
@@ -7213,13 +7287,16 @@ function cmRefChip(k, rk){
   return m ? '<button class="cm-chip cm-ref" data-ref="' + id + '">↩ ' + escText(m.by) + '：' + escText(cmPlain(m.text).slice(0, 30) || '…') + '</button>' : '<span class="cm-chip cm-ref off">↩ 消された書きこみ</span>';
 }
 // 一覧の絞りこみ（部屋のとき）：フォロー中・未読（フォロー中で未読）・すべて。編集版は、採用待ち・AI も
+// メタゾンビ（mz）・封印済み（mzdone。封印したメタゾンビだけを並べる）は、1人のときも
 function cmListFilter(){
+  const mz = x => /^mz_/.test(x[0]);
+  if(cmFilter === 'mz' || cmFilter === 'mzdone') return mz;
   if(!room) return null;
   const fol = store.get('cm-follow', {}), seen = store.get('seen-items', {}), followed = ([k, it]) => cmFollowing(k, it, fol);
   return { follow:followed, unread:x => followed(x) && cmUnreadOf(x[0], x[1], seen).n > 0, wait:cmWaiting, ai:x => !!x[1].claude }[cmFilter] || null;
 }
 // いま一覧に出ているスレッド（［全部既読］が既読にするもの）
-const cmListed = () => { const f = cmListFilter(); return f ? itemList().filter(f) : itemList(); };
+const cmListed = () => { const f = cmListFilter(), all = cmFilter === 'mzdone' ? mzDone() : cmAll(); return f ? all.filter(f) : all; };
 // 探す：書きこみ1件ずつ（新しい順）。押すと、その書きこみへ行って光る
 function cmHits(q){
   const out = [];
@@ -7230,18 +7307,23 @@ function cmHits(q){
   return out.sort((a, b) => b.o - a.o).slice(0, 60);
 }
 function cmListHtml(){
-  const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), all = itemList();
-  const U = new Map(all.map(([k, it]) => [k, room ? cmUnreadOf(k, it, seen) : { n:0, re:0, at:0 }]));
+  const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), all = cmAll();
+  const done = cmFilter === 'mzdone' ? mzDone() : [], mzHas = mzOn() || mzPub();
+  const U = new Map([...all, ...done].map(([k, it]) => [k, room || /^mz_/.test(k) ? cmUnreadOf(k, it, seen) : { n:0, re:0, at:0 }]));
   const followed = ([k, it]) => cmFollowing(k, it, fol), unread = x => U.get(x[0]).n > 0;
   const f = cmListFilter();
-  const list = (f ? all.filter(f) : all).slice().sort((x, y) => cmWhen(y[1]) - cmWhen(x[1]));
+  const list = (f ? (cmFilter === 'mzdone' ? done : all).filter(f) : all).slice().sort((x, y) => cmWhen(y[1]) - cmWhen(x[1]));
   const here = Object.values(roomMembers).filter(hereNow).map(m => m.name || '名前なし');
-  const chips = [['follow', 'フォロー中', 0], ['unread', '未読', all.filter(x => followed(x) && unread(x)).length], ['all', 'すべて', 0], ...(TEST_BUILD ? [['wait', '採用待ち', all.filter(cmWaiting).length], ['ai', 'AI', 0]] : [])];
+  const mzChips = mzHas ? [['mz', 'メタゾンビ', all.filter(x => /^mz_/.test(x[0])).length], ['mzdone', '封印済み', 0]] : [];
+  const chips = room ? [['follow', 'フォロー中', 0], ['unread', '未読', all.filter(x => followed(x) && unread(x)).length], ['all', 'すべて', 0], ...(TEST_BUILD ? [['wait', '採用待ち', all.filter(cmWaiting).length], ['ai', 'AI', 0]] : []), ...mzChips]
+    : mzHas ? [['all', 'すべて', 0], ...mzChips] : [];
+  const chipOn = v => cmFilter === v || (!room && v === 'all' && !['mz', 'mzdone'].includes(cmFilter));
   // 行の印：まだ読んでいない自分宛てがあれば、その数。なければ、未読の返信があれば点
   const row = x => {
-    const [k, it] = x, rs = visRes(it), last = rs.length ? rs[rs.length - 1][1] : null, u = U.get(k);
-    const tag = unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
-    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + (u.n ? ' un' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました')) + '</span>' + (u.re ? '<span class="f">新しい返信 ' + u.re + ' 件</span>' : '') + '</span>'
+    const [k, it] = x, rs = visRes(it).filter(([, r]) => !r.ph), last = rs.length ? rs[rs.length - 1][1] : null, u = U.get(k) || { n:0, re:0, at:0 }, z = it.mz;
+    const tag = z ? (mzW(z) ? 'メタゾンビ' : '報告') : it.mzp || it.mzs ? 'メタゾンビ' : unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
+    const sub = z ? (last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : z.comments ? '返信 ' + z.comments + ' 件' : mzSpotLabel(z)) : it.mzp || it.mzs ? cmPlain(it.text) : last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました');
+    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + (u.n ? ' un' : '') + (z || it.mzp || it.mzs ? ' mz-row' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag' + (z || it.mzp || it.mzs ? ' mz' : '') + '">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(sub) + '</span>' + (u.re ? '<span class="f">新しい返信 ' + u.re + ' 件</span>' : '') + '</span>'
       + '<span class="w">' + cmTime(cmWhen(it)) + (u.at ? '<br><i class="cm-n" aria-label="自分宛て">' + (u.at > 99 ? '99+' : u.at) + '</i>' : u.n ? '<br><i class="cm-dot" aria-label="未読"></i>' : '') + '</span></button>';
   };
   // 送っている途中・届かなかった、新しいスレッド
@@ -7252,10 +7334,11 @@ function cmListHtml(){
   const hits = q ? cmHits(q) : null;
   return '<div class="cm"><div class="cm-top"><b>通信</b><span>' + escText(here.join('、') || '') + '</span><button id="cmClose">× 閉じる</button></div>'
     + '<input id="fbFind" class="cm-find" placeholder="' + (room ? '書きこみを探す' : 'メモを探す') + '" maxlength="40">'
-    + (room && !q ? '<div class="cm-chips cm-chips2"><div class="cm-cs">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (cmFilter === v ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div><button id="cmAllRead" class="cm-allread"' + (list.some(unread) ? '' : ' disabled') + '>全部既読</button></div>' : room ? '' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。</p>')
+    + (chips.length && !q ? '<div class="cm-chips cm-chips2"><div class="cm-cs">' + chips.map(([v, n, c]) => '<button data-cmf="' + v + '"' + (chipOn(v) ? ' class="on"' : '') + '>' + n + (c ? '　' + c : '') + '</button>').join('') + '</div>' + (room ? '<button id="cmAllRead" class="cm-allread"' + (list.some(unread) ? '' : ' disabled') + '>全部既読</button>' : '') + '</div>' : '')
+    + (room ? '' : '<p class="cm-none" style="padding:0 14px 8px">ここに書いたものは、自分だけのメモです。場面の札や、本文の引用を残しておけます。' + (mzOn() ? 'メタゾンビのスレッドも、通信の一覧に並びます。' : '') + '</p>')
     + '<div class="cm-list">' + (opinionOk() && !q ? '<button class="cm-row" id="cmAuthor"><span class="x"><span class="t">✉ ' + authorWho() + 'へ</span><span class="s">気になったこと・直してほしいことを送る</span></span><span class="w"></span></button>' : '')
     + (hits ? (hits.length ? '<p class="cm-none" style="padding:8px 14px">見つかった書きこみ　' + hits.length + ' 件</p>' + hits.map(hit).join('') : '<p class="cm-none">見つかりません。</p>')
-      : pend + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (room && cmFilter === 'follow' && all.length ? 'フォロー中のスレッドは、ありません。自分が立てた・返信した・呼ばれたスレッドは、自動でフォローします。［すべて］で、部屋のスレッドを全部見られます。' : f ? '見つかりません。' : '') + '</p>')) + '</div>'
+      : pend + (list.length ? list.map(row).join('') : '<p class="cm-none">' + (cmFilter === 'mz' ? 'いま、封印していないメタゾンビはいません。' : cmFilter === 'mzdone' ? '封印したメタゾンビは、まだいません。' : room && cmFilter === 'follow' && all.length ? 'フォロー中のスレッドは、ありません。自分が立てた・返信した・呼ばれたスレッドは、自動でフォローします。［すべて］で、部屋のスレッドを全部見られます。' : f ? '見つかりません。' : '') + '</p>')) + '</div>'
 
     + '<details class="cm-set"' + (room ? '' : ' hidden') + '><summary>名前・アイコン・通知</summary><input id="fbName" placeholder="呼び名（本名は入れない）" maxlength="30"><div class="cm-icons">' + ICONS.map(e => '<button data-icon="' + e + '"' + (store.get('fb-icon', '') === e ? ' class="on"' : '') + '>' + e + '</button>').join('') + '<button data-icon=""' + (ICONS.includes(store.get('fb-icon', '')) ? '' : ' class="on"') + ' style="width:auto;padding:0 10px;font-size:13px">なし</button></div>'
     + ('Notification' in window ? '<p>' + (Notification.permission === 'granted' ? 'このページを開いているあいだ、新しい話が来ると知らせます。' : Notification.permission === 'denied' ? '通知が止められています。ブラウザの設定で許すと、出せます。' : '新しい話が来たときに、知らせを出せます。') + '</p>' + (Notification.permission === 'default' ? '<button id="fbNotify">通知を出すようにする</button>' : '') : '') + '</details>' + cmInputHtml(null) + cmRowSheetHtml()
@@ -7275,8 +7358,11 @@ function authorHtml(){
 }
 function sendToAuthor(text){
   const repo = opinionRepo(); if(!repo) return;
-  const m = issueMeta(), title = '[' + m.name + ' ' + m.para + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), body = text + m.tail;
-  const url = b => 'https://github.com/' + repo + '/issues/new?' + new URLSearchParams({ title, body:b });
+  const m = issueMeta(), at = mzRepAt, title = '[' + (at ? CHARS[at.c].name : m.name) + ' ' + (at ? at.n : m.para) + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), body = text + m.tail;
+  // メタゾンビを出している配った版は、配る用のリポジトリに置いた報告の書式（Issue Forms）で開く。届いた報告は、編集版の通信と図鑑に並ぶ
+  const form = PACK && Array.isArray(overlay.mz);
+  const url = b => 'https://github.com/' + repo + '/issues/new?' + new URLSearchParams(form ? { template:'metazombie.yml', title, book:(at ? CHARS[at.c].name : CHARS[loadPlayer(current).char].name) + 'の本', para:String(at ? at.n : m.para), text:b } : { title, body:b });
+  if(at){ const st = store.get('mz-stamp', {}) || {}; st[at.key] = Date.now(); store.set('mz-stamp', st); mzRepAt = null; } // 封印のスタンプ
   let u = url(body);
   if(u.length > 6000){ try { navigator.clipboard.writeText(body); } catch(e){} u = url('（内容が長いので、コピーしてあります。この欄に貼り付けてください）'); }
   window.open(u, '_blank', 'noopener');
@@ -7289,7 +7375,7 @@ function cmInputHtml(k){
   const img = k ? !!fbReImg[k] : !!fbImg;
   return '<div class="cm-in">'
     + (k && cmBelow ? '<button class="cm-below" id="cmBelow">新しい返信 ↓</button>' : '')
-    + (cmPlus ? '<div class="cm-plus">' + (!room ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>') + '<button data-pickfile="' + (k || '') + '">' + ((k ? fbReFile[k] : fbFile) ? 'ファイルを付けました：' + escText((k ? fbReFile[k] : fbFile).name) + '（選び直す）' : 'ファイルを付ける') + '</button>')
+    + (cmPlus ? '<div class="cm-plus">' + (!room || /^mz_/.test(k || '') ? '' : (k ? '<button data-reimg="' + k + '">' : '<button id="fbImgBtn">') + (img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (k ? '' : '<input type="file" id="fbImgFile" accept="image/*" hidden>') + '<button data-pickfile="' + (k || '') + '">' + ((k ? fbReFile[k] : fbFile) ? 'ファイルを付けました：' + escText((k ? fbReFile[k] : fbFile).name) + '（選び直す）' : 'ファイルを付ける') + '</button>')
       + (lastView ? '<button id="cmTagBtn">いまの場面の札を付ける</button>' : '')
       + (!room ? '' : '<div class="cm-names">' + names.map(n => '<button data-cmat="' + escAttr(n) + '">@' + escText(n) + '</button>').join('') + '</div>')
       + (paras.length ? '<details><summary>いまの場面の文を引用する</summary>' + paras.map((p, i) => '<button class="cm-para" data-cmpara="' + i + '">' + escText(p.slice(0, 60)) + (p.length > 60 ? '…' : '') + '</button>').join('') + '</details>' : '')
@@ -7332,7 +7418,7 @@ function cmThreadHtml(k){
   const fileBtn = (id, f) => (f && typeof f === 'object' && f.name ? '<button class="cm-pic" data-file="' + id + '" data-fname="' + escAttr(f.name) + '">📎 ' + escText(f.name) + '（' + fileSize(+f.size || 0) + '）</button>' : '');
   const editor = id => '<textarea data-editbox="' + id + '" style="min-height:70px"></textarea><div class="cm-acts"><button data-editsave="' + id + '">直す</button><button data-editno="1">やめる</button></div>';
   const votes = Object.values(it.votes && typeof it.votes === 'object' ? it.votes : {}), my = it.votes && it.votes[DEV], rx = it.rx && typeof it.rx === 'object' ? it.rx : {};
-  const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptMode();
+  const agree = Object.keys(rx.e0 && typeof rx.e0 === 'object' ? rx.e0 : {}).filter(d => d !== k.split('-')[0]).length, mode = adoptNow();
   // mi：スレッドの中の順番（0 が最初の書きこみ、1 から返信）。既読の数と、見えた所を合わせるのに使う
   const bubble = (id, by, text, mine, extra, cls, when, mi) => '<div class="cm-m' + (mine ? ' me' : '') + (cls || '') + (cmSheet === id ? ' sel' : '') + '" data-mid="' + id + '"' + (mi != null ? ' data-mi="' + mi + '"' : '') + '>' + '<div class="n">' + (mine && !cls ? (/　直した$/.test(by) ? '直した　' : '') : cmAv(String(id).endsWith('|ai') ? 'ai' : String(id).split('|').pop().split('-')[0], by) + escText(by) + '　') + cmHM(when) + '</div>'
     + '<div class="b" data-msg="' + id + '">' + (fbEdit && fbEdit.id === id ? editor(id) : '<button class="mo" data-mo="' + id + '" aria-label="メニュー">⋯</button>' + cmText(text)) + (extra || '') + '</div></div>';
@@ -7386,21 +7472,23 @@ function cmThreadHtml(k){
           + (room && other ? '<button data-cmunfrom="' + cmSheet + '">ここから未読</button>' : '')
           + '<button data-cmcopy="' + cmSheet + '">文をコピーする</button>'
           + (own ? '<button data-edit="' + cmSheet + '">直す</button><button data-del="' + cmSheet + '" class="warn">消す</button>' : '')
-          + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : ''))
+          + (!rk && cmSceneOf(it.at) ? '<button data-go="' + escAttr(it.at) + '">この場面へ行く</button>' : '')
+          + (mzOn() && rk !== 'ai' ? '<button data-mzmk="' + cmSheet + '">メタゾンビにする</button>' : '')) // 書きこみから Issue を作る（Mattermost の GitHub 連携と同じ）
       + '</div>';
   }
-  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + '</div>';
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + cmInputHtml(k) + sheet + mzDlgHtml() + '</div>';
 }
 function commHtml(){
   if(!room && !cmMemoLoaded){ roomItems = clean(store.get('memo-items', {})) || {}; cmMemoLoaded = true; }
-  if(cmThread && !roomItems[cmThread]) cmThread = null;
-  if(cmThread) return cmThreadHtml(cmThread);
+  if(cmThread && !cmItem(cmThread)) cmThread = null;
+  if(cmThread) return /^mz_/.test(cmThread) ? mzThreadHtml(cmThread) : cmThreadHtml(cmThread);
   if(cmNew) return '<div class="cm"><div class="cm-top"><button id="cmNewNo">‹ 一覧</button><b class="ttl">新しいスレッド</b></div><div class="cm-log"><p class="cm-none">最初のメッセージが、スレッドの名前になります。' + (lastView && CHARS[lastView.char] ? 'いまの場面（' + escText(CHARS[lastView.char].name) + 'の本）の札が付きます。' : '') + '</p></div>' + cmInputHtml(null) + '</div>';
   return cmListHtml();
 }
 async function threadRename(k, name){
-  const it = roomItems[k]; name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 40); cmRename = null; cmRowMenu = ''; cmRowMode = '';
+  const it = cmItem(k); name = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 40); cmRename = null; cmRowMenu = ''; cmRowMode = '';
   if(!it || !name){ render(); return; }
+  if(it.mz){ mzRename(k, name); return; }
   if(!room){ it.name = name; memoSave(); render(); return; }
   try { const res = await roomFetch(roomPath('items/' + k), { method:'PATCH', body:JSON.stringify({ name }) }); if(!res.ok) throw 0; it.name = name; roomSig = ''; }
   catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
@@ -7408,7 +7496,7 @@ async function threadRename(k, name){
 }
 // 話の文と、書いた人（返信・コピーに使う）
 function cmMsgOf(id){
-  const [k, rk] = String(id).split('|'), it = roomItems[k]; if(!it) return null;
+  const [k, rk] = String(id).split('|'), it = cmItem(k); if(!it) return null;
   if(rk === 'ai') return { by:'AI', text:String(it.reply || '') };
   const r = rk ? it.re && it.re[rk] : it; if(!r) return null;
   return { by:r.by || '名前なし', text:String(r.text || '') };
@@ -7419,11 +7507,11 @@ function cmAppend(t){
   render(); const el = document.querySelector('.cm-r textarea[data-slot]'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
 }
 const cmNowTag = () => (lastView ? '[[' + lastView.char + ':' + lastView.para + ']]' : '');
-function cmSendReply(){ if(cmThread) threadReply(cmThread); }
+function cmSendReply(){ if(cmThread) (/^mz_p?\d/.test(cmThread) ? mzReply : threadReply)(cmThread); }
 // ［引用して返信］：書きこみの文を全部、行の頭に「> 」を付けて書く欄に入れ、元の書きこみへの札を付ける
 function cmQuoteIn(id){
   const m = cmMsgOf(id), [k, rk] = String(id).split('|'); cmSheet = '';
-  if(!m || !roomItems[k]){ render(); return; }
+  if(!m || !cmItem(k)){ render(); return; }
   const body = String(m.text).replace(/^### (.*)\n+/, '$1\n').split('\n').filter(l => !/^\[\[[^\]]*\]\]$/.test(l.trim())).map(l => '> ' + l).join('\n');
   const cur = cmDraft(k);
   cmDraftPut(k, (cur && !/\n$/.test(cur) ? cur + '\n' : cur) + body.slice(0, 3000) + '\n[[msg:' + k + (rk ? '/' + rk : '') + ']]\n');
@@ -7433,13 +7521,13 @@ function cmQuoteIn(id){
 // スレッドを開く。goId があれば、その書きこみへ行って光る。なければ、「ここから未読」の線か、いちばん下を見せる
 function cmOpen(k, goId){
   cmThread = k; cmNew = false; cmSheet = ''; cmPlus = false; fbNote = ''; cmRxWho = ''; cmHoldUnread = ''; cmBelow = false; cmShown = null; fbEdit = null;
-  cmOpenAt = room ? { k, n:store.get('seen-items', {})[k] || 0 } : null;
+  cmOpenAt = room || /^mz_/.test(k) ? { k, n:store.get('seen-items', {})[k] || 0 } : null;
   cmGoId = goId || ''; cmScroll = !goId;
   render();
 }
 function cmGoMsg(id){
   const k = String(id).split('|')[0];
-  if(!roomItems[k]){ fbNote = 'その書きこみは、もうありません。'; render(); return; }
+  if(!cmItem(k)){ fbNote = 'その書きこみは、もうありません。'; render(); return; }
   if(cmThread !== k) cmOpen(k, id); else { cmGoId = id; cmSheet = ''; render(); }
 }
 // スレッドの書きこみを、並んでいる順に（0 が最初の書きこみ、1 から返信。AI の返事は数えない）
@@ -7455,12 +7543,13 @@ function cmUnreadOf(k, it, seen){
 function cmFollowing(k, it, fol){
   const f = (fol || store.get('cm-follow', {}))[k];
   if(f === 1) return true; if(f === 0) return false;
-  return mineKey(k) || visRes(it).some(([rk]) => mineKey(rk)) || itemCallsMe([k, it]);
+  if(it && (it.mzp || it.mzs)) return true; // 配った版で、通信に入ってきたメタゾンビ
+  return (!!it && !!it.mz && mzFollowAuto(it.mz, k)) || mineKey(k) || visRes(it).some(([rk]) => mineKey(rk)) || itemCallsMe([k, it]);
 }
 function cmSetFollow(k, on){ const f = store.get('cm-follow', {}); f[k] = on ? 1 : 0; store.set('cm-follow', f); }
 // ［ここから未読］（rk：返信。'' は最初の書きこみ）・［未読にする］（rk が null：ほかの人の、いちばん新しい書きこみから）
 function cmMarkUnread(k, rk){
-  const it = roomItems[k]; if(!it) return;
+  const it = cmItem(k); if(!it) return;
   const ms = cmMsgList(k, it); let i = -1;
   if(rk === null){ for(let j = ms.length - 1; j >= 0; j--) if(!mineKey(ms[j][0])){ i = j; break; } }
   else i = rk ? ms.findIndex(([id]) => id === rk) : 0;
@@ -7472,7 +7561,7 @@ function cmMarkUnread(k, rk){
 const cmBottomNow = fb => !fb || !fb.firstChild || fb.scrollHeight - fb.scrollTop - fb.clientHeight < 40;
 // 描いたあと：開いたときは「ここから未読」の線か、いちばん下へ。書きこみが増えて、いちばん下を見ていたら、下へ送る
 function cmAfterRender(fb){
-  if(!fbOpen || cmOld || !cmThread || !roomItems[cmThread]){ cmShown = null; cmScroll = false; cmToBottom = false; return; }
+  if(!fbOpen || cmOld || !cmThread || !cmItem(cmThread)){ cmShown = null; cmScroll = false; cmToBottom = false; return; }
   if(cmScroll){
     const line = document.getElementById('cmNewLine'), hd = fb.querySelector('.cm-top');
     fb.scrollTop = line ? fb.scrollTop + line.getBoundingClientRect().top - (hd ? hd.getBoundingClientRect().bottom : fb.getBoundingClientRect().top) - 8 : fb.scrollHeight;
@@ -7486,8 +7575,8 @@ function cmAfterRender(fb){
 }
 // 既読は、画面に見えた書きこみまで（見えていない新しい書きこみは、既読にしない）
 function cmMarkVisible(){
-  if(!room || !fbOpen || cmOld || !cmThread || cmHoldUnread === cmThread || document.hidden) return;
-  const fb = document.getElementById('fbBody'), k = cmThread, it = roomItems[k]; if(!fb || !it) return;
+  if((!room && !/^mz_/.test(cmThread || '')) || !fbOpen || cmOld || !cmThread || cmHoldUnread === cmThread || document.hidden) return;
+  const fb = document.getElementById('fbBody'), k = cmThread, it = cmItem(k); if(!fb || !it) return;
   const hd = fb.querySelector('.cm-top'), inp = fb.querySelector('.cm-in'), fr = fb.getBoundingClientRect();
   const top = hd ? hd.getBoundingClientRect().bottom : fr.top, bot = inp ? Math.min(fr.bottom, inp.getBoundingClientRect().top) : fr.bottom;
   let last = -1;
@@ -7495,7 +7584,7 @@ function cmMarkVisible(){
   if(last < 0) return;
   const seen = store.get('seen-items', {});
   if((seen[k] || 0) < last + 1){ seen[k] = last + 1; store.set('seen-items', seen); chatBadge(); }
-  if(roomOpen && !mineKey(k) && !(it.seen && it.seen[DEV])){ it.seen = Object.assign(it.seen && typeof it.seen === 'object' ? it.seen : {}, { [DEV]:1 }); roomFetch(roomPath('items/' + k + '/seen/' + DEV), { method:'PUT', body:'1' }).catch(() => {}); }
+  if(room && roomOpen && !/^mz_/.test(k) && !mineKey(k) && !(it.seen && it.seen[DEV])){ it.seen = Object.assign(it.seen && typeof it.seen === 'object' ? it.seen : {}, { [DEV]:1 }); roomFetch(roomPath('items/' + k + '/seen/' + DEV), { method:'PUT', body:'1' }).catch(() => {}); }
 }
 function cmOnScroll(){
   if(!fbOpen || !cmThread) return;
@@ -7515,7 +7604,7 @@ function cmGo(at){
 // 採用のしかた：「すぐ入る」「誰か1人が賛成したら入る」のときは、部屋を作った人の端末が、代わりに採用する
 async function cmAutoAdopt(){
   if(!room || !TEST_BUILD || !isHost() || !roomOpen || cmAdopting) return;
-  const mode = adoptMode(); if(mode === 'host') return;
+  const mode = adoptNow(); if(mode === 'host') return; // メタゾンビの呪いが濃いと、「部屋を作った人が採用する」でも、賛成で入る
   const skip = store.get('adopt-skip', []);
   const next = itemList().find(([k, it]) => cmWaiting([k, it]) && !skip.includes(k) && (mode === 'auto' || Object.keys(it.rx && it.rx.e0 && typeof it.rx.e0 === 'object' ? it.rx.e0 : {}).some(d => d !== k.split('-')[0])));
   if(!next) return;
@@ -7562,12 +7651,12 @@ const itemCallsMe = ([k, it]) => (!mineKey(k) && callsMe(it.text)) || visRes(it)
 // つまみの数字：フォロー中で、まだ読んでいないスレッドの数（まだ読んでいない自分宛てがあれば @ を付ける）
 function cmFollowUnread(){
   const seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), out = [];
-  for(const [k, it] of itemList()) if(cmFollowing(k, it, fol)){ const u = cmUnreadOf(k, it, seen); if(u.n) out.push([k, it, u]); }
+  for(const [k, it] of (room ? cmAll() : mzList())) if(cmFollowing(k, it, fol)){ const u = cmUnreadOf(k, it, seen); if(u.n) out.push([k, it, u]); } // 1人のときは、メタゾンビのスレッドだけ（メモは自分のもの）
   return out;
 }
 function chatBadge(){
   const tab = document.getElementById('fbTab');
-  if(!room){ if(tab) tab.innerHTML = '通信'; return 0; }
+  if(!room && !mzOn() && !mzPub()){ if(tab) tab.innerHTML = '通信'; return 0; }
   const un = cmFollowUnread(), n = un.length;
   if(tab){ const n0 = (un.some(x => x[2].at) ? '@' : '') + (n || ''); tab.innerHTML = '通信' + (n0 ? '<i class="tabn">' + n0 + '</i>' : ''); }
   document.title = (n ? '(' + n + ') ' : '') + PAGE_TITLE;
@@ -7578,11 +7667,11 @@ function chatNotify(){
   cmAutoAdopt();
   // フォローをやめたスレッドでも、まだ読んでいない所で呼ばれたら、またフォローする（Mattermost と同じ）
   const fol = store.get('cm-follow', {}), seen = store.get('seen-items', {}); let ch = false;
-  for(const [k, it] of itemList()) if(fol[k] === 0 && cmUnreadOf(k, it, seen).at){ fol[k] = 1; ch = true; }
+  for(const [k, it] of cmAll()) if(fol[k] === 0 && cmUnreadOf(k, it, seen).at){ fol[k] = 1; ch = true; }
   if(ch) store.set('cm-follow', fol);
   const un = cmFollowUnread(), n = un.length;
   if(n > lastUnread && (document.hidden || !fbOpen) && 'Notification' in window && Notification.permission === 'granted'){
-    const [, it] = un[un.length - 1], last = visRes(it).pop();
+    const [, it] = un[un.length - 1], last = visRes(it).filter(([, r]) => !r.ph).pop();
     try { new Notification(PAGE_TITLE, { body:(last ? last[1].by + '：' + last[1].text : it.by + '：' + (it.text || it.title)).slice(0, 80), tag:'jtld-room' }); } catch(e){}
   }
   lastUnread = n;
@@ -7658,6 +7747,7 @@ function fbMic(){
 let mapMark = null; // null：何もしていない　true：置く所を待っている　{x, y, text}：文を書いている
 function decorateMap(){
   const body = document.getElementById('drawerBody'), svg = body.querySelector('.map-scroll svg'), s = loadPlayer(current), sp = s.status === 'active' ? spotOf(s) : null;
+  if(body.firstChild) mzRadar(body, s, sp); // メタゾンビのレーダー（編集版と、呪われた配った版）
   if(TEST_BUILD && sp && planOf(s) && (!sp.dyn || sp.room)){ roomBox(body, s, sp); return; }
   if(!TEST_BUILD || !svg || !sp || !sp.at || planOf(s)) return;
   const mk = 'map:' + (sp.map || s.book), NS = 'http://www.w3.org/2000/svg', now = Date.now();
@@ -7924,8 +8014,10 @@ async function publishPack(){
   const api = (path, opt = {}) => fetch('https://api.github.com/repos/' + slug + '/contents/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify({ ...JSON.parse(opt.body), committer:GH_WHO, author:GH_WHO }) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
   try {
     const data = await packDataPublic();
+    const ml = await mzPubList(); if(ml) data.mz = ml; // メタゾンビの居場所（配った版で、怪奇現象を起こす）
     const r = await pubWrite(api, data, 0, pubMemo);
     if(r.status !== 200) throw r.status;
+    await mzPubForm(api, slug);
     store.set('pub-from-room', { n:r.n, data:verPick(data) }); pubMemo = '';
     // 使っている絵も、公開用のリポジトリへ写す
     for(const id of usedAssets()){ const d = await assetData(id), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(m) await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] }), { api }); }
@@ -8044,8 +8136,8 @@ async function adoptItem(k, on){
     await overlayWrite(o => { if(u.t === 'cam'){ o.cams = o.cams || {}; const sc = (o.cams[u.x.scene] = o.cams[u.x.scene] || {}); if(on){ const { id, scene, ...rest } = u.x; sc[id] = rest; } else delete sc[u.x.id]; } else if(u.t === 'book'){ o.books = o.books || {}; if(on){ const { id, ...rest } = u.x; o.books[id] = rest; } else delete o.books[u.x.id]; } else if(u.t === 'spot'){ o.spots = o.spots || {}; const bk = (o.spots[u.x.book] = o.spots[u.x.book] || {}); if(on){ const { id, book, ...rest } = u.x; bk[id] = rest; } else delete bk[u.x.id]; } else o.keys[u.key] = unitApply(Object.assign(DRAFT_BASE(), o.keys[u.key]), u, on); if(on) o.items[k] = { by:String(it.by || ''), at:Date.now() }; else delete o.items[k]; });
     if(!on) store.set('adopt-skip', [...new Set([...store.get('adopt-skip', []), k])].slice(-200));
     it.adopted = on; fbNote = on ? '採用しました。全員のゲームに入ります。' : '採用をやめました。';
-    const mk = on && u.t === 'para' && /^([a-z]+):(\d+)$/.exec(u.key); // 本文の直しを採用したら、その場面のメタゾンビを封印する
-    if(mk) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]));
+    const mk = (u.t === 'para' || u.t === 'ins') && /^([a-z]+):(\d+)$/.exec(u.key); // 本文の直しを採用したら、その場面のメタゾンビを封印する（採用をやめたときは、残した文だけ新しくする）
+    if(mk) mzSeal(mk[1], +mk[2], mzNowText(mk[1], +mk[2]), !on);
   } catch(e){ fbNote = 'リポジトリに書けませんでした。電波のよい所で、もう一度押してください。'; }
   roomSig = ''; render(); roomPull();
 }
@@ -8570,114 +8662,230 @@ function mzShownText(c, no){
   for(const x of d.ins) if(x.kind === 'text' && x.text) t += '\n' + x.text;
   return t;
 }
+// 採用したものだけを重ねた段落の文（自分の下書きは入れない）
+function mzAdoptedText(c, no){
+  let t = mzParaText(c, no); const ps = [], ins = [];
+  for(const q of ovKeys(c + ':' + no)){ if(q && Array.isArray(q.paras)) ps.push(...q.paras); if(q && Array.isArray(q.ins)) ins.push(...q.ins); }
+  for(const x of ps) if(x && x.kind === 'text' && x.before) t = t.split(x.before).join(x.after || '');
+  for(const x of ins) if(x && x.kind === 'text' && x.text) t += '\n' + x.text;
+  return t;
+}
+// 人の手を通った文：1人のときは下書きも入れる（直したらすぐ封印するので）。部屋では、採用したものだけ
+const mzNowText = (c, no) => (room ? mzAdoptedText(c, no) : mzShownText(c, no));
+const mzNorm = t => String(t || '').replace(/\s+/g, '');
+const mzSleep = ms => new Promise(ok => setTimeout(ok, ms));
 // チケット：作業用のリポジトリの Issue。自己流のファイルにしない（RULES.md）
-//   ラベル … 「メタゾンビ」と「種類:言い回し」など　　閉じる … 封印（直した。completed）／［異常なし］（not planned）
-//   本文 … 本・段落・場所・種類を「### 見出し」の形で（Issue Forms と同じ形）。終わりに、ゲームが読む印（<!-- jtld-mz {...} -->）
-// 編集版で、リポジトリを連携しているときだけ（部屋なら、リポジトリのある部屋）。もらった版で遊んでいるときは出さない
+//   ラベル … 「メタゾンビ」「種類:言い回し」など、「封印待ち」（部屋で直し案が出た）、「担当:呼び名」、「通信に入った」（強くなって、通信に入ってきた）、「受けた」（配った版から届いた報告を、部屋の人が受けた）
+//   閉じる … 封印（直した。completed）／［異常なし］（not planned）。復活は、開け直す（Reopen）
+//   本文 … 本・段落・場所・種類を「### 見出し」の形で（Issue Forms と同じ形）。終わりに、ゲームが読む印（<!-- jtld-mz {...} -->）と、封印したときの文（<!-- jtld-mz-seal {...} -->）
+// メタゾンビ1体は、通信のスレッド1つ（Backlog と同じ形）。スレッドの返信が、Issue のコメントになる。図鑑は、同じチケットを並べ直したもの
+// 編集版で、リポジトリを連携しているときだけ（部屋なら、リポジトリのある部屋）。編集版では、怪奇現象は起こさない。呪われるのは、［配る］で配った版（mzPub）
 const MZ_LABEL = 'メタゾンビ', MZ_NAME = { 言い回し:'にじむもの', 抜け:'欠けたもの', くり返し:'重なるもの', 正体不明:'砂嵐のもの' };
 const MZ_COLOR = { 言い回し:'b8a9d9', 抜け:'9fb3c8', くり返し:'c8b49f', 正体不明:'8a8a8a' };
-let mzPanel = false, mzNote = '', mzBusy = '', mzAsk = '', mzLoading = null, mzFailAt = 0, mzErrCode = 0, MZ_GAP = 1100;
+const MZ_WAIT = '封印待ち', MZ_IN = '通信に入った', MZ_ACC = '受けた', MZ_WHO = '担当:';
+let mzPanel = false, mzNote = '', mzAsk = '', mzLoading = null, mzFailAt = 0, mzErrCode = 0, MZ_GAP = 1100;
 let mzData = store.get('mz-list', null); // 読んだチケットの一覧 { repo, at, items }
-const mzSeedCount = {}; // 本ごとの、最初に置く数（数えるのに少し時間がかかるので、覚えておく）
+let mzSeeding = null; // 自動で置いている途中：{ done, total }
+let mzMake = null; // ［メタゾンビにする］の窓
+let roomMz = {}; // 部屋の全員の分を数えたもの：{ 番号: { met（出会った人の数）, back（［戻す］の回数） } }
+const mzCm = {}, mzCmLoading = {}; // 開いたスレッドのコメント：{ 鍵: { at, list:[{ id, by, text, o, mine }], fail } }
+const mzSeedCount = {}; // 本ごとの、置く所（文が変わるまで、数え直さない）
 const mzOn = () => TEST_BUILD && !CUSTOM && ghLinked() && !(room && roomLocal());
-const mzCan = () => mzOn() && (!room || isHost()); // 最初に置けるのは、1人のときは本人、部屋では部屋を作った人
+const mzCan = () => mzOn() && (!room || isHost()); // 自動で置く・復活させる・強さの効果を書くのは、1人のときは本人、部屋では部屋を作った人
 const mzItems = () => (mzData && mzData.repo === ghRepo() ? mzData.items : []);
-const mzPending = c => { const p = store.get('mz-seeding', null); return !!p && p.repo === ghRepo() && p.book === c; }; // 置いている途中で止まった本
-const mzHere = (c, no) => mzItems().filter(z => z.book === c && z.para === +no && z.state === 'open');
-const mzSpotName = z => { const B = BOOKS[z.book], sp = B && z.spot && B.spots && B.spots[z.spot]; return sp && sp.name ? sp.name : (CHARS[z.book] ? CHARS[z.book].name + 'の本' : z.book); };
+const mzW = z => z.src !== 'p'; // 作業用のリポジトリのもの（p は、配った版から届いた報告。配る用のリポジトリにある）
+const mzRepoOf = z => (mzW(z) ? ghRepo() : z.repo);
+const mzLive = z => z.state === 'open' && (mzW(z) || z.labels.includes(MZ_ACC)); // 立っているもの（報告は、受けたものだけ）
+const mzHere = (c, no) => mzItems().filter(z => z.book === c && z.para === +no && mzLive(z));
+const mzKey = z => 'mz_' + (mzW(z) ? '' : 'p') + z.n;
+const mzOfKey = k => { const m = /^mz_(p?)(\d+)$/.exec(String(k)); return m ? mzItems().find(z => z.n === +m[2] && (m[1] ? !mzW(z) : mzW(z))) || null : null; };
+const mzPendingBook = c => { const p = store.get('mz-seeding', null); return !!p && p.repo === ghRepo() && Array.isArray(p.books) && p.books.includes(c); }; // 最初に置いている途中で止まった本
+const mzSpotName = z => { if(z.place) return z.place; const B = BOOKS[z.book], sp = B && z.spot && B.spots && B.spots[z.spot]; return sp && sp.name ? sp.name : (CHARS[z.book] ? CHARS[z.book].name + 'の本' : z.book); };
+const mzSpotLabel = z => (CHARS[z.book] ? CHARS[z.book].name + 'の本　' : '') + (z.place ? z.place + '　' : '') + '場面 ' + z.para;
 const mzTitle = z => mzSpotName(z) + 'の、' + MZ_NAME[z.kind];
 const mzBody = z => ['### 本', CHARS[z.book].name + 'の本', '', '### 場面の番号', String(z.para), '', '### 場所', mzSpotName(z), '', '### 種類', z.kind, '',
   '### 引っかかった文', z.s ? '> ' + String(z.s).replace(/\n+/g, ' ') : '（くじで置いたので、引っかかった文はありません）', '', '### 置いたわけ', z.why, '', '---',
-  '編集版のゲームから置いたメタゾンビです。場面の文章を直すか、直す所がなければゲームのメタゾンビ図鑑で［異常なし］を押すと、メタゾンビは封印されます。',
-  '<!-- jtld-mz ' + JSON.stringify({ v:1, book:z.book, para:z.para, kind:z.kind }) + ' -->'].join('\n');
+  '編集版のゲームから置いたメタゾンビです。ゲームの通信に、メタゾンビのスレッドがあります。場面の文章を直すか、直す所がなければスレッドの［異常なし］を押すと、メタゾンビは封印されます。',
+  '<!-- jtld-mz ' + JSON.stringify({ v:1, book:z.book, para:z.para, kind:z.kind, o:z.o || 'lint' }) + ' -->'].join('\n');
+// 封印したときの文を、本文の終わりに残す（文が、人の手を通らずに変わったら、復活させるため）
+const mzSealBody = (b, t) => String(b || '').replace(/\n?<!-- jtld-mz-seal [^\n]*? -->/g, '') + '\n<!-- jtld-mz-seal ' + JSON.stringify({ t:String(t).slice(0, 4000) }).replace(/-->/g, '--\\u003e') + ' -->';
 function mzApi(path, opt = {}){
-  return fetch('https://api.github.com/repos/' + ghRepo() + '/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify(opt.body) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
+  return fetch('https://api.github.com/repos/' + (opt.repo || ghRepo()) + '/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify(opt.body) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
 }
 // 本の名前から、本の鍵（Issue Forms で人が書いたときは「警察署長の本」など）
 const mzBookKey = t => { t = String(t || '').trim(); if(CHARS[t]) return t; const m = /（([a-z]+)）$/.exec(t); if(m && CHARS[m[1]]) return m[1]; return Object.keys(CHARS).find(id => t === CHARS[id].name || t === CHARS[id].name + 'の本') || ''; };
-function mzParse(x){
-  const body = String((x && x.body) || ''); let d = null;
+function mzParse(x, src, repo){
+  const body = String((x && x.body) || ''); let d = null, seal = null;
   const m = /<!-- jtld-mz (\{[^<>]*\}) -->/.exec(body); if(m) try { d = JSON.parse(m[1]); } catch(e){}
+  const sm = /<!-- jtld-mz-seal (\{[^\n]*?\}) -->/.exec(body); if(sm) try { const v = JSON.parse(sm[1]); if(typeof v.t === 'string') seal = v.t; } catch(e){}
   const f = k => ((new RegExp('###\\s*' + k + '\\s*\\n+\\s*([^\\n]+)').exec(body) || [])[1] || '').trim();
   if(!d) d = { book:f('本'), para:f('場面の番号'), kind:f('種類') };
   const book = mzBookKey(d.book), para = parseInt(d.para, 10);
   if(!book || !(para > 0)) return null;
-  return { n:x.number, title:String(x.title || ''), state:x.state === 'closed' ? 'closed' : 'open', reason:String(x.state_reason || ''), book, para, kind:MZ_NAME[d.kind] ? d.kind : '正体不明',
-    s:f('引っかかった文').replace(/^>\s*/, '').replace(/^（.*）$/, ''), at:Date.parse(x.created_at) || Date.now(), closedAt:Date.parse(x.closed_at) || 0, url:String(x.html_url || '') };
+  const kind = MZ_NAME[d.kind] ? d.kind : '正体不明', s = (src === 'p' ? f('気になったこと') : f('引っかかった文')).replace(/^>\s*/, '').replace(/^（.*）$/, '');
+  return { n:x.number, src:src === 'p' ? 'p' : 'w', repo:repo || '', title:String(x.title || ''), state:x.state === 'closed' ? 'closed' : 'open', reason:String(x.state_reason || ''), book, para, kind, s, place:src === 'p' ? '' : f('場所'),
+    o:String(d.o || (src === 'p' ? 'rep' : kind === '正体不明' && !s ? 'lot' : 'lint')), labels:(x.labels || []).map(l => String(typeof l === 'string' ? l : (l && l.name) || '')), comments:+x.comments || 0, upd:Date.parse(x.updated_at) || 0,
+    at:Date.parse(x.created_at) || Date.now(), closedAt:Date.parse(x.closed_at) || 0, url:String(x.html_url || ''), seal };
 }
-// チケットを読む。1分のあいだは、読んだものを使う
+// チケットを読む。1分のあいだは、読んだものを使う。配る用のリポジトリがあれば、そこに届いた報告も読む
 async function mzLoad(force){
   if(!mzOn()) return;
-  const repo = ghRepo();
+  const repo = ghRepo(), pub = store.get('pub-repo', '');
   if(!force && mzData && mzData.repo === repo && Date.now() - mzData.at < 60e3) return;
   if(mzLoading) return mzLoading;
   mzLoading = (async () => {
     const items = [];
-    for(let page = 1; page <= 20; page++){
-      const r = await mzApi('issues?state=all&per_page=100&page=' + page + '&labels=' + encodeURIComponent(MZ_LABEL));
-      if(!r.ok) throw r.status;
-      const a = await r.json();
-      for(const x of a) if(!x.pull_request){ const z = mzParse(x); if(z) items.push(z); }
-      if(a.length < 100) break;
-    }
+    const read = async (rp, src) => {
+      for(let page = 1; page <= 20; page++){
+        const r = await mzApi('issues?state=all&per_page=100&page=' + page + '&labels=' + encodeURIComponent(MZ_LABEL), { repo:rp });
+        if(!r.ok) throw r.status;
+        const a = await r.json();
+        for(const x of a) if(!x.pull_request){ const z = mzParse(x, src, rp); if(z) items.push(z); }
+        if(a.length < 100) break;
+      }
+    };
+    await read(repo, 'w');
+    if(pub && pub !== repo) await read(pub, 'p').catch(() => {}); // 報告が読めなくても、作業用のものは出す
     mzData = { repo, at:Date.now(), items }; store.set('mz-list', mzData); mzErrCode = 0;
   })();
   try { await mzLoading; } catch(e){ mzFailAt = Date.now(); mzErrCode = typeof e === 'number' ? e : -1; throw e; } finally { mzLoading = null; }
 }
-// 画面を描いたあとに呼ぶ：古ければ、裏で読み直して、描き直す（読めなかったときは、1分あけてから）
+// 画面を描いたあとに呼ぶ：古ければ、裏で読み直して、描き直す（読めなかったときは、1分あけてから）。読めたら、置く・復活・強さの効果を見る
 function mzRefresh(){
   if(!mzOn() || mzLoading || Date.now() - mzFailAt < 60e3) return;
-  if(mzData && mzData.repo === ghRepo() && Date.now() - mzData.at < 60e3) return;
-  mzLoad().then(render, render);
+  if(mzData && mzData.repo === ghRepo() && Date.now() - mzData.at < 60e3){ mzWork(); return; }
+  mzLoad().then(() => { render(); mzWork(); }, render);
 }
 const mzErrText = e => e === 401 ? 'トークンが使えなくなっています。' + (room && !isHost() ? '部屋を作った人に、新しい招待リンクをもらって、開いてください。' : room ? '部屋の画面で［トークンを作り直す］を開いて、作り直したトークンを貼ってください。' : '［☰］の［作る］にある［リポジトリの設定］で、新しいトークンを貼ってください。')
   : e === 403 || e === 404 ? 'トークンに、Issues を読み書きする権限がありません。' + (room && !isHost() ? '部屋を作った人に、権限を足してもらってください。' : '権限を足してください。')
   : 'GitHub につながりません。';
-// 最初に置く数（その本の、まだチケットのない分）
-function mzToSeed(c){
-  if(!mzSeedCount[c]) mzSeedCount[c] = BOOKS[c] ? mzSeed(c, BOOKS[c], no => mzShownText(c, no)) : [];
-  const have = new Set(mzItems().filter(z => z.book === c).map(z => z.para));
-  return mzSeedCount[c].filter(z => !have.has(z.para));
+// ===== 強さ：放っておいた日数＋出会った人の数×2＋［戻す］の回数。段階は 1〜5 =====
+const mzDays = at => Math.max(0, Math.floor((Date.now() - at) / 864e5));
+const MZ_STEPS = [0, 3, 7, 14, 30];
+const mzLvOf = score => MZ_STEPS.filter(x => score >= x).length;
+function mzStat(n){
+  if(room) { const s = roomMz[n] || {}; return { met:+s.met || 0, back:+s.back || 0 }; }
+  const s = (store.get('mz-stat', {}) || {})[n] || {}; return { met:s.m ? 1 : 0, back:+s.b || 0 };
 }
-// 最初に置く：本ごとに。途中で止まっても、もう一度押すと、まだない分だけ置く
-async function mzSeedBook(c){
-  if(!mzCan() || mzBusy) return;
-  mzAsk = ''; mzNote = ''; mzBusy = '数えています…'; render();
-  let made = 0;
-  try {
-    await mzLoad(true);
-    delete mzSeedCount[c]; store.set('mz-seeding', { repo:ghRepo(), book:c });
-    const list = mzToSeed(c);
-    await mzLabels();
-    for(const z of list){
-      mzBusy = 'メタゾンビを置いています… ' + (made + 1) + ' / ' + list.length; render();
-      const r = await mzApi('issues', { method:'POST', body:{ title:mzTitle(z), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
-      if(!r.ok) throw r.status;
-      const y = mzParse(await r.json()); if(y){ mzData.items.push(y); store.set('mz-list', mzData); }
-      made++;
-      await new Promise(ok => setTimeout(ok, MZ_GAP)); // GitHub は、短いあいだに Issue をたくさん作ると止めるので、間をあける
-    }
-    store.remove('mz-seeding'); mzNote = CHARS[c].name + 'の本に、メタゾンビを' + made + '体置きました。';
-  } catch(e){ mzNote = (typeof e === 'number' ? mzErrText(e) : 'メタゾンビを置けませんでした。') + (made ? '置けた' + made + '体は、残っています。［続きを置く］を押すと、残りを置きます。' : ''); }
-  mzBusy = ''; render();
+const mzLevel = z => { const s = mzStat(z.n); return mzLvOf(mzDays(z.at) + s.met * 2 + s.back); };
+const mzCurse = () => mzItems().filter(mzLive).reduce((a, z) => a + mzLevel(z), 0); // 呪いの濃さ
+// 出会った・［戻す］を押した：部屋では自分の分のファイル（m/<端末>.json の mz）に書き、全員の分を数える。1人のときは、この端末だけ
+function mzStatAdd(z, met, back){
+  if(room){
+    const o = (myFile.mz = myFile.mz && typeof myFile.mz === 'object' ? myFile.mz : {}), e = (o[z.n] = o[z.n] && typeof o[z.n] === 'object' ? o[z.n] : {});
+    if(met && !e.m) e.m = Date.now(); if(back) e.b = (+e.b || 0) + 1; myTouch('soft');
+    const r = (roomMz[z.n] = roomMz[z.n] || { met:0, back:0 }); if(met) r.met = Math.max(r.met, 1); if(back) r.back++;
+  } else { const s = store.get('mz-stat', {}) || {}, e = (s[z.n] = s[z.n] || {}); if(met) e.m = e.m || Date.now(); if(back) e.b = (+e.b || 0) + 1; store.set('mz-stat', s); }
+}
+// 部屋の全員の分を数える（repoDoc から）
+function mzRoomCount(mem){
+  const out = {};
+  for(const f of Object.values(mem)) for(const [n, e] of Object.entries(f && f.mz && typeof f.mz === 'object' ? f.mz : {})) if(/^\d{1,7}$/.test(n) && e && typeof e === 'object'){ const r = (out[n] = out[n] || { met:0, back:0 }); if(e.m) r.met++; r.back += Math.max(0, Math.min(999, +e.b || 0)); }
+  return out;
+}
+// ［戻す］：戻す前にいた場面のメタゾンビの［戻す］の回数を、1つ増やす
+function mzBackAt(c, no){ if(mzOn()) for(const z of mzHere(c, no)) mzStatAdd(z, false, true); }
+// ===== 自動で置く・復活・強さの効果（1人のときは本人、部屋では部屋を作った人の端末が、裏で動かす） =====
+let mzWorkAt = 0, mzWorking = false, mzLabelsAt = '';
+function mzSig(c){ const pick = o => JSON.stringify(Object.entries(o || {}).filter(([k]) => k.startsWith(c + ':')).sort()); return pick(overlay.keys) + (room ? '' : pick(store.get('draft', {}))); }
+// 置く分：点検に引っかかった段落で、まだメタゾンビのいない所（封印したものも、いるうちに数える。封印したあとに文が変わったら、置き直さずに復活させる）。
+// くじの分は、その本に初めて置くときだけ（足し続けると、終わりがなくなる）
+function mzToSeed(c){
+  const sig = mzSig(c);
+  if(!mzSeedCount[c] || mzSeedCount[c].sig !== sig) mzSeedCount[c] = { sig, list:BOOKS[c] ? mzSeed(c, BOOKS[c], no => mzNowText(c, no)) : [] };
+  const mine = mzItems().filter(z => mzW(z) && z.book === c), have = new Set(mine.map(z => z.para));
+  const first = !mine.some(z => z.o === 'lint' || z.o === 'lot') || mzPendingBook(c);
+  return mzSeedCount[c].list.filter(z => !have.has(z.para) && (z.kind !== '正体不明' || first)).map(z => ({ ...z, o:z.kind === '正体不明' ? 'lot' : 'lint' }));
 }
 // ラベルを作る（すでにあれば 422。そのまま進む）
-async function mzLabels(){ for(const [name, color] of [[MZ_LABEL, 'f2f0ea'], ...Object.entries(MZ_COLOR).map(([k, v]) => ['種類:' + k, v])]) await mzApi('labels', { method:'POST', body:{ name, color } }).catch(() => null); }
-// 呼び出す：本文の文章を長く押す（パソコンでは右クリック）と、その場面に1体置く。種類は、その文章を点検して決める（引っかからなければ正体不明）
+async function mzLabels(repo){
+  repo = repo || ghRepo(); if(mzLabelsAt === repo) return;
+  for(const [name, color] of [[MZ_LABEL, 'f2f0ea'], ...Object.entries(MZ_COLOR).map(([k, v]) => ['種類:' + k, v]), [MZ_WAIT, 'e6c86e'], [MZ_IN, '7a1f1f'], [MZ_ACC, '6e9e6e']]) await mzApi('labels', { repo, method:'POST', body:{ name, color } }).catch(() => null);
+  mzLabelsAt = repo;
+}
+async function mzWork(){
+  if(!mzCan() || mzWorking || Date.now() - mzWorkAt < 60e3) return;
+  mzWorking = true; mzWorkAt = Date.now();
+  try {
+    const books = [current, ...CHAR_IDS.filter(c => c !== current)].filter(c => BOOKS[c] && BOOKS[c].paras && BOOKS[c].spots);
+    const todo = [];
+    for(const c of books){ await mzSleep(0); todo.push(...mzToSeed(c)); }
+    if(todo.length){
+      await mzLabels();
+      const firsts = books.filter(c => todo.some(z => z.book === c && z.o === 'lot'));
+      if(firsts.length) store.set('mz-seeding', { repo:ghRepo(), books:firsts });
+      mzSeeding = { done:0, total:todo.length }; render();
+      for(const z of todo){
+        const r = await mzApi('issues', { method:'POST', body:{ title:mzTitle(z), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
+        if(!r.ok) throw r.status;
+        const y = mzParse(await r.json(), 'w'); if(y){ mzData.items.push(y); store.set('mz-list', mzData); }
+        mzSeeding.done++; if(mzPanel || fbOpen) render();
+        await mzSleep(MZ_GAP); // GitHub は、短いあいだに Issue をたくさん作ると止めるので、間をあける
+      }
+      store.remove('mz-seeding'); mzSeeding = null; render();
+    }
+    await mzRevive();
+    await mzIntrude();
+  } catch(e){ mzSeeding = null; mzErrCode = typeof e === 'number' ? e : -1; mzFailAt = Date.now(); render(); }
+  mzWorking = false;
+}
+// 復活：封印したときの文と、いまの文が違う。人の手を通った文なら、封印したときに残した文も一緒に新しくしてあるので、違うのは、人の手を通らずに変わったとき（AI が書き換えた、もとのゲームが変わった、など）
+async function mzRevive(){
+  for(const z of mzItems().filter(z => mzW(z) && z.state === 'closed' && z.seal != null)){
+    const now = mzNowText(z.book, z.para);
+    if(!MZ_JA.test(now) || mzNorm(now) === mzNorm(z.seal)) continue;
+    await mzApi('issues/' + z.n + '/comments', { method:'POST', body:{ body:'（メタゾンビ）場面の文章が、人が直さないまま変わったので、戻ってきました。' } }).catch(() => null);
+    const r = await mzApi('issues/' + z.n, { method:'PATCH', body:{ state:'open' } });
+    if(r.ok){ Object.assign(z, mzParse(await r.json(), 'w') || { state:'open' }); delete mzCm[mzKey(z)]; store.set('mz-list', mzData); }
+    await mzSleep(MZ_GAP);
+  }
+}
+// 強さが段階3になったら、通信に入ってくる：メタゾンビの名前で、スレッドに書きこむ（部屋の全員のフォロー中に出る）
+async function mzIntrude(){
+  for(const z of mzItems().filter(z => mzLive(z) && mzW(z) && mzLevel(z) >= 3 && !z.labels.includes(MZ_IN))){
+    await mzLabels();
+    const r = await mzApi('issues/' + z.n + '/comments', { method:'POST', body:{ body:'（メタゾンビ）' + mzGarble(z) } });
+    if(!r.ok) continue;
+    await mzApi('issues/' + z.n + '/labels', { method:'POST', body:{ labels:[MZ_IN] } }).catch(() => null);
+    z.labels.push(MZ_IN); z.comments++; delete mzCm[mzKey(z)]; store.set('mz-list', mzData);
+    await mzSleep(MZ_GAP);
+  }
+}
+// メタゾンビの声：引っかかった文を、種類ごとに化けさせる
+function mzGarble(z, s){
+  s = String(s || z.s || String(mzNowText(z.book, z.para)).split('。')[0] + '。').replace(/\s+/g, ' ').trim().slice(0, 120);
+  const h = mzHash(z.n + ':' + s);
+  if(z.kind === '抜け') return [...s].map((ch, i) => (/[、。「」]/.test(ch) || mzHash(h + ':' + i) % 10 > 3 ? ch : '＿')).join('');
+  if(z.kind === 'くり返し'){ const tail = s.replace(/。$/, '').slice(-8); return s + tail + '、' + tail.slice(-4) + '、' + tail.slice(-2) + '……'; }
+  if(z.kind === '言い回し') return [...s].map((ch, i) => (mzHash(h + ':' + i) % 6 === 0 ? ch + ch : ch)).join('');
+  return [...s].map((ch, i) => (mzHash(h + ':' + i) % 4 === 0 ? '▒' : ch)).join('');
+}
+// ===== 呼び出す・起票する =====
+const mzMineIss = k => store.set('mz-mine-iss', [...new Set([...(store.get('mz-mine-iss', []) || []), k])].slice(-300)); // 自分が呼び出したメタゾンビ（フォローする）
+const mzMine = x => { if(x && x.id) store.set('mz-mine', [...(store.get('mz-mine', []) || []), x.id].slice(-400)); }; // 自分が書いたコメント
+const mzIsMine = id => (store.get('mz-mine', []) || []).includes(id);
+// 場面の場所（結果の段落は、来る元の段落の場所。分からなければ、いま主人公がいる場所）
+const mzSpotGuess = (c, no) => { const B = BOOKS[c]; if(!B) return null; return mzSpotOf(B, String(no)) || Object.keys(B.spots || {}).find(id => B.spots[id].place === loadPlayer(c).place) || null; };
+async function mzCreate(z, title){
+  await mzLoad(); await mzLabels();
+  const r = await mzApi('issues', { method:'POST', body:{ title:(title || mzTitle(z)).slice(0, 80), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
+  if(!r.ok) throw r.status;
+  const y = mzParse(await r.json(), 'w'); if(y){ mzData.items.push(y); store.set('mz-list', mzData); mzMineIss(mzKey(y)); }
+  return y;
+}
+// スレッドを開く（通信を開いて、そのメタゾンビのスレッドへ）
+function mzOpenThread(k){ mzPanel = false; menuOpen = false; fbOpen = true; mapOpen = false; cmOld = false; cmOpen(k); }
+// 本文を長く押す（パソコンでは右クリック）と、その場面に1体呼び出す。種類は、その文章を点検して決める（引っかからなければ正体不明）
 let mzCall = null; // { c, no, s }
 async function mzSummon(){
   const k = mzCall; mzCall = null;
   if(!k || !mzOn()){ render(); return; }
   fbNote = 'メタゾンビを呼び出しています…'; render();
   try {
-    await mzLoad();
-    const B = BOOKS[k.c], hit = mzLint(k.s)[0], who = store.get('fb-name', ''), here = B && Object.keys(B.spots || {}).find(id => B.spots[id].place === loadPlayer(k.c).place);
-    const z = { book:k.c, para:+k.no, kind:hit ? hit.kind : '正体不明', why:(who ? who + 'が' : '') + '呼び出した。', s:k.s, spot:(B && mzSpotOf(B, String(k.no))) || here || null };
-    await mzLabels();
-    const r = await mzApi('issues', { method:'POST', body:{ title:mzTitle(z), body:mzBody(z), labels:[MZ_LABEL, '種類:' + z.kind] } });
-    if(!r.ok) throw r.status;
-    const y = mzParse(await r.json()); if(y){ mzData.items.push(y); store.set('mz-list', mzData); }
+    const hit = mzLint(k.s)[0], who = myName();
+    const y = await mzCreate({ book:k.c, para:+k.no, kind:hit ? hit.kind : '正体不明', o:'call', why:(who ? who + 'が' : '') + '呼び出した。', s:k.s, spot:mzSpotGuess(k.c, k.no) });
     fbNote = 'メタゾンビを呼び出しました。';
+    if(y){ render(); mzOpenThread(mzKey(y)); return; }
   } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを呼び出せませんでした。'; }
   render();
 }
@@ -8691,54 +8899,251 @@ function mzCallShow(){
   box.querySelectorAll('[data-mzcallno]').forEach(b => { b.onclick = () => { mzCall = null; render(); }; });
   box.querySelector('#mzCallYes').onclick = () => mzSummon();
 }
-// 閉じる：how は completed（直して封印）か not_planned（異常なし）。誰がしたかを、コメントに残す（トークンは部屋で1つなので、呼び名を書く）
-async function mzClose(n, how, note){
-  const z = mzItems().find(x => x.n === n); if(!z || z.state !== 'open') return false;
-  const who = store.get('fb-name', '');
-  await mzApi('issues/' + n + '/comments', { method:'POST', body:{ body:(who ? '（' + who + '）' : '') + note } }).catch(() => null);
-  const r = await mzApi('issues/' + n, { method:'PATCH', body:{ state:'closed', state_reason:how } });
+// 通信の書きこみから：［メタゾンビにする］（GitHub の Create Issue と同じ形。名前・場面・種類を見てから作る。同じ場面にいても、別の問題なら2体目にする）
+function mzMakeOpen(id){
+  const m = cmMsgOf(id), k = String(id).split('|')[0], it = cmItem(k); cmSheet = '';
+  if(!m || !it){ render(); return; }
+  const sc = cmSceneOf(it.at) || cmSceneOf((/\[\[([\w-]+:\d+)\]\]/.exec(m.text) || [])[1]) || (lastView ? { c:lastView.char, n:lastView.para } : null);
+  if(!sc){ fbNote = 'メタゾンビを置く場面が分かりません。本文を長押しして、メタゾンビを呼び出してください。'; render(); return; }
+  const text = String(m.text).split('\n').filter(l => !/^\[\[[^\]]*\]\]$/.test(l.trim())).join('\n').trim(), hit = mzLint(text)[0], kind = hit ? hit.kind : '正体不明';
+  mzMake = { id, c:sc.c, n:sc.n, text, kind, name:mzTitle({ book:sc.c, para:sc.n, kind, spot:mzSpotGuess(sc.c, sc.n) }) };
+  render();
+}
+async function mzMakeDo(){
+  const x = mzMake; if(!x) return; mzMake = null; fbNote = 'メタゾンビを呼び出しています…'; render();
+  try {
+    const who = myName();
+    const y = await mzCreate({ book:x.c, para:x.n, kind:x.kind, o:'chat', why:(who ? who + 'が' : '') + '通信の書きこみから呼び出した。', s:x.text.replace(/\n+/g, ' ').slice(0, 300), spot:mzSpotGuess(x.c, x.n) }, x.name);
+    const k = x.id.split('|')[0];
+    if(y && !/^mz_/.test(k) && roomItems[k]){ const keep = cmDraft(k); cmDraftPut(k, 'メタゾンビ #' + y.n + '「' + y.title + '」を呼び出しました。'); threadReply(k); cmDraftPut(k, keep); } // 元のスレッドに、作ったことを返信で残す（Mattermost の GitHub 連携と同じ）
+    fbNote = 'メタゾンビ #' + (y ? y.n : '') + 'を呼び出しました。';
+  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを呼び出せませんでした。'; }
+  render();
+}
+// 窓：［メタゾンビにする］
+function mzDlgHtml(){
+  if(mzMake) return '<div class="cm-shade" id="mzDlgNo"></div><div class="cm-dlg"><b>メタゾンビにする</b><span>メッセージを、メタゾンビにします。メタゾンビは、作業用のリポジトリの Issue になり、通信にスレッドができます。</span>'
+    + '<input id="mzMkName" maxlength="60"><span>' + escText(mzSpotLabel({ book:mzMake.c, para:mzMake.n, place:mzSpotName({ book:mzMake.c, spot:mzSpotGuess(mzMake.c, mzMake.n) }) })) + '　種類：' + mzMake.kind + '</span>'
+    + '<span style="color:var(--dim)">' + escText(mzMake.text.length > 80 ? mzMake.text.slice(0, 80) + '…' : mzMake.text) + '</span><div class="b"><button id="mzDlgNo2">やめる</button><button class="go" id="mzMkYes">メタゾンビにする</button></div></div>';
+  return '';
+}
+// ===== 通信のスレッド：メタゾンビ1体＝スレッド1つ。最初の書きこみは Issue の本文、返信は Issue のコメント =====
+// コメントを読む（開いたときと、数が増えたとき）
+async function mzLoadComments(k){
+  const z = mzOfKey(k); if(!z || mzCmLoading[k]) return;
+  mzCmLoading[k] = true;
+  try {
+    const r = await mzApi('issues/' + z.n + '/comments?per_page=100', { repo:mzRepoOf(z) });
+    if(!r.ok) throw r.status;
+    const a = await r.json(); mzCm[k] = { at:Date.now(), list:a.map(mzCmParse) }; z.comments = Math.max(z.comments, a.length);
+  } catch(e){ mzCm[k] = { at:Date.now(), list:(mzCm[k] && mzCm[k].list) || [], fail:true }; }
+  mzCmLoading[k] = false; render();
+}
+function mzCmParse(x){
+  const b = String(x.body || ''), m = /^（([^）\n]{1,30})）/.exec(b);
+  return { id:x.id, by:m ? m[1] : String((x.user && x.user.login) || '名前なし'), text:m ? b.slice(m[0].length).replace(/^\s+/, '') : b, o:Date.parse(x.created_at) || 0, mine:mzIsMine(x.id) };
+}
+// 通信に並べる形にする。自分のコメントの鍵は「端末-」で始め、未読・フォローの数え方を、ふつうのスレッドと同じにする。まだ読んでいないコメントは、数だけ置く（ph）
+function mzThreadItem(k){
+  if(/^mz_x/.test(k)) return mzPubThreadItem(k);
+  if(/^mz_y/.test(k)){ const e = mzPub() ? mzPubSealed().find(x => x[0] === k) : null; return e ? e[1] : null; }
+  const z = mzOfKey(k); if(!z) return null;
+  const c = mzCm[k], re = {}, arr = (store.get('mz-arr', {}) || {})[k], list = c ? c.list : [];
+  if(arr) re['m-arr'] = { by:'メタゾンビ', text:'あなたが、' + mzSpotLabel(z) + 'に来ました。', o:arr };
+  list.forEach(x => { re[(x.mine ? DEV + '-' : 'g-') + 'c' + x.id] = { by:x.by, text:x.text, o:x.o }; });
+  for(let i = list.length; i < z.comments; i++) re['g-p' + i] = { by:'', text:'', o:z.upd, ph:true };
+  return { title:z.title, name:z.title, by:'メタゾンビ', text:z.s ? '> ' + z.s : '', o:z.at, at:z.book + ':' + z.para, re, mz:z };
+}
+// 通信の一覧に混ぜるもの：立っているメタゾンビと、まだ受けていない報告（編集版）。呪われた配った版では、通信に入ってきたメタゾンビ
+const mzList = () => (mzOn() ? mzItems().filter(z => z.state === 'open').map(z => [mzKey(z), mzThreadItem(mzKey(z))]) : mzPub() ? mzPubThreads() : []);
+const mzDone = () => (mzOn() ? mzItems().filter(z => z.state === 'closed').map(z => [mzKey(z), mzThreadItem(mzKey(z))]) : mzPub() ? mzPubSealed() : []);
+const cmItem = k => (/^mz_/.test(String(k)) ? mzThreadItem(k) : roomItems[k]);
+const cmAll = () => itemList().concat(mzList());
+// 自動でフォローするメタゾンビ：通信に入ってきた・自分が担当・自分が呼び出した・この場面で出会った
+const mzFollowAuto = (z, k) => z.labels.includes(MZ_IN) || (!!myName() && z.labels.includes(MZ_WHO + myName())) || (store.get('mz-mine-iss', []) || []).includes(k) || !!(store.get('mz-arr', {}) || {})[k];
+// 場面に来たら、通信に知らせる：その場面のメタゾンビのスレッドに「来ました」を置いて、フォローする（初めて来たときだけ）。出会った数にも入れる
+function mzArrive(mode){
+  if(!mzOn() || mode !== 'live' || !lastView) return;
+  const zs = mzHere(lastView.char, lastView.para); if(!zs.length) return;
+  const arr = store.get('mz-arr', {}) || {}; let ch = false;
+  for(const z of zs){ const k = mzKey(z); if(arr[k]) continue; arr[k] = Date.now(); ch = true; mzStatAdd(z, true, false); cmSetFollow(k, true); }
+  if(ch){ store.set('mz-arr', arr); chatNotify(); chatBadge(); }
+}
+// 返信を送る：送っているあいだは薄く並べ、届かなかったら［もう一度送る］［消す］（通信と同じ）
+function mzReply(k){
+  const z = mzOfKey(k), text = cmDraft(k).trim(); if(!z || !text) return;
+  store.set('mz-out', [...(store.get('mz-out', []) || []), { id:'mzr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4), k, text:text.slice(0, 4000) }]);
+  cmDraftPut(k, ''); cmPlus = false; cmToBottom = true; cmSetFollow(k, true); render(); mzSend();
+}
+let mzSending = false;
+async function mzSend(){
+  if(mzSending) return; mzSending = true;
+  try {
+    for(const x of (store.get('mz-out', []) || []).filter(x => !x.fail)){
+      const z = mzOfKey(x.k), who = myName(); let ok = false;
+      if(z) try {
+        const r = await mzApi('issues/' + z.n + '/comments', { repo:mzRepoOf(z), method:'POST', body:{ body:(who ? '（' + who + '）' : '') + x.text } });
+        if(r.ok){ const c = await r.json(); mzMine(c); (mzCm[x.k] = mzCm[x.k] || { at:Date.now(), list:[] }).list.push({ ...mzCmParse(c), mine:true }); z.comments++; ok = true; }
+      } catch(e){}
+      store.set('mz-out', (store.get('mz-out', []) || []).flatMap(y => (y.id !== x.id ? [y] : ok ? [] : [{ ...y, fail:true }])));
+      render();
+    }
+  } finally { mzSending = false; }
+}
+// ［✎ 直す］：その場面へ行って、引っかかった文のある段落の、直す欄を開く
+function mzFix(k){
+  const z = mzOfKey(k); if(!z) return;
+  cmGo(z.book + ':' + z.para);
+  const v = lastView; if(!v || v.char !== z.book || v.para !== z.para) return;
+  const parts = String(v.text || '').split('\n\n'), d = shownOf(z.book + ':' + z.para), drOf = p => d.paras.find(x => x.kind === 'text' && x.before === p);
+  const s = String(z.s || '').replace(/。$/, ''), part = (s && parts.find(p => String(drOf(p) ? drOf(p).after : p).includes(s))) || parts[0], dr = drOf(part);
+  editOn = true; fbe = { kind:'para', pk:'text', before:part, st0:dr && dr.st ? dr.st : null, insId:null, afterOf:null, value:dr ? dr.after : part, img:dr && assetOk(dr.img) ? dr.img : null };
+  fbNote = ''; render();
+  setTimeout(() => { const f = document.querySelector('#main textarea.edit'); if(f){ f.scrollIntoView({ block:'center' }); f.focus({ preventScroll:true }); } }, 60);
+}
+// 閉じる：how は completed（直して封印）か not_planned（異常なし）。誰がしたかを、コメントに残す（トークンは部屋で1つなので、呼び名を書く）。封印したときの文を、本文の終わりに残す
+async function mzClose(z, how, note, sealText){
+  if(!z || z.state !== 'open') return false;
+  const who = myName(), repo = mzRepoOf(z);
+  const c = await mzApi('issues/' + z.n + '/comments', { repo, method:'POST', body:{ body:(who ? '（' + who + '）' : '') + note } }).catch(() => null);
+  if(c && c.ok) mzMine(await c.json());
+  let body = null;
+  if(sealText != null && mzW(z)){ const g = await mzApi('issues/' + z.n, { repo }); if(g.ok) body = mzSealBody((await g.json()).body, sealText); }
+  const r = await mzApi('issues/' + z.n, { repo, method:'PATCH', body:{ state:'closed', state_reason:how, ...(body ? { body } : {}) } });
   if(!r.ok) throw r.status;
-  Object.assign(z, mzParse(await r.json()) || { state:'closed', reason:how, closedAt:Date.now() }); store.set('mz-list', mzData);
+  Object.assign(z, mzParse(await r.json(), z.src, z.repo) || { state:'closed', reason:how, closedAt:Date.now() });
+  if(z.seal == null && sealText != null) z.seal = sealText;
+  delete mzCm[mzKey(z)]; store.set('mz-list', mzData);
+  store.set('mz-sealed', [...new Set([...(store.get('mz-sealed', []) || []), mzKey(z)])].slice(-500)); // 自分の封印のスタンプ
+  mzShotSeal(z);
   return true;
 }
-async function mzNothing(n){
-  if(mzBusy) return;
-  mzAsk = ''; mzBusy = '封印しています…'; render();
-  try { await mzClose(n, 'not_planned', '異常なし。直す所はありませんでした。'); mzNote = '異常なしで、メタゾンビを封印しました。'; } catch(e){ mzNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを封印できませんでした。'; }
-  mzBusy = ''; render();
+async function mzNothing(k){
+  const z = mzOfKey(k); mzAsk = ''; if(!z){ render(); return; }
+  fbNote = 'メタゾンビを封印しています…'; render();
+  try { await mzClose(z, 'not_planned', '異常なし。直す所はありませんでした。', mzNowText(z.book, z.para)); fbNote = '異常なしにして、メタゾンビを封印しました。'; } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを封印できませんでした。'; }
+  render();
 }
-// 文を直したら、その場面のメタゾンビを封印する（1人のときは直したとき。部屋では、採用したとき）。封印したときの文を、Issue に残す
-async function mzSeal(c, no, text){
+// 文を直したら、その場面のメタゾンビを封印する（1人のときは直したとき。部屋では、採用したとき）。封印したときの文を、Issue に残す。
+// 前に封印したメタゾンビは、残した文を新しくする（人の手を通った文なので、復活させない）
+async function mzSeal(c, no, text, keepOpen){
   if(!mzOn()) return;
   try { await mzLoad(); } catch(e){ return; }
   let n = 0;
-  for(const z of mzHere(c, no)) try { if(await mzClose(z.n, 'completed', '封印しました。直した文：\n\n> ' + String(text || '').replace(/\n+/g, '\n> '))) n++; } catch(e){}
+  if(!keepOpen) for(const z of mzHere(c, no)) try { if(await mzClose(z, 'completed', '封印しました。直した文：\n\n> ' + String(text || '').replace(/\n+/g, '\n> '), text)) n++; } catch(e){}
+  for(const z of mzItems().filter(z => mzW(z) && z.book === c && z.para === +no && z.state === 'closed' && z.seal != null && mzNorm(z.seal) !== mzNorm(text))) try { await mzReseal(z, text); } catch(e){}
   if(n){ fbNote = (fbNote ? fbNote + '\n' : '') + 'メタゾンビを封印しました。'; render(); }
 }
-// 図鑑：いまの本のメタゾンビ。立っているもの（古い順）と、封印したもの
+async function mzReseal(z, t){
+  const g = await mzApi('issues/' + z.n); if(!g.ok) return;
+  const r = await mzApi('issues/' + z.n, { method:'PATCH', body:{ body:mzSealBody((await g.json()).body, t) } });
+  if(r.ok){ z.seal = t; store.set('mz-list', mzData); }
+}
+// 部屋で、本文の直し案を出したとき：初めは、採用まで消えない（「封印待ち」のラベルと、直し案をコメントに残す）。部屋を作った人が「直し案を出したら消える」にしていたら、その場で封印する
+const mzSealMode = () => (store.get('mz-seal-mode', 'adopt') === 'propose' ? 'propose' : 'adopt');
+async function mzPropose(c, no, after){
+  if(!mzOn() || !room) return;
+  if(mzSealMode() === 'propose'){ mzSeal(c, no, mzNowText(c, no)); return; } // 残す文は、いま全員のゲームに入っている文（採用されたら、そのとき新しくする）
+  const who = myName();
+  for(const z of mzHere(c, no)){
+    try {
+      const r = await mzApi('issues/' + z.n + '/comments', { repo:mzRepoOf(z), method:'POST', body:{ body:(who ? '（' + who + '）' : '') + '場面の文章を直しました。直した文章が全員のゲームに入ると、メタゾンビは封印されます。\n\n> ' + String(after || '（この段落を削る）').replace(/\n+/g, '\n> ') } });
+      if(r.ok){ mzMine(await r.json()); z.comments++; delete mzCm[mzKey(z)]; }
+      if(!z.labels.includes(MZ_WAIT)){ await mzLabels(mzRepoOf(z)); const l = await mzApi('issues/' + z.n + '/labels', { repo:mzRepoOf(z), method:'POST', body:{ labels:[MZ_WAIT] } }); if(l.ok) z.labels.push(MZ_WAIT); }
+    } catch(e){}
+  }
+  store.set('mz-list', mzData); render();
+}
+// 担当：ラベル「担当:呼び名」。部屋の人なら誰でも
+async function mzWho(k){
+  const z = mzOfKey(k), who = myName(); if(!z) return;
+  if(!who){ fbNote = '担当になるには、［☰］の［部屋］の［部屋の画面を開く］で、呼び名を入れてください。'; render(); return; }
+  const lb = MZ_WHO + who, on = !z.labels.includes(lb), repo = mzRepoOf(z);
+  try {
+    if(on){ await mzApi('labels', { repo, method:'POST', body:{ name:lb, color:'d9d2b8' } }).catch(() => null); const r = await mzApi('issues/' + z.n + '/labels', { repo, method:'POST', body:{ labels:[lb] } }); if(!r.ok) throw r.status; z.labels.push(lb); cmSetFollow(k, true); }
+    else { const r = await mzApi('issues/' + z.n + '/labels/' + encodeURIComponent(lb), { repo, method:'DELETE' }); if(!r.ok && r.status !== 404) throw r.status; z.labels = z.labels.filter(l => l !== lb); }
+    store.set('mz-list', mzData);
+  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  render();
+}
+// 配った版から届いた報告を受ける：ラベル「受けた」。次に配る版から、配った版にも出る
+async function mzAccept(k){
+  const z = mzOfKey(k); if(!z) return;
+  try { await mzLabels(z.repo); const r = await mzApi('issues/' + z.n + '/labels', { repo:z.repo, method:'POST', body:{ labels:[MZ_ACC] } }); if(!r.ok) throw r.status; if(!z.labels.includes(MZ_ACC)) z.labels.push(MZ_ACC); store.set('mz-list', mzData); fbNote = '報告を受けました。報告はメタゾンビになって、次に配る版にも出ます。'; }
+  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  render();
+}
+async function mzRename(k, name){
+  const z = mzOfKey(k); if(!z) return;
+  try { const r = await mzApi('issues/' + z.n, { repo:mzRepoOf(z), method:'PATCH', body:{ title:name } }); if(!r.ok) throw r.status; z.title = name; store.set('mz-list', mzData); }
+  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  render();
+}
+// スレッドの画面
+function mzThreadHtml(k){
+  const it = cmItem(k); if(!it) return '';
+  if(it.mzp) return mzPubThreadHtml(k, it);
+  if(it.mzs) return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(it.title) + '</b></div><div class="cm-log"><div class="cm-card mz-card" data-mi="0"><div class="done mz-sealed"><i class="mz-stamp">封</i>' + escText(it.text) + '</div></div></div></div>';
+  const z = it.mz, c = mzCm[k], esc = escText;
+  if(!c || ((c.fail || c.list.length < z.comments) && Date.now() - c.at > 15e3)) setTimeout(() => mzLoadComments(k), 0);
+  const ms = cmMsgList(k, it), from = cmOpenAt && cmOpenAt.k === k ? cmOpenAt.n : -1;
+  let lineAt = -1; if(from >= 0) for(let i = from; i < ms.length; i++) if(!mineKey(ms[i][0])){ lineAt = i; break; }
+  const line = i => (i === lineAt ? '<div class="cm-unl" id="cmNewLine">ここから未読</div>' : '');
+  cmGrew = !!cmShown && cmShown.k === k && ms.length > cmShown.n;
+  if(cmGrew && !cmAtBottom && !cmToBottom && ms.slice(cmShown.n).some(([id]) => !mineKey(id))) cmBelow = true;
+  if(cmAtBottom) cmBelow = false;
+  cmNowShown = { k, n:ms.length };
+  const lv = mzLevel(z), st = mzStat(z.n), who = z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)), open = z.state === 'open', live = mzLive(z), meWho = !!myName() && who.includes(myName());
+  let day = ''; const dayLine = t => { if(!t) return ''; const d = new Date(t).toDateString(); if(d === day) return ''; day = d; return '<div class="cm-day">' + cmDay(t) + '</div>'; };
+  let h = dayLine(z.at) + line(0) + '<div class="cm-card mz-card" data-mid="' + k + '" data-mi="0"><div class="h">' + (mzW(z) ? 'メタゾンビ #' : '届いた報告 #') + z.n + '　' + esc(mzSpotLabel(z)) + '</div>'
+    + '<div class="d" data-msg="' + k + '"><div>' + (mzW(z) ? '種類：' + z.kind + '　' : '') + '強さ：' + lv + '　置いてから ' + mzDays(z.at) + ' 日・出会った人 ' + st.met + ' 人</div>'
+    + (z.s ? '<div class="cm-q">' + esc(z.s) + '</div>' : '') + (who.length ? '<div>担当：' + esc(who.join('、')) + '</div>' : '') + (open && z.labels.includes(MZ_WAIT) ? '<div>直した文章が全員のゲームに入ると、メタゾンビは封印されます。</div>' : '') + (!mzW(z) && !live && open ? '<div>配った版で遊んだ人から、報告が届きました。［受ける］を押すと、報告がメタゾンビになって、次に配る版にも出ます。</div>' : '') + '</div>'
+    + (!open ? '<div class="done mz-sealed"><i class="mz-stamp">封</i>' + (z.reason === 'not_planned' ? '異常なしにして、メタゾンビを封印しました。' : '場面の文章を直して、メタゾンビを封印しました。') + '</div>'
+      : mzAsk === 'ok:' + k ? '<div class="cm-acts"><button class="go" data-mzokyes="' + k + '">異常なしにする</button><button data-mzno="1">やめる</button></div>'
+      : '<div class="cm-acts mz-acts"><button data-go="' + escAttr(z.book + ':' + z.para) + '">この場面へ行く</button>' + (!live ? '<button class="go" data-mzacc="' + k + '">受ける</button>' : '<button data-mzfix="' + k + '">✎ 直す</button>') + '<button data-mzok="' + k + '">異常なし</button>'
+        + (room ? '<button data-mzwho="' + k + '">' + (meWho ? '担当をやめる' : '担当になる') + '</button>' : '') + (z.url ? '<a href="' + escAttr(z.url) + '" target="_blank" rel="noopener">GitHub で開く</a>' : '') + '</div>') + '</div>';
+  let wait = false;
+  visRes(it).forEach(([rk, r], j) => {
+    if(r.ph){ wait = true; return; }
+    h += dayLine(r.o) + line(j + 1) + '<div class="cm-m' + (mineKey(rk) ? ' me' : '') + (r.by === 'メタゾンビ' ? ' mz-voice' : '') + (cmSheet === k + '|' + rk ? ' sel' : '') + '" data-mid="' + k + '|' + rk + '" data-mi="' + (j + 1) + '"><div class="n">' + (mineKey(rk) ? '' : (r.by === 'メタゾンビ' ? '<i class="cm-av mz-av"></i>' : cmAv(r.by, r.by)) + esc(r.by || '名前なし') + '　') + cmHM(r.o) + '</div>'
+      + '<div class="b" data-msg="' + k + '|' + rk + '"><button class="mo" data-mo="' + k + '|' + rk + '" aria-label="メニュー">⋯</button>' + cmText(r.text) + '</div></div>';
+  });
+  if(wait) h += '<p class="cm-none">返信を読んでいます…</p>';
+  for(const x of (store.get('mz-out', []) || []).filter(x => x.k === k)) h += '<div class="cm-m me pend' + (x.fail ? ' fail' : '') + '"><div class="b">' + cmText(x.text) + '</div><div class="st">' + (x.fail ? '届いていません<button data-mzretry="' + x.id + '">もう一度送る</button><button data-mzdel="' + x.id + '">消す</button>' : '送っています…') + '</div></div>';
+  let sheet = '';
+  if(cmSheet && cmSheet.split('|')[0] === k) sheet = '<div class="cm-shade" id="cmSheetNo"></div><div class="cm-sheet"><button data-cmq="' + cmSheet + '">引用して返信</button>' + (room ? '<button data-cmfollow="' + k + '">' + (cmFollowing(k, it) ? 'フォローをやめる' : 'フォローする') + '</button>' : '') + '<button data-cmcopy="' + cmSheet + '">文をコピーする</button><button data-go="' + escAttr(z.book + ':' + z.para) + '">この場面へ行く</button></div>';
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + esc(cmTitle(it)) + '</b></div><div class="cm-log">' + h + '</div>' + (open ? cmInputHtml(k) : (fbNote ? '<div class="cm-in"><div class="note">' + esc(fbNote) + '</div></div>' : '')) + sheet + mzDlgHtml() + '</div>';
+}
+// ===== 図鑑：同じチケットを、強い順に並べ直したもの。押すと、その場面へ行って、スレッドを開く =====
+const mzPhoto = {}; // 写真：{ '番号' か '番号-s'（封印したあと）: dataURL か ''（ない）か null（読んでいる） }
+async function mzPhotoLoad(id){
+  if(id in mzPhoto) return; mzPhoto[id] = null;
+  try { const r = await ghApi('book/mz/' + id + '.jpg'); if(!r.ok) throw 0; mzPhoto[id] = 'data:image/jpeg;base64,' + String((await r.json()).content || '').replace(/\s/g, ''); } catch(e){ mzPhoto[id] = ''; }
+  if(mzPanel) render();
+}
 function mzPanelHtml(){
   const c = current, nm = CHARS[c].name, esc = t => escText(String(t || ''));
   let h = '<div class="scr"><h2 class="scr-h">メタゾンビ図鑑</h2>';
   h += '<p class="scr-lead">メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。';
-  if(!mzOn()) return h + '</p><div class="scr-state">' + (room ? 'リポジトリのない部屋には、メタゾンビは出てきません。' : 'メタゾンビ図鑑は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
-  h += 'メタゾンビは1体ずつ、作業用のリポジトリに Issue として書かれます。Issue は、GitHub で、やることを1件ずつ書いておくものです。<br>場面の文章を直すと、その場面のメタゾンビは封印されます。封印されたメタゾンビは、場面からいなくなって、図鑑の下にある「封印したメタゾンビ」に並びます。メタゾンビの Issue も閉じられます。' + (room ? 'ただし、部屋では、直した文章が全員のゲームに入ったときに、メタゾンビが封印されます。' : '') + '直す所がなければ、図鑑に並んだメタゾンビの［異常なし］を押すと、封印できます。<br>場面の本文を長く押すと、メタゾンビを呼び出せます。パソコンでは、本文を右クリックします。</p>';
+  h += 'メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。';
+  if(!mzOn()) return h + '</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。' : 'メタゾンビ図鑑は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
+  h += 'ゲームが文章を点検して、メタゾンビを自動で置きます。Issue は、GitHub で、やることを1件ずつ書いておくものです。メタゾンビは1体ずつ、作業用のリポジトリの Issue になり、通信にスレッドができます。<br>'
+    + '場面の文章が直ると、メタゾンビは封印されて、いなくなります。' + (room ? 'いつ封印されるかは、部屋を作った人が決めています。' : '') + '直す所がなければ、スレッドの［異常なし］を押すと、メタゾンビを封印できます。<br>'
+    + 'メタゾンビの強さは、1から5までです。放っておくと、メタゾンビは強くなります。強くなったメタゾンビは、通信に書きこんできます。配った版では、メタゾンビのいる場面の映像や文章に、怪しいことが起きます。<br>本文を長押しすると、メタゾンビを呼び出せます。パソコンでは、本文を右クリックします。<br>下に並んだメタゾンビを押すと、メタゾンビのいる場面へ行って、スレッドが開きます。</p>';
   if(mzNote) h += '<div class="note">' + esc(mzNote) + '</div>';
-  if(mzBusy) h += '<div class="note">' + esc(mzBusy) + '</div>';
+  if(mzSeeding) h += '<div class="note">メタゾンビを置いています… ' + mzSeeding.done + ' / ' + mzSeeding.total + '</div>';
   if(!mzData || mzData.repo !== ghRepo()) return h + '<div class="scr-state">' + (mzErrCode ? esc(mzErrText(mzErrCode)) + ([401, 403, 404].includes(mzErrCode) ? '' : '電波のよい所で、メタゾンビ図鑑を開き直してください。') : '読んでいます…') + '</div>' + (mzErrCode === 403 || mzErrCode === 404 ? mzPermHtml() : '') + '</div>';
-  const all = mzItems().filter(z => z.book === c), open = all.filter(z => z.state === 'open').sort((a, b) => a.at - b.at), shut = all.filter(z => z.state !== 'open').sort((a, b) => b.closedAt - a.closedAt);
-  h += '<div class="scr-state' + (open.length ? ' on' : '') + '">' + esc(nm) + 'の本<b>いる：' + open.length + '体</b><b>封印した：' + shut.length + '体</b></div>';
-  if(!all.length){
-    if(!mzCan()) h += '<p>' + esc(nm) + 'の本には、まだメタゾンビがいません。部屋を作った人がメタゾンビを置くと、図鑑に出ます。</p>';
-    else if(mzAsk === 'seed') h += '<div class="step"><p>メタゾンビを' + mzToSeed(c).length + '体置きます。1体ごとに、作業用のリポジトリに Issue を1つ作るので、' + mzToSeed(c).length + '秒ほどかかります。</p><div class="row" style="display:flex;gap:8px"><button class="go" id="mzSeedYes">置く</button><button class="sm" id="mzNo">やめる</button></div></div>';
-    else h += '<p>' + esc(nm) + 'の本には、まだメタゾンビがいません。［この本にメタゾンビを置く］を押すと、ゲームが' + esc(nm) + 'の本を点検して、直す所が残っていそうな場面に、メタゾンビを置きます。点検でメタゾンビが1体も置かれなかった場所には、場所の中の場面を1つくじで選んで、1体置きます。</p><button class="go" id="mzSeedBtn"' + (mzBusy ? ' disabled' : '') + '>この本にメタゾンビを置く</button>';
-  } else if(mzCan() && mzPending(c)) h += '<p>メタゾンビを、途中までしか置けませんでした。［続きを置く］を押すと、残りを置きます。</p><button class="sm" id="mzSeedBtn"' + (mzBusy ? ' disabled' : '') + '>続きを置く</button>';
-  const days = z => { const d = Math.floor((Date.now() - z.at) / 864e5); return d < 1 ? '今日置いた' : d + '日前に置いた'; };
-  for(const z of open) h += '<div class="step mz"><div class="n">Issue #' + z.n + '　' + days(z) + '</div><h3>' + esc(z.title) + '</h3>'
-    + (z.s ? '<p class="chg-a">' + esc(z.s) + '</p>' : '')
-    + '<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="sm" data-mzgo="' + escAttr(z.book + ':' + z.para) + '">この場面へ行く</button>'
-    + (mzAsk === 'ok:' + z.n ? '<button class="go" data-mzokyes="' + z.n + '">異常なしにする</button><button class="sm" id="mzNo">やめる</button>' : '<button class="sm" data-mzok="' + z.n + '">異常なし</button>')
-    + (z.url ? '<a class="sm" href="' + escAttr(z.url) + '" target="_blank" rel="noopener" style="margin-left:auto">GitHub で開く</a>' : '') + '</div></div>';
-  if(shut.length) h += '<p style="margin-top:18px"><b>封印したメタゾンビ</b></p>' + shut.map(z => '<div class="rowl"><span>Issue #' + z.n + '　' + esc(z.title) + '<small style="display:block;color:var(--dim)">' + (z.reason === 'not_planned' ? '異常なし' : '直して封印') + '</small></span>' + (z.url ? '<a class="sm" href="' + escAttr(z.url) + '" target="_blank" rel="noopener">GitHub で開く</a>' : '') + '</div>').join('');
+  if(mzErrCode && !mzSeeding) h += '<div class="note">' + esc(mzErrText(mzErrCode)) + '</div>' + (mzErrCode === 403 || mzErrCode === 404 ? mzPermHtml() : '');
+  const all = mzItems().filter(z => z.book === c), open = all.filter(mzLive).sort((a, b) => mzLevel(b) - mzLevel(a) || a.at - b.at), rep = all.filter(z => !mzW(z) && z.state === 'open' && !mzLive(z)), shut = all.filter(z => z.state !== 'open').sort((a, b) => b.closedAt - a.closedAt);
+  h += '<div class="scr-state' + (open.length ? ' on' : '') + '">' + esc(nm) + 'の本<b>封印していない：' + open.length + '体</b><b>封印した：' + shut.length + '体</b></div>';
+  h += '<p>呪いの濃さ：' + mzCurse() + '<br><small style="color:var(--dim)">封印していないメタゾンビの強さを、全部の本で足した数です。</small><br>封印のスタンプ：' + (store.get('mz-sealed', []) || []).length + '<br><small style="color:var(--dim)">あなたが封印したメタゾンビの数です。</small></p>';
+  if(!all.length && !mzSeeding) h += '<p>' + esc(nm) + 'の本には、いまメタゾンビがいません。' + (mzCan() ? '' : '部屋を作った人がゲームを開くと、メタゾンビが置かれます。') + '</p>';
+  const pic = (z, sealed) => { const id = z.n + (sealed ? '-s' : ''); if(mzW(z) && !(id in mzPhoto)) setTimeout(() => mzPhotoLoad(id), 0); const u = mzPhoto[id] || (sealed ? mzPhoto[z.n] : ''); return '<span class="mz-pic' + (u ? '' : ' none') + '">' + (u ? '<img src="' + u + '" alt="">' : '') + (sealed ? '<i class="mz-stamp">封</i>' : '') + '</span>'; };
+  const card = (z, sealed) => '<button class="step mz mz-row" data-mzthread="' + mzKey(z) + '">' + pic(z, sealed) + '<span class="mz-tx"><span class="n">' + (mzW(z) ? 'メタゾンビ #' : '報告 #') + z.n + '　' + esc(mzSpotLabel(z).replace(/^[^　]*の本　/, '')) + '</span><b>' + esc(z.title) + '</b>'
+    + (sealed ? '<small>' + (z.reason === 'not_planned' ? '異常なし' : '直した') + '</small>' : '<small>強さ ' + mzLevel(z) + '　置いてから ' + mzDays(z.at) + ' 日　出会った人 ' + mzStat(z.n).met + ' 人' + (z.labels.some(l => l.startsWith(MZ_WHO)) ? '　担当：' + esc(z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)).join('、')) : '') + '</small>') + '</span></button>';
+  h += open.map(z => card(z, false)).join('');
+  if(rep.length) h += '<p style="margin-top:18px"><b>配った版から届いた報告</b></p>' + rep.map(z => card(z, false)).join('');
+  if(shut.length) h += '<p style="margin-top:18px"><b>封印したメタゾンビ</b></p>' + shut.map(z => card(z, true)).join('');
   return h + '</div>';
 }
 // トークンに Issues の権限がないとき（部屋を作った人と、1人のとき）
@@ -8746,9 +9151,51 @@ function mzPermHtml(){
   if(room && !isHost()) return '';
   return '<div class="step"><h3>トークンに Issues の権限を足す</h3><p>1. 下の［GitHub でトークンの一覧を開く］を押します。名前が joining-the-living-dead で始まるトークンを押して、［Edit］を押します。<br>2. Repository permissions の Issues を Read and write にして、保存します。トークンは変わらないので、貼り直さなくても使えます。<br>3. メタゾンビ図鑑を開き直します。</p><a class="go" href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">GitHub でトークンの一覧を開く</a></div>';
 }
-// 映像に立つ姿（編集版）：真っ白な服と肌に、顔を隠す長い黒髪。日本の幽霊の昔からの姿として作る（RULES.md）。
-// 影を落とさない・いつもカメラのほうを向く・1秒に4コマだけ動く。編集版では、怪奇現象（砂嵐・文が化ける・音）は起こさない。種類ごとの姿と、輪郭の色のずれは、公開版の段で足す
-function mzFigure(T){
+// 写真：映像に立ったときの1コマ（その端末で取って、作業用のリポジトリの book/mz/<番号>.jpg に置く）。封印したあとは、メタゾンビのいない1コマ（<番号>-s.jpg）
+function mzGrab(){
+  try { const src = Cut.renderer.domElement, c = document.createElement('canvas'); c.width = 320; c.height = 180; c.getContext('2d').drawImage(src, 0, 0, 320, 180); return c.toDataURL('image/jpeg', .7).split(',')[1] || ''; } catch(e){ return ''; }
+}
+function mzShotTick(){
+  const g = Cut.ghost; if(!mzOn() || !g || !g.visible || !lastView || !g.userData.since || performance.now() - g.userData.since < 1200) return;
+  const z = mzHere(lastView.char, lastView.para).find(mzW); if(!z) return;
+  const done = store.get('mz-shot', {}) || {}; if(done[z.n]) return;
+  done[z.n] = 1; store.set('mz-shot', done);
+  const d = mzGrab(); if(!d) return;
+  mzPhoto[z.n] = 'data:image/jpeg;base64,' + d;
+  ghWrite('book/mz/' + z.n + '.jpg', now => (now ? null : { message:'メタゾンビの写真を置く', content:d })).catch(() => {});
+}
+function mzShotSeal(z){
+  if(!mzW(z) || !lastView || lastView.char !== z.book || lastView.para !== z.para || !Cut.renderer) return;
+  setTimeout(() => { // 封印したので、姿はもう立たない
+    if(Cut.ghost) Cut.ghost.visible = false;
+    try { Cut.renderer.render(Cut.scene, Cut.camera); } catch(e){ return; }
+    const d = mzGrab(); if(!d) return;
+    mzPhoto[z.n + '-s'] = 'data:image/jpeg;base64,' + d;
+    ghWrite('book/mz/' + z.n + '-s.jpg', now => (now ? null : { message:'封印したあとの写真を置く', content:d })).catch(() => {});
+  }, 400);
+}
+// ===== 編集版の効果（強さに合わせて重くなる。怪奇現象は起こさない） =====
+// 部屋の人の権限が上がる：呪いの濃さが 40 を超えると、「部屋を作った人が採用する」でも、ほかの人1人の賛成で入るようになる（部屋から人を外せるのは、部屋を作った人だけのまま）
+const MZ_LOOSE = 40;
+const mzLoose = () => !!room && mzOn() && mzCurse() >= MZ_LOOSE;
+const adoptNow = () => { const m = adoptMode(); return m === 'host' && mzLoose() ? 'peer' : m; };
+// 人手が足りない：段階5のメタゾンビ10体ごとに、部屋の人が1人要る。足りないあいだは、段階5のメタゾンビのいる場面から先へ進めない（封印すれば進める）
+function mzGate(c, no){
+  if(!mzOn()) return 0;
+  const strong = mzItems().filter(z => mzLive(z) && mzLevel(z) >= 5);
+  if(!strong.some(z => z.book === c && z.para === +no)) return 0;
+  const need = 1 + Math.floor(strong.length / 10), have = room ? Math.max(1, Object.keys(roomMembers).length) : 1;
+  return Math.max(0, need - have);
+}
+// ===== 映像に立つ姿 =====
+// 真っ白な服と肌に、顔を隠す長い黒髪。日本の幽霊の昔からの姿として作る（RULES.md）。影を落とさない・いつもカメラのほうを向く・1秒に4コマだけ動く。
+// 種類ごとの姿（配った版）：言い回し＝服が引っかかった言葉の文字で覆われる／抜け＝体の一部が欠けて、そこが砂嵐の四角／くり返し＝少しずつずれて3体重なる／正体不明＝砂嵐でできた人の形
+function mzNoiseTex(T){
+  const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'), img = g.createImageData(32, 32);
+  for(let i = 0; i < img.data.length; i += 4){ const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  g.putImageData(img, 0, 0); const t = new T.CanvasTexture(c); t.magFilter = T.NearestFilter; t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+}
+function mzFigure(T, kind, word){
   const white = '#e9e7e1', skin = '#efece6', hair = '#0b0b0d';
   const g = humanoid(T, {
     skinColor:skin, hairColor:hair, sleeve:white, shoe:skin, hand:skin, bareLegs:true, bareArms:true,
@@ -8762,48 +9209,241 @@ function mzFigure(T){
   u.neck.add(box(T, .23, .64, .05, hm, 0, -.06, -.115)); // 背中に垂れる髪
   u.neck.add(box(T, .21, .44, .03, hm, 0, .05, .128));   // 顔の前に垂れる髪
   if(u.shadow) u.shadow.visible = false;                  // 影を落とさない
+  if(kind === '言い回し'){ // 服が、引っかかった言葉の文字で覆われる
+    const w = [...String(word || 'だけ').replace(/[。、\s]/g, '')].slice(0, 3).join('') || 'だけ', tm = new T.MeshBasicMaterial({ map:textTex(T, [w, w, w, w], '#e9e7e1', '#2a2a30', 32, 48), transparent:true, opacity:.9 });
+    if(u.chest){ u.chest.add(box(T, .4, .5, .01, tm, 0, -.05, .13)); u.chest.add(box(T, .4, .5, .01, tm, 0, -.05, -.13)); }
+    g.add(box(T, .5, .55, .01, tm, 0, .55, .16));
+  }
+  if(kind === '抜け' || kind === '正体不明'){
+    const nt = mzNoiseTex(T), nm = new T.MeshBasicMaterial({ map:nt }); u.noise = nt;
+    if(kind === '抜け'){ if(u.AL) u.AL.visible = false; g.add(box(T, .2, .62, .2, nm, -.3, 1.05, 0)); } // 片腕が欠けて、そこが砂嵐の四角
+    else g.traverse(o => { if(o.isMesh && o.visible) o.material = new T.MeshBasicMaterial({ map:nt, transparent:true, opacity:.88 }); }); // 全身が砂嵐
+  }
   g.scale.setScalar(1.04);
   return g;
 }
-// 場所の映像を組むたびに、姿を1体用意しておく。立っているかは、毎コマ見る
-// 立つ所：カメラの前の、歩ける所。全身が映像の枠に入り、映像の高さの3分の1ほどに映る所を、画面の左右に寄せて選ぶ（まんなかは主人公）
+// 配った版の姿：種類ごとの姿に、輪郭の赤と青のずれ（色を付けた写しを、左右に少しずらして重ねる）。くり返しは、少しずつずれて3体
+// 写す（Three.js の clone は userData を JSON で写すので、人形の部品への参照があると失敗する。いったん外してから写す）
+const mzClone = o => { const keep = []; o.traverse(x => { keep.push([x, x.userData]); x.userData = {}; }); const cp = o.clone(true); for(const [x, u] of keep) x.userData = u; return cp; };
+function mzFigurePub(T, kind, word){
+  const grp = new T.Group(), base = mzFigure(T, kind, word); grp.add(base); grp.userData.noise = base.userData.noise;
+  const tint = (col, op) => { const cp = mzClone(base); cp.traverse(o => { if(o.isMesh) o.material = new T.MeshBasicMaterial({ color:col, transparent:true, opacity:op, depthWrite:false }); }); return cp; };
+  for(const [col, dx] of [[0xff2a2a, -.04], [0x2a6bff, .04]]){ const cp = tint(col, .28); cp.position.x = dx; grp.add(cp); }
+  if(kind === 'くり返し') for(const dx of [.24, .48]){ const cp = mzClone(base); cp.traverse(o => { if(o.isMesh){ o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = .5 - dx * .4; } }); cp.position.set(dx, 0, -dx * .4); grp.add(cp); }
+  return grp;
+}
+// 場所の映像を組むたびに、立てる所の候補を用意しておく。立つかどうかと、どの姿かは、毎コマ見る
+// 立つ所：カメラの前の、歩ける所のうち、全身が映像の枠に入る所。編集版は、映像の高さの3分の1ほどに映る所。配った版は、遠い所から、来るたびに近づく
 function mzGhostPlace(T, scene, built){
-  Cut.ghost = null;
-  if(!TEST_BUILD || CUSTOM || !built || !built.camera) return;
+  Cut.ghost = null; Cut.ghostCands = null; Cut.ghostT = T; Cut.ghostScene = scene;
+  if(!(TEST_BUILD && !CUSTOM) && !mzPub()) return;
+  if(!built || !built.camera) return;
   try {
     const cam = built.camera; cam.updateMatrixWorld();
     const dir = new T.Vector3(); cam.getWorldDirection(dir); dir.y = 0; if(dir.lengthSq() < 1e-6) dir.set(0, 0, -1); dir.normalize();
-    const ndc = (x, y, z) => new T.Vector3(x, y, z).project(cam);
-    let best = null, bs = Infinity;
+    const ndc = (x, y, z) => new T.Vector3(x, y, z).project(cam), out = [];
     for(const d of [2.5, 3.5, 4.5, 6, 8, 10, 13]) for(const sx of [-2.4, -1.6, -.9, .9, 1.6, 2.4]){
       const x = cam.position.x + dir.x * d - dir.z * sx, z = cam.position.z + dir.z * d + dir.x * sx;
       if(built.nav && !built.nav.free(x, z)) continue;
       const foot = ndc(x, 0, z), head = ndc(x, 1.75, z);
       if(foot.z > 1 || head.z > 1 || Math.abs(foot.x) > .8 || foot.y < -.92 || head.y > .85) continue;
-      const score = Math.abs((head.y - foot.y) - .7) + .4 * Math.abs(Math.abs(foot.x) - .5);
-      if(score < bs){ bs = score; best = [x, z]; }
+      out.push({ x, z, d, score:Math.abs((head.y - foot.y) - .7) + .4 * Math.abs(Math.abs(foot.x) - .5) });
     }
-    if(!best) return;
-    const g = mzFigure(T);
-    g.userData.base = best; g.position.set(best[0], 0, best[1]); g.visible = false; scene.add(g); Cut.ghost = g;
-  } catch(e){ Cut.ghost = null; }
+    if(!out.length) return;
+    out.sort((a, b) => b.d - a.d); // 遠い順
+    Cut.ghostCands = out; Cut.ghostBest = out.reduce((bi, c, i) => (c.score < out[bi].score ? i : bi), 0);
+  } catch(e){ Cut.ghostCands = null; }
+}
+// いま立てたい姿：{ kind, i（候補の番号）, pub, word } か null
+function mzGhostWant(){
+  if(!lastView || !Cut.ghostCands) return null;
+  if(mzOn()) return mzHere(lastView.char, lastView.para).length ? { kind:'', i:Cut.ghostBest, pub:false } : null;
+  if(!mzPub()) return null;
+  const zs = mzPubHere(lastView.char, lastView.para), L = Math.max(0, ...zs.map(mzPubLevel)); if(L < 2) return null;
+  const z = zs.find(z => mzPubLevel(z) === L), v = (store.get('mz-visit', {}) || {})[mzPubKey(z)] || 1;
+  return { kind:z.k, i:L === 2 ? 0 : Math.min(Cut.ghostCands.length - 1, v - 1), pub:true, word:z.s, L };
 }
 function mzGhostUpdate(t){
-  const g = Cut.ghost; if(!g) return;
-  const k = Math.floor(t * 4); if(k === g.userData.k) return; g.userData.k = k; // 1秒に4コマだけ動く
-  g.visible = mzOn() && !!lastView && mzHere(lastView.char, lastView.para).length > 0;
-  if(!g.visible) return;
+  const cands = Cut.ghostCands; if(!cands){ if(Cut.ghost) Cut.ghost.visible = false; return; }
+  const k = Math.floor(t * 4); if(k === Cut.ghostK) return; Cut.ghostK = k; // 1秒に4コマだけ動く
+  const want = mzGhostWant(), sig = want ? want.kind + '|' + want.i + '|' + (want.pub ? 1 : 0) : '';
+  let g = Cut.ghost;
+  if(g && g.userData.sig !== sig){ g.visible = false; if(Cut.ghostScene) Cut.ghostScene.remove(g); Cut.ghost = g = null; }
+  if(!want) return;
+  if(!g){
+    const c = cands[Math.max(0, Math.min(want.i, cands.length - 1))];
+    g = want.pub ? mzFigurePub(Cut.ghostT, want.kind, want.word) : mzFigure(Cut.ghostT);
+    g.userData.sig = sig; g.userData.base = [c.x, c.z]; g.position.set(c.x, 0, c.z); Cut.ghostScene.add(g); Cut.ghost = g;
+  }
+  g.visible = !(want.pub && want.L === 2 && Math.random() < .3); // 遠くに立っているあいだは、ちらついて、ときどき消える
+  if(g.visible && !g.userData.since) g.userData.since = performance.now();
   const b = g.userData.base; g.position.set(b[0] + (Math.random() - .5) * .05, 0, b[1] + (Math.random() - .5) * .05);
   const cp = Cut.camera.position; g.rotation.y = Math.atan2(cp.x - g.position.x, cp.z - g.position.z); // いつもカメラのほうを向く
+  const nt = g.userData.noise || (g.children[0] && g.children[0].userData && g.children[0].userData.noise); if(nt) nt.offset.set(Math.random(), Math.random()); // 砂嵐を動かす
 }
-// 本文の下（［✎ 編集する］の行）に出す札：この場面に立っているメタゾンビ
+// 本文の下（［✎ 編集する］の行）に出す札：この場面に立っているメタゾンビ。押すと、そのスレッドを開く
 function mzTagEl(c, no){
   if(!mzOn()) return null;
   const zs = mzHere(c, no); if(!zs.length) return null;
   const box = document.createElement('div'); box.className = 'mz-tag';
-  box.innerHTML = zs.map(z => '<button class="sm" data-mzopen="' + z.n + '">メタゾンビ #' + z.n + '</button>').join('');
-  box.querySelectorAll('[data-mzopen]').forEach(b => { b.onclick = ev => { ev.stopPropagation(); mzPanel = true; mzAsk = ''; mzNote = ''; chgPanel = roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); }; });
+  box.innerHTML = zs.map(z => '<button class="sm" data-mzopen="' + mzKey(z) + '">メタゾンビ #' + z.n + '</button>').join('');
+  box.querySelectorAll('[data-mzopen]').forEach(b => { b.onclick = ev => { ev.stopPropagation(); mzOpenThread(b.dataset.mzopen); }; });
   return box;
+}
+// ===== 地図のレーダー：メタゾンビのいる場所に、砂嵐のかたまり。いまいる場所なら、どの場面かも出す =====
+function mzRadar(body, s, sp){
+  const B = BOOKS[s.book]; if(!B || s.book === 'monster') return;
+  const zs = mzOn() ? mzItems().filter(z => mzLive(z) && z.book === s.char).map(z => ({ n:z.n, p:z.para, pl:z.place, lv:mzLevel(z) }))
+    : mzPub() ? overlay.mz.filter(z => z.b === s.char).map(z => ({ n:z.n, p:z.p, pl:z.pl, lv:mzPubLevel(z) })) : [];
+  if(!zs.length) return;
+  const svg = body.querySelector('.map-scroll svg'), NS = 'http://www.w3.org/2000/svg', byName = {}, here = sp && sp.name;
+  for(const x of Object.values(B.spots || {})) if(x && x.name && !byName[x.name]) byName[x.name] = x;
+  const el = (name, attrs) => { const e = document.createElementNS(NS, name); for(const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
+  const groups = {}; for(const z of zs) (groups[z.pl || '?'] = groups[z.pl || '?'] || []).push(z);
+  if(svg) for(const [pl, list] of Object.entries(groups)){
+    const x = byName[pl]; if(!x || !Array.isArray(x.at)) continue;
+    const lv = Math.max(...list.map(z => z.lv)), g = el('g', { class:'mz-blob' }), r = 8 + lv * 2;
+    for(let i = 0; i < 10; i++){ const a = mzHash(pl + i) % 628 / 100, d = (mzHash(pl + 'd' + i) % 100) / 100 * r; g.appendChild(el('rect', { x:x.at[0] + Math.cos(a) * d - 2, y:x.at[1] + Math.sin(a) * d - 2, width:4, height:4, fill:i % 2 ? '#ddd' : '#666' })); }
+    svg.appendChild(g);
+  }
+  const mine = groups[here] || [];
+  const box = document.createElement('div'); box.className = 'fb mz-radar'; box.style.cssText = 'margin:8px 12px;padding-top:0;border-top:0';
+  box.innerHTML = '<div>メタゾンビのいる場所：' + Object.keys(groups).filter(x => x !== '?').length + 'か所</div>' + (mine.length ? '<div>主人公のいる場所の、メタゾンビのいる場面：' + [...new Set(mine.map(z => String(z.p)))].map(escText).join('、') + '</div>' : '');
+  body.appendChild(box);
+}
+// ===== 配った版（遊ぶ人の側）：［配る］のときに入れた一覧で、怪奇現象を起こす。先へ進めなくすることはしない =====
+// 一覧の1つ：{ n, t（名前）, b（本）, p（場面の番号）, k（種類）, s（引っかかった文）, at（置いた時刻）, m（出会った人）, bk（［戻す］の回数）, pl（場所の名前） }
+const mzPub = () => !TEST_BUILD && !!PACK && !EMBED && Array.isArray(overlay.mz) && overlay.mz.length > 0;
+const mzPubKey = z => z.b + ':' + z.p + ':' + z.n;
+const mzPubLevel = z => mzLvOf(mzDays(+z.at || Date.now()) + (+z.m || 0) * 2 + (+z.bk || 0));
+const mzPubHere = (c, no) => (mzPub() ? overlay.mz.filter(z => z.b === c && z.p === +no) : []);
+const mzPubCurse = () => (mzPub() ? overlay.mz.reduce((a, z) => a + mzPubLevel(z), 0) : 0);
+// その場所（地図の場所）にいるメタゾンビの、いちばん強い段階（映像の砂嵐は、場所ごと）
+function mzPubLevelHere(){
+  if(!mzPub() || !lastView) return 0;
+  const s = loadPlayer(lastView.char), sp = s.status === 'active' ? spotOf(s) : null, name = sp && sp.name;
+  return Math.max(0, ...overlay.mz.filter(z => z.b === lastView.char && (z.p === lastView.para || (name && z.pl === name))).map(mzPubLevel));
+}
+// 配るときに入れる一覧（配る画面で「出さない」にしたら、入れない）
+async function mzPubList(){
+  if(!mzOn() || store.get('mz-pub', true) === false) return null;
+  try { await mzLoad(true); } catch(e){}
+  return mzItems().filter(mzLive).map(z => { const s = mzStat(z.n); return { n:z.n, t:z.title.slice(0, 60), b:z.book, p:z.para, k:z.kind, s:String(z.s || '').slice(0, 200), at:z.at, m:s.met, bk:s.back, pl:z.place }; });
+}
+const mzPubCheckHtml = () => (mzOn() ? '<label class="cm-ai" style="margin-top:8px"><input type="checkbox" id="mzPubOn"' + (store.get('mz-pub', true) !== false ? ' checked' : '') + '>配った版にメタゾンビを出す</label>' : '');
+// 配る用のリポジトリに、報告の書式（Issue Forms）と、ラベル「メタゾンビ」を置く
+const MZ_FORM = 'name: メタゾンビの報告\ndescription: 気になった場面を、この版を作った人に知らせる\nlabels: ["メタゾンビ"]\nbody:\n  - type: input\n    id: book\n    attributes:\n      label: 本\n    validations:\n      required: true\n  - type: input\n    id: para\n    attributes:\n      label: 場面の番号\n    validations:\n      required: true\n  - type: textarea\n    id: text\n    attributes:\n      label: 気になったこと\n    validations:\n      required: true\n';
+async function mzPubForm(api, slug){
+  if(!mzOn() || store.get('mz-pub', true) === false) return;
+  await ghWrite('.github/ISSUE_TEMPLATE/metazombie.yml', now => (now ? null : { message:'メタゾンビの報告の書式を置く', content:b64(MZ_FORM) }), { api }).catch(() => {});
+  await mzLabels(slug).catch(() => {});
+}
+// 来た回数（来るたびに近づく）と、出会ったメタゾンビ（あとで消えていたら、封印のスタンプ）
+let mzPubLast = '';
+function mzPubArrive(mode){
+  if(!mzPub() || mode !== 'live' || !lastView) return;
+  const at = lastView.char + ':' + lastView.para; if(at === mzPubLast) return; mzPubLast = at;
+  const zs = mzPubHere(lastView.char, lastView.para); if(!zs.length) return;
+  const v = store.get('mz-visit', {}) || {}, met = store.get('mz-pubmet', {}) || {};
+  for(const z of zs){ const k = mzPubKey(z); v[k] = (v[k] || 0) + 1; if(!met[k]) met[k] = { t:z.t, at:Date.now() }; }
+  store.set('mz-visit', v); store.set('mz-pubmet', met);
+}
+// 映像の砂嵐と、音（0.5秒ごと）
+let mzPubT = 0;
+function mzPubTick(t){
+  if(!mzPub() || !lastView || t - mzPubT < .5) return; mzPubT = t;
+  const L = mzPubLevelHere(), here = mzPubHere(lastView.char, lastView.para).length > 0;
+  if(Snd.shape){ const want = L >= 2 ? L : 0; if(Snd.shapeL !== want){ Snd.shapeL = want; Snd.shape.curve = want ? mzCurve(want * 6) : null; } } // 音楽がひずむ
+  if(!L) return;
+  if(Math.random() < .05 * L) cutStatic(160 + L * 70);
+  const r = Math.random();
+  if(r < .06) mzSnd('radio');
+  else if(here && L >= 2 && r < .4) mzSnd('heart');
+  else if(L >= 3 && r < .45) mzSnd('glass');
+  else if(L >= 3 && r < .52) mzSnd('hum');
+  else if(L >= 3 && r < .56) mzSnd('drop');
+  else if(L >= 4 && r < .6) mzSnd('ring');
+  else if(L >= 5 && r < .615) mzSnd('scream');
+}
+// 文に入る（段階4から）：引っかかった文を、種類ごとに化けさせる。押すと、元の文が読める
+const mzSeen = new Set();
+function mzGarbleHtml(z, s){
+  const e = escText, h = mzHash(mzPubKey(z));
+  if(z.k === '抜け') return e(mzGarble({ n:z.n, kind:'抜け', s }, s));
+  if(z.k === 'くり返し'){ const tail = s.slice(-8); return e(s) + '<i>' + e(tail) + '</i><i>' + e(tail.slice(-4)) + '</i><i>' + e(tail.slice(-2)) + '</i>'; }
+  return [...s].map((ch, i) => (mzHash(h + ':' + i) % 5 === 0 ? e(ch) + '<i>' + e(ch) + '</i>' : e(ch))).join(''); // 言い回し：言葉がにじんで、まわりに広がる
+}
+function mzPubDecorate(){
+  if(!mzPub() || !lastView) return;
+  const box = document.querySelector('#main .text'); if(!box) return;
+  for(const z of mzPubHere(lastView.char, lastView.para).filter(z => mzPubLevel(z) >= 4)){
+    const key = mzPubKey(z); if(mzSeen.has(key)) continue;
+    const s = String(z.s || '').replace(/。$/, '').trim();
+    if(z.k === '正体不明' || !s){ box.classList.add('mz-ns'); box.dataset.mzk = key; box.onclick = ev => { ev.stopPropagation(); mzSeen.add(key); render(); }; continue; } // 文全体に砂嵐
+    const tw = document.createTreeWalker(box, NodeFilter.SHOW_TEXT); let node;
+    while((node = tw.nextNode())){
+      const i = node.nodeValue.indexOf(s); if(i < 0) continue;
+      const mid = node.splitText(i); mid.splitText(s.length);
+      const span = document.createElement('span'); span.className = 'mz-g mz-g-' + ({ 言い回し:'nj', 抜け:'kk', くり返し:'kr' }[z.k] || 'nj'); span.dataset.mzk = key; span.innerHTML = mzGarbleHtml(z, s);
+      span.onclick = ev => { ev.stopPropagation(); mzSeen.add(key); render(); };
+      mid.replaceWith(span); break;
+    }
+  }
+}
+// カメラのない場面（段階2から）：「NO SIGNAL」の画面に、砂嵐の人の形を重ねる
+function mzPubNoSignal(s){
+  const on = mzPub() && !!s && s.status === 'active' && inBlindSpot(s) && mzPubHere(s.char, s.para).some(z => mzPubLevel(z) >= 2);
+  document.getElementById('cutscene').classList.toggle('mz-nosig', on);
+}
+// 題字の乱れ（呪いの濃さ）
+function mzTitleCurse(){
+  const el = document.getElementById('front'); if(!el) return;
+  const c = mzPubCurse(); for(const [i, lo, hi] of [[1, 5, 20], [2, 20, 40], [3, 40, 1e9]]) el.classList.toggle('mz-c' + i, c >= lo && c < hi);
+}
+// 通信に入る（段階5）：配った版の通信に、メタゾンビのスレッドが立つ（端末の中だけ）。［作者へ知らせる］で、この版を作った人に報告を送る（送ると、封印のスタンプ）
+function mzPubThreads(){ return overlay.mz.filter(z => mzPubLevel(z) >= 5).map(z => ['mz_x' + z.n, mzPubThreadItem('mz_x' + z.n)]); }
+function mzPubSealed(){
+  const now = new Set(overlay.mz.map(mzPubKey));
+  return Object.entries(store.get('mz-pubmet', {}) || {}).filter(([k]) => !now.has(k)).map(([k, x]) => ['mz_y' + k.replace(/[^\w]/g, '_'), { title:String(x.t || ''), name:String(x.t || ''), by:'メタゾンビ', text:'メタゾンビは、封印されました。', o:x.at || 0, re:{}, mzs:true }]);
+}
+function mzPubThreadItem(k){
+  const n = +String(k).slice(4), z = overlay.mz && overlay.mz.find(x => x.n === n); if(!z) return null;
+  return { title:z.t, name:z.t, by:'メタゾンビ', text:mzGarble({ n:z.n, kind:z.k, s:z.s, book:z.b, para:z.p }, z.s || 'ここに、いる。'), o:(+z.at || 0) + 30 * 864e5, at:z.b + ':' + z.p, re:{}, mzp:z };
+}
+function mzPubThreadHtml(k, it){
+  const z = it.mzp, st = store.get('mz-stamp', {}) || {};
+  return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(it.title) + '</b></div><div class="cm-log">'
+    + '<div class="cm-m mz-voice" data-mi="0"><div class="n"><i class="cm-av mz-av"></i>メタゾンビ</div><div class="b">' + escText(it.text) + cmChip(it.at) + '</div></div>'
+    + '<div class="cm-card mz-card"><div class="d">' + (st[mzPubKey(z)] ? '場面の文章のことを、' + authorWho() + 'に知らせました。' : '場面の文章で気になったことを、' + authorWho() + 'に知らせると、封印のスタンプがもらえます。') + '<br>封印のスタンプ：' + Object.keys(st).length + '<br><small style="color:var(--dim)">' + authorWho() + 'に知らせた数です。</small></div>'
+    + '<div class="cm-acts"><button class="go" data-mzrep="' + k + '">' + authorWho() + 'へ知らせる</button></div></div></div></div>';
+}
+// ［作者へ知らせる］：その場面の番号を付けて、「作者へ」の画面を開く
+let mzRepAt = null;
+function mzRepOpen(k){
+  const it = cmItem(k); if(!it || !it.mzp) return;
+  const z = it.mzp; mzRepAt = { c:z.b, n:z.p, key:mzPubKey(z) };
+  if(!cmDraft('author')) cmDraftPut('author', (z.s ? '「' + z.s + '」\n' : '') + '場面 ' + z.p + 'で、気になったこと：');
+  cmOld = true; cmThread = null; fbNote = ''; render();
+}
+// 音：どれもブラウザの中で作る。音を切っていれば鳴らない
+let mzSndN = 0;
+const mzCurve = k => { const n = 1024, a = new Float32Array(n); for(let i = 0; i < n; i++){ const x = i * 2 / n - 1; a[i] = (1 + k) * x / (1 + k * Math.abs(x)); } return a; };
+function mzSnd(kind){
+  if(!sndReady() || !Snd.mz) return;
+  mzSndN++;
+  const c = Snd.ctx, t = c.currentTime, out = Snd.mz, osc = (type, f) => { const o = c.createOscillator(); o.type = type; o.frequency.value = f; return o; }, env = (g, at, peak, a, d) => { g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(peak, at + a); g.gain.exponentialRampToValueAtTime(.0001, at + a + d); };
+  if(kind === 'radio') sndNoise(t, .4 + Math.random() * .6, 'bandpass', 1200 + Math.random() * 1800, 3, .22, out); // ラジオの局を合わせるときの雑音
+  else if(kind === 'heart') for(const dt of [0, .22]){ const o = osc('sine', 70), g = c.createGain(); o.frequency.setValueAtTime(70, t + dt); o.frequency.exponentialRampToValueAtTime(40, t + dt + .15); env(g, t + dt, .5, .02, .18); o.connect(g); g.connect(out); o.start(t + dt); o.stop(t + dt + .25); } // 心臓の音
+  else if(kind === 'glass'){ sndNoise(t, .06, 'highpass', 3000, 1, .5, out); for(let i = 0; i < 9; i++){ const at = t + .02 + Math.random() * .5, o = osc('triangle', 2500 + Math.random() * 4500), g = c.createGain(); env(g, at, .1, .005, .3 + Math.random() * .5); o.connect(g); g.connect(out); o.start(at); o.stop(at + 1); } } // ガラスの割れる音
+  else if(kind === 'hum'){ const o = osc('sawtooth', 48 + Math.random() * 8), f = c.createBiquadFilter(), g = c.createGain(); f.type = 'lowpass'; f.frequency.value = 220; g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(.12, t + .8); g.gain.linearRampToValueAtTime(.0001, t + 2.6); o.connect(f); f.connect(g); g.connect(out); o.start(t); o.stop(t + 2.7); } // 低いうなり
+  else if(kind === 'ring'){ const o = osc('sine', 7200 + Math.random() * 1500), g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(.05, t + .4); g.gain.linearRampToValueAtTime(.0001, t + 2.5); o.connect(g); g.connect(out); o.start(t); o.stop(t + 2.6); } // 耳鳴り
+  else if(kind === 'drop' && Snd.gate){ Snd.gate.gain.setValueAtTime(0, t); Snd.gate.gain.setValueAtTime(1, t + .2 + Math.random() * .4); } // 音楽が途切れる
+  else if(kind === 'scream'){ // ゆがんだ叫び：揺れる高い声の帯を、ひずませる
+    const o = osc('sawtooth', 620), o2 = osc('square', 311), lfo = osc('sine', 7), lg = c.createGain(), ws = c.createWaveShaper(), f = c.createBiquadFilter(), g = c.createGain();
+    o.frequency.setValueAtTime(620, t); o.frequency.linearRampToValueAtTime(980, t + .3); o.frequency.linearRampToValueAtTime(520, t + 1.4);
+    lg.gain.value = 40; lfo.connect(lg); lg.connect(o.frequency); ws.curve = mzCurve(60); f.type = 'bandpass'; f.frequency.value = 1400; f.Q.value = 1.2; env(g, t, .2, .08, 1.4);
+    o.connect(ws); o2.connect(ws); ws.connect(f); f.connect(g); g.connect(out); for(const x of [o, o2, lfo]){ x.start(t); x.stop(t + 1.6); }
+  }
 }
 // ===== 変えた所の一覧：自分が書き換えたものを並べて、1件ずつ取り消せる =====
 let chgPanel = false;
@@ -8906,9 +9546,11 @@ function fbeSave(act){
     queueIssue(key + '|add|' + x.id, '追加の案', '選択肢の追加：' + label, '### 選択肢の追加\n\n新しい選択肢：' + label + '\n\n選んだら起きること：\n' + (result || '（まだ書かれていない）') + '\n\nそのあと：' + toText(x.to) + (fxText(x.fx) ? '\n\n主人公に起きること：' + fxText(x.fx) : '') + (stageText(x) ? '\n\n演出：' + stageText(x) + (Object.keys(stagePick(x)).length ? '' : '（文から自動）') : '') + (condText(x) ? '\n\n選べる' + condText(x) : '') + (e.scene && e.scene !== anyKey() && key !== anyKey() ? '\n\n置く所：' + sceneTrail(e.scene) : ''));
   }
   draftSet(key, d); fbe = null; render();
-  // 1人のとき：本文を直したら、その場面のメタゾンビを封印する（部屋では、採用したときに封印する）
-  const mk = /^([a-z]+):(\d+)$/.exec(key);
-  if(!room && mk && e.kind === 'para' && !e.insId && act !== 'revert' && (act === 'drop' ? '' : val) !== e.before) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]));
+  // メタゾンビ：1人のときは、本文を直したら、その場面のメタゾンビを封印する。元に戻したときは、封印はせず、残した文だけ新しくする（人の手を通った文なので、復活させない）。
+  // 部屋では、採用したときに封印する（直し案を出した時点では「封印待ち」。部屋を作った人が「直し案が出たとき」にしていたら、その場で封印）
+  const mk = /^([a-z]+):(\d+)$/.exec(key), textEdit = mk && (e.kind === 'para' || e.kind === 'ins');
+  if(textEdit && !room) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]), act === 'revert' || (e.kind === 'para' && !e.insId && (act === 'drop' ? '' : val) === e.before));
+  else if(textEdit && room && act !== 'revert') mzPropose(mk[1], +mk[2], act === 'drop' ? '' : val);
 }
 // 文と選択肢を、下書きを重ねて組み直す。編集中は、段落と選択肢を押すとその場で直せる
 function decorateForEdit(mode){
