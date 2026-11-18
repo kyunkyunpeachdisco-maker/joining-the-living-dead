@@ -344,7 +344,9 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .mz-pic img{display:block;width:100%;height:100%;object-fit:cover}
 .mz-pic .mz-stamp{position:absolute;right:2px;bottom:2px;margin:0;background:rgba(240,236,228,.75)}
 .mz-tx{display:flex;flex-direction:column;gap:3px;min-width:0}.mz-tx .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.04em;color:var(--gold)}.mz-tx b{font-family:var(--f-mincho);font-size:16px}.mz-tx small{font-size:12px;color:var(--dim)}
-.mz-blob rect{animation:mz-blink .3s steps(2) infinite}
+.mz-blood{pointer-events:none}
+.mz-blood circle{fill:#6a0a0a;opacity:.62}
+.planmap .mz-blood circle{fill:#d01c1c;opacity:.85;stroke:#3a0000;stroke-width:.8}
 @keyframes mz-blink{50%{opacity:.2}}
 /* 配った版の怪奇現象：化ける文（押すと元の文）・カメラのない場面・題字の乱れ */
 .mz-g{cursor:pointer}
@@ -570,7 +572,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.44';
+const APP_VERSION = 'v0.3.45';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -3090,7 +3092,7 @@ function townMapSvg(s, w, choices, live){
     if(!onMap(sp)) continue;
     const [x, y] = sp.at, cur = id === here, known = seen.has(id);
     const lx = x + (sp.label?.[0] ?? 0), ly = y + (sp.label?.[1] ?? -12);
-    g += cur ? `<circle cx="${x}" cy="${y}" r="12" class="m-here"/><circle cx="${x}" cy="${y}" r="3.2" fill="#b0281b"/>` : `<circle cx="${x}" cy="${y}" r="2.8" fill="${known ? '#22190f' : '#f3e8cc'}" stroke="#22190f" stroke-width=".9"/>`;
+    g += cur ? `<circle cx="${x}" cy="${y}" r="12" class="m-here"/><circle cx="${x}" cy="${y}" r="3.2" fill="#b0281b"/>` : `<circle cx="${x}" cy="${y}" r="2.8" class="m-spot" fill="${known ? '#22190f' : '#f3e8cc'}" stroke="#22190f" stroke-width=".9"/>`;
     g += `<text x="${lx}" y="${ly}" class="m-label${cur ? ' m-label-here' : ''}">${escText(sp.short || sp.name)}${cur ? '（現在地）' : ''}</text>`;
   }
   // 方位記号・題字枠
@@ -3283,7 +3285,7 @@ function planMapSvg(s, plan, taps = null, risks = {}){
   for(const [id, r] of rooms){
     const [x0, z0, x1, z1] = r.rect, key = `${plan}:${id}`;
     const isHere = here && here.room === id, known = seen.has(key);
-    g += `<rect x="${X(x0)}" y="${Z(z0)}" width="${(x1 - x0) * S}" height="${(z1 - z0) * S}" class="pm-room${known ? ' known' : ''}${isHere ? ' here' : ''}${r.cams ? '' : ' nocam'}${taps && taps[id] ? ' pick' : ''}"${taps && taps[id] ? ` data-spot="${taps[id]}"` : ''}/>`;
+    g += `<rect data-room="${id}" x="${X(x0)}" y="${Z(z0)}" width="${(x1 - x0) * S}" height="${(z1 - z0) * S}" class="pm-room${known ? ' known' : ''}${isHere ? ' here' : ''}${r.cams ? '' : ' nocam'}${taps && taps[id] ? ' pick' : ''}"${taps && taps[id] ? ` data-spot="${taps[id]}"` : ''}/>`;
     if(known || isHere || (taps && taps[id]) || risks[id] || bookOf(s).spots) g += `<text x="${X((x0 + x1) / 2)}" y="${Z((z0 + z1) / 2)}" class="pm-name">${escText(r.name)}</text>`;
     if(r.cams && known) g += `<text x="${+X(x1) - 5}" y="${+Z(z0) + 11}" class="pm-cam">●</text>`;
   }
@@ -5625,7 +5627,7 @@ function howPages(kind){
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら、本文や選択肢を書き換えられます。書き換えたものは、部屋の全員に見えます。書き換えたものがいつ全員のゲームに入るかは、部屋を作った人が決めています。' },
       { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys },
-      { t:'通信', text:'画面の右端の［通信］を押すと、部屋の人と話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '［AI に頼む］にチェックを入れて、頼みごとを送ってください。部屋を作った人が AI に対応させると、通信に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に、GitHub の画面で、部屋のリポジトリを使える人に加えてもらってください。'], ['メタゾンビ', 'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。メタゾンビ1体ごとに、通信にスレッドがあります。スレッドの［✎ 直す］を押して、場面の文章を直してください。メタゾンビは、場面の文章が直ると封印されて、いなくなります。いつ封印されるかは、部屋を作った人が決めています。直す所がなければ、スレッドの［異常なし］を押してください。<br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。メタゾンビ図鑑は、［☰］の［作る］の［メタゾンビ図鑑］で開きます。<br>スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドとメタゾンビ図鑑に表示されます。［☰］の［部屋］の［部屋の画面を開く］で、自分の呼び名を入れられます。<br>メタゾンビの強さは、1から5までです。メタゾンビは、放っておくと強くなります。全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。部屋の画面の［招待リンクをコピーする］で、人を招待してください。メタゾンビを封印しても、進めます。']])] },
+      { t:'通信', text:'画面の右端の［通信］を押すと、部屋の人と話せます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '［AI に頼む］にチェックを入れて、頼みごとを送ってください。部屋を作った人が AI に対応させると、通信に返事が出ます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', '部屋を作った人に、GitHub の画面で、部屋のリポジトリを使える人に加えてもらってください。'], ['メタゾンビ', 'メタゾンビは、文章に直す所が残っていそうな場面に取りつく、お化けです。メタゾンビ1体ごとに、通信にスレッドがあります。スレッドの［✎ 直す］を押して、場面の文章を直してください。メタゾンビは、場面の文章が直ると封印されて、いなくなります。いつ封印されるかは、部屋を作った人が決めています。直す所がなければ、スレッドの［異常なし］を押してください。<br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。［☰］の［作る］の［メタゾンビ図鑑］で開きます。<br>スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドとメタゾンビ図鑑に表示されます。［☰］の［部屋］の［部屋の画面を開く］で、自分の呼び名を入れられます。<br>メタゾンビの強さは、1から5までです。メタゾンビは、放っておくと強くなります。全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。部屋の画面の［招待リンクをコピーする］で、人を招待してください。強さ5のメタゾンビを封印しても、進めます。']])] },
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
     const linkWay = ['リンクで配る', (room ? '部屋の画面で［リンクで配る］' : 'リンクで配るには、先にリポジトリを設定してください。配る画面で［リンクを作る］') + 'を押して、できたリンクを送ってください。ゲームを書き換えたあとは、' + (room ? 'もう一度［リンクで配る］' : '［配っている版を新しくする］') + 'を押してください。リンクは変わらず、版の番号が1つ上がります。'];
@@ -5639,13 +5641,13 @@ function howPages(kind){
       ], after:'※ ' + (room ? '部屋の画面' : 'リンクで配ったあとは、配る画面') + 'の［版の一覧］で、前の版を選べます。［違いを見る］を押すと、選んだ版と1つ前の版との違いが表示されます。［この版を配る］を押すと、選んだ版をもう一度配れます。' + (room ? '［部屋に戻す］を押すと、部屋の中身が、選んだ版の中身に戻ります。' : '［手元に戻す］を押すと、書き換えたものが、選んだ版の中身に置きかわります。'), btn:['howPackBtn', room ? '部屋の画面を開く' : '配る画面を開く'] },
       { t:'みんなで作る', text:(room ? '部屋の画面の招待リンクを送ってください。' : '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。') + 'リンクを受け取った人と、同じ部屋で一緒にゲームを書き換えられます。' + (room ? '' : '部屋を作った人が、リポジトリを設定せずにゲームを閉じると、部屋が使えなくなります。'), after:'※ 部屋の人が書き換えたものを、いつ全員のゲームに入れるかは、部屋を作った人が選べます。部屋を作ったあと、［☰］の［部屋］の［部屋の画面を開く］を押して、［すぐ入る］［誰か1人が賛成したら入る］［部屋を作った人が採用する］から選んでください。<br>※ 部屋を作った人は、部屋から人を外せます。部屋の画面で、外したい人の［外す］を押してください。リポジトリのある部屋では、招待リンクに、トークンが入っています。トークンは、リポジトリに書きこむための鍵です。外された人も、トークンでリポジトリを書き換えられます。書き換えを止めるには、部屋の画面で［トークンを作り直す］を開いてください。', btn:['howPackBtn2', room ? '部屋の画面を開く' : '部屋を作る画面を開く'] },
       { img:'how-make-2', full:true, t:'通信', lead:'通信は、部屋の人と話す画面です。画面の右端の［通信］を押すと、通信が表示されます。' + (room ? '' : '部屋に入っていないときの通信は、自分だけのメモを書く画面です。'), legend:[B('新しいスレッド') + '：スレッドは、話題ごとのまとまりです。メッセージを書いて［送る］を押すと、スレッドが始まります。', B('スレッド') + '：押すと、スレッドの中で話せます。', B('書き換えのスレッド') + '：部屋の人が書き換えたものも、スレッドとして並びます。部屋を作った人が［採用する］を押すか、［誰か1人が賛成したら入る］を選んだ部屋で、書き換えた人のほかの誰かが［賛成］を押すと、書き換えたものが全員のゲームに入ります。', B('採用待ち') + '：部屋の人が書き換えたもののうち、まだ全員のゲームに入っていないものを表示します。'], after:'※ ' + (room ? '' : '部屋に入っているときは、') + 'メッセージを書く所の左の［＋］を押して、［ファイルを付ける］を押すと、メッセージにファイルを付けて送れます。付けられるファイルの大きさは、500KB までです。<br>※ スレッドの一覧で、自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が表示されます。パソコンでは、右クリックします。書き換えのスレッドは、削除できません。' },
-      ...(room && roomLocal() ? [] : [{ t:'メタゾンビ', text:'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。ゲームが本の文章を点検して、メタゾンビを自動で置きます。' + (room ? '' : 'メタゾンビが置かれるのは、作業用のリポジトリを設定したあとです。') + '<br><br>Issue は、GitHub で、やることを1件ずつ書いておくものです。メタゾンビは1体ずつ、作業用のリポジトリの Issue になります。メタゾンビの番号は、Issue の番号です。メタゾンビ1体ごとに、通信にスレッドができます。通信の一覧の［メタゾンビ］を押すと、メタゾンビのスレッドが並びます。<br><br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。メタゾンビ図鑑は、［☰］の［作る］の［メタゾンビ図鑑］か、下の［メタゾンビ図鑑を開く］で開きます。', list:[
-        ['封印する', 'メタゾンビは、場面の文章が直ると封印されて、いなくなります。メタゾンビのスレッドで［✎ 直す］を押して、場面の文章を直してください。' + (room ? '初めは、直した文章が全員のゲームに入ると、メタゾンビは封印されます。部屋の画面の［メタゾンビが封印されるとき］で［直したとき］を選ぶと、場面の文章を直したらすぐに封印されます。' : '') + '直す所がなければ、スレッドの［異常なし］を押してください。封印したメタゾンビは、通信の一覧の［封印済み］に並びます。'],
+      ...(room && roomLocal() ? [] : [{ t:'メタゾンビ', text:'メタゾンビは、文章に直す所が残っていそうな場面に取りつく、お化けです。ゲームが本の文章を点検して、メタゾンビを自動で置きます。' + (room ? '' : 'メタゾンビが置かれるのは、作業用のリポジトリを設定したあとです。') + '<br><br>Issue は、GitHub で、やることを1件ずつ書いておくものです。メタゾンビは1体ずつ、作業用のリポジトリの Issue になります。メタゾンビの番号は、Issue の番号です。メタゾンビ1体ごとに、通信にスレッドができます。通信の一覧の［メタゾンビ］を押すと、メタゾンビのスレッドが並びます。<br><br>メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。［☰］の［作る］の［メタゾンビ図鑑］か、下の［メタゾンビ図鑑を開く］で開きます。', list:[
+        ['封印する', 'メタゾンビは、場面の文章が直ると封印されて、いなくなります。メタゾンビのスレッドで［✎ 直す］を押して、場面の文章を直してください。' + (room ? '初めは、直した文章が全員のゲームに入ると、メタゾンビは封印されます。部屋の画面の［メタゾンビが封印されるとき］で［直したとき］を選ぶと、場面の文章を直したらすぐに、メタゾンビが封印されます。' : '') + '直す所がなければ、スレッドの［異常なし］を押してください。封印したメタゾンビは、通信の一覧の［封印済み］に並びます。'],
         ['呼び出す', '本文を長押しすると、メタゾンビを1体呼び出せます。パソコンでは、本文を右クリックします。通信のメッセージを長押しして、［メタゾンビにする］を押しても、呼び出せます。'],
-        ['種類', '点検で引っかかった所に置かれるメタゾンビの種類は、言い回し・抜け・くり返しです。言い回しは「〜だけで」などが残っている所、抜けは「何が」「何を」が抜けている所、くり返しは同じ言い回しで終わる文が続いている所です。点検でメタゾンビが1体も置かれなかった地図の場所には、主人公が場所にいるときの場面からくじで1つ選んで、1体置きます。くじで置いたメタゾンビの種類は、正体不明です。'],
+        ['種類', '点検で引っかかった所に置かれるメタゾンビの種類は、言い回し・抜け・くり返しです。言い回しは「〜だけで」などが残っている所、抜けは「何が」「何を」が抜けている所、くり返しは同じ言い回しで終わる文が続いている所です。点検でメタゾンビが1体も置かれなかった建物やエリア（州立グレンフォード病院、ノースエンドなど）にも、1体置きます。この1体の種類は、正体不明です。'],
         ['強くなる', 'メタゾンビの強さは、1から5までです。メタゾンビは、置いてからの日数と、メタゾンビに出会った人の数で、強くなります。メタゾンビのいる場面に来ると、メタゾンビに出会ったことになります。強さが3になると、メタゾンビが通信に書きこんできます。'
-          + (room ? '呪いの濃さは、封印していないメタゾンビの強さを、全部の本で足した数です。書き換えたものの入れ方を［部屋を作った人が採用する］にしていても、呪いの濃さが40以上になると、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。' : '')
-          + '全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。' + (room ? '部屋に人を招待するか、メタゾンビを封印すると、進めます。' : '［☰］の［部屋］で部屋を作って人を招待するか、メタゾンビを封印すると、進めます。')],
+          + (room ? '呪いの濃さは、強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。書き換えたものの入れ方を［部屋を作った人が採用する］にしていても、呪いの濃さが40以上になると、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。' : '')
+          + '全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。' + (room ? '部屋に人を招待するか、強さ5のメタゾンビを封印すると、進めます。' : '［☰］の［部屋］で部屋を作って人を招待するか、強さ5のメタゾンビを封印すると、進めます。')],
         ...(room ? [['担当', 'スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドとメタゾンビ図鑑に表示されます。部屋の画面で、自分の呼び名を入れられます。']] : []),
         ['配った版', '配った版では、メタゾンビのいる場面で、映像や文章に、怪しいことが起きます。配る画面の［配った版にメタゾンビを出す］のチェックを外すと、怪しいことは起きません。配った版で遊んだ人は、通信の［この版を作った人へ］から、報告を送れます。届いた報告は、通信とメタゾンビ図鑑に並びます。報告のスレッドの［受ける］を押すと、報告がメタゾンビになって、次に配る版にも出ます。'],
       ], after:'※ 封印したあとに、場面の文章が、人が直さないまま変わると、メタゾンビは戻ってきます。たとえば、AI が文章を書き換えたときです。', btn:['howMzBtn', 'メタゾンビ図鑑を開く'] }]),
@@ -5673,7 +5675,7 @@ function howPages(kind){
       ['時間帯', '一日は、朝・午前・昼・午後・夕方・夜に分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかの人が追いつくまで進められません。' : 'ある本が次の時間帯に入ると、ほかの本が追いつくまで、その本は進められません。')],
       ['持ち物', '持ち物によって、選べる選択肢が増えます。画面の上の［持ち物］に下線が出ているときは、［持ち物］を押すと、主人公のいる場所に持ち物を置けます。'],
       ['体力と感染', 'ゾンビに襲われると、体力が1減ります。主人公が感染することもあります。体力がなくなるか、感染したまま時間がたつと、主人公はゾンビになります。'],
-      ...(mzPub() ? [['メタゾンビ', 'メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。メタゾンビのいる場面では、映像や文章に、怪しいことが起きます。にじんだり、欠けたりして読めない文章は、押すと読めます。メタゾンビは、放っておくと強くなります。強くなったメタゾンビは、通信に書きこんできます。メタゾンビの書きこみの［' + authorWho() + 'へ知らせる］で、気になったことを知らせると、封印のスタンプがもらえます。封印のスタンプの数は、知らせた数です。' + authorWho() + 'が場面の文章を直すと、メタゾンビは封印されて、いなくなります。封印されたメタゾンビは、通信の一覧の上の［封印済み］を押すと並びます。']] : []),
+      ...(mzPub() ? [['読めない文章', 'にじんだり、欠けたりして読めない文章は、押すと読めます。']] : []), // 配った版では、メタゾンビとは名乗らない（怪奇現象の正体は言わない）
       ...(room || EMBED ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作って、招待リンクを送ってください。リンクを受け取った人と、同じ部屋で一緒に遊べます。部屋では、1人が1冊をロックします。部屋を作った人は、部屋から人を外せます。［☰］の［部屋］の［部屋の画面を開く］を押して、外したい人の［外す］を押してください。']]),
     ] },
     // 部屋に入っている人には、通信の画面の説明を出す（公開版でも、部屋の中では［通信］を使う）
@@ -6483,8 +6485,8 @@ function roomPanelHtml(){
     + roomPeopleHtml()
     + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅（話の中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れている人より、話の中の時刻で ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
-    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' + (mzLoose() && adoptMode() === 'host' ? '<p class="note" style="margin-top:8px">呪いの濃さは、封印していないメタゾンビの強さを、全部の本で足した数です。呪いの濃さが40以上なので、いまは、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。メタゾンビを封印して、呪いの濃さが40を下回ると、入れ方が［部屋を作った人が採用する］に戻ります。</p>' : '') + '</div>' : '')
-    + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>メタゾンビが封印されるとき</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>全員のゲームに入ったとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>直したとき</option></select></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>部屋の人が書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' + (mzLoose() && adoptMode() === 'host' ? '<p class="note" style="margin-top:8px">呪いの濃さは、強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。呪いの濃さが40以上なので、いまは、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。メタゾンビを封印して、呪いの濃さが40を下回ると、入れ方が［部屋を作った人が採用する］に戻ります。</p>' : '') + '</div>' : '')
+    + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>メタゾンビが封印されるとき</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>直した文章が全員のゲームに入ったとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>直したとき</option></select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
         + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、そのファイルを開けば遊べます。</p>'
         + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
@@ -7308,7 +7310,7 @@ function cmHits(q){
 }
 function cmListHtml(){
   const q = fbFind.trim().toLowerCase(), seen = store.get('seen-items', {}), fol = store.get('cm-follow', {}), all = cmAll();
-  const done = cmFilter === 'mzdone' ? mzDone() : [], mzHas = mzOn() || mzPub();
+  const done = cmFilter === 'mzdone' ? mzDone() : [], mzHas = mzOn(); // 配った版には［メタゾンビ］［封印済み］を出さない（遊ぶ人には名乗らない）
   const U = new Map([...all, ...done].map(([k, it]) => [k, room || /^mz_/.test(k) ? cmUnreadOf(k, it, seen) : { n:0, re:0, at:0 }]));
   const followed = ([k, it]) => cmFollowing(k, it, fol), unread = x => U.get(x[0]).n > 0;
   const f = cmListFilter();
@@ -7321,9 +7323,9 @@ function cmListHtml(){
   // 行の印：まだ読んでいない自分宛てがあれば、その数。なければ、未読の返信があれば点
   const row = x => {
     const [k, it] = x, rs = visRes(it).filter(([, r]) => !r.ph), last = rs.length ? rs[rs.length - 1][1] : null, u = U.get(k) || { n:0, re:0, at:0 }, z = it.mz;
-    const tag = z ? (mzW(z) ? 'メタゾンビ' : '報告') : it.mzp || it.mzs ? 'メタゾンビ' : unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
-    const sub = z ? (last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : z.comments ? '返信 ' + z.comments + ' 件' : mzSpotLabel(z)) : it.mzp || it.mzs ? cmPlain(it.text) : last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました');
-    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + (u.n ? ' un' : '') + (z || it.mzp || it.mzs ? ' mz-row' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag' + (z || it.mzp || it.mzs ? ' mz' : '') + '">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(sub) + '</span>' + (u.re ? '<span class="f">新しい返信 ' + u.re + ' 件</span>' : '') + '</span>'
+    const tag = z ? (mzW(z) ? 'メタゾンビ' : '報告') : it.mzp ? MZ_MOJI : unitOk(it.draft) ? (it.adopted ? '採用済み' : '案') : it.claude ? 'AI' : Array.isArray(it.opts) ? '投票' : '';
+    const sub = z ? (last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : z.comments ? '返信 ' + z.comments + ' 件' : mzSpotLabel(z)) : it.mzp ? cmPlain(it.text) : last ? (last.by || '名前なし') + '：' + cmPlain(last.text) : it.reply ? 'AI：' + cmPlain(it.reply) : (it.by || '名前なし') + (unitOk(it.draft) ? 'が書き換えました' : 'が書きました');
+    return '<button class="cm-row' + (cmRowMenu === k ? ' sel' : '') + (u.n ? ' un' : '') + (z || it.mzp ? ' mz-row' : '') + '" data-open="' + k + '"><span class="x"><span class="t">' + (tag ? '<i class="cm-tag' + (z || it.mzp ? ' mz' : '') + '">' + tag + '</i>' : '') + escText(cmTitle(it)) + '</span><span class="s">' + escText(sub) + '</span>' + (u.re ? '<span class="f">新しい返信 ' + u.re + ' 件</span>' : '') + '</span>'
       + '<span class="w">' + cmTime(cmWhen(it)) + (u.at ? '<br><i class="cm-n" aria-label="自分宛て">' + (u.at > 99 ? '99+' : u.at) + '</i>' : u.n ? '<br><i class="cm-dot" aria-label="未読"></i>' : '') + '</span></button>';
   };
   // 送っている途中・届かなかった、新しいスレッド
@@ -7362,7 +7364,7 @@ function sendToAuthor(text){
   // メタゾンビを出している配った版は、配る用のリポジトリに置いた報告の書式（Issue Forms）で開く。届いた報告は、編集版の通信と図鑑に並ぶ
   const form = PACK && Array.isArray(overlay.mz);
   const url = b => 'https://github.com/' + repo + '/issues/new?' + new URLSearchParams(form ? { template:'metazombie.yml', title, book:(at ? CHARS[at.c].name : CHARS[loadPlayer(current).char].name) + 'の本', para:String(at ? at.n : m.para), text:b } : { title, body:b });
-  if(at){ const st = store.get('mz-stamp', {}) || {}; st[at.key] = Date.now(); store.set('mz-stamp', st); mzRepAt = null; } // 封印のスタンプ
+  if(at){ const st = store.get('mz-stamp', {}) || {}; st[at.key] = Date.now(); store.set('mz-stamp', st); mzRepAt = null; } // 知らせた場面（スレッドに「知らせました」と出す。配った版に封印のスタンプはない）
   let u = url(body);
   if(u.length > 6000){ try { navigator.clipboard.writeText(body); } catch(e){} u = url('（内容が長いので、コピーしてあります。この欄に貼り付けてください）'); }
   window.open(u, '_blank', 'noopener');
@@ -7543,7 +7545,7 @@ function cmUnreadOf(k, it, seen){
 function cmFollowing(k, it, fol){
   const f = (fol || store.get('cm-follow', {}))[k];
   if(f === 1) return true; if(f === 0) return false;
-  if(it && (it.mzp || it.mzs)) return true; // 配った版で、通信に入ってきたメタゾンビ
+  if(it && it.mzp) return true; // 配った版で、通信に入ってきたメタゾンビ
   return (!!it && !!it.mz && mzFollowAuto(it.mz, k)) || mineKey(k) || visRes(it).some(([rk]) => mineKey(rk)) || itemCallsMe([k, it]);
 }
 function cmSetFollow(k, on){ const f = store.get('cm-follow', {}); f[k] = on ? 1 : 0; store.set('cm-follow', f); }
@@ -8639,19 +8641,21 @@ function mzSpotOf(B, no, from = {}){
 // 返すもの：[{ book, para, kind, why, s, spot }]。点検に引っかかった段落に1体ずつ。
 // 地図の場所のうち、引っかかった段落が1つもない場所には、その場所の段落（場所に着いたときの段落と、その場所の段落）からくじで1体（正体不明）
 function mzSeed(book, B, text){
-  const out = [], bySpot = {}, from = mzResFrom(book, B);
-  for(const [sp, x] of Object.entries(B.spots || {})) if(x && B.paras[x.no]) bySpot[sp] = [String(x.no)];
+  // くじは、建物・エリア（場所の place）ごとに1体。部屋ごとにすると多すぎる（ユーザー、2026-11-19）
+  const out = [], byArea = {}, from = mzResFrom(book, B), areaOf = sp => (B.spots[sp] || {}).place;
+  const add = (sp, no) => { const a = areaOf(sp); if(!a) return; const l = (byArea[a] = byArea[a] || []); if(!l.some(x => x.no === no)) l.push({ no, sp }); };
+  for(const [sp, x] of Object.entries(B.spots || {})) if(x && B.paras[x.no]) add(sp, String(x.no));
   for(const no of Object.keys(B.paras || {})){
     const t = text(no); if(!MZ_JA.test(t)) continue;
-    const sp = mzSpotOf(B, no, from); if(sp && bySpot[sp] && !bySpot[sp].includes(no)) bySpot[sp].push(no);
+    const sp = mzSpotOf(B, no, from); if(sp && B.spots[sp]) add(sp, no);
     const hit = mzLint(t);
     if(hit.length) out.push({ book, para:+no, kind:hit[0].kind, why:hit[0].why, s:hit[0].s, spot:sp });
   }
-  const hitSpots = new Set(out.map(z => z.spot).filter(Boolean));
-  for(const [sp, nos] of Object.entries(bySpot)){
-    if(hitSpots.has(sp)) continue;
-    const no = nos.slice().sort((a, b) => a - b)[mzHash(book + ':' + sp) % nos.length];
-    out.push({ book, para:+no, kind:'正体不明', why:'くじで置いた', s:'', spot:sp });
+  const hitAreas = new Set(out.map(z => z.spot && areaOf(z.spot)).filter(Boolean));
+  for(const [a, list] of Object.entries(byArea)){
+    if(hitAreas.has(a)) continue;
+    const l = list.slice().sort((x, y) => x.no - y.no), pick = l[mzHash(book + ':' + a) % l.length];
+    out.push({ book, para:+pick.no, kind:'正体不明', why:'くじで置いた', s:'', spot:pick.sp });
   }
   return out;
 }
@@ -8768,7 +8772,8 @@ function mzStat(n){
   const s = (store.get('mz-stat', {}) || {})[n] || {}; return { met:s.m ? 1 : 0, back:+s.b || 0 };
 }
 const mzLevel = z => { const s = mzStat(z.n); return mzLvOf(mzDays(z.at) + s.met * 2 + s.back); };
-const mzCurse = () => mzItems().filter(mzLive).reduce((a, z) => a + mzLevel(z), 0); // 呪いの濃さ
+const MZ_CURSE_LV = 3; // 呪いの濃さに足すのは、強さ3以上のメタゾンビだけ（置いた直後から濃くならないように）
+const mzCurse = () => mzItems().filter(mzLive).map(mzLevel).filter(lv => lv >= MZ_CURSE_LV).reduce((a, lv) => a + lv, 0); // 呪いの濃さ
 // 出会った・［戻す］を押した：部屋では自分の分のファイル（m/<端末>.json の mz）に書き、全員の分を数える。1人のときは、この端末だけ
 function mzStatAdd(z, met, back){
   if(room){
@@ -8904,7 +8909,7 @@ function mzMakeOpen(id){
   const m = cmMsgOf(id), k = String(id).split('|')[0], it = cmItem(k); cmSheet = '';
   if(!m || !it){ render(); return; }
   const sc = cmSceneOf(it.at) || cmSceneOf((/\[\[([\w-]+:\d+)\]\]/.exec(m.text) || [])[1]) || (lastView ? { c:lastView.char, n:lastView.para } : null);
-  if(!sc){ fbNote = 'メタゾンビを置く場面が分かりません。本文を長押しして、メタゾンビを呼び出してください。'; render(); return; }
+  if(!sc){ fbNote = '長押ししたメッセージが、どの場面のことか分かりません。本文を長押しして、メタゾンビを呼び出してください。'; render(); return; }
   const text = String(m.text).split('\n').filter(l => !/^\[\[[^\]]*\]\]$/.test(l.trim())).join('\n').trim(), hit = mzLint(text)[0], kind = hit ? hit.kind : '正体不明';
   mzMake = { id, c:sc.c, n:sc.n, text, kind, name:mzTitle({ book:sc.c, para:sc.n, kind, spot:mzSpotGuess(sc.c, sc.n) }) };
   render();
@@ -8946,7 +8951,6 @@ function mzCmParse(x){
 // 通信に並べる形にする。自分のコメントの鍵は「端末-」で始め、未読・フォローの数え方を、ふつうのスレッドと同じにする。まだ読んでいないコメントは、数だけ置く（ph）
 function mzThreadItem(k){
   if(/^mz_x/.test(k)) return mzPubThreadItem(k);
-  if(/^mz_y/.test(k)){ const e = mzPub() ? mzPubSealed().find(x => x[0] === k) : null; return e ? e[1] : null; }
   const z = mzOfKey(k); if(!z) return null;
   const c = mzCm[k], re = {}, arr = (store.get('mz-arr', {}) || {})[k], list = c ? c.list : [];
   if(arr) re['m-arr'] = { by:'メタゾンビ', text:'あなたが、' + mzSpotLabel(z) + 'に来ました。', o:arr };
@@ -8956,7 +8960,7 @@ function mzThreadItem(k){
 }
 // 通信の一覧に混ぜるもの：立っているメタゾンビと、まだ受けていない報告（編集版）。呪われた配った版では、通信に入ってきたメタゾンビ
 const mzList = () => (mzOn() ? mzItems().filter(z => z.state === 'open').map(z => [mzKey(z), mzThreadItem(mzKey(z))]) : mzPub() ? mzPubThreads() : []);
-const mzDone = () => (mzOn() ? mzItems().filter(z => z.state === 'closed').map(z => [mzKey(z), mzThreadItem(mzKey(z))]) : mzPub() ? mzPubSealed() : []);
+const mzDone = () => (mzOn() ? mzItems().filter(z => z.state === 'closed').map(z => [mzKey(z), mzThreadItem(mzKey(z))]) : []);
 const cmItem = k => (/^mz_/.test(String(k)) ? mzThreadItem(k) : roomItems[k]);
 const cmAll = () => itemList().concat(mzList());
 // 自動でフォローするメタゾンビ：通信に入ってきた・自分が担当・自分が呼び出した・この場面で出会った
@@ -9083,7 +9087,6 @@ async function mzRename(k, name){
 function mzThreadHtml(k){
   const it = cmItem(k); if(!it) return '';
   if(it.mzp) return mzPubThreadHtml(k, it);
-  if(it.mzs) return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(it.title) + '</b></div><div class="cm-log"><div class="cm-card mz-card" data-mi="0"><div class="done mz-sealed"><i class="mz-stamp">封</i>' + escText(it.text) + '</div></div></div></div>';
   const z = it.mz, c = mzCm[k], esc = escText;
   if(!c || ((c.fail || c.list.length < z.comments) && Date.now() - c.at > 15e3)) setTimeout(() => mzLoadComments(k), 0);
   const ms = cmMsgList(k, it), from = cmOpenAt && cmOpenAt.k === k ? cmOpenAt.n : -1;
@@ -9124,7 +9127,7 @@ async function mzPhotoLoad(id){
 function mzPanelHtml(){
   const c = current, nm = CHARS[c].name, esc = t => escText(String(t || ''));
   let h = '<div class="scr"><h2 class="scr-h">メタゾンビ図鑑</h2>';
-  h += '<p class="scr-lead">メタゾンビは、文章に直す所が残っていそうな場面にいる、お化けです。';
+  h += '<p class="scr-lead">メタゾンビは、文章に直す所が残っていそうな場面に取りつく、お化けです。';
   h += 'メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。';
   if(!mzOn()) return h + '</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。' : 'メタゾンビ図鑑は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
   h += 'ゲームが文章を点検して、メタゾンビを自動で置きます。Issue は、GitHub で、やることを1件ずつ書いておくものです。メタゾンビは1体ずつ、作業用のリポジトリの Issue になり、通信にスレッドができます。<br>'
@@ -9136,7 +9139,7 @@ function mzPanelHtml(){
   if(mzErrCode && !mzSeeding) h += '<div class="note">' + esc(mzErrText(mzErrCode)) + '</div>' + (mzErrCode === 403 || mzErrCode === 404 ? mzPermHtml() : '');
   const all = mzItems().filter(z => z.book === c), open = all.filter(mzLive).sort((a, b) => mzLevel(b) - mzLevel(a) || a.at - b.at), rep = all.filter(z => !mzW(z) && z.state === 'open' && !mzLive(z)), shut = all.filter(z => z.state !== 'open').sort((a, b) => b.closedAt - a.closedAt);
   h += '<div class="scr-state' + (open.length ? ' on' : '') + '">' + esc(nm) + 'の本<b>封印していない：' + open.length + '体</b><b>封印した：' + shut.length + '体</b></div>';
-  h += '<p>呪いの濃さ：' + mzCurse() + '<br><small style="color:var(--dim)">封印していないメタゾンビの強さを、全部の本で足した数です。</small><br>封印のスタンプ：' + (store.get('mz-sealed', []) || []).length + '<br><small style="color:var(--dim)">あなたが封印したメタゾンビの数です。</small></p>';
+  h += '<p>呪いの濃さ：' + mzCurse() + '<br><small style="color:var(--dim)">呪いの濃さは、強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。</small><br>封印のスタンプ：' + (store.get('mz-sealed', []) || []).length + '<br><small style="color:var(--dim)">封印のスタンプは、あなたが封印したメタゾンビの数です。</small></p>';
   if(!all.length && !mzSeeding) h += '<p>' + esc(nm) + 'の本には、いまメタゾンビがいません。' + (mzCan() ? '' : '部屋を作った人がゲームを開くと、メタゾンビが置かれます。') + '</p>';
   const pic = (z, sealed) => { const id = z.n + (sealed ? '-s' : ''); if(mzW(z) && !(id in mzPhoto)) setTimeout(() => mzPhotoLoad(id), 0); const u = mzPhoto[id] || (sealed ? mzPhoto[z.n] : ''); return '<span class="mz-pic' + (u ? '' : ' none') + '">' + (u ? '<img src="' + u + '" alt="">' : '') + (sealed ? '<i class="mz-stamp">封</i>' : '') + '</span>'; };
   const card = (z, sealed) => '<button class="step mz mz-row" data-mzthread="' + mzKey(z) + '">' + pic(z, sealed) + '<span class="mz-tx"><span class="n">' + (mzW(z) ? 'メタゾンビ #' : '報告 #') + z.n + '　' + esc(mzSpotLabel(z).replace(/^[^　]*の本　/, '')) + '</span><b>' + esc(z.title) + '</b>'
@@ -9290,25 +9293,46 @@ function mzTagEl(c, no){
   box.querySelectorAll('[data-mzopen]').forEach(b => { b.onclick = ev => { ev.stopPropagation(); mzOpenThread(b.dataset.mzopen); }; });
   return box;
 }
-// ===== 地図のレーダー：メタゾンビのいる場所に、砂嵐のかたまり。いまいる場所なら、どの場面かも出す =====
+// ===== 地図のレーダー：メタゾンビのいる所に、血の汚れ。街の地図は建物・エリア（場所の place）ごと、見取り図は部屋ごと =====
+// 地図の下に、今いる建物・エリアのメタゾンビの数と場面の番号（編集版だけ。全体は図鑑。配った版は汚れだけで、メタゾンビとは名乗らない）
 function mzRadar(body, s, sp){
   const B = BOOKS[s.book]; if(!B || s.book === 'monster') return;
   const zs = mzOn() ? mzItems().filter(z => mzLive(z) && z.book === s.char).map(z => ({ n:z.n, p:z.para, pl:z.place, lv:mzLevel(z) }))
     : mzPub() ? overlay.mz.filter(z => z.b === s.char).map(z => ({ n:z.n, p:z.p, pl:z.pl, lv:mzPubLevel(z) })) : [];
   if(!zs.length) return;
-  const svg = body.querySelector('.map-scroll svg'), NS = 'http://www.w3.org/2000/svg', byName = {}, here = sp && sp.name;
+  const NS = 'http://www.w3.org/2000/svg', byName = {};
   for(const x of Object.values(B.spots || {})) if(x && x.name && !byName[x.name]) byName[x.name] = x;
   const el = (name, attrs) => { const e = document.createElementNS(NS, name); for(const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
-  const groups = {}; for(const z of zs) (groups[z.pl || '?'] = groups[z.pl || '?'] || []).push(z);
-  if(svg) for(const [pl, list] of Object.entries(groups)){
-    const x = byName[pl]; if(!x || !Array.isArray(x.at)) continue;
-    const lv = Math.max(...list.map(z => z.lv)), g = el('g', { class:'mz-blob' }), r = 8 + lv * 2;
-    for(let i = 0; i < 10; i++){ const a = mzHash(pl + i) % 628 / 100, d = (mzHash(pl + 'd' + i) % 100) / 100 * r; g.appendChild(el('rect', { x:x.at[0] + Math.cos(a) * d - 2, y:x.at[1] + Math.sin(a) * d - 2, width:4, height:4, fill:i % 2 ? '#ddd' : '#666' })); }
-    svg.appendChild(g);
+  const spotOfZ = z => byName[z.pl], lvMax = list => Math.max(...list.map(z => z.lv));
+  // 血の汚れ：まん中のしみと、まわりの飛び散り。形は名前から決める（開くたびに変わらない）
+  // 置くのは、場所の名前や印の下（ref の前）。名前が読めなくならないように
+  const stain = (svg, cx, cy, r, key, ref) => {
+    const g = el('g', { class:'mz-blood' }), at = (a, d) => [(cx + Math.cos(a) * d).toFixed(1), (cy + Math.sin(a) * d).toFixed(1)];
+    for(let i = 0; i < 5; i++){ const [x, y] = at(mzHash(key + 'a' + i) % 628 / 100, (mzHash(key + 'b' + i) % 100) / 100 * r * .45); g.appendChild(el('circle', { cx:x, cy:y, r:(r * (.35 + (mzHash(key + 'c' + i) % 40) / 100)).toFixed(1) })); }
+    for(let i = 0; i < 7; i++){ const [x, y] = at(mzHash(key + 'e' + i) % 628 / 100, r * (.8 + (mzHash(key + 'f' + i) % 80) / 100)); g.appendChild(el('circle', { cx:x, cy:y, r:(r * (.06 + (mzHash(key + 'g' + i) % 10) / 100)).toFixed(1) })); }
+    svg.insertBefore(g, ref || null);
+  };
+  const cur = sp || B.spots[(sceneOf(s) || {}).spot] || {};
+  const town = body.querySelector('.map-scroll svg');
+  if(town){ // 街の地図：そのエリアの、地図に載っている場所の全部に付ける
+    const mapId = cur.map || '', areas = {}, ref = town.querySelector('.m-spot, .m-here');
+    for(const z of zs){ const x = spotOfZ(z); if(x && x.place) (areas[x.place] = areas[x.place] || []).push(z); }
+    for(const [id, x] of Object.entries(B.spots)) if(Array.isArray(x.at) && (x.map || '') === mapId && areas[x.place]) stain(town, x.at[0], x.at[1], 5 + lvMax(areas[x.place]) * 1.6, x.place + ':' + id, ref);
   }
-  const mine = groups[here] || [];
+  const plan = body.querySelector('.planmap svg'), po = planOf(s);
+  if(plan && po){ // 見取り図：部屋ごと。部屋の四角の上、部屋の名前の下（汚れを終わりに足して、名前を後ろへ移す）
+    for(const r of plan.querySelectorAll('rect[data-room]')){
+      const here = zs.filter(z => { const x = spotOfZ(z); return x && x.place === po.plan && x.room === r.dataset.room; });
+      if(!here.length) continue;
+      const w = +r.getAttribute('width'), h = +r.getAttribute('height');
+      stain(plan, +r.getAttribute('x') + w / 2, +r.getAttribute('y') + h / 2, Math.min(w, h) * .22 + lvMax(here) * 1.5, po.plan + ':' + r.dataset.room);
+    }
+    for(const t of [...plan.querySelectorAll('text')]) plan.appendChild(t); // 部屋の名前は、汚れより上に描く
+  }
+  if(!mzOn() || !cur.place) return;
+  const inArea = zs.filter(z => (spotOfZ(z) || {}).place === cur.place); if(!inArea.length) return;
   const box = document.createElement('div'); box.className = 'fb mz-radar'; box.style.cssText = 'margin:8px 12px;padding-top:0;border-top:0';
-  box.innerHTML = '<div>メタゾンビのいる場所：' + Object.keys(groups).filter(x => x !== '?').length + 'か所</div>' + (mine.length ? '<div>主人公のいる場所の、メタゾンビのいる場面：' + [...new Set(mine.map(z => String(z.p)))].map(escText).join('、') + '</div>' : '');
+  box.innerHTML = '<div>' + escText(PLACES[cur.place] || cur.place) + 'のメタゾンビ：' + inArea.length + '体</div><div>メタゾンビのいる場面：' + [...new Set(inArea.map(z => +z.p))].sort((a, b) => a - b).join('、') + '</div>';
   body.appendChild(box);
 }
 // ===== 配った版（遊ぶ人の側）：［配る］のときに入れた一覧で、怪奇現象を起こす。先へ進めなくすることはしない =====
@@ -9317,7 +9341,7 @@ const mzPub = () => !TEST_BUILD && !!PACK && !EMBED && Array.isArray(overlay.mz)
 const mzPubKey = z => z.b + ':' + z.p + ':' + z.n;
 const mzPubLevel = z => mzLvOf(mzDays(+z.at || Date.now()) + (+z.m || 0) * 2 + (+z.bk || 0));
 const mzPubHere = (c, no) => (mzPub() ? overlay.mz.filter(z => z.b === c && z.p === +no) : []);
-const mzPubCurse = () => (mzPub() ? overlay.mz.reduce((a, z) => a + mzPubLevel(z), 0) : 0);
+const mzPubCurse = () => (mzPub() ? overlay.mz.map(mzPubLevel).filter(lv => lv >= MZ_CURSE_LV).reduce((a, lv) => a + lv, 0) : 0);
 // その場所（地図の場所）にいるメタゾンビの、いちばん強い段階（映像の砂嵐は、場所ごと）
 function mzPubLevelHere(){
   if(!mzPub() || !lastView) return 0;
@@ -9332,21 +9356,22 @@ async function mzPubList(){
 }
 const mzPubCheckHtml = () => (mzOn() ? '<label class="cm-ai" style="margin-top:8px"><input type="checkbox" id="mzPubOn"' + (store.get('mz-pub', true) !== false ? ' checked' : '') + '>配った版にメタゾンビを出す</label>' : '');
 // 配る用のリポジトリに、報告の書式（Issue Forms）と、ラベル「メタゾンビ」を置く
-const MZ_FORM = 'name: メタゾンビの報告\ndescription: 気になった場面を、この版を作った人に知らせる\nlabels: ["メタゾンビ"]\nbody:\n  - type: input\n    id: book\n    attributes:\n      label: 本\n    validations:\n      required: true\n  - type: input\n    id: para\n    attributes:\n      label: 場面の番号\n    validations:\n      required: true\n  - type: textarea\n    id: text\n    attributes:\n      label: 気になったこと\n    validations:\n      required: true\n';
+const MZ_FORM = 'name: 気になった場面の報告\ndescription: 気になった場面を、この版を作った人に知らせる\nlabels: ["メタゾンビ"]\nbody:\n  - type: input\n    id: book\n    attributes:\n      label: 本\n    validations:\n      required: true\n  - type: input\n    id: para\n    attributes:\n      label: 場面の番号\n    validations:\n      required: true\n  - type: textarea\n    id: text\n    attributes:\n      label: 気になったこと\n    validations:\n      required: true\n';
 async function mzPubForm(api, slug){
   if(!mzOn() || store.get('mz-pub', true) === false) return;
-  await ghWrite('.github/ISSUE_TEMPLATE/metazombie.yml', now => (now ? null : { message:'メタゾンビの報告の書式を置く', content:b64(MZ_FORM) }), { api }).catch(() => {});
+  // 書式の名前は遊ぶ人に見えるので、メタゾンビとは書かない（前の版で置いた書式は、中身が違えば書き直す）。ラベル「メタゾンビ」は、編集版が報告を見分けるのに使う
+  await ghWrite('.github/ISSUE_TEMPLATE/metazombie.yml', now => (now && String(now.content || '').replace(/\s/g, '') === b64(MZ_FORM) ? null : { message:'報告の書式を置く', content:b64(MZ_FORM) }), { api }).catch(() => {});
   await mzLabels(slug).catch(() => {});
 }
-// 来た回数（来るたびに近づく）と、出会ったメタゾンビ（あとで消えていたら、封印のスタンプ）
+// 来た回数（来るたびに近づく）
 let mzPubLast = '';
 function mzPubArrive(mode){
   if(!mzPub() || mode !== 'live' || !lastView) return;
   const at = lastView.char + ':' + lastView.para; if(at === mzPubLast) return; mzPubLast = at;
   const zs = mzPubHere(lastView.char, lastView.para); if(!zs.length) return;
-  const v = store.get('mz-visit', {}) || {}, met = store.get('mz-pubmet', {}) || {};
-  for(const z of zs){ const k = mzPubKey(z); v[k] = (v[k] || 0) + 1; if(!met[k]) met[k] = { t:z.t, at:Date.now() }; }
-  store.set('mz-visit', v); store.set('mz-pubmet', met);
+  const v = store.get('mz-visit', {}) || {};
+  for(const z of zs){ const k = mzPubKey(z); v[k] = (v[k] || 0) + 1; }
+  store.set('mz-visit', v);
 }
 // 映像の砂嵐と、音（0.5秒ごと）
 let mzPubT = 0;
@@ -9400,21 +9425,19 @@ function mzTitleCurse(){
   const el = document.getElementById('front'); if(!el) return;
   const c = mzPubCurse(); for(const [i, lo, hi] of [[1, 5, 20], [2, 20, 40], [3, 40, 1e9]]) el.classList.toggle('mz-c' + i, c >= lo && c < hi);
 }
-// 通信に入る（段階5）：配った版の通信に、メタゾンビのスレッドが立つ（端末の中だけ）。［作者へ知らせる］で、この版を作った人に報告を送る（送ると、封印のスタンプ）
+// 通信に入る（段階5）：配った版の通信に、スレッドが立つ（端末の中だけ）。［作者へ知らせる］で、この版を作った人に報告を送る
+// 遊ぶ人には、メタゾンビとは名乗らない。書いた人の名前は、「メタゾンビ」を Shift_JIS で読んだときの文字化け
+const MZ_MOJI = '繝｡繧ｿ繧ｾ繝ｳ繝・';
 function mzPubThreads(){ return overlay.mz.filter(z => mzPubLevel(z) >= 5).map(z => ['mz_x' + z.n, mzPubThreadItem('mz_x' + z.n)]); }
-function mzPubSealed(){
-  const now = new Set(overlay.mz.map(mzPubKey));
-  return Object.entries(store.get('mz-pubmet', {}) || {}).filter(([k]) => !now.has(k)).map(([k, x]) => ['mz_y' + k.replace(/[^\w]/g, '_'), { title:String(x.t || ''), name:String(x.t || ''), by:'メタゾンビ', text:'メタゾンビは、封印されました。', o:x.at || 0, re:{}, mzs:true }]);
-}
 function mzPubThreadItem(k){
   const n = +String(k).slice(4), z = overlay.mz && overlay.mz.find(x => x.n === n); if(!z) return null;
-  return { title:z.t, name:z.t, by:'メタゾンビ', text:mzGarble({ n:z.n, kind:z.k, s:z.s, book:z.b, para:z.p }, z.s || 'ここに、いる。'), o:(+z.at || 0) + 30 * 864e5, at:z.b + ':' + z.p, re:{}, mzp:z };
+  return { title:z.t, name:z.t, by:MZ_MOJI, text:mzGarble({ n:z.n, kind:z.k, s:z.s, book:z.b, para:z.p }, z.s || 'ここに、いる。'), o:(+z.at || 0) + 30 * 864e5, at:z.b + ':' + z.p, re:{}, mzp:z };
 }
 function mzPubThreadHtml(k, it){
   const z = it.mzp, st = store.get('mz-stamp', {}) || {};
   return '<div class="cm"><div class="cm-top"><button id="cmBack">‹ 一覧</button><b class="ttl">' + escText(it.title) + '</b></div><div class="cm-log">'
-    + '<div class="cm-m mz-voice" data-mi="0"><div class="n"><i class="cm-av mz-av"></i>メタゾンビ</div><div class="b">' + escText(it.text) + cmChip(it.at) + '</div></div>'
-    + '<div class="cm-card mz-card"><div class="d">' + (st[mzPubKey(z)] ? '場面の文章のことを、' + authorWho() + 'に知らせました。' : '場面の文章で気になったことを、' + authorWho() + 'に知らせると、封印のスタンプがもらえます。') + '<br>封印のスタンプ：' + Object.keys(st).length + '<br><small style="color:var(--dim)">' + authorWho() + 'に知らせた数です。</small></div>'
+    + '<div class="cm-m mz-voice" data-mi="0"><div class="n"><i class="cm-av mz-av"></i>' + MZ_MOJI + '</div><div class="b">' + escText(it.text) + cmChip(it.at) + '</div></div>'
+    + '<div class="cm-card mz-card"><div class="d">' + (st[mzPubKey(z)] ? '場面の文章のことを、' + authorWho() + 'に知らせました。' : '場面の文章で気になったことを、' + authorWho() + 'に知らせてください。') + '</div>'
     + '<div class="cm-acts"><button class="go" data-mzrep="' + k + '">' + authorWho() + 'へ知らせる</button></div></div></div></div>';
 }
 // ［作者へ知らせる］：その場面の番号を付けて、「作者へ」の画面を開く
