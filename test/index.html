@@ -574,7 +574,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-18 23:49 f9af8a5';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-19 03:57 9d9cc6c';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -12165,10 +12165,10 @@ function mzTagEl(c, no){
   return box;
 }
 // ===== 地図のレーダー：メタゾンビのいる所に、血の汚れ。街の地図は建物・エリア（場所の place）ごと、見取り図は部屋ごと =====
-// 地図の下に、今いる建物・エリアのメタゾンビの数と場面の番号（編集版だけ。全体は図鑑。配った版は汚れだけで、メタゾンビとは名乗らない）
+// 地図の下に、今いる建物・エリアのメタゾンビの数と、出会ったメタゾンビの場面の番号（編集版だけ。全体は図鑑。配った版は汚れだけで、メタゾンビとは名乗らない）
 function mzRadar(body, s, sp){
   const B = BOOKS[s.book]; if(!B || s.book === 'monster') return;
-  const zs = mzOn() ? mzItems().filter(z => mzLive(z) && z.book === s.char).map(z => ({ n:z.n, p:z.para, pl:z.place, lv:mzLevel(z) }))
+  const zs = mzOn() ? mzItems().filter(z => mzLive(z) && z.book === s.char).map(z => ({ n:z.n, k:mzKey(z), p:z.para, pl:z.place, lv:mzLevel(z) }))
     : mzPub() ? overlay.mz.filter(z => z.b === s.char).map(z => ({ n:z.n, p:z.p, pl:z.pl, lv:mzPubLevel(z) })) : [];
   if(!zs.length) return;
   const NS = 'http://www.w3.org/2000/svg', byName = {};
@@ -12202,8 +12202,12 @@ function mzRadar(body, s, sp){
   }
   if(!mzOn() || !cur.place) return;
   const inArea = zs.filter(z => (spotOfZ(z) || {}).place === cur.place); if(!inArea.length) return;
+  // 場面の番号は、この端末で出会ったもの（その場面に来た・自分で呼び出した）だけ。数は、出会う前から出す（ユーザー、2026-11-19）
+  const arr = store.get('mz-arr', {}) || {}, mine = store.get('mz-mine-iss', []) || [];
+  const met = inArea.filter(z => arr[z.k] || mine.includes(z.k));
   const box = document.createElement('div'); box.className = 'fb mz-radar'; box.style.cssText = 'margin:8px 12px;padding-top:0;border-top:0';
-  box.innerHTML = '<div>' + escText(PLACES[cur.place] || cur.place) + 'のメタゾンビ：' + inArea.length + '体</div><div>メタゾンビのいる場面：' + [...new Set(inArea.map(z => +z.p))].sort((a, b) => a - b).join('、') + '</div>';
+  box.innerHTML = '<div>' + escText(PLACES[cur.place] || cur.place) + 'のメタゾンビ：' + inArea.length + '体</div>'
+    + (met.length ? '<div>メタゾンビのいる場面：' + [...new Set(met.map(z => +z.p))].sort((a, b) => a - b).join('、') + '</div>' : '');
   body.appendChild(box);
 }
 // ===== 配った版（遊ぶ人の側）：［配る］のときに入れた一覧で、怪奇現象を起こす。先へ進めなくすることはしない =====
