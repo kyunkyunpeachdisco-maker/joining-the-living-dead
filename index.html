@@ -145,6 +145,11 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 #cutscene.alarm{outline:2px solid #c0392b;outline-offset:-2px}
 .cctv-nosig{display:none;position:absolute;inset:0;z-index:4;align-items:center;justify-content:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;letter-spacing:.2em;color:#ddd;background:repeating-radial-gradient(circle at 30% 40%,#222 0 1px,#555 1px 2px,#111 2px 3px);animation:cctv-static .15s steps(3) infinite}
 #cutscene.nosignal .cctv-nosig{display:flex}
+.cut-fail{display:none}
+#cutscene.nogl{aspect-ratio:auto;background:none;outline:none}
+#cutscene.nogl::before,#cutscene.nogl::after{display:none}
+#cutscene.nogl > :not(.cut-fail){display:none !important}
+#cutscene.nogl .cut-fail{display:block;margin:8px 44px 0 12px;padding:10px 14px;border:1px solid #4a4436;border-radius:8px;background:#15171c;color:#cfc7b4;font-size:14px;line-height:1.6}
 @keyframes cctv-static{0%{background-position:0 0}50%{background-position:7px 3px}100%{background-position:-5px 6px}}
 .tabs .me{flex:none;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim)}
 .tabs .me select{font-size:16px;background:var(--panel);color:var(--text);border:1px solid var(--gold);border-radius:6px;padding:3px 4px}
@@ -470,7 +475,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .fr-note{margin-top:18px;border:1px solid #5a4a22;border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.8;color:#cfc8ba;background:rgba(22,22,26,.92)}
 .fr-note b{color:var(--gold);font-size:14px}
 .fr-switch{display:block;margin-top:18px;text-align:center;font-size:13px;color:var(--dim)}
-.fr-shot{display:block;width:100%;max-height:46vh;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:6px;margin:0 0 14px;background:#000}
+.fr-shot{display:block;width:100%;height:auto;max-height:46vh;object-fit:cover;object-position:top;border:1px solid var(--line);border-radius:6px;margin:0 0 14px;background:#000}
 .fr-shot.full{max-height:50vh;object-fit:contain;border:0;background:none}
 .fr-page h3{margin-bottom:12px}
 .fr-legend{list-style:none;counter-reset:lg;margin:0 0 10px;padding:0;display:grid;grid-template-columns:1fr;gap:8px}
@@ -510,7 +515,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
   <div class="bar"><div class="stat" id="stat"></div><div class="barbtns" id="barbtns"></div></div>
   <div class="tabs" id="tabs" hidden></div>
 </header>
-<div id="cutscene" hidden><canvas id="cutcanvas" width="320" height="180"></canvas><img id="cutstill" alt="" hidden><canvas id="osd" class="osd" width="320" height="180" aria-hidden="true"></canvas><div class="cctv-top"><span id="camName"></span><span class="rec">● REC</span></div><div class="cctv-bot"><span id="camTarget"></span><span id="camTime"></span></div><div class="cctv-nosig">NO SIGNAL</div></div>
+<div id="cutscene" hidden><canvas id="cutcanvas" width="320" height="180"></canvas><img id="cutstill" alt="" hidden><canvas id="osd" class="osd" width="320" height="180" aria-hidden="true"></canvas><div class="cctv-top"><span id="camName"></span><span class="rec">● REC</span></div><div class="cctv-bot"><span id="camTarget"></span><span id="camTime"></span></div><div class="cctv-nosig">NO SIGNAL</div><div class="cut-fail" id="cutFail"></div></div>
 </div>
 <button class="edgetab" id="videoTab">映像</button>
 <aside id="drawer" hidden><button class="edgetab" id="mapTab">地図</button><div id="drawerBody"></div></aside>
@@ -572,7 +577,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.47';
+const APP_VERSION = 'v0.3.48';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -3428,7 +3433,13 @@ function applyCutscene(st){
   Cut.prevKey = Cut.key;
   if(Cut.key) cutStatic(520);
   Cut.key = key;
-  loadThree().then(() => { if(Cut.key === key) buildPlace(st); }).catch(() => { wrap.hidden = true; Cut.key = null; });
+  // 映像を作れないとき（ブラウザが 3D を描けない・映像の部品を読みこめない）は、映像の場所に、わけを1文出す。前は何も知らせずにしまっていて、つまみだけ点いて何も出なかった（2026-11-20、遊んだ人からの報告）
+  const fail = msg => { if(Cut.key === key) Cut.key = null; document.getElementById('cutFail').textContent = msg; wrap.classList.add('nogl'); };
+  loadThree().then(() => {
+    if(Cut.key !== key) return;
+    try { buildPlace(st); wrap.classList.remove('nogl'); }
+    catch(e){ if(Cut.renderer){ wrap.hidden = true; Cut.key = null; } else fail('このブラウザでは、映像を表示できません。'); }
+  }, () => fail('映像を読みこめませんでした。'));
 }
 // カメラを切り替えた瞬間の砂嵐（drawOsd が描く）
 function cutStatic(ms){ Cut.staticAt = performance.now(); Cut.staticMs = ms; }
@@ -5415,6 +5426,7 @@ function linkPanelHtml(){
     + '</div>';
 }
 // 公開版は、リリースのたびに、版の番号つきの番地（v/<版>/）にも残してある。付けた追加分が、今と違う版に合わせて作ってあれば、その版の番地へ移る（原本が新しくなっても、追加分は、合わせた版の上で動き続ける）
+const HOW_SIZE = { 'how-make-1':[585, 1002], 'how-make-2':[585, 1170], 'how-play-0':[585, 903], 'how-play-0-test':[585, 903], 'how-play-1':[585, 548], 'how-play-1-file':[585, 548], 'how-play-1-test':[585, 548], 'how-play-3':[585, 630] }; // 説明の写真の大きさ（icons/how-*.jpg。写真を撮り直したら、ここも直す）
 const siteRoot = () => location.href.split('#')[0].split('?')[0].replace(/index\.html$/, '').replace(/\/v\/[^/]+\/$/, '/').replace(/\/test\/$/, '/');
 async function pinToBase(){
   const want = overlay.base && overlay.base.ver;
@@ -5647,7 +5659,7 @@ function howPages(kind){
     return [
       { t:'編集版でできること', text:'編集版では、ゲームの本文や選択肢を書き換えられます。場所や本を足すこともできます。<br><br>書き換えたゲームは、リンクかファイルで人に配れます。部屋を作ると、何人かで一緒にゲームを書き換えられます。本文や選択肢を、AI に書かせることもできます。' },
       ...(room ? [] : [{ t:'リポジトリを作る', text:'リポジトリは、GitHub に作る自分用のファイル置き場です。GitHub は、無料で使えるサービスです。リポジトリを作るには、GitHub のアカウントが要ります。リポジトリの作成を推奨しています。<br><br>リポジトリは、作業用と配る用の2つを作ります。作業用には、書き換えたものや画像が入ります。配る用は、ゲームをリンクで配るときに使います。リポジトリの作り方と設定のしかたは、下の［リポジトリの設定を開く］を押すと表示されます。リポジトリを作って設定すると、次のようになります。<br><br>・書き換えたものが、作業用のリポジトリに自動で保存されます。<br>・好きな画像を、本文に付けられます。<br>・書き換えたゲームを、リンクで配れます。<br>・部屋を作った人がゲームを閉じていても、ほかの人が部屋を使えます。<br>・本文や選択肢を、AI に書かせられます。', after:'※ リポジトリを設定しなくても、ゲームを書き換えて、ファイルで配ることはできます。書き換えたものは、いま使っているスマホやパソコンにだけ残ります。<br>※ リポジトリの作成と設定は、AI の Claude Code に手伝わせることもできます。Claude Code と GitHub をつないでから、次のリンクを貼って、「準備して」と頼んでください。' + guide, btn:['howLinkBtn', 'リポジトリの設定を開く'] }]),
-      { img:'how-make-1', full:true, t:'ゲームを書き換える', lead:keysLead, legend:keys, list:[['本文に画像を付ける', '本文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、本文の、画像を付けたい所を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、本文の押した所の下に表示されます。'], ['場所を足す', '［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［作る］の［本を足す］を押して、主人公の名前などを入れてください。条件を満たすまで、本が読めないようにする場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。'], ['選択肢に、体力などの変化を付ける', '選択肢を足すときに、選択肢の文と「選んだら起きること」の文を入れると、「体力が1減る」のような案が、入れた文の下に表示されます。押した案が、選択肢に付きます。映像の中の主人公の動きは、入れた文から自動で決まります。どの言葉でどの案が表示されるかは、［☰］の［作る］の［自動提案］で変えられます。']] },
+      { img:'how-make-1', full:true, t:'ゲームを書き換える', lead:keysLead, legend:keys, list:[['本文に画像を付ける', '本文に画像を付けるには、先にリポジトリを設定してください。［✎ 編集する］を押して、本文の、画像を付けたい所を押してください。［画像を付ける］を押して画像を選び、［直す］を押してください。画像は、本文の押した所の下に表示されます。'], ['場所を足す', '［地図］が表示されている場面で、［地図］を押して、［地図に印を置く］を押してください。地図の上で、場所を足したい所を押して、［歩ける場所を作る］を押してください。'], ['一室を足す', '主人公が建物の中にいるとき、［地図］を押して、［となりに一室を足す］を押してください。'], ['本を足す', '［☰］の［作る］の［本を足す］を押して、主人公の名前などを入れてください。条件を満たすまで、本が読めないようにする場合は、［この本が出る条件］を押して、条件を入れてください。最後に、［この本を足す］を押してください。'], ['選択肢に、体力などの変化を付ける', '選択肢を足すときに、選択肢の文と「選んだら起きること」の文を入れると、「体力が1減る」のような案が、入れた文の下に表示されます。押した案が、選択肢に付きます。映像の中の主人公の動きは、入れた文から自動で決まります。どの言葉でどの案が表示されるかは、［☰］の［作る］の［自動提案］で変えられます。']] },
       { t:'ゲームを配る', text:room ? '配るのは、部屋の全員のゲームと同じ中身です。［☰］の［部屋］の［部屋の画面を開く］を押すと、部屋の画面が表示されます。' : '［☰］の［作る］の［配る］を押すと、配る画面が表示されます。', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで配る', (room ? '部屋の画面で［ファイルにして配る］' : '配る画面で［ファイルを作る］') + 'を押して、できたファイルを送ってください。受け取った人は、ファイルをブラウザで開くと遊べます。'],
@@ -5658,7 +5670,7 @@ function howPages(kind){
       { t:'AI に本文や選択肢を書かせる', text:'Claude Code、Codex、Antigravity など、GitHub のリポジトリを扱える AI なら、どれでも使えます。先に、AI と GitHub をつないでください。', list:[
         ['AI に直接頼む', 'AI で作業用のリポジトリを開いて、書いてほしいことを頼んでください。'],
         ['通信から頼む', '通信のメッセージを書く所の上の［AI に頼む］にチェックを入れて、頼みごとを送ってください。' + (room ? '' : '［AI に頼む］は、リポジトリを設定すると表示されます。') + 'AI で作業用のリポジトリを開いて「頼みごとに対応して」と送ると、AI が作業用のリポジトリを書き換えて、通信に返事を書きます。' + (room ? 'AI で作業用のリポジトリを開くのは、部屋を作った人です。' : '')],
-        ['AI が書き換えたものをゲームに入れる', '［☰］の［作る］の［更新］を押すと、AI が書き換えたものがゲームに入ります。'],
+        ['AI が書き換えたものをゲームに入れる', '［☰］の［作る］の［更新］を押すと、AI が書き換えたものがゲームに入ります。' + (room ? '' : '［更新］は、リポジトリを設定すると表示されます。')],
       ], after:room ? '※ Claude Code を使う場合は、次のリンクを貼って「準備して」と頼むと、Claude Code がリポジトリの設定を手伝います。' + guide : '' },
     ];
   }
@@ -5666,12 +5678,12 @@ function howPages(kind){
   const P = [
     { t:'どんなゲーム？', text:'州知事選挙の投票日を、' + n + '人の立場から読み進めるゲームブックです。舞台は、アメリカ中西部の架空の州ウィノアの州都グレンフォード。街では、ゾンビが人を襲っています。<br><br>主人公は、' + names + 'の' + n + '人です。1人に1冊の「本」があります。' + n + '冊は同じ一日の話で、' + (room ? 'ほかの人がしたことは、あなたの本にも残ります。たとえば、ほかの人がゾンビを倒すと、あなたの本にもそのゾンビは出てきません。' : 'ある本でしたことは、ほかの本にも残ります。たとえば、ある本でゾンビを倒すと、ほかの本にもそのゾンビは出てきません。') + '<br><br>一日の終わりに、選挙の開票結果が出ます。結果は、' + n + '人のしたことで変わります。' },
     room ? { t:'ゲームの始めかた', text:'［☰］の［部屋］の［部屋の画面を開く］を押して、進めたい本の［ロックする］を押してください。1冊をロックできるのは、1人です。ロックしていない本も、開くとこれまでの話を読めます。<br><br>' + reach }
-      : { t:'ゲームの始めかた', text:'タイトル画面で［はじめる］を押して、読む本を選んでください。本を選ぶと、ロックするかを聞かれます。', list:[['［ロックする］', '進んだ分は保存されます。'], ['［ロックしない］', '進んだ分は保存されません。']], after:'ロックできるのは、1人につき1冊です。別の本を進める場合は、画面の右上の［☰］を押して、［本］の［保存してロックを外す］を押してから、本を選んでください。<br>※［保存せずにロックを外す］を押すと、本が、ロックしたときの状態に戻ります。' },
-    { img:EMBED && !room ? 'how-play-0' : 'how-play-0-test', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる本の主人公、ロックの状態、時刻、体力、持ち物です。', B('☰') + '：メニューを表示します。', B('映像／地図') + '：監視カメラの映像と、街の地図を表示します。', B('主人公') + '：監視カメラに映っている主人公です。', ...(EMBED && !room ? [] : [B('通信') + (room ? '：部屋の人と話す画面を表示します。' : '：自分だけのメモを書く画面を表示します。' + (TEST_BUILD ? '' : 'いちばん下に書いて［送る］を押すと、メモが一覧に残ります。')) + (opinionOk() && !room ? '一覧のいちばん上の［' + authorWho() + 'へ］を押すと、' + authorWho() + 'に意見を送る画面が開きます。' : '') + (room ? '' : '部屋に入ると、部屋の人と話す画面になります。部屋は、「ゲームの進めかた」の「みんなで遊ぶ」で説明します。') + (TEST_BUILD && !room ? '通信の説明は、［☰］の［そのほか］の［作り方］にあります。' : '')])] },
+      : { t:'ゲームの始めかた', text:'タイトル画面で［はじめる］を押して、読む本を選んでください。本を選ぶと、ロックするかを聞かれます。', list:[['［ロックする］', '進んだ分は保存されます。'], ['［ロックしない］', '進んだ分は保存されません。']], after:'ロックできるのは、1人につき1冊です。別の本を進める場合は、画面の右上の［☰］を押して、［本］の［保存してロックを外す］を押してから、本を選んでください。<br>※［保存せずにロックを外す］を押すと、本が、ロックしたときの状態に戻ります。<br>※進んだ分が保存されているときは、タイトル画面に、［はじめる］の代わりに［つづきから］と［最初から］が表示されます。' },
+    { img:EMBED && !room ? 'how-play-0' : 'how-play-0-test', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる本の主人公、ロックの状態、時刻、体力、持ち物です。', B('☰') + '：メニューを表示します。', B('映像／地図') + '：監視カメラの映像と、地図を表示します。［地図］のボタンは、街の地図か、建物の中の地図がある場面にだけ表示されます。', B('主人公') + '：監視カメラに映っている主人公です。', ...(EMBED && !room ? [] : [B('通信') + (room ? '：部屋の人と話す画面を表示します。' : '：自分だけのメモを書く画面を表示します。' + (TEST_BUILD ? '' : 'いちばん下に書いて［送る］を押すと、メモが一覧に残ります。')) + (opinionOk() && !room ? '一覧のいちばん上の［' + authorWho() + 'へ］を押すと、' + authorWho() + 'に意見を送る画面が開きます。' : '') + (room ? '' : '部屋に入ると、部屋の人と話す画面になります。部屋は、「ゲームの進めかた」の「みんなで遊ぶ」で説明します。') + (TEST_BUILD && !room ? '通信の説明は、［☰］の［そのほか］の［作り方］にあります。' : '')])] },
     // メニュー：写真のタブの番号ごとに、中身を言う（［作る］は編集版だけ。部屋の中では、ロックは部屋の画面でする）
     { img:TEST_BUILD ? 'how-play-1-test' : EMBED ? 'how-play-1-file' : 'how-play-1', full:true, t:'メニュー', lead:'画面の右上の［☰］を押すと、メニューが表示されます。上のタブを押すと、中身が切り替わります。', legend:[
-      B('本') + '：読む本を選べます。［戻す］を押すと、選択肢を選ぶ前の場面に戻れます。' + (room ? '自分が選択肢を選んだあとに、ほかの人も選んでいると、戻れません。' : '［戻す］の下には、［保存してロックを外す］と［保存せずにロックを外す］があります。'),
-      ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の画面を開く］から、本をロックしたり、ロックを外したりできます。部屋を作った人は、部屋から人を外すこともできます。' : '：何人かで一緒に遊ぶための部屋を作ったり、招待された部屋に入ったりできます。部屋は、次のページの「みんなで遊ぶ」で説明します。')]),
+      B('本') + '：読む本を選べます。［戻す］を押すと、選択肢を選ぶ前の場面に戻れます。戻れるのは、選択肢を' + (room ? 10 : UNDO_MAX) + '回選ぶ前の場面までです。' + (room ? '自分が選択肢を選んだあとに、ほかの人も選んでいると、戻れません。' : '［戻す］の下には、［保存してロックを外す］と［保存せずにロックを外す］があります。'),
+      ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の画面を開く］から、本をロックしたり、ロックを外したりできます。部屋を作った人は、部屋から人を外すこともできます。［部屋を出る］を押すと、タイトル画面に戻ります。' : '：何人かで一緒に遊ぶための部屋を作ったり、招待された部屋に入ったりできます。部屋は、次のページの「みんなで遊ぶ」で説明します。')]),
       ...(TEST_BUILD ? [B('作る') + '：ゲームを書き換えるときに使います。説明は、［そのほか］の［作り方］にあります。'] : []),
       B('そのほか') + '：［遊び方］で、遊び方の説明を開きます。' + (TEST_BUILD ? '［作り方］で、ゲームの書き換え方の説明を開きます。' : '') + '［音］で、音を出すかどうかを切り替えます。' + (room ? '' : '［もらった版で遊ぶ］で、ほかの人が書き換えたゲームを読みこめます。［タイトルへ］で、タイトル画面に戻ります。［最初から］で、全部の本の進み具合を消して、朝からやり直します。')] },
     { t:'ゲームの進めかた', list:[
@@ -5730,7 +5742,7 @@ function frontHtml(){
     + '<div class="fr-top"><span class="no">' + (howKind === 'make' ? '作り方' : '遊び方') + '　' + (i + 1) + ' / ' + P.length + '</span><button data-frclose="1">× ' + closeLabel + '</button></div>'
     + '<div class="fr-page"><h3>' + gx(q.t) + '</h3>'
     + (q.lead ? '<p class="fr-text">' + gx(q.lead) + '</p>' : '')
-    + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg?v=' + encodeURIComponent(TEST_BUILD ? BUILD.slice(-7) : APP_VERSION) + '" alt="" onerror="this.remove()">' : '')
+    + (q.img ? '<img class="fr-shot' + (q.full ? ' full' : '') + '" src="' + siteRoot() + 'icons/' + q.img + '.jpg?v=' + encodeURIComponent(TEST_BUILD ? BUILD.slice(-7) : APP_VERSION) + '"' + (HOW_SIZE[q.img] ? ' width="' + HOW_SIZE[q.img][0] + '" height="' + HOW_SIZE[q.img][1] + '"' : '') + ' alt="" onerror="this.remove()">' : '')
     + (q.legend ? '<ol class="fr-legend">' + q.legend.map(t => '<li>' + gx(t) + '</li>').join('') + '</ol>' : '')
     + (q.text ? '<p class="fr-text">' + gx(q.text) + '</p>' : '')
     + (q.list ? '<dl>' + q.list.map(r => '<dt>' + gx(r[0]) + '</dt><dd>' + gx(r[1]) + '</dd>').join('') + '</dl>' : '')
@@ -6493,11 +6505,11 @@ function roomPanelHtml(){
     + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>メタゾンビが封印されるとき</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>直した文章が全員のゲームに入ったとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>直したとき</option></select></div>' : '')
     + (host && TEST_BUILD ? '<div class="step"><div class="n">配る</div><h3>採用したものを配る</h3>'
         + '<button class="go" id="roomExport">ファイルにして配る</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、そのファイルを開けば遊べます。</p>'
-        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と絵を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
+        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">リンクで配る</button><p style="margin-top:10px">採用した内容と画像を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
         + '<details class="scr-more"><summary>中身だけをファイルにする</summary><p>採用したもの（overlay.json）だけを書き出します。リポジトリに手で置くときに使います。</p><button class="sm" id="roomPackFile">中身をファイルにする</button></details></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
-      + '<div class="rowl"><span>' + (host ? '部屋を出る' : 'いつでも戻れます') + '<small>' + (host ? (roomLocal() ? 'あなたが出ているあいだ、進み具合は共有されません。部屋番号を入れると戻れます' : '部屋番号を入れると戻れます') : '招待リンクか部屋番号で、また入れます') + '</small></span><button class="sm" id="roomLeave">' + (host ? '出る' : '部屋を出る') + '</button></div>'
+      + '<div class="rowl"><span>部屋を出る<small>' + 'タイトル画面に戻ります。' + (host ? (roomLocal() ? 'あなたが出ているあいだ、進み具合は共有されません。' : '') + '部屋番号で、また部屋に入れます' : '招待リンクか部屋番号で、また部屋に入れます') + '</small></span><button class="sm" id="roomLeave">出る</button></div>'
       + (host ? '<div class="rowl"><span>' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '<small>閉じているあいだ、誰も本を進められません</small></span><button class="sm" id="roomToggle">' + (roomOpen ? '閉じる' : '開ける') + '</button></div>'
         + '<div class="rowl"><span>部屋を終わりにする<small>全員が入れなくなります' + (roomLocal() ? '' : '。記録は作業用のリポジトリに残ります') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終わりにする</button>') + '</div>' : '')
       + '</div>'
@@ -6690,7 +6702,7 @@ function render(){
     ['book', '本', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}"><span>${CHARS[id].name}の本</span>${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join('')
       + (mode === 'live' && undoCount() ? '<hr>' + mrow('undobtn', '戻す', '', undoOpen) : '')
       + (!room && w.lock ? '<hr><button id="saveBtn"><span>保存してロックを外す</span></button>' + (canDrop() ? '<button id="dropBtn"><span>保存せずにロックを外す</span></button>' : '') : '')],
-    ['room', '部屋', EMBED ? '' : mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel)],
+    ['room', '部屋', EMBED ? '' : mrow('roombtn', room ? '部屋の画面を開く' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel) + (room ? mrow('menuLeave', '部屋を出る', 'タイトル画面に戻ります') : '')],   // 部屋の中には［タイトルへ］がないので、戻り方をここに出す（ユーザー「部屋作ったあとタイトルへの戻り方がよく分からない」、2026-11-20）
     ['make', '作る', TEST_BUILD ? mrow('flowbtn', 'フロー', '', flowOpen) + mrow('bookbtn', '本を足す', '', bookPanel === true) + mrow('autobtn', '自動提案', '', bookPanel === 'auto') + mrow('chgbtn', '変えた所', chgList().length ? chgList().length + ' 件' : '', chgPanel)
       + (CUSTOM ? '' : mrow('mzbtn', 'メタゾンビ図鑑', mzOn() && mzItems().length ? mzItems().filter(mzLive).length + '体' : '', mzPanel))
       + (room || !CUSTOM && ghLinked() ? mrow('soloPullBtn', '更新', soloPullNote) : '')
@@ -6963,7 +6975,7 @@ function render(){
   const rn = document.getElementById('roomName');
   if(rn){ rn.value = store.get('fb-name', ''); rn.onchange = () => { const name = rn.value.trim().slice(0, 30); store.set('fb-name', name); for(const c of CHAR_IDS.filter(mine)) roomFetch(roomPath('own/' + c), { method:'PUT', body:JSON.stringify({ dev:DEV, name }) }).catch(() => {}); roomSig = ''; roomPull(); }; }
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
-  on('roomLeave', roomLeave);
+  on('roomLeave', roomLeave); on('menuLeave', roomLeave);
   on('roomDel', () => { roomDelAsk = true; render(); });
   // 部屋の人を外す・取り消す、トークンを入れ替える、外されたという知らせを閉じる
   document.querySelectorAll('[data-ban]').forEach(el => { el.onclick = () => { banAsk = el.dataset.ban; render(); }; });
@@ -7873,7 +7885,7 @@ function placeFormHtml(s){
     + '<div class="row fxrow"><label>ゾンビ<select id="plZ">' + [0, 1, 2, 3, 4, 5, 6].map(n => '<option value="' + n + '"' + (n === p.z ? ' selected' : '') + '>' + (n ? n + '人' : 'いない') + '</option>').join('') + '</select></label>'
     + '<label>映像<select id="plCam"><option value="">映像なし（カメラの外）</option><option value="same"' + (p.cam === 'same' ? ' selected' : '') + '>つながる場所と同じ映像</option></select></label></div>'
     + '<label style="margin:6px 0"><input type="checkbox" id="plHide"' + (p.hide ? ' checked' : '') + '>隠れられる（気づかれにくい）</label>'
-    + '<div class="row" style="margin:6px 0"><button id="plImg">' + (p.img ? '絵を付けました（選び直す）' : '映像の代わりに絵を1枚出す') + '</button>' + (p.img ? '<button id="plImgDrop">絵を外す</button>' : '') + '</div>'
+    + '<div class="row" style="margin:6px 0"><button id="plImg">' + (p.img ? '画像を付けました（選び直す）' : '映像の代わりに画像を1枚出す') + '</button>' + (p.img ? '<button id="plImgDrop">画像を外す</button>' : '') + '</div>'
     + '<div class="row"><button id="plSave">この場所を足す</button><button id="markNo">やめる</button></div>'
     + (fbNote ? '<div class="note">' + escText(fbNote) + '</div>' : '');
 }
@@ -7884,9 +7896,9 @@ function placeFormWire(box, s){
   $('plHide').onchange = () => { p.hide = $('plHide').checked; };
   on('plImgDrop', () => { p.img = null; render(); });
   on('plImg', () => {
-    if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
+    if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
     const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
-    f.onchange = () => shrinkImage(f.files[0], async d => { const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(!m) return; const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 })); if(r.status !== 200){ fbNote = '絵を、置けませんでした。'; render(); return; } assetCache[id] = d; p.img = id; fbNote = ''; render(); });
+    f.onchange = () => shrinkImage(f.files[0], async d => { const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(!m) return; const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 })); if(r.status !== 200){ fbNote = '画像を、置けませんでした。'; render(); return; } assetCache[id] = d; p.img = id; fbNote = ''; render(); });
     f.click();
   });
   on('plSave', () => {
@@ -8149,7 +8161,7 @@ async function adoptItem(k, on){
 }
 // 足した選択肢の「そのあと」と「主人公に起きること」を、言葉にする
 const toText = to => to === 'stay' ? 'この場面にとどまる' : to === 'off' ? 'カメラの外へ出る（まだ映像のない場所）' : String(to).startsWith('spot:') ? '「' + ((bookOf(loadPlayer(current)).spots[String(to).slice(5)] || {}).name || String(to).slice(5)) + '」へ移る' : '「' + to + '」と同じ先へ進む';
-const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.img ? (fx.img.as === 'text' ? '文の下に、絵を出す' : '監視カメラの映像として、絵を出す') : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose', 'once', 'flag'].map(k => fx && fx[k] && fx[k].length ? (k === 'flag' ? '街に' : '') + fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす', once:'を手に入れる（街に' + onceN(fx) + 'つ' + (onceN(fx) > 1 ? '。1人1つ' : 'だけ') + '）', flag:'の印を残す' }[k] : ''), ].filter(Boolean).join('、');
+const fxText = fx => [fx && fx.hp ? '体力' + (fx.hp > 0 ? '+' : '') + fx.hp : '', fx && fx.inf === 'on' ? '感染する' : fx && fx.inf === 'off' ? '感染が消える' : '', fx && fx.min ? fx.min + '分たつ' : '', fx && fx.img ? (fx.img.as === 'text' ? '文の下に、画像を出す' : '監視カメラの映像として、画像を出す') : '', fx && fx.hide ? '隠し選択肢（番号 ' + fx.hide + ' を、' + (fx.any ? 'どの場面で打ちこんでも' : 'この場面で打ちこむと') + '選べる）' : '', ...['get', 'lose', 'once', 'flag'].map(k => fx && fx[k] && fx[k].length ? (k === 'flag' ? '街に' : '') + fx[k].map(n => '「' + n + '」').join('と') + { get:'を手に入れる', lose:'をなくす', once:'を手に入れる（街に' + onceN(fx) + 'つ' + (onceN(fx) > 1 ? '。1人1つ' : 'だけ') + '）', flag:'の印を残す' }[k] : ''), ].filter(Boolean).join('、');
 // ===== 演出：足した選択肢の文と、その先の文から、映像の動きを決める。手で選び直したものがあれば、そちらを使う =====
 const STAGE_NAMES = {
   gait:{ walk:'歩く', run:'走る', sneak:'忍び足' },
@@ -9653,7 +9665,7 @@ function decorateForEdit(mode){
     if(pk === 'text' && TEST_BUILD){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
       const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
-      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。選択肢を足すときは、下の「＋ 選択肢を足す」を押してください。' : ''; render(); };
+      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。選択肢を足すときは、［＋ 選択肢を足す］を押してください。' : ''; render(); };
       const mz = mzTagEl(v.char, v.para); // この場面に立っているメタゾンビの札（左）
       if(mz){ wrap.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px'; wrap.appendChild(mz); }
       wrap.appendChild(t); el.after(wrap);
@@ -9714,7 +9726,7 @@ function decorateForEdit(mode){
       + '<details' + (fbe.fx && (fbe.fx.hp || fbe.fx.inf || fbe.fx.min) ? ' open' : '') + ' style="margin:0 0 8px"><summary>体力・感染・時間</summary><div class="row fxrow"><label>体力<select data-fx="hp">' + [[0, '変えない'], [1, '+1（回復）'], [2, '+2'], [-1, '−1（傷を負う）'], [-2, '−2']].map(([n, t]) => '<option value="' + n + '">' + t + '</option>').join('') + '</select></label>'
       + '<label>感染<select data-fx="inf"><option value="">変えない</option><option value="on">感染する</option><option value="off">感染が消える</option></select></label>'
       + '<label>時間<select data-fx="min">' + [...new Set([0, 5, 10, 30, 60, 120, +(fbe.fx && fbe.fx.min) || 0])].sort((x, y) => x - y).map(n => '<option value="' + n + '">' + (n ? n + '分たつ' : '変えない') + '</option>').join('') + '</select></label></div></details>'
-      + '<div class="row" style="margin:0 0 8px"><button data-k="img">' + (fbe.fx && fbe.fx.img ? '絵を付けました（選び直す）' : '絵を付ける') + '</button>' + (fbe.fx && fbe.fx.img ? '<select data-imgas style="width:auto;flex:1;margin:0"><option value="cam">監視カメラの映像として出す</option><option value="text">文の下に出す</option></select><button data-k="imgdrop">絵を外す</button>' : '') + '</div>'
+      + '<div class="row" style="margin:0 0 8px"><button data-k="img">' + (fbe.fx && fbe.fx.img ? '画像を付けました（選び直す）' : '画像を付ける') + '</button>' + (fbe.fx && fbe.fx.img ? '<select data-imgas style="width:auto;flex:1;margin:0"><option value="cam">監視カメラの映像として出す</option><option value="text">文の下に出す</option></select><button data-k="imgdrop">画像を外す</button>' : '') + '</div>'
       + '<details' + (fbe.fx && fbe.fx.hide ? ' open' : '') + ' style="margin:0 0 8px"><summary>隠し選択肢（番号を打ちこんだ人だけが選べる）</summary><input data-hide inputmode="numeric" maxlength="4" placeholder="番号">'
       + '<select data-any><option value="">番号は、この場面でだけ使える</option><option value="1">番号は、どの場面でも使える（使える時や場所は、下の「選べる条件」で絞る）</option></select></details>'
       + '<details style="margin:0 0 8px"><summary>演出（文から自動で決まる。違っていたら、選び直す）</summary><div class="row fxrow">'
@@ -9756,14 +9768,14 @@ function decorateForEdit(mode){
     e.querySelectorAll('[data-hide]').forEach(q => { q.value = fbe.fx.hide || ''; q.oninput = () => { const n = q.value.replace(/\D/g, '').slice(0, 4); if(n) fbe.fx.hide = n; else delete fbe.fx.hide; }; });
     e.querySelectorAll('[data-imgas]').forEach(q => { q.value = fbe.fx.img.as || 'cam'; q.onchange = () => { fbe.fx.img = { ...fbe.fx.img, as:q.value }; }; });
     return wire(e, { save:() => fbeSave(), drop:() => fbeSave('drop'), cancel, imgdrop:() => { delete fbe.fx.img; render(); }, img:() => {
-      if(!ghLinked()){ fbNote = '絵を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。絵はそのリポジトリに入ります。'; render(); return; }
+      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
       const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
       f.onchange = () => shrinkImage(f.files[0], async d => {
         const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
         if(!m) return;
-        fbNote = '絵を、リポジトリに置いています…'; render();
+        fbNote = '画像を、リポジトリに置いています…'; render();
         const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 }));
-        if(r.status !== 200){ fbNote = '絵を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
+        if(r.status !== 200){ fbNote = '画像を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
         assetCache[id] = d; fbe.fx.img = { id, as:(fbe.fx.img && fbe.fx.img.as) || 'cam' }; fbNote = ''; render();
       });
       f.click();
