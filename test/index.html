@@ -604,7 +604,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-21 11:03 457493f';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-21 13:23 1608948';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -7877,6 +7877,8 @@ function askLock(){
   box.querySelector('#laYes').onclick = () => { close(); if(current === c) takeLock(); };
   box.querySelector('#laNo').onclick = close; box.querySelector('.la-shade').onclick = close;
 }
+// 1人のとき：保存してロックを外し、待っている相手の本を開いて、ロックする（先へ進めない画面のボタン。前は、［保存してロックを外す］→［☰］→［本］→ 本を選ぶ →［ロックする］と押した。遊んだ側からの報告、2026-11-21）
+function hopBook(c){ if(room || !CHARS[c] || !openIds().includes(c)) return; releaseLock(); if(loadWorld().lock) return; selectedBlock = null; histIndex = null; current = c; store.set('current', current); takeLock(); window.scrollTo(0, 0); }
 function releaseLock(){ trialEnd(); const w = loadWorld(); if(room || w.lock !== me) return; store.remove('lockbase-' + me); w.lock = null; store.set('world', w); store.remove('undo'); undoOpen = false; render(); }
 
 // ===== 部屋（各自の端末で、同じ一日を進める）。進み具合は、ホストの端末に預ける =====
@@ -8538,7 +8540,7 @@ function howPages(kind){
       ['封印する', 'メタゾンビは、場面の文章が直ると封印されて、いなくなります。メタゾンビのスレッドで［✎ 直す］を押して、場面の文章を直してください。' + (guest ? 'いつ封印されるかは、部屋を作った人が決めています。' : room ? '初めは、直した文章が全員のゲームに入ると、メタゾンビは封印されます。場面の文章を直したらすぐにメタゾンビを封印するには、部屋の画面の［メタゾンビが封印されるとき］で［直したとき］を選んでください。' : '') + '直す所がなければ、スレッドの［異常なし］を押してください。封印したメタゾンビは、通信の一覧の［封印済み］に並びます。'],
       ['呼び出す', '本文を長押しすると、メタゾンビを1体呼び出せます。パソコンでは、本文を右クリックします。通信のメッセージを長押しして、［メタゾンビにする］を押しても、呼び出せます。'],
       ['種類', '点検で引っかかった所に置かれるメタゾンビの種類は、言い回し・抜け・くり返しです。言い回しは「〜だけで」などが残っている所、抜けは「何が」「何を」が抜けている所、くり返しは同じ言い回しで終わる文が続いている所です。点検でメタゾンビが1体も置かれなかった建物やエリアにも、1体置きます。建物は州立グレンフォード病院など、エリアはノースエンドなどのことです。この1体の種類は、正体不明です。'],
-      ['強くなる', 'メタゾンビの強さは、1から5までです。メタゾンビは、置いてからの日数と、メタゾンビに出会った人の数で、強くなります。メタゾンビのいる場面に来ると、メタゾンビに出会ったことになります。出会うと、メタゾンビのスレッドに、あなたが場面に来たことが表示されます。強さが3になると、メタゾンビが通信に書きこんできます。'
+      ['強くなる', 'メタゾンビの強さは、1から5までです。メタゾンビは、日数と、メタゾンビに出会った人の数で、強くなります。メタゾンビのいる場面に来ると、メタゾンビに出会ったことになります。点検が置いたメタゾンビの日数は、誰かが最初に出会った時から数えます。呼び出したメタゾンビの日数は、呼び出した時から数えます。出会うと、メタゾンビのスレッドに、あなたが場面に来たことが表示されます。強さが3になると、メタゾンビが通信に書きこんできます。'
         + (room && !guest ? '呪いの濃さは、強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。書き換えたものの入れ方を［部屋を作った人が採用する］にしていても、呪いの濃さが40以上になると、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。' : '')
         + '全部の本で、強さ5のメタゾンビが10体になると、部屋の人が、あなたを入れて2人要ります。20体になると、3人要ります。人が足りないと、強さ5のメタゾンビのいる場面から先へ、進めません。' + (guest ? '部屋の画面の［招待リンクをコピーする］で、人を招待してください。強さ5のメタゾンビを封印しても、進めます。' : room ? '部屋に人を招待するか、強さ5のメタゾンビを封印すると、進めます。' : '［☰］の［部屋］で部屋を作って人を招待するか、強さ5のメタゾンビを封印すると、進めます。')],
       ['地図で探す', '地図では、メタゾンビのいる建物やエリアに、血の汚れが付きます。建物の中の地図では、汚れが付くのは、メタゾンビのいる部屋です。地図の下には、主人公のいる建物やエリアのメタゾンビの数と、場面の番号が表示されます。場面の番号は、出会ったメタゾンビと、自分で呼び出したメタゾンビの分です。スレッドの［地図で場所を見る］を押すと、地図に、金色の点線の輪が付きます。輪が付くのは、スレッドのメタゾンビのいる場所です。'],
@@ -9703,7 +9705,7 @@ function render(){
     if(showMap && planOf(s)) html += planMapSvg(s, planOf(s).plan);
     if(showMap) html += mode === 'live' && !hold ? mapSvg(s, mapMoves(s, w), mapTap(s)) : mapSvg(s, [], null);
     const wait = s.status === 'active' ? behind(s) : [];
-    if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
+    if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' + wait.filter(o => openIds().includes(o.char)).map(o => '<button data-hop="' + o.char + '">保存して、' + CHARS[o.char].name + 'の本へ移る</button>').join('') : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
     // 人手が足りない：強いメタゾンビのいる場面から先へ進めない（編集版。部屋に人を招待するか、封印すれば進める）
     const gate = mode === 'live' && !resOn ? mzGate(s.char, s.para) : 0;
     if(mode === 'live') html += mzQuestHtml(s);
@@ -9777,6 +9779,7 @@ function render(){
   on('lockBtn', takeLock);
   on('saveBtn', () => { menuOpen = false; releaseLock(); });
   on('endSave', releaseLock);
+  document.querySelectorAll('[data-hop]').forEach(el => { el.onclick = () => hopBook(el.dataset.hop); });
   on('dropBtn', dropLock);
   on('trialBack', () => { trialEnd(); undoOpen = false; render(); window.scrollTo(0, 0); });
   on('roomDrop', dropLock);
@@ -11972,14 +11975,21 @@ const mzErrText = e => e === 401 ? 'トークンが使えなくなっていま�
   : e === 403 || e === 404 ? 'トークンに、Issues を読み書きする権限がありません。' + (room && !isHost() ? '部屋を作った人に、権限を足してもらってください。' : '権限を足してください。')
   : 'GitHub につながりません。';
 // ===== 強さ：放っておいた日数＋出会った人の数×2＋［戻す］の回数。段階は 1〜5 =====
+// 日数を数え始める時（`mzFrom`）：自動で置いた分（点検 lint・くじ lot・同じ言い回し roll）は、部屋の誰かが、その場面に最初に来た時。誰も来ていなければ、0日。人が呼び出した分・報告は、置いた時（呼び出した人が、もう見ている）
+// 前は、どれも置いた時から数えた。最初の112体は同じ日に置かれるので、誰も読んでいない場面のメタゾンビも、時間だけで一斉に強くなった（ユーザー「基準低くない？」、2026-11-21）
 const mzDays = at => Math.max(0, Math.floor((Date.now() - at) / 864e5));
 const MZ_STEPS = [0, 3, 7, 14, 30];
 const mzLvOf = score => MZ_STEPS.filter(x => score >= x).length;
 function mzStat(n){
-  if(room) { const s = roomMz[n] || {}; return { met:+s.met || 0, back:+s.back || 0 }; }
-  const s = (store.get('mz-stat', {}) || {})[n] || {}; return { met:s.m ? 1 : 0, back:+s.b || 0 };
+  if(room) { const s = roomMz[n] || {}; return { met:+s.met || 0, back:+s.back || 0, first:+s.first || 0 }; }
+  const s = (store.get('mz-stat', {}) || {})[n] || {}; return { met:s.m ? 1 : 0, back:+s.b || 0, first:mzMetAt(s.m) };
 }
-const mzLevel = z => { const s = mzStat(z.n); return mzLvOf(mzDays(z.at) + s.met * 2 + s.back); };
+const mzMetAt = m => (+m > 1e11 ? +m : 0); // 出会った時刻（時刻でない印だけのときは、0）
+const mzAuto = z => z.o === 'lint' || z.o === 'lot' || z.o === 'roll';
+const mzFrom = (z, s) => { s = s || mzStat(z.n); return !mzAuto(z) ? z.at : !s.met ? 0 : Math.max(z.at, s.first || 0); }; // 0：まだ誰も来ていない
+const mzAge = (z, s) => { const t = mzFrom(z, s || mzStat(z.n)); return t ? mzDays(t) : 0; };
+const mzAgeText = (z, s) => (!mzAuto(z) ? '置いてから ' + mzAge(z, s) + ' 日' : mzFrom(z, s) ? '見つけてから ' + mzAge(z, s) + ' 日' : 'まだ誰も来ていない');
+const mzLevel = z => { const s = mzStat(z.n); return mzLvOf(mzAge(z, s) + s.met * 2 + s.back); };
 const MZ_CURSE_LV = 3; // 呪いの濃さに足すのは、強さ3以上のメタゾンビだけ（置いた直後から濃くならないように）
 const mzCurse = () => mzItems().filter(mzLive).map(mzLevel).filter(lv => lv >= MZ_CURSE_LV).reduce((a, lv) => a + lv, 0); // 呪いの濃さ
 // 出会った・［戻す］を押した：部屋では自分の分のファイル（m/<端末>.json の mz）に書き、全員の分を数える。1人のときは、この端末だけ
@@ -11987,13 +11997,13 @@ function mzStatAdd(z, met, back){
   if(room){
     const o = (myFile.mz = myFile.mz && typeof myFile.mz === 'object' ? myFile.mz : {}), e = (o[z.n] = o[z.n] && typeof o[z.n] === 'object' ? o[z.n] : {});
     if(met && !e.m) e.m = Date.now(); if(back) e.b = (+e.b || 0) + 1; myTouch('soft');
-    const r = (roomMz[z.n] = roomMz[z.n] || { met:0, back:0 }); if(met) r.met = Math.max(r.met, 1); if(back) r.back++;
+    const r = (roomMz[z.n] = roomMz[z.n] || { met:0, back:0 }); if(met){ r.met = Math.max(r.met, 1); r.first = r.first || e.m; } if(back) r.back++;
   } else { const s = store.get('mz-stat', {}) || {}, e = (s[z.n] = s[z.n] || {}); if(met) e.m = e.m || Date.now(); if(back) e.b = (+e.b || 0) + 1; store.set('mz-stat', s); }
 }
 // 部屋の全員の分を数える（repoDoc から）
 function mzRoomCount(mem){
   const out = {};
-  for(const f of Object.values(mem)) for(const [n, e] of Object.entries(f && f.mz && typeof f.mz === 'object' ? f.mz : {})) if(/^\d{1,7}$/.test(n) && e && typeof e === 'object'){ const r = (out[n] = out[n] || { met:0, back:0 }); if(e.m) r.met++; r.back += Math.max(0, Math.min(999, +e.b || 0)); }
+  for(const f of Object.values(mem)) for(const [n, e] of Object.entries(f && f.mz && typeof f.mz === 'object' ? f.mz : {})) if(/^\d{1,7}$/.test(n) && e && typeof e === 'object'){ const r = (out[n] = out[n] || { met:0, back:0, first:0 }); if(e.m){ r.met++; const t = mzMetAt(e.m); if(t && (!r.first || t < r.first)) r.first = t; } r.back += Math.max(0, Math.min(999, +e.b || 0)); }
   return out;
 }
 // ［戻す］：戻す前にいた場面のメタゾンビの［戻す］の回数を、1つ増やす
@@ -12547,7 +12557,7 @@ function mzThreadHtml(k){
   const aiOn = z.labels.includes(MZ_AI), aiDone = aiOn && mzAiDone(z), act = !live || mzCanAct(z); // act：直す・AI に頼む・異常なし・場面へ行く、を出してよい
   let day = ''; const dayLine = t => { if(!t) return ''; const d = new Date(t).toDateString(); if(d === day) return ''; day = d; return '<div class="cm-day">' + cmDay(t) + '</div>'; };
   let h = dayLine(z.at) + line(0) + '<div class="cm-card mz-card" data-mid="' + k + '" data-mi="0"><div class="h">' + (mzW(z) ? 'メタゾンビ #' : '届いた報告 #') + z.n + '　' + esc(mzSpotLabel(z)) + '</div>'
-    + '<div class="d" data-msg="' + k + '"><div>' + (mzW(z) ? '種類：' + z.kind + '　' : '') + '強さ：' + lv + '　置いてから ' + mzDays(z.at) + ' 日・出会った人 ' + st.met + ' 人</div>'
+    + '<div class="d" data-msg="' + k + '"><div>' + (mzW(z) ? '種類：' + z.kind + '　' : '') + '強さ：' + lv + '　' + mzAgeText(z, st) + '・出会った人 ' + st.met + ' 人</div>'
     + (z.s ? '<div class="cm-q">' + esc(z.s) + '</div>' : '') + (z.roll ? '<div>メタゾンビ #' + z.roll.n + ' と同じ言い回し「' + esc(z.roll.g) + '」が、残っています。メタゾンビ #' + z.roll.n + ' の直しです。</div><div class="cm-q">' + esc(z.roll.a) + '</div><div class="cm-q mz-after">' + esc(z.roll.b) + '</div>' : '') + (who.length ? '<div>担当：' + esc(who.join('、')) + '</div>' : '') + (open && z.labels.includes(MZ_WAIT) ? '<div>直した文章が全員のゲームに入ると、メタゾンビは封印されます。</div>' : '') + (open && aiOn ? '<div>' + (mzWalk() ? 'メタゾンビを捕まえました。' : 'AI に頼みました。') + (aiDone ? 'AI が直した文章を読んで、よければ［承認して封印］を押してください。' : 'AI は、まだ文章を直していません。') + '</div>' : '') + (!mzW(z) && !live && open ? '<div>配った版で遊んだ人から、報告が届きました。［受ける］を押すと、報告がメタゾンビになって、次に配る版にも出ます。</div>' : '') + '</div>'
     + (!open ? '<div class="done mz-sealed"><i class="mz-stamp">封</i>' + (z.reason === 'not_planned' ? '異常なしにして、メタゾンビを封印しました。' : '場面の文章を直して、メタゾンビを封印しました。') + '</div>'
       : mzAsk === 'ok:' + k ? '<div class="cm-acts"><button class="go" data-mzokyes="' + k + '">異常なしにする</button><button data-mzno="1">やめる</button></div>'
@@ -12644,7 +12654,7 @@ function mzPanelHtml(){
   if(!all.length && !mzSeeding) h += '<p>' + esc(nm) + 'の本には、いまメタゾンビがいません。' + (mzCan() ? '' : '部屋を作った人がゲームを開くと、メタゾンビが置かれます。') + '</p>';
   const pic = (z, sealed) => { const id = z.n + (sealed ? '-s' : ''); if(mzW(z) && !(id in mzPhoto)) setTimeout(() => mzPhotoLoad(id), 0); const u = mzPhoto[id] || (sealed ? mzPhoto[z.n] : ''); return '<span class="mz-pic' + (u ? '' : ' none') + '">' + (u ? '<img src="' + u + '" alt="">' : '') + (sealed ? '<i class="mz-stamp">封</i>' : '') + '</span>'; };
   const card = (z, sealed) => '<button class="step mz mz-row" data-mzthread="' + mzKey(z) + '">' + pic(z, sealed) + '<span class="mz-tx"><span class="n">' + (mzW(z) ? 'メタゾンビ #' : '報告 #') + z.n + '　' + esc(mzSpotLabel(z).replace(/^[^　]*の本　/, '')) + '</span><b>' + esc(z.title) + '</b>'
-    + (sealed ? '<small>' + (z.reason === 'not_planned' ? '異常なし' : '直した') + '</small>' : '<small>強さ ' + mzLevel(z) + '　置いてから ' + mzDays(z.at) + ' 日　出会った人 ' + mzStat(z.n).met + ' 人' + (z.labels.some(l => l.startsWith(MZ_WHO)) ? '　担当：' + esc(z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)).join('、')) : '') + '</small>') + '</span></button>';
+    + (sealed ? '<small>' + (z.reason === 'not_planned' ? '異常なし' : '直した') + '</small>' : '<small>強さ ' + mzLevel(z) + '　' + mzAgeText(z) + '　出会った人 ' + mzStat(z.n).met + ' 人' + (z.labels.some(l => l.startsWith(MZ_WHO)) ? '　担当：' + esc(z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)).join('、')) : '') + '</small>') + '</span></button>';
   h += open.map(z => card(z, false)).join('');
   if(rep.length) h += '<p style="margin-top:18px"><b>配った版から届いた報告</b></p>' + rep.map(z => card(z, false)).join('');
   if(shut.length) h += '<p style="margin-top:18px"><b>封印したメタゾンビ</b></p>' + shut.map(z => card(z, true)).join('');
@@ -12890,7 +12900,7 @@ function mzPubLevelHere(){
 async function mzPubList(){
   if(!mzOn() || store.get('mz-pub', true) === false) return null;
   try { await mzLoad(true); } catch(e){}
-  return mzItems().filter(mzLive).map(z => { const s = mzStat(z.n); return { n:z.n, t:z.title.slice(0, 60), b:z.book, p:z.para, k:z.kind, s:String(z.s || '').slice(0, 200), at:z.at, m:s.met, bk:s.back, pl:z.place }; });
+  return mzItems().filter(mzLive).map(z => { const s = mzStat(z.n); return { n:z.n, t:z.title.slice(0, 60), b:z.book, p:z.para, k:z.kind, s:String(z.s || '').slice(0, 200), at:mzFrom(z, s) || Date.now(), m:s.met, bk:s.back, pl:z.place }; });
 }
 const mzPubCheckHtml = () => (mzOn() ? '<label class="cm-ai" style="margin-top:8px"><input type="checkbox" id="mzPubOn"' + (store.get('mz-pub', true) !== false ? ' checked' : '') + '>配った版にメタゾンビを出す</label>' : '');
 // 配る用のリポジトリに、報告の書式（Issue Forms）と、ラベル「メタゾンビ」を置く
