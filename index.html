@@ -602,7 +602,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.51';
+const APP_VERSION = 'v0.3.52';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -5675,7 +5675,7 @@ function howPages(kind){
     ], after:'※ 封印したあとに、場面の文章が、人が直さないまま変わると、メタゾンビは戻ってきます。たとえば、AI が文章を書き換えたときです。', btn:['howMzBtn', 'メタゾンビ図鑑を開く'] };
     // メタゾンビを直すときに使うもの（前は、上のページに全部入っていて、スマホで縦に長すぎた。遊んだ側からの報告、2026-11-21）
     const mzHow2 = { t:'メタゾンビを減らす', text:'メタゾンビを減らすときに使う、ボタンと画面です。', list:[
-      ...(room ? [['担当', 'スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドと、通信の一覧と、メタゾンビ図鑑に表示されます。地図には、自分が担当しているメタゾンビのいる場所に、金色の輪が付きます。部屋の画面で、自分の呼び名を入れられます。強さ3以上で担当のいないメタゾンビには、部屋の人が、担当に自動で指名されます。指名されるのは、受け持ちの少ない人です。7日のあいだ部屋に来ていない人は、指名されません。1人が指名されるのは、1日に3体までです。指名された人は、スレッドの［担当をやめる］を押すと、担当をやめられます。']] : []), ['AI に頼む', 'スレッドの［AI に頼む］を押すと、場面の文章を直す頼みごとが、AI に届きます。AI が文章を直したあとに、文章を読んで［承認して封印］を押すと、メタゾンビは封印されます。AI の返事が来たあとは、［AI にもう一度頼む］を押して、頼み直せます。'], ['対策本部', '［☰］の［作る］の［対策本部］を押すと、メタゾンビの数の表が表示されます。表には、本ごと、種類ごと、生まれ方ごとの数が並びます。部屋では、担当ごとの数も並びます。数字を押すと、数えたメタゾンビだけが、通信の一覧に並びます。'], ['同じ言い回しを調べる', '場面の文章を直して、メタゾンビを封印すると、消した言い回しがほかの場面に残っていないかを、ゲームが調べます。残っていた場面には、メタゾンビが置かれます。1回の直しで置かれるのは、5体までです。置かれたメタゾンビのスレッドには、先に封印したメタゾンビの直しが表示されます。ある言い回しのメタゾンビが、［異常なし］で2回封印されると、点検は、その言い回しにメタゾンビを置かなくなります。'], ['直し方を選ぶ', 'メタゾンビの直し方を、スレッドかメタゾンビ図鑑で、2つから選べます。［すぐ直す］を選ぶと、スレッドの［この場面へ行く］［✎ 直す］［AI に頼む］［異常なし］が、いつでも押せます。［場面へ行って直す］を選ぶと、主人公がメタゾンビのいる場面にいるあいだだけ、本文の上に［✎ 直す］［捕まえる］が表示されます。映像のメタゾンビは、種類ごとに姿が変わり、強いものほど近くに立ちます。スレッドの［✎ 直す］［捕まえる］［異常なし］が押せるのも、主人公がメタゾンビのいる場面にいるあいだです。［捕まえる］を押すと、AI に、文章を直すように頼みます。スレッドの［承認して封印］は、AI が文章を直したあとなら、主人公がどの場面にいても押せます。本をもう進められないときは、［場面へ行って直す］を選んでいても、スレッドの［この場面へ行く］［✎ 直す］［捕まえる］が押せます。'], ['絞りこむ', '通信の一覧の［絞りこみ］を押すと、本、場所、メタゾンビの強さなどで、スレッドを絞りこめます。スレッドの並ぶ順を、新しく動いた順、強い順、古い順、本と場面の順から選べます。選んだ絞りこみは、［名前を付けて保存する］を押すと、保存できます。'],
+      ...(room ? [['担当', 'スレッドの［担当になる］を押すと、メタゾンビの担当になれます。担当の人の呼び名は、スレッドと、通信の一覧と、メタゾンビ図鑑に表示されます。地図には、自分が担当しているメタゾンビのいる場所に、金色の輪が付きます。部屋の画面で、自分の呼び名を入れられます。強さ4以上で担当のいないメタゾンビには、部屋の人が、担当に自動で指名されます。指名されるのは、受け持ちの少ない人です。7日のあいだ部屋に来ていない人は、指名されません。1人が指名されるのは、1日に3体までです。指名された人は、スレッドの［担当をやめる］を押すと、担当をやめられます。']] : []), ['AI に頼む', 'スレッドの［AI に頼む］を押すと、場面の文章を直す頼みごとが、AI に届きます。AI が文章を直したあとに、文章を読んで［承認して封印］を押すと、メタゾンビは封印されます。AI の返事が来たあとは、［AI にもう一度頼む］を押して、頼み直せます。強さ5で、まだ AI に頼んでいないメタゾンビには、AI への頼みごとが自動で付きます。自動で付くのは、1日に3体までです。'], ['対策本部', '［☰］の［作る］の［対策本部］を押すと、メタゾンビの数の表が表示されます。表には、本ごと、種類ごと、生まれ方ごとの数が並びます。部屋では、担当ごとの数も並びます。数字を押すと、数えたメタゾンビだけが、通信の一覧に並びます。'], ['同じ言い回しを調べる', '場面の文章を直して、メタゾンビを封印すると、消した言い回しがほかの場面に残っていないかを、ゲームが調べます。残っていた場面には、メタゾンビが置かれます。1回の直しで置かれるのは、5体までです。置かれたメタゾンビのスレッドには、先に封印したメタゾンビの直しが表示されます。ある言い回しのメタゾンビが、［異常なし］で2回封印されると、点検は、その言い回しにメタゾンビを置かなくなります。'], ['直し方を選ぶ', 'メタゾンビの直し方を、スレッドかメタゾンビ図鑑で、2つから選べます。［すぐ直す］を選ぶと、スレッドの［この場面へ行く］［✎ 直す］［AI に頼む］［異常なし］が、いつでも押せます。［場面へ行って直す］を選ぶと、主人公がメタゾンビのいる場面にいるあいだだけ、本文の上に［✎ 直す］［捕まえる］が表示されます。映像のメタゾンビは、種類ごとに姿が変わり、強いものほど近くに立ちます。スレッドの［✎ 直す］［捕まえる］［異常なし］が押せるのも、主人公がメタゾンビのいる場面にいるあいだです。［捕まえる］を押すと、AI に、文章を直すように頼みます。スレッドの［承認して封印］は、AI が文章を直したあとなら、主人公がどの場面にいても押せます。本をもう進められないときは、［場面へ行って直す］を選んでいても、スレッドの［この場面へ行く］［✎ 直す］［捕まえる］が押せます。'], ['絞りこむ', '通信の一覧の［絞りこみ］を押すと、本、場所、メタゾンビの強さなどで、スレッドを絞りこめます。スレッドの並ぶ順を、新しく動いた順、強い順、古い順、本と場面の順から選べます。選んだ絞りこみは、［名前を付けて保存する］を押すと、保存できます。'],
     ] };
     if(guest) return [
       { t:'一緒に作る', text:'部屋では、ゲームを遊びながら、本文や選択肢を書き換えられます。書き換えたものは、部屋の全員に見えます。書き換えたものがいつ全員のゲームに入るかは、部屋を作った人が決めています。' },
@@ -9220,6 +9220,7 @@ async function mzWork(){
     await mzRevive();
     await mzIntrude();
     await mzPick();
+    await mzAutoAi();
   } catch(e){ mzSeeding = null; mzErrCode = typeof e === 'number' ? e : -1; mzFailAt = Date.now(); render(); }
   mzWorking = false;
 }
@@ -9245,9 +9246,10 @@ async function mzIntrude(){
     await mzSleep(MZ_GAP);
   }
 }
-// 呪いが増えたら、担当が自動で付く（部屋だけ）：呪いの濃さに数えるメタゾンビ（強さ3以上）で、担当のいないものに、部屋の人を担当として付ける。1体につき1回だけ（指名された人が［担当をやめる］を押したら、付け直さない）
+// 呪いが増えたら、担当が自動で付く（部屋だけ）：強さ4以上（`MZ_PICK_LV`。初めは強さ3以上だった。置いて7日で必ず届くので、罰にならなかった。ユーザー「基準低くない？」、2026-11-21）のメタゾンビで、担当のいないものに、部屋の人を担当として付ける。1体につき1回だけ（指名された人が［担当をやめる］を押したら、付け直さない）
 // だれにするかは、くじではなく、偏らないように決める。手本は、GitHub のチームのレビューの割りふりの「Load balance」：この30日に受け持った数と、いま抱えている数の少ない人を選ぶ。しばらく来ていない人は選ばない（手本の「Busy の人は選ばない」に当たる。ここでは、7日）
 // 同じ数のとき（手本には決まりが書かれていない）：その本をロックしている人 → 呼び名とメタゾンビの番号から決まる順（毎回同じ）
+const MZ_PICK_LV = 4; // 担当を自動で指名する強さ（14点。誰も触らなければ、置いてから2週間）
 const MZ_PICK_MAX = 5; // 1回の見回りで付ける数（GitHub への書きこみと、呼びかけが、1度に重ならないように）
 const MZ_PICK_DAY = 3; // 1人が、1日に指名される数の上限（たまっている部屋で、知らせが一度に何十件も出ないように。手本にはない決まり）。数えるのは、指名をする端末（部屋を作った人の端末）。日付が変わると、また指名する
 const mzPickDay = () => { const d = new Date(), day = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(), l = store.get('mz-pick-log', null); return l && l.day === day && l.n && typeof l.n === 'object' ? l : { day, n:{} }; };
@@ -9259,7 +9261,7 @@ function mzPickWho(z, load, today){
 const mzPickLoad = () => { const now = Date.now(), load = {}; for(const z of mzItems()) if(z.state === 'open' || now - (z.closedAt || 0) < 30 * 864e5) for(const l of z.labels) if(l.startsWith(MZ_WHO)){ const n = l.slice(MZ_WHO.length); load[n] = (load[n] || 0) + 1; } return load; };
 async function mzPick(){
   if(!room) return;
-  const todo = mzItems().filter(z => mzLive(z) && mzW(z) && mzLevel(z) >= MZ_CURSE_LV && !z.labels.includes(MZ_PICK) && !z.labels.some(l => l.startsWith(MZ_WHO))).sort((a, b) => mzLevel(b) - mzLevel(a) || a.n - b.n).slice(0, MZ_PICK_MAX);
+  const todo = mzItems().filter(z => mzLive(z) && mzW(z) && mzLevel(z) >= MZ_PICK_LV && !z.labels.includes(MZ_PICK) && !z.labels.some(l => l.startsWith(MZ_WHO))).sort((a, b) => mzLevel(b) - mzLevel(a) || a.n - b.n).slice(0, MZ_PICK_MAX);
   if(!todo.length) return;
   const load = mzPickLoad(), log = mzPickDay(); if(!mzPickWho(todo[0], load, log.n)) return; // きょうは、もう全員が上限
   await mzLabels();
@@ -9268,7 +9270,7 @@ async function mzPick(){
     const lb = MZ_WHO + who; await mzApi('labels', { method:'POST', body:{ name:lb, color:'d9d2b8' } }).catch(() => null);
     const r = await mzApi('issues/' + z.n + '/labels', { method:'POST', body:{ labels:[lb, MZ_PICK] } }); if(!r.ok) continue;
     z.labels.push(lb, MZ_PICK); load[who] = (load[who] || 0) + 1; log.n[who] = (log.n[who] || 0) + 1; store.set('mz-pick-log', log);
-    const c = await mzApi('issues/' + z.n + '/comments', { method:'POST', body:{ body:'（メタゾンビ）@' + who + ' を担当に自動で指名しました。強さ3以上で、担当がいなかったためです。' } }).catch(() => null);
+    const c = await mzApi('issues/' + z.n + '/comments', { method:'POST', body:{ body:'（メタゾンビ）@' + who + ' を担当に自動で指名しました。強さ4以上で、担当がいなかったためです。' } }).catch(() => null);
     if(c && c.ok){ z.comments++; delete mzCm[mzKey(z)]; }
     store.set('mz-list', mzData); await mzSleep(MZ_GAP);
   }
@@ -9591,11 +9593,36 @@ async function mzWho(k){
 }
 // AI に頼む：Issue にラベル「AI に頼んだ」を付けて、頼みごとを、ふつうの［AI に頼む］と同じ道で届ける（部屋は、自分の分の書きこみ。1人は、メモ → book/requests.json）。頼みごとには mzq（メタゾンビの鍵）を付けて、一覧には出さない。AI の返事は、メタゾンビのスレッドに並べる。
 // AI は、これまでどおり、頼みごとを読んで、ゲームを書き換えて、そのスレッドに返事を書く。メタゾンビを封印するのは、人（［承認して封印］）
+const mzAiText = (z, again, last) => 'メタゾンビ #' + z.n + ' のいる場面（' + mzSpotLabel(z) + '）の文章を、' + (again ? 'もう一度、' : '') + '直してください。' + (z.s ? '直す所の見当は、次の文です。\n> ' + z.s : '') + (z.roll ? '\n\n同じ言い回し「' + z.roll.g + '」を、メタゾンビ #' + z.roll.n + ' では、次のように直しました。\n> ' + z.roll.a + '\n> ' + z.roll.b : '') + (last ? '\n\n前の AI の返事は、次のとおりです。\n> ' + cmPlain(last.reply).slice(0, 400) : '');
+// 呪いが増えたら、AI への頼みごとが自動で付く：強さ5（30点。誰も触らなければ、置いてから1か月）で、まだ AI に頼んでいないメタゾンビ。1体につき1回だけ（ラベル「AI に頼んだ」で見分ける）。封印はしない（人の［承認して封印］のまま）
+// 直し方（［場面へ行って直す］）に関係なく付ける。放っておいたので、自分で捕まえる機会がなくなる、という罰。人の直し案が封印を待っているもの（封印待ち）には、付けない
+// 1日に3体まで（頼みごとと知らせが、一度に重ならないように。数えるのは、見回りをする端末）。手本（GitHub の actions/stale）は、60日動きのない Issue に印を付け、1回の見回りの操作に上限（30）がある。AI に頼む所は、手本にない
+const MZ_AUTO_LV = 5, MZ_AUTO_DAY = 3;
+const mzAutoDay = () => { const d = new Date(), day = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(), l = store.get('mz-auto-log', null); return l && l.day === day ? { day, n:Number(l.n) || 0 } : { day, n:0 }; };
+async function mzAutoAi(){
+  if(!cmAiCan()) return;
+  const log = mzAutoDay(); if(log.n >= MZ_AUTO_DAY) return;
+  const todo = mzItems().filter(z => mzLive(z) && mzW(z) && mzLevel(z) >= MZ_AUTO_LV && !z.labels.includes(MZ_AI) && !z.labels.includes(MZ_WAIT)).sort((a, b) => a.at - b.at || a.n - b.n).slice(0, MZ_AUTO_DAY - log.n);
+  if(!todo.length) return;
+  await mzApi('labels', { method:'POST', body:{ name:MZ_AI, color:'c5def5' } }).catch(() => null);
+  let n = 0;
+  for(const z of todo){
+    const k = mzKey(z), r = await mzApi('issues/' + z.n + '/labels', { method:'POST', body:{ labels:[MZ_AI] } }); if(!r.ok) continue;
+    z.labels.push(MZ_AI); log.n++; store.set('mz-auto-log', log); n++;
+    const text = mzAiText(z), title = '[' + (CHARS[z.book] ? CHARS[z.book].name : z.book) + ' ' + z.para + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), at = z.book + ':' + z.para;
+    if(room){ const box = store.get('outbox', []); box.push({ id:'op|' + Date.now() + '|' + z.n, label:'その他', title, body:text, after:0, at, text, free:true, claude:true, mzq:k }); store.set('outbox', box); roomSendItems(); }
+    else { roomItems[DEV + '-' + Date.now().toString(36) + 'a' + z.n] = { title, text, by:myName() || '自分', o:Date.now(), at, free:true, claude:true, mzq:k }; memoSave(); }
+    const c = await mzApi('issues/' + z.n + '/comments', { method:'POST', body:{ body:'（メタゾンビ）AI に、文章を直すように自動で頼みました。強さ5で、まだ AI に頼んでいなかったためです。' } }).catch(() => null);
+    if(c && c.ok){ z.comments++; delete mzCm[k]; }
+    store.set('mz-list', mzData); await mzSleep(MZ_GAP);
+  }
+  if(n){ fbNote = (fbNote ? fbNote + '\n' : '') + '強さ5のメタゾンビ' + n + '体の文章を直すように、AI に自動で頼みました。'; render(); }
+}
 async function mzAskAi(k){
   const z = mzOfKey(k), who = myName(); if(!z || !mzLive(z) || !cmAiCan() || !mzCanAct(z)) return;
   const again = z.labels.includes(MZ_AI); if(again && mzAiWait(k)) return; // もう一度頼めるのは、前の頼みごとに返事が来たあと
   const last = again ? Object.values(roomItems).filter(q => q && q.mzq === k && q.reply).sort((x, y) => (x.o || 0) - (y.o || 0)).pop() : null;
-  const repo = mzRepoOf(z), text = 'メタゾンビ #' + z.n + ' のいる場面（' + mzSpotLabel(z) + '）の文章を、' + (again ? 'もう一度、' : '') + '直してください。' + (z.s ? '直す所の見当は、次の文です。\n> ' + z.s : '') + (z.roll ? '\n\n同じ言い回し「' + z.roll.g + '」を、メタゾンビ #' + z.roll.n + ' では、次のように直しました。\n> ' + z.roll.a + '\n> ' + z.roll.b : '') + (last ? '\n\n前の AI の返事は、次のとおりです。\n> ' + cmPlain(last.reply).slice(0, 400) : '');
+  const repo = mzRepoOf(z), text = mzAiText(z, again, last);
   fbNote = 'AI に頼んでいます…'; render();
   try {
     if(!again){ await mzApi('labels', { repo, method:'POST', body:{ name:MZ_AI, color:'c5def5' } }).catch(() => null);
@@ -9729,7 +9756,7 @@ function mzPanelHtml(){
   const mzAbout = [['メタゾンビ', '文章に直す所が残っていそうな場面に取りつく、お化けです。'],
     ['置かれ方', 'ゲームが文章を点検して、自動で置きます。本文を長押しすると、自分で呼び出せます。パソコンでは、本文を右クリックします。'],
     ['封印', '場面の文章が直ると、封印されて、いなくなります。直す所がなければ、スレッドの［異常なし］を押します。' + (room ? 'いつ封印されるかは、部屋を作った人が決めています。' : '')],
-    ['強さ', '1から5までです。強くなると、通信に書きこんできます。' + (room ? '強さ3以上で担当のいないメタゾンビには、部屋の人が、担当に自動で指名されます。' : '')],
+    ['強さ', '1から5までです。強くなると、通信に書きこんできます。' + (room ? '強さ4以上で担当のいないメタゾンビには、部屋の人が、担当に自動で指名されます。' : '')],
     ['呪いの濃さ', '強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。'],
     ['封印のスタンプ', 'あなたが封印したメタゾンビの数です。'],
     ['配った版', 'メタゾンビのいる場面の映像や文章に、怪しいことが起きます。'],
