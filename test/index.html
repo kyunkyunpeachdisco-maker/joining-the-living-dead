@@ -75,8 +75,8 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .m-sub{fill:none;stroke:#f5ecd5;stroke-width:2.2;stroke-linecap:round}
 .m-hw-edge{fill:none;stroke:#3a2f22;stroke-width:6;stroke-linecap:round}
 .m-hw{fill:none;stroke:#df9fab;stroke-width:4.6;stroke-linecap:round}
-.m-rail-edge{fill:none;stroke:#3a2f22;stroke-width:2.6}
-.m-rail{fill:none;stroke:#f5ecd5;stroke-width:1.4;stroke-dasharray:4 4}
+.m-rail-edge{fill:none;stroke:#f3e8cc;stroke-width:2.2;stroke-linecap:round;opacity:.9}
+.m-rail{fill:none;stroke:#5a3a12;stroke-width:1.1;stroke-dasharray:2 1.6}
 .m-street{fill:#3a2f22;font-size:5.2px;font-weight:bold;font-family:serif;letter-spacing:.6px;dominant-baseline:middle}
 .m-bridge{fill:#d6c59c;stroke:#3a2f22;stroke-width:.8}
 .m-land{fill:#c96f4e;stroke:#2a2018;stroke-width:.7}
@@ -172,6 +172,8 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .planmap{margin:0 0 12px;border:1px solid #3a5a6a;border-radius:4px;background:#0c1418;padding:8px}
 .planmap svg{display:block;width:100%;height:auto}
 .planmap p{margin:6px 2px 0;font-size:12px;color:#7a9aa8}
+.planmap p span{display:inline-block}
+.planmap p .pm-dot{color:#e05a4a;font-weight:normal}
 .pm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;color:#bcd4dc;font-size:14px}
 .pm-tabs{display:flex;gap:4px}
 .pm-tabs button{background:#14222a;color:#7a9aa8;border:1px solid #2a4a5a;border-radius:4px;padding:3px 10px;font-size:13px}
@@ -604,7 +606,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-21 13:23 1608948';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-22 11:51 34b37f6';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -1336,36 +1338,36 @@ const SPOTS = {
       + (s.flags.dockClear ? '' : 'その光の中に、病衣の裾と、はだしの足が何本か見えた。') },
 };
 const MAP = {
-  w:400, h:320, title:'グレンフォード市街図', sub:'― 北岸　第14投票区 ―', rose:[30, 292], legend:[240, 282],
+  w:400, h:320, title:'グレンフォード市街図', sub:'― 北岸　第14投票区 ―', rose:[26, 30], legend:[240, 282],
   river:{ x:356, amp:5, name:'グ レ ン 川' },
   parks:[{ x:196, y:52, rx:44, ry:26, name:'' }],
-  grounds:[{ x:292, y:136, w:50, h:44 }],
+  grounds:[{ x:292, y:136, w:46, h:44 }],
   districts:[{ x:50, y:60, angle:-5, cw:13, ch:10 }, { x:190, y:160, angle:2, cw:13, ch:10 }, { x:300, y:60, angle:9, cw:12, ch:9 }, { x:70, y:270, angle:6, cw:14, ch:10 }, { x:250, y:268, angle:-6, cw:13, ch:9 }],
   roads:[
     { name:'オーク通り', cls:'main', off:38, pts:[[0, 220], [50, 217], [104, 214], [190, 214], [282, 213], [356, 214]] },
-    { name:'メープル通り', cls:'sub', off:6, pts:[[0, 114], [60, 111], [150, 109], [240, 108], [284, 108], [352, 100]] },
-    { name:'2番街', cls:'sub', off:60, pts:[[98, 0], [100, 60], [102, 109], [104, 214], [106, 270], [108, 320]] },
+    { name:'メープル通り', cls:'sub', off:6, pts:[[0, 114], [60, 111], [150, 109], [240, 108], [284, 108], [342, 100]] },
+    { name:'2番街', cls:'sub', off:22, pts:[[98, 0], [100, 60], [102, 109], [104, 214], [106, 270], [108, 320]] },
     { name:'4番街', cls:'main', off:8, pts:[[288, 0], [286, 60], [284, 108], [282, 214], [280, 270], [278, 320]] },
-    { name:'州道9号線', cls:'hw', off:12, pts:[[0, 300], [90, 294], [200, 290], [280, 284], [356, 262], [400, 256]] },
+    { name:'州道9号線', cls:'hw', off:12, pts:[[0, 300], [90, 294], [200, 290], [280, 284], [346, 262], [400, 262]] },
     { name:'', cls:'sub', pts:[[196, 78], [194, 109]] },
     { name:'', cls:'sub', pts:[[340, 0], [342, 100], [344, 214], [346, 262]] },
   ],
-  marks:[{ type:'bridge', x:350, y:214, label:'ケスラー橋' }, { type:'school', x:318, y:156, label:'リンカーン小学校' }, { type:'house', x:118, y:232 }, { type:'bus', x:293, y:204 }],
+  marks:[{ type:'bridge', x:350, y:214, label:'ケスラー橋' }, { type:'school', x:318, y:156, label:'リンカーン小学校' }, { type:'house', x:118, y:232 }, { type:'bus', x:292, y:224 }, { type:'span', x:350, y:262, w:52 }],
   areas:[{ name:'オーク', x:176, y:254 }, { name:'メープル', x:60, y:74 }],
 };
 // 配達で回る、街の全域の地図
 const CITY = {
   w:400, h:320, title:'グレンフォード市街図', sub:'― 全域 ―', rose:[372, 292], legend:[196, 8],
   note:'赤い丸が現在地。',
-  river:{ x:290, w:30, amp:6, at:.5, name:'グ レ ン 川' },
+  river:{ x:290, w:30, amp:6, at:.36, name:'グ レ ン 川' },
   parks:[{ x:246, y:110, rx:26, ry:18, name:'' }],
-  grounds:[{ x:66, y:60, w:70, h:40 }, { x:194, y:254, w:34, h:30 }, { x:360, y:206, w:36, h:34 }],
+  grounds:[{ x:66, y:60, w:70, h:46 }, { x:194, y:252, w:34, h:20 }, { x:360, y:206, w:36, h:34 }],
   districts:[{ x:40, y:30, angle:-4, cw:13, ch:10 }, { x:230, y:60, angle:6, cw:12, ch:9 }, { x:60, y:230, angle:5, cw:14, ch:10 }, { x:250, y:240, angle:-5, cw:13, ch:9 }, { x:370, y:90, angle:8, cw:13, ch:10 }, { x:120, y:150, angle:1, cw:13, ch:10 }],
   roads:[
     { name:'オーク通り', cls:'main', off:30, pts:[[176, 186], [220, 186], [262, 186], [296, 186], [336, 186], [350, 190]] },
     { name:'メインストリート', cls:'main', off:44, pts:[[168, 0], [170, 60], [172, 112], [176, 186], [180, 250], [184, 320]] },
     { name:'病院通り', cls:'sub', off:6, pts:[[0, 116], [50, 114], [100, 112], [140, 112], [172, 112]] },
-    { name:'州道9号線', cls:'hw', off:8, pts:[[0, 296], [80, 290], [180, 284], [260, 272], [296, 262], [336, 256], [400, 250]] },
+    { name:'州道9号線', cls:'hw', off:8, pts:[[0, 296], [80, 290], [180, 284], [256, 272], [284, 262], [328, 262], [352, 256], [400, 250]] },
     { name:'', cls:'sub', pts:[[140, 112], [144, 50], [100, 46], [58, 48]] },
     { name:'川岸通り', cls:'sub', off:6, pts:[[342, 0], [344, 100], [348, 186], [350, 224], [352, 256], [356, 320]] },
     { name:'', cls:'sub', pts:[[176, 212], [206, 212], [236, 214]] },
@@ -1373,7 +1375,7 @@ const CITY = {
     { name:'川沿いの旧道', cls:'sub', off:60, pts:[[278, 0], [276, 58], [274, 120], [272, 186], [272, 236], [270, 268]] },
     { name:'3番街', cls:'sub', off:8, pts:[[0, 236], [50, 234], [104, 232], [178, 232]] },
   ],
-  marks:[{ type:'span', x:284, y:186, w:44 }, { type:'span', x:284, y:261, w:44 }, { type:'bldg', x:100, y:80, w:46, h:22, wing:true, label:'州立グレンフォード病院' }, { type:'church', x:206, y:268 }, { type:'bldg', x:378, y:222, w:24, h:18 }],
+  marks:[{ type:'span', x:284, y:186, w:44 }, { type:'span', x:284, y:262, w:44 }, { type:'bldg', x:100, y:80, w:46, h:22, wing:true, label:'州立グレンフォード病院' }, { type:'church', x:206, y:262 }, { type:'bldg', x:378, y:222, w:24, h:18 }],
   areas:[{ name:'オーク', x:236, y:160 }, { name:'ダウンタウン', x:110, y:210 }],
 };
 // ほかの段落の文を、結果の段落の文にする（段落の文が関数なら、結果の段落にいるときの状態で作る）
@@ -1994,7 +1996,7 @@ const SPOTS = {
     text:s => 'WGLNの局舎は、川沿いの平屋だ。屋根のアンテナが、川風で細く鳴っている。駐車場に3人。うち1人は、局の名前の入った上着を着ている。'
       + (did(s, 'radio') ? '\n\n玄関の上の赤い灯は、まだついている。次の番組が始まっていた。' : '\n\n玄関の上の赤い灯が消えている。番組は、もう次の枠に移った。'),
     extra:s => [car] },
-  factory:{ no:238, name:'ケスラー製鋼の正門', short:'ケスラー製鋼', place:'factory', cam:'v_factory', at:[346, 84], label:[2, -14], adj:[], calm:true,
+  factory:{ no:238, name:'ケスラー製鋼の正門', short:'ケスラー製鋼', place:'factory', cam:'v_factory', at:[346, 84], label:[26, -48], adj:[], calm:true,
     z:s => (s.clock >= SIREN ? 6 : 0),
     text:s => (s.clock < SIREN ? 'ケスラー製鋼の正門は閉まっていて、守衛所にだけ明かりがついている。塀の向こうで、機械の音が続いていた。鉄の焼けるにおいが、車の中まで入ってくる。'
       : 'ケスラー製鋼の正門。工員の列はもう切れた。門柱の明かりの下を、作業着の6人が歩いている。弁当箱は持っていない。守衛は窓口の戸を閉めて、中で帳面を付けていた。'),
@@ -2025,9 +2027,9 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）に、知事の行き先を足す
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[30, 292], areas:[{ name:'オーク', x:236, y:160 }],
-  grounds:[...CITY.grounds, { x:218, y:20, w:44, h:30 }, { x:84, y:200, w:40, h:24 }, { x:330, y:40, w:60, h:36 }],
-  marks:[...CITY.marks, { type:'bldg', x:240, y:34, w:26, h:14 }, { type:'bldg', x:104, y:212, w:30, h:16 }, { type:'bldg', x:362, y:58, w:44, h:24, wing:true }, { type:'bldg', x:256, y:228, w:14, h:10 }],
+const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[372, 292], areas:[{ name:'オーク', x:240, y:205 }],
+  grounds:[...CITY.grounds, { x:218, y:20, w:44, h:30 }, { x:84, y:200, w:40, h:24 }, { x:348, y:40, w:48, h:46 }],
+  marks:[...CITY.marks, { type:'bldg', x:240, y:34, w:26, h:14 }, { type:'bldg', x:104, y:212, w:30, h:16 }, { type:'bldg', x:372, y:58, w:40, h:24, wing:true }, { type:'bldg', x:256, y:228, w:14, h:10 }],
   note:'赤い丸が現在地。' };
 // 朝の食堂：紙を読んでも読まなくても、門を選ぶ
 const START = [
@@ -2428,7 +2430,7 @@ const SPOTS = {
     extra:s => [memo] },
 
   // ===== 現場 =====
-  lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[30, 4], adj:['p_lobby'], go:{ p_lobby:'署の玄関へ入る' },
+  lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[-20, 17], adj:['p_lobby'], go:{ p_lobby:'署の玄関へ入る' },
     z:s => (s.clock >= FENCE ? (s.flags.sent || s.flags.cells8 ? 0 : 4) : fenceAM(s)), calm:true,
     arrive:s => { if(s.from in CALLS) s.clock += 6; s.flags.at = 'lot'; return atLot(s); },
     text:s => (s.clock >= 1080 && !s.flags.d317 ? '駐車場の金網のフェンスに、8人が手錠でつないである。ドイルが、投光器を2台据えさせていた。影が、金網ごしに歩道まで伸びている。'
@@ -2451,7 +2453,7 @@ const SPOTS = {
         : '病院の正面の芝生で、作業員が2人、青い幕を外して端からたたんでいる。演台のまわりに、聴衆はもういない。')
       + '\n\n救急の入口には、列ができている。車寄せと芝生のあいだを、4人が歩いていた。列の者は、4人が寄ってくると半歩よけて、また元の位置に戻る。',
     extra:s => [radio] },
-  north:{ no:328, name:'ノースエンドのエルム通り', short:'エルム通り', place:'north', cam:'v_north', at:[70, 34], label:[0, -13], adj:[], calm:true,
+  north:{ no:328, name:'ノースエンドのエルム通り', short:'エルム通り', place:'north', cam:'v_north', at:[70, 34], label:[0, 17], adj:[], calm:true,
     z:0,
     text:'白い家の玄関は閉まっている。前の芝生に、踏み荒らした跡が残っていた。通りを歩いている者は、1人もいない。\n\n郵便受けには、朝刊が差したままだ。',
     extra:s => [radio] },
@@ -2473,7 +2475,7 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）に、署長の回る現場を足す
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:236, y:150 }],
+const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:240, y:205 }],
   grounds:[...CITY.grounds, { x:222, y:146, w:30, h:30 }, { x:140, y:128, w:24, h:22 }, { x:28, y:204, w:32, h:20 }],
   roads:[...CITY.roads, { name:'エルム通り', cls:'sub', off:44, pts:[[0, 36], [70, 34], [120, 32], [169, 30]] }],
   marks:[...CITY.marks, { type:'bldg', x:152, y:139, w:18, h:14 }, { type:'bldg', x:237, y:160, w:22, h:16, wing:true }, { type:'bldg', x:44, y:214, w:24, h:14 }],
@@ -3408,7 +3410,7 @@ const SPOTS = {
     ] },
 
   // ===== 朝 =====
-  elm:{ no:521, name:'エルム通りの白い家', short:'白い家', place:'north', cam:'v_h_elm', at:[70, 34], label:[0, -13], adj:[], calm:true,
+  elm:{ no:521, name:'エルム通りの白い家', short:'白い家', place:'north', cam:'v_h_elm', at:[70, 34], label:[-24, 3], adj:[], calm:true,
     z:(s, w) => (missed(s, w, 'elm') ? 6 : 0),
     text:(s, w) => (s.flags.elm ? (s.flags.elmRoof ? '白い家の2階の窓は、開いたままになっている。玄関の前には、6人がまだ立っていた。' : '白い家の玄関は、開いたままになっている。芝生に、踏み荒らした跡が残っていた。') + '隣の家の窓に、女の人と子どもが2人、並んで立っている。'
       : !s.flags.saw_elm && police(s, w, 'elm') ? '白い家の前に、パトカーが1台停まっている。警官が2人、玄関の前を片づけたあとだ。手は足りている。'
@@ -3483,7 +3485,7 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:236, y:150 }],
+const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:240, y:205 }],
   roads:[...CITY.roads, { name:'エルム通り', cls:'sub', off:44, pts:[[0, 36], [70, 34], [120, 32], [169, 30]] }],
   note:'赤い丸が現在地。' };
 const mark = (label, name) => c(label, 0, 506, { run(s, w){ s.flags.voted = name; w.votes = w.votes || {}; w.votes[s.char] = name; return 506; } });
@@ -5895,7 +5897,7 @@ function quadsOverlap(a, b){
 function townBlocks(M){
   if(M._blocks) return M._blocks;
   const rx = y => M.river.x + M.river.amp * Math.sin(y / 30);
-  const inZone = (x, y) => (x > rx(y) - 3 && (!M.river.w || x < rx(y) + M.river.w + 3)) || (M.parks || []).some(p => Math.hypot((x - p.x) / (p.rx + 2), (y - p.y) / (p.ry + 2)) < 1) || (M.grounds || []).some(g => x > g.x - 2 && x < g.x + g.w + 2 && y > g.y - 2 && y < g.y + g.h + 2);
+  const inZone = (x, y) => (x > rx(y) - 3 && (!M.river.w || x < rx(y) + M.river.w + 3)) || (M.parks || []).some(p => Math.hypot((x - p.x) / (p.rx + 2), (y - p.y) / (p.ry + 2)) < 1) || (M.grounds || []).some(g => x > g.x - 2 && x < g.x + g.w + 2 && y > g.y - 2 && y < g.y + g.h + 2) || (M.rose && Math.hypot(x - M.rose[0], y - M.rose[1] + 4) < 21) || (M.legend && x > M.legend[0] - 2 && x < M.legend[0] + 106 && y > M.legend[1] - 2 && y < M.legend[1] + 34);
   const owner = (x, y) => { let best = 0, bd = Infinity; M.districts.forEach((d, i) => { const k = Math.hypot(x - d.x, y - d.y); if(k < bd){ bd = k; best = i; } }); return best; };
   const list = [];
   M.districts.forEach((l, di) => {
@@ -5916,8 +5918,33 @@ function townBlocks(M){
       list.push({ pts, cx, cy, kind:h < .06 ? 'notable' : h > .955 ? 'green' : 'plain' });
     }
   });
-  list.filter(bl => bl.kind !== 'green').sort((p, q) => Math.round(p.cy / 12) - Math.round(q.cy / 12) || p.cx - q.cx).forEach((bl, n) => { bl.num = n + 1; });
-  return (M._blocks = list);
+  // 道の上には街区を置かない：道の帯にかかる街区は、道に沿って切り落とす。中心が道の上にあるもの、切って小さくなりすぎたものは、置かない
+  const HW = { main:2.3, sub:1.6, hw:3 }, roads = (M.roads || []).map(r => { const p = r.pts, sm = [];
+    for(let i = 0; i < p.length - 1; i++){ const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2, n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 1.5));
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      for(let k = i ? 1 : 0; k <= n; k++){ const t = k / n, u = 1 - t; sm.push([u * u * u * p1[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * p2[0], u * u * u * p1[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * p2[1]]); } }
+    return { sm, hw:(HW[r.cls] || 1.6) + .9 }; });
+  const dSeg = (px, py, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(px - a[0] - t * dx, py - a[1] - t * dy); };
+  const inPoly = (x, y, P) => { let c = false; for(let i = 0, j = P.length - 1; i < P.length; j = i++) if((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c; return c; };
+  const area = P => Math.abs(P.reduce((t, p, i) => t + p[0] * P[(i + 1) % P.length][1] - P[(i + 1) % P.length][0] * p[1], 0)) / 2;
+  const kept = [];
+  for(const bl of list){ let P = bl.pts, ok = true; const a0 = area(P);
+    for(const r of roads){ let best = -1, bd = Infinity, touch = false;
+      for(let k = 0; k < r.sm.length; k++){ const [sx, sy] = r.sm[k]; if(Math.abs(sx - bl.cx) > 22 || Math.abs(sy - bl.cy) > 22) continue;
+        const dc = Math.hypot(sx - bl.cx, sy - bl.cy); if(dc < bd){ bd = dc; best = k; }
+        if(!touch && (inPoly(sx, sy, P) || P.some((p, i) => dSeg(sx, sy, p, P[(i + 1) % P.length]) < r.hw))) touch = true; }
+      if(!touch) continue;
+      const s = r.sm[best], q = r.sm[best + 1] || r.sm[best - 1], tl = Math.hypot(q[0] - s[0], q[1] - s[1]) || 1; let nx = -(q[1] - s[1]) / tl, ny = (q[0] - s[0]) / tl;
+      let side = (bl.cx - s[0]) * nx + (bl.cy - s[1]) * ny; if(side < 0){ nx = -nx; ny = -ny; side = -side; }
+      if(side < r.hw){ ok = false; break; }
+      const f = p => (p[0] - s[0]) * nx + (p[1] - s[1]) * ny - r.hw, out = [];
+      P.forEach((p, i) => { const n = P[(i + 1) % P.length], fp = f(p), fn = f(n); if(fp >= 0) out.push(p); if((fp >= 0) !== (fn >= 0)){ const t = fp / (fp - fn); out.push([p[0] + (n[0] - p[0]) * t, p[1] + (n[1] - p[1]) * t]); } });
+      P = out; if(P.length < 3){ ok = false; break; } }
+    if(!ok || area(P) < Math.max(22, a0 * .3)) continue;
+    if(P !== bl.pts){ bl.pts = P; bl.cx = P.reduce((t, p) => t + p[0], 0) / P.length; bl.cy = P.reduce((t, p) => t + p[1], 0) / P.length; }
+    kept.push(bl); }
+  kept.filter(bl => bl.kind !== 'green').sort((p, q) => Math.round(p.cy / 12) - Math.round(q.cy / 12) || p.cx - q.cx).forEach((bl, n) => { bl.num = n + 1; });
+  return (M._blocks = kept);
 }
 // 地図を出しているあいだは、映像を引っ込めておく
 // 右端のつまみは、上の帯とメニューのすぐ下（映像の上端）に置く。メニューを開いて帯が伸びたら、そのぶん下がる
@@ -6004,7 +6031,7 @@ function townMapSvg(s, w, choices, live){
   g += `<line x1="${M.w / 3}" y1="0" x2="${M.w / 3}" y2="${M.h}" class="m-fold"/><line x1="${M.w * 2 / 3}" y1="0" x2="${M.w * 2 / 3}" y2="${M.h}" class="m-fold"/><line x1="0" y1="${M.h / 2}" x2="${M.w}" y2="${M.h / 2}" class="m-fold"/>`;
   g += `<rect width="${M.w}" height="${M.h}" filter="url(#m-grain)" opacity=".35" pointer-events="none"/><rect width="${M.w}" height="${M.h}" fill="url(#m-burn)" pointer-events="none"/>`;
   return `<div class="map${mapZoom ? ' zoom' : ''}"><div class="map-tools"><button id="mapZoom">${mapZoom ? '縮小' : '拡大'}</button></div><div class="map-scroll" id="mapScroll"><svg viewBox="0 0 ${M.w} ${M.h}" role="img" aria-label="${M.title}"><defs>${defs}</defs>${g}</svg></div>`
-    + `<p>${M.note || '赤い丸が現在地。点線の細い道は、庭を抜ける道。'}</p></div>`;
+    + `<p>${M.note || '赤い丸が現在地。点線の道は、庭を抜ける道。'}</p></div>`;
 }
 
 function planOf(s){
@@ -6199,7 +6226,7 @@ function planMapSvg(s, plan, taps = null, risks = {}){
   const tabs = P.floors.map(f => `<button data-floor="${f}" class="${f === floor ? 'on' : ''}">${f}</button>`).join('');
   return `<div class="planmap"><div class="pm-head"><b>${P.name}</b><span class="pm-tabs">${tabs}</span></div>`
     + `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${P.name} ${floor}">${g}</svg>`
-    + `<p>${taps ? '金色の枠の部屋を押すと、そこへ移る。' : ''}色の付いた部屋は行ったことのある部屋。光っているのが今いる部屋。● は監視カメラのある部屋。</p></div>`;
+    + `<p>${[taps ? '金色の枠の部屋を押すと、そこへ移る。' : '', '色の付いた部屋は行ったことのある部屋。', '光っているのが今いる部屋。', '<b class="pm-dot">●</b> は監視カメラのある部屋。'].filter(Boolean).map(t => `<span>${t}</span>`).join('')}</p></div>`;
 }
 
 // ===== 映像：今いる場所の監視カメラ。初代プレイステーション風の荒い3Dで、状況をそのまま映す =====
