@@ -322,7 +322,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .cm-row .w{color:#8d8778;font-size:12px;text-align:right;white-space:nowrap}
 .cm-tag{font-style:normal;border:1px solid #3a3a40;border-radius:6px;font-size:11px;color:#c9c2b3;padding:0 6px;margin-right:6px;vertical-align:2px}
 .cm-n{font-style:normal;display:inline-block;background:#e0b04a;color:#111;border-radius:99px;font:700 12px/20px sans-serif;min-width:20px;padding:0 5px;text-align:center;margin-top:4px}
-.cm-set{margin:14px;color:#8d8778;font-size:13px}.cm-set input{font-size:16px;margin-top:8px;width:100%;box-sizing:border-box;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;border-radius:10px;padding:9px 12px}
+.cm-set{margin:14px;color:#8d8778;font-size:13px}#fbNotify{margin-top:8px;padding:8px 14px;background:none;border:1px solid #3a3a40;border-radius:10px;color:#e8e2d6;font-size:14px}.cm-set input{font-size:16px;margin-top:8px;width:100%;box-sizing:border-box;background:#111318;color:#e8e2d6;border:1px solid #3a3a40;border-radius:10px;padding:9px 12px}
 .cm-av{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-style:normal;font-size:14px;line-height:1;margin-right:6px;vertical-align:middle;background:#2a2a30;color:#e8e2d6}
 .cm-icons{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.cm-icons button{width:40px;height:40px;font-size:20px;border:1px solid #3a3a40;border-radius:10px;background:none;color:inherit}.cm-icons button.on{border-color:var(--gold)}
 .cm-log{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:12px}.cm-log>*{flex-shrink:0}
@@ -611,7 +611,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-22 16:08 07f2aaa';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-22 16:38 8c8ee26';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -8421,7 +8421,7 @@ function linkPanelHtml(){
     + '</div>';
 }
 // 公開版は、リリースのたびに、版の番号つきの番地（v/<版>/）にも残してある。付けた追加分が、今と違う版に合わせて作ってあれば、その版の番地へ移る（原本が新しくなっても、追加分は、合わせた版の上で動き続ける）
-const HOW_SIZE = { 'how-make-1':[585, 1002], 'how-make-2':[585, 1170], 'how-play-0':[585, 903], 'how-play-0-test':[585, 903], 'how-play-1':[585, 548], 'how-play-1-file':[585, 548], 'how-play-1-test':[585, 548], 'how-play-3':[585, 630] }; // 説明の写真の大きさ（icons/how-*.jpg。写真を撮り直したら、ここも直す）
+const HOW_SIZE = { 'how-make-1':[585, 1002], 'how-make-2':[585, 840], 'how-play-0':[585, 903], 'how-play-0-test':[585, 903], 'how-play-1':[585, 548], 'how-play-1-file':[585, 548], 'how-play-1-test':[585, 548], 'how-play-3':[585, 630] }; // 説明の写真の大きさ（icons/how-*.jpg。写真を撮り直したら、ここも直す）
 const siteRoot = () => location.href.split('#')[0].split('?')[0].replace(/index\.html$/, '').replace(/\/v\/[^/]+\/$/, '/').replace(/\/test\/$/, '/');
 async function pinToBase(){
   const want = overlay.base && overlay.base.ver;
@@ -10448,7 +10448,7 @@ const cmFlActive = () => { if(!cmFlCan()) return []; const F = cmFlLoad(); retur
 function cmFlGroups(){
   const F = cmFlLoad(), done = cmFilter === 'mzdone', zs = mzOn() ? mzItems().filter(z => (done ? z.state === 'closed' : z.state === 'open')) : [], G = [], me = myName();
   const add = (f, title, opts) => { if(cmFlUses(f) && opts.length) G.push({ f, title, opts }); };
-  add('book', '本', [...CHAR_IDS.map(c => [c, CHARS[c].name]), ['!cur', 'いま読んでいる本']]);
+  add('book', '本', [...(TEST_BUILD ? CHAR_IDS : openIds()).map(c => [c, CHARS[c].name]), ['!cur', 'いま読んでいる本']]);
   add('rel', '自分との関わり', [...(room || zs.length ? [['unread', '未読あり'], ['follow', 'フォロー中']] : []), ...(zs.length ? [['met', 'メタゾンビに出会った']] : [])]);
   add('rel', '返信', [['nore', '返信なし']]);
   const its = itemList();
