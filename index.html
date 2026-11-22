@@ -604,7 +604,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.55';
+const APP_VERSION = 'v0.3.56';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -6121,6 +6121,8 @@ function liveGot(dev, data){
   liveFiles[dev] = data; clearTimeout(liveGotT); liveGotT = setTimeout(roomRefresh, 200);
   return true;
 }
+// 直接つながらないときの中継役（game-relay）。空なら PeerJS だけで動く
+const RELAY_URL = 'https://game-relay.game-relay-worker.workers.dev';
 function loadPeer(){
   return peerLib || (peerLib = new Promise((res, rej) => {
     if(window.Peer) return res();
@@ -6128,7 +6130,11 @@ function loadPeer(){
     s.src = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'; s.integrity = 'sha384-nlUQ8ZqCbvStErob+biJNzSgltf6urV3VGqhfIfzhmg9RXmpeRm76ELw0pYnKlTR'; s.crossOrigin = 'anonymous';
     s.onload = () => res(); s.onerror = () => { peerLib = null; rej(new Error('peer')); };
     document.head.appendChild(s);
-  }));
+  }).then(() => window.NetPeer || new Promise((res, rej) => {
+    const n = document.createElement('script');
+    n.src = 'netpeer.js'; n.onload = () => res(); n.onerror = () => { n.remove(); peerLib = null; rej(new Error('peer')); };
+    document.head.appendChild(n);
+  })).then(() => { NetPeer.relay = RELAY_URL; }));
 }
 const peerShow = () => { if(roomPanel && !typing()) render(); };
 function peerRetry(ms){ clearTimeout(peerRetryT); if(joinState === 'denied' || joinState === 'needkey') return; peerRetryT = setTimeout(peerStart, ms); }
@@ -6136,7 +6142,7 @@ async function peerStart(){
   if(!room || !ghReady()) return;
   try { await loadPeer(); } catch(e){ peerRetry(60000); return; }
   if(peer && !peer.destroyed){ if(peer.disconnected) peer.reconnect(); else if(!isHost() && !hostConn) memberConnect(); return; }
-  peer = isHost() ? new Peer('jtld-room-' + room) : new Peer();
+  peer = isHost() ? new NetPeer('jtld-room-' + room) : new NetPeer();
   peer.on('open', () => { if(isHost()){ peerOn = true; peerShow(); } else memberConnect(); });
   peer.on('connection', c => { if(isHost()) hostAccept(c); else c.close(); });
   peer.on('disconnected', () => { if(isHost()){ peerOn = false; peerShow(); } peerRetry(8000); });
