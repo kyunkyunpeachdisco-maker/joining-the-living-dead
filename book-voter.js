@@ -434,7 +434,7 @@ const SPOTS = {
       + (s.flags.dockClear ? '' : 'その光の中に、病衣の裾と、はだしの足が何本か見えた。') },
 };
 const MAP = {
-  w:400, h:320, title:'グレンフォード市街図', sub:'― 北岸　第14投票区 ―', rose:[26, 30], legend:[240, 282],
+  w:400, h:320, title:'グレンフォード市街図', sub:'― 西岸　第14投票区 ―', rose:[26, 30], legend:[240, 282],
   river:{ x:356, amp:5, name:'グ レ ン 川' },
   parks:[{ x:196, y:52, rx:44, ry:26, name:'' }],
   grounds:[{ x:292, y:136, w:46, h:44 }],
