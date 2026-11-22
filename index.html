@@ -75,8 +75,8 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .m-sub{fill:none;stroke:#f5ecd5;stroke-width:2.2;stroke-linecap:round}
 .m-hw-edge{fill:none;stroke:#3a2f22;stroke-width:6;stroke-linecap:round}
 .m-hw{fill:none;stroke:#df9fab;stroke-width:4.6;stroke-linecap:round}
-.m-rail-edge{fill:none;stroke:#3a2f22;stroke-width:2.6}
-.m-rail{fill:none;stroke:#f5ecd5;stroke-width:1.4;stroke-dasharray:4 4}
+.m-rail-edge{fill:none;stroke:#f3e8cc;stroke-width:2.2;stroke-linecap:round;opacity:.9}
+.m-rail{fill:none;stroke:#5a3a12;stroke-width:1.1;stroke-dasharray:2 1.6}
 .m-street{fill:#3a2f22;font-size:5.2px;font-weight:bold;font-family:serif;letter-spacing:.6px;dominant-baseline:middle}
 .m-bridge{fill:#d6c59c;stroke:#3a2f22;stroke-width:.8}
 .m-land{fill:#c96f4e;stroke:#2a2018;stroke-width:.7}
@@ -172,6 +172,8 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .planmap{margin:0 0 12px;border:1px solid #3a5a6a;border-radius:4px;background:#0c1418;padding:8px}
 .planmap svg{display:block;width:100%;height:auto}
 .planmap p{margin:6px 2px 0;font-size:12px;color:#7a9aa8}
+.planmap p span{display:inline-block}
+.planmap p .pm-dot{color:#e05a4a;font-weight:normal}
 .pm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;color:#bcd4dc;font-size:14px}
 .pm-tabs{display:flex;gap:4px}
 .pm-tabs button{background:#14222a;color:#7a9aa8;border:1px solid #2a4a5a;border-radius:4px;padding:3px 10px;font-size:13px}
@@ -602,7 +604,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.53';
+const APP_VERSION = 'v0.3.54';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -3024,7 +3026,7 @@ function quadsOverlap(a, b){
 function townBlocks(M){
   if(M._blocks) return M._blocks;
   const rx = y => M.river.x + M.river.amp * Math.sin(y / 30);
-  const inZone = (x, y) => (x > rx(y) - 3 && (!M.river.w || x < rx(y) + M.river.w + 3)) || (M.parks || []).some(p => Math.hypot((x - p.x) / (p.rx + 2), (y - p.y) / (p.ry + 2)) < 1) || (M.grounds || []).some(g => x > g.x - 2 && x < g.x + g.w + 2 && y > g.y - 2 && y < g.y + g.h + 2);
+  const inZone = (x, y) => (x > rx(y) - 3 && (!M.river.w || x < rx(y) + M.river.w + 3)) || (M.parks || []).some(p => Math.hypot((x - p.x) / (p.rx + 2), (y - p.y) / (p.ry + 2)) < 1) || (M.grounds || []).some(g => x > g.x - 2 && x < g.x + g.w + 2 && y > g.y - 2 && y < g.y + g.h + 2) || (M.rose && Math.hypot(x - M.rose[0], y - M.rose[1] + 4) < 21) || (M.legend && x > M.legend[0] - 2 && x < M.legend[0] + 106 && y > M.legend[1] - 2 && y < M.legend[1] + 34);
   const owner = (x, y) => { let best = 0, bd = Infinity; M.districts.forEach((d, i) => { const k = Math.hypot(x - d.x, y - d.y); if(k < bd){ bd = k; best = i; } }); return best; };
   const list = [];
   M.districts.forEach((l, di) => {
@@ -3045,8 +3047,33 @@ function townBlocks(M){
       list.push({ pts, cx, cy, kind:h < .06 ? 'notable' : h > .955 ? 'green' : 'plain' });
     }
   });
-  list.filter(bl => bl.kind !== 'green').sort((p, q) => Math.round(p.cy / 12) - Math.round(q.cy / 12) || p.cx - q.cx).forEach((bl, n) => { bl.num = n + 1; });
-  return (M._blocks = list);
+  // 道の上には街区を置かない：道の帯にかかる街区は、道に沿って切り落とす。中心が道の上にあるもの、切って小さくなりすぎたものは、置かない
+  const HW = { main:2.3, sub:1.6, hw:3 }, roads = (M.roads || []).map(r => { const p = r.pts, sm = [];
+    for(let i = 0; i < p.length - 1; i++){ const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2, n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 1.5));
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      for(let k = i ? 1 : 0; k <= n; k++){ const t = k / n, u = 1 - t; sm.push([u * u * u * p1[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * p2[0], u * u * u * p1[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * p2[1]]); } }
+    return { sm, hw:(HW[r.cls] || 1.6) + .9 }; });
+  const dSeg = (px, py, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(px - a[0] - t * dx, py - a[1] - t * dy); };
+  const inPoly = (x, y, P) => { let c = false; for(let i = 0, j = P.length - 1; i < P.length; j = i++) if((P[i][1] > y) !== (P[j][1] > y) && x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c; return c; };
+  const area = P => Math.abs(P.reduce((t, p, i) => t + p[0] * P[(i + 1) % P.length][1] - P[(i + 1) % P.length][0] * p[1], 0)) / 2;
+  const kept = [];
+  for(const bl of list){ let P = bl.pts, ok = true; const a0 = area(P);
+    for(const r of roads){ let best = -1, bd = Infinity, touch = false;
+      for(let k = 0; k < r.sm.length; k++){ const [sx, sy] = r.sm[k]; if(Math.abs(sx - bl.cx) > 22 || Math.abs(sy - bl.cy) > 22) continue;
+        const dc = Math.hypot(sx - bl.cx, sy - bl.cy); if(dc < bd){ bd = dc; best = k; }
+        if(!touch && (inPoly(sx, sy, P) || P.some((p, i) => dSeg(sx, sy, p, P[(i + 1) % P.length]) < r.hw))) touch = true; }
+      if(!touch) continue;
+      const s = r.sm[best], q = r.sm[best + 1] || r.sm[best - 1], tl = Math.hypot(q[0] - s[0], q[1] - s[1]) || 1; let nx = -(q[1] - s[1]) / tl, ny = (q[0] - s[0]) / tl;
+      let side = (bl.cx - s[0]) * nx + (bl.cy - s[1]) * ny; if(side < 0){ nx = -nx; ny = -ny; side = -side; }
+      if(side < r.hw){ ok = false; break; }
+      const f = p => (p[0] - s[0]) * nx + (p[1] - s[1]) * ny - r.hw, out = [];
+      P.forEach((p, i) => { const n = P[(i + 1) % P.length], fp = f(p), fn = f(n); if(fp >= 0) out.push(p); if((fp >= 0) !== (fn >= 0)){ const t = fp / (fp - fn); out.push([p[0] + (n[0] - p[0]) * t, p[1] + (n[1] - p[1]) * t]); } });
+      P = out; if(P.length < 3){ ok = false; break; } }
+    if(!ok || area(P) < Math.max(22, a0 * .3)) continue;
+    if(P !== bl.pts){ bl.pts = P; bl.cx = P.reduce((t, p) => t + p[0], 0) / P.length; bl.cy = P.reduce((t, p) => t + p[1], 0) / P.length; }
+    kept.push(bl); }
+  kept.filter(bl => bl.kind !== 'green').sort((p, q) => Math.round(p.cy / 12) - Math.round(q.cy / 12) || p.cx - q.cx).forEach((bl, n) => { bl.num = n + 1; });
+  return (M._blocks = kept);
 }
 // 地図を出しているあいだは、映像を引っ込めておく
 // 右端のつまみは、上の帯とメニューのすぐ下（映像の上端）に置く。メニューを開いて帯が伸びたら、そのぶん下がる
@@ -3133,7 +3160,7 @@ function townMapSvg(s, w, choices, live){
   g += `<line x1="${M.w / 3}" y1="0" x2="${M.w / 3}" y2="${M.h}" class="m-fold"/><line x1="${M.w * 2 / 3}" y1="0" x2="${M.w * 2 / 3}" y2="${M.h}" class="m-fold"/><line x1="0" y1="${M.h / 2}" x2="${M.w}" y2="${M.h / 2}" class="m-fold"/>`;
   g += `<rect width="${M.w}" height="${M.h}" filter="url(#m-grain)" opacity=".35" pointer-events="none"/><rect width="${M.w}" height="${M.h}" fill="url(#m-burn)" pointer-events="none"/>`;
   return `<div class="map${mapZoom ? ' zoom' : ''}"><div class="map-tools"><button id="mapZoom">${mapZoom ? '縮小' : '拡大'}</button></div><div class="map-scroll" id="mapScroll"><svg viewBox="0 0 ${M.w} ${M.h}" role="img" aria-label="${M.title}"><defs>${defs}</defs>${g}</svg></div>`
-    + `<p>${M.note || '赤い丸が現在地。点線の細い道は、庭を抜ける道。'}</p></div>`;
+    + `<p>${M.note || '赤い丸が現在地。点線の道は、庭を抜ける道。'}</p></div>`;
 }
 
 function planOf(s){
@@ -3328,7 +3355,7 @@ function planMapSvg(s, plan, taps = null, risks = {}){
   const tabs = P.floors.map(f => `<button data-floor="${f}" class="${f === floor ? 'on' : ''}">${f}</button>`).join('');
   return `<div class="planmap"><div class="pm-head"><b>${P.name}</b><span class="pm-tabs">${tabs}</span></div>`
     + `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${P.name} ${floor}">${g}</svg>`
-    + `<p>${taps ? '金色の枠の部屋を押すと、そこへ移る。' : ''}色の付いた部屋は行ったことのある部屋。光っているのが今いる部屋。● は監視カメラのある部屋。</p></div>`;
+    + `<p>${[taps ? '金色の枠の部屋を押すと、そこへ移る。' : '', '色の付いた部屋は行ったことのある部屋。', '光っているのが今いる部屋。', '<b class="pm-dot">●</b> は監視カメラのある部屋。'].filter(Boolean).map(t => `<span>${t}</span>`).join('')}</p></div>`;
 }
 
 // ===== 映像：今いる場所の監視カメラ。初代プレイステーション風の荒い3Dで、状況をそのまま映す =====

@@ -109,7 +109,7 @@ const SPOTS = {
     extra:s => [memo] },
 
   // ===== 現場 =====
-  lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[30, 4], adj:['p_lobby'], go:{ p_lobby:'署の玄関へ入る' },
+  lot:{ no:325, name:'グレンフォード警察署の駐車場', short:'警察署', place:'ps', cam:'v_ps', at:[172, 140], label:[-20, 17], adj:['p_lobby'], go:{ p_lobby:'署の玄関へ入る' },
     z:s => (s.clock >= FENCE ? (s.flags.sent || s.flags.cells8 ? 0 : 4) : fenceAM(s)), calm:true,
     arrive:s => { if(s.from in CALLS) s.clock += 6; s.flags.at = 'lot'; return atLot(s); },
     text:s => (s.clock >= 1080 && !s.flags.d317 ? '駐車場の金網のフェンスに、8人が手錠でつないである。ドイルが、投光器を2台据えさせていた。影が、金網ごしに歩道まで伸びている。'
@@ -132,7 +132,7 @@ const SPOTS = {
         : '病院の正面の芝生で、作業員が2人、青い幕を外して端からたたんでいる。演台のまわりに、聴衆はもういない。')
       + '\n\n救急の入口には、列ができている。車寄せと芝生のあいだを、4人が歩いていた。列の者は、4人が寄ってくると半歩よけて、また元の位置に戻る。',
     extra:s => [radio] },
-  north:{ no:328, name:'ノースエンドのエルム通り', short:'エルム通り', place:'north', cam:'v_north', at:[70, 34], label:[0, -13], adj:[], calm:true,
+  north:{ no:328, name:'ノースエンドのエルム通り', short:'エルム通り', place:'north', cam:'v_north', at:[70, 34], label:[0, 17], adj:[], calm:true,
     z:0,
     text:'白い家の玄関は閉まっている。前の芝生に、踏み荒らした跡が残っていた。通りを歩いている者は、1人もいない。\n\n郵便受けには、朝刊が差したままだ。',
     extra:s => [radio] },
@@ -154,7 +154,7 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）に、署長の回る現場を足す
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:236, y:150 }],
+const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:240, y:205 }],
   grounds:[...CITY.grounds, { x:222, y:146, w:30, h:30 }, { x:140, y:128, w:24, h:22 }, { x:28, y:204, w:32, h:20 }],
   roads:[...CITY.roads, { name:'エルム通り', cls:'sub', off:44, pts:[[0, 36], [70, 34], [120, 32], [169, 30]] }],
   marks:[...CITY.marks, { type:'bldg', x:152, y:139, w:18, h:14 }, { type:'bldg', x:237, y:160, w:22, h:16, wing:true }, { type:'bldg', x:44, y:214, w:24, h:14 }],

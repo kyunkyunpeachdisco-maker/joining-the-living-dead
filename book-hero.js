@@ -100,7 +100,7 @@ const SPOTS = {
     ] },
 
   // ===== 朝 =====
-  elm:{ no:521, name:'エルム通りの白い家', short:'白い家', place:'north', cam:'v_h_elm', at:[70, 34], label:[0, -13], adj:[], calm:true,
+  elm:{ no:521, name:'エルム通りの白い家', short:'白い家', place:'north', cam:'v_h_elm', at:[70, 34], label:[-24, 3], adj:[], calm:true,
     z:(s, w) => (missed(s, w, 'elm') ? 6 : 0),
     text:(s, w) => (s.flags.elm ? (s.flags.elmRoof ? '白い家の2階の窓は、開いたままになっている。玄関の前には、6人がまだ立っていた。' : '白い家の玄関は、開いたままになっている。芝生に、踏み荒らした跡が残っていた。') + '隣の家の窓に、女の人と子どもが2人、並んで立っている。'
       : !s.flags.saw_elm && police(s, w, 'elm') ? '白い家の前に、パトカーが1台停まっている。警官が2人、玄関の前を片づけたあとだ。手は足りている。'
@@ -175,7 +175,7 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:236, y:150 }],
+const MAP = { ...CITY, _blocks:null, legend:[196, 290], rose:[372, 292], areas:[{ name:'ノースエンド', x:112, y:22 }, { name:'オーク', x:240, y:205 }],
   roads:[...CITY.roads, { name:'エルム通り', cls:'sub', off:44, pts:[[0, 36], [70, 34], [120, 32], [169, 30]] }],
   note:'赤い丸が現在地。' };
 const mark = (label, name) => c(label, 0, 506, { run(s, w){ s.flags.voted = name; w.votes = w.votes || {}; w.votes[s.char] = name; return 506; } });

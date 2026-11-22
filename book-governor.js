@@ -66,7 +66,7 @@ const SPOTS = {
     text:s => 'WGLNの局舎は、川沿いの平屋だ。屋根のアンテナが、川風で細く鳴っている。駐車場に3人。うち1人は、局の名前の入った上着を着ている。'
       + (did(s, 'radio') ? '\n\n玄関の上の赤い灯は、まだついている。次の番組が始まっていた。' : '\n\n玄関の上の赤い灯が消えている。番組は、もう次の枠に移った。'),
     extra:s => [car] },
-  factory:{ no:238, name:'ケスラー製鋼の正門', short:'ケスラー製鋼', place:'factory', cam:'v_factory', at:[346, 84], label:[2, -14], adj:[], calm:true,
+  factory:{ no:238, name:'ケスラー製鋼の正門', short:'ケスラー製鋼', place:'factory', cam:'v_factory', at:[346, 84], label:[26, -48], adj:[], calm:true,
     z:s => (s.clock >= SIREN ? 6 : 0),
     text:s => (s.clock < SIREN ? 'ケスラー製鋼の正門は閉まっていて、守衛所にだけ明かりがついている。塀の向こうで、機械の音が続いていた。鉄の焼けるにおいが、車の中まで入ってくる。'
       : 'ケスラー製鋼の正門。工員の列はもう切れた。門柱の明かりの下を、作業着の6人が歩いている。弁当箱は持っていない。守衛は窓口の戸を閉めて、中で帳面を付けていた。'),
@@ -97,9 +97,9 @@ const SPOTS = {
 
 // 街の全域の地図（有権者の本と同じ街）に、知事の行き先を足す
 const CITY = BOOKS.voter.maps.city;
-const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[30, 292], areas:[{ name:'オーク', x:236, y:160 }],
-  grounds:[...CITY.grounds, { x:218, y:20, w:44, h:30 }, { x:84, y:200, w:40, h:24 }, { x:330, y:40, w:60, h:36 }],
-  marks:[...CITY.marks, { type:'bldg', x:240, y:34, w:26, h:14 }, { type:'bldg', x:104, y:212, w:30, h:16 }, { type:'bldg', x:362, y:58, w:44, h:24, wing:true }, { type:'bldg', x:256, y:228, w:14, h:10 }],
+const MAP = { ...CITY, _blocks:null, legend:[20, 8], rose:[372, 292], areas:[{ name:'オーク', x:240, y:205 }],
+  grounds:[...CITY.grounds, { x:218, y:20, w:44, h:30 }, { x:84, y:200, w:40, h:24 }, { x:348, y:40, w:48, h:46 }],
+  marks:[...CITY.marks, { type:'bldg', x:240, y:34, w:26, h:14 }, { type:'bldg', x:104, y:212, w:30, h:16 }, { type:'bldg', x:372, y:58, w:40, h:24, wing:true }, { type:'bldg', x:256, y:228, w:14, h:10 }],
   note:'赤い丸が現在地。' };
 // 朝の食堂：紙を読んでも読まなくても、門を選ぶ
 const START = [
