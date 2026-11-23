@@ -611,7 +611,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-23 04:28 68c6dda';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-23 10:05 f2c9548';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6404,7 +6404,7 @@ function applyCutscene(st){
     if(Cut.key !== key) return;
     try { buildPlace(st); wrap.classList.remove('nogl'); }
     catch(e){ if(Cut.renderer){ wrap.hidden = true; Cut.key = null; } else fail('このブラウザでは、映像を表示できません。'); }
-  }, () => fail('映像を読みこめませんでした。'));
+  }, () => fail('映像を読み込めませんでした。'));
 }
 // カメラを切り替えた瞬間の砂嵐（drawOsd が描く）
 function cutStatic(ms){ Cut.staticAt = performance.now(); Cut.staticMs = ms; }
@@ -8157,29 +8157,29 @@ function soloTake(merged, saved, repo){
 const soloMine = () => soloOverlay({});                                   // この端末の下書きだけ
 const soloSaved = () => store.get('solo-saved', null) || { keys:{}, spots:{}, books:{}, cams:{} };      // 前にリポジトリへ保存した、この端末の分
 // 部屋の中の「更新」：部屋の今の中身を読みこむ（リポジトリのない部屋では、ホストの端末から届く）
-async function roomPullNow(){ soloPullNote = '読みこんでいます…'; render(); roomNote = ''; roomSig = ''; await roomPull(true); if(liveOn()) liveAll({ t:'refresh' }); soloPullNote = roomNote ? '読みこめませんでした' : '読みこみました'; render(); }
+async function roomPullNow(){ soloPullNote = '読み込み中です…'; render(); roomNote = ''; roomSig = ''; await roomPull(true); if(liveOn()) liveAll({ t:'refresh' }); soloPullNote = roomNote ? '読み込めませんでした' : '読み込みました'; render(); }
 // リポジトリを読みこむ。開いたとき・画面に戻ったとき・3分ごと・☰ の「更新」
 async function soloPull(manual){
   if(room || !TEST_BUILD || CUSTOM || !ghReady() || soloPulling || (!manual && fbe)) return;
-  soloPulling = true; if(manual){ soloPullNote = '読みこんでいます…'; render(); }
+  soloPulling = true; if(manual){ soloPullNote = '読み込み中です…'; render(); }
   try {
     const g = await ghApi('book/overlay.json');
-    if(g.status === 404){ if(manual) soloPullNote = '新しいものはありません'; }
+    if(g.status === 404){ if(manual) soloPullNote = '新しい更新はありません'; }
     else if(!g.ok) throw g.status;
     else {
       const meta = await g.json();
-      if(meta.sha === soloSha){ if(manual) soloPullNote = '新しいものはありません'; }
+      if(meta.sha === soloSha){ if(manual) soloPullNote = '新しい更新はありません'; }
       else {
         const dec = ghDecode(meta); if(!dec) throw 0;
         const repo = clean(Object.assign({ v:1, keys:{} }, dec)) || {}, sig = () => JSON.stringify([verPick(soloMine()), overlay.keys, overlay.poses, overlay.auto]), before = sig();
         soloTake(soloMerge(repo), repo, repo); soloSha = meta.sha;
         const changed = before !== sig();
-        if(manual) soloPullNote = changed ? '読みこみました' : '新しいものはありません';
+        if(manual) soloPullNote = changed ? '読み込みました' : '新しい更新はありません';
         if(changed && !manual) render();
       }
     }
-    if(await soloReplies()){ if(manual) soloPullNote = '読みこみました'; else if(!fbe) render(); }
-  } catch(e){ if(manual) soloPullNote = '読みこめませんでした'; }
+    if(await soloReplies()){ if(manual) soloPullNote = '読み込みました'; else if(!fbe) render(); }
+  } catch(e){ if(manual) soloPullNote = '読み込めませんでした'; }
   soloPulling = false; if(manual) render();
 }
 function autoSaveSoon(){ try { if(!ghLinked()) return; clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => soloSave(true), 4000); } catch(e){} }
@@ -8193,8 +8193,8 @@ async function soloSave(quiet){
     const r = await ghWrite('book/overlay.json', meta => { repo = clean(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null)) || {}; merged = soloMerge(repo); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...repo, ...merged, poses:repo.poses || overlay.poses || {}, base, ...autoPut(repo.auto) })) }; });
     if(r.status !== 200) throw r.status;
     soloTake(merged, merged, repo); clearTimeout(autoSaveTimer); soloSha = null;
-    if(quiet !== true) packNote = 'リポジトリ（' + ghRepo() + '）の book/overlay.json に保存しました。Claude Code でこのリポジトリを開くと、続きを直せます。配るリンクは、この欄のいちばん上に、このリポジトリの名前を入れて付けると、取れます。';
-  } catch(e){ if(quiet !== true || packPanel) packNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。リポジトリの名前と、トークン（Contents: Read and write）を、確かめてください。' : '保存できませんでした。電波のよい所で、もう一度押してください。'; }
+    if(quiet !== true) packNote = 'リポジトリ（' + ghRepo() + '）の book/overlay.json に保存しました。Claude Code でこのリポジトリを開くと続きを編集できます。';
+  } catch(e){ if(quiet !== true || packPanel) packNote = [401, 403, 404].includes(e) ? 'リポジトリに書き込めません。リポジトリ名とトークン権限（Contents: Read and write）を確認してください。' : '保存できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   if(quiet !== true || packPanel) render();
 }
 // 部屋に入っていないとき：連携したリポジトリの中身に、この端末の下書きを重ねて、公開用のリポジトリへ出す。出すのは book/overlay.json と、使っている絵だけ
@@ -8234,7 +8234,7 @@ async function pubLoadVers(){
     const r = await fetch('https://api.github.com/repos/' + slug + '/commits?path=book/overlay.json&per_page=40&t=' + Date.now(), { headers:pubHead() });
     if(!r.ok) throw r.status;
     pubVers = (await r.json()).map(c => { const m = String(c.commit.message).match(/^版 (\d+) を出す(?:（版 (\d+) の中身）)?(?:：(.*))?/); return { sha:c.sha, n:m ? +m[1] : 0, of:m && m[2] ? +m[2] : 0, memo:m && m[3] ? m[3].slice(0, 60) : '', at:Date.parse(c.commit.author.date) || 0 }; });
-  } catch(e){ pubVers = null; distNote('バージョン履歴を、読めませんでした。電波のよい所で、もう一度押してください。'); }
+  } catch(e){ pubVers = null; distNote('バージョン履歴を、読めませんでした。通信環境の良い場所で、もう一度お試しください。'); }
   render();
 }
 async function pubGet(sha){
@@ -8258,7 +8258,7 @@ async function pubShowDiff(sha){
   try {
     const cur = await pubGet(sha), before = list[i + 1] ? await pubGet(list[i + 1].sha) : {};
     if(pubDiff && pubDiff.sha === sha) pubDiff = { sha, prev:verDiff(before, cur), hasPrev:!!list[i + 1], hand:verDiff(cur, handData()) };
-  } catch(e){ pubDiff = null; distNote('違いを、読めませんでした。電波のよい所で、もう一度押してください。'); }
+  } catch(e){ pubDiff = null; distNote('違いを、読めませんでした。通信環境の良い場所で、もう一度お試しください。'); }
   render();
 }
 // 選んだ版を、もう一度配る（新しい番号の版になる）
@@ -8268,8 +8268,8 @@ async function pubAgain(sha){
   try {
     const { rel, ...data } = await pubGet(sha), r = await pubWrite(pubApiOf(store.get('pub-repo', '')), data, v.n || 0);
     if(r.status !== 200) throw r.status;
-    distNote(verName(v) + ' の中身を、版 ' + r.n + ' として配りました。リンクは変わりません。');
-  } catch(e){ distNote('出せませんでした。電波のよい所で、もう一度押してください。'); }
+    distNote(verName(v) + ' の内容をバージョン ' + r.n + ' として公開しました。リンクは変わりません。');
+  } catch(e){ distNote('公開できませんでした。通信環境の良い場所で、もう一度お試しください。'); }
   render();
 }
 // 選んだ版を、手元に戻す。手元の書き換えは、その版の中身に置きかわる。書き換えてから出すと、新しい版になる
@@ -8290,7 +8290,7 @@ async function pubBack(sha){
       store.set('pub-from-room', { n:v.n || 0, data:verPick(o) });
       roomNote = verName(v) + ' の中身を、この部屋に戻しました。';
       if(liveOn()) liveAll({ t:'refresh' });
-    } catch(e){ roomNote = '戻せませんでした。電波のよい所で、もう一度押してください。'; }
+    } catch(e){ roomNote = '復元できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
     render(); return;
   }
   if(!confirm(verName(v) + ' の中身を、手元に戻しますか？\nいまの手元の書き換えは、' + verName(v) + ' の中身に置きかわります。')) return;
@@ -8308,8 +8308,8 @@ async function pubBack(sha){
     overlay = { base:o.base || null, keys:{}, items:{}, poses:o.poses || {}, spots:{}, books:{}, cams:{}, auto:o.auto || null }; overlayPoses(); store.set('overlay', overlay);
     try { applySpots(); } catch(e){}
     store.set('pub-from', { n:v.n || 0, data:verPick(o) });
-    packNote = verName(v) + ' の中身を、手元に戻しました。書き換えてから［配っている版を新しくする］を押すと、新しい版として配れます。';
-  } catch(e){ packNote = '戻せませんでした。電波のよい所で、もう一度押してください。'; }
+    packNote = verName(v) + ' の内容を手元に復元しました。編集後に［公開リンクを更新］を押すと最新版として公開できます。';
+  } catch(e){ packNote = '復元できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // 配る画面に出す、版の欄
@@ -8318,18 +8318,18 @@ function pubVersHtml(){
   const now = top ? verName(top) + '（' + verWhen(top.at) + '）' : pv ? '版 ' + pv.n + '（' + verWhen(pv.at) + '）' : '';
   const pf = store.get(pubFromKey(), null), moved = pf ? verDiff(pf.data, handData()).length : 0, hand = room ? '部屋' : '手元', canBack = !room || (isHost() && !roomLocal());
   const dl = (t, rows) => '<div class="verd"><b>' + t + '</b>' + (rows.length ? rows.map(x => '<div class="vd">' + escText(x.m + ' ' + x.head) + (x.a ? '<span>前：' + escText(x.a) + '</span>' : '') + (x.b ? '<span>後：' + escText(x.b) + '</span>' : '') + '</div>').join('') : '<div>違いはありません。</div>') + '</div>';
-  const diffOf = v => (!pubDiff || pubDiff.sha !== v.sha ? '' : pubDiff.busy ? '<div class="verd">違いを、読みこんでいます…</div>' : (pubDiff.hasPrev ? dl('1つ前の版から、' + verName(v) + ' で変わった所', pubDiff.prev) : dl(verName(v) + ' の中身', pubDiff.prev)) + (pubDiff.hand ? dl(verName(v) + ' から、' + hand + 'で変わった所', pubDiff.hand) : ''));
+  const diffOf = v => (!pubDiff || pubDiff.sha !== v.sha ? '' : pubDiff.busy ? '<div class="verd">違いを、読み込み中です…</div>' : (pubDiff.hasPrev ? dl('1つ前の版から、' + verName(v) + ' で変わった所', pubDiff.prev) : dl(verName(v) + ' の中身', pubDiff.prev)) + (pubDiff.hand ? dl(verName(v) + ' から、' + hand + 'で変わった所', pubDiff.hand) : ''));
   return (now ? '<p style="margin-top:10px">いま配っている版：<b>' + escText(now) + '</b></p>' : '')
     + (pf ? '<p>' + hand + '：<b>' + escText(verName(pf)) + (moved ? ' から ' + moved + ' か所変わっています' : ' と同じです') + '</b></p>' : '')
-    + (list ? (list.length ? '<div class="vers">' + list.map((v, i) => '<div class="rowl" style="flex-wrap:wrap"><span style="flex:1 1 100%">' + escText(verName(v) + (v.memo ? '　' + v.memo : '')) + '<small style="display:block;color:var(--dim)">' + escText(verWhen(v.at) + (v.of ? '　版 ' + v.of + ' の中身' : '') + (i ? '' : '　いま配っている版')) + '</small></span><button class="sm' + (pubDiff && pubDiff.sha === v.sha ? ' on' : '') + '" data-verdiff="' + v.sha + '">差分を見る</button>' + (i ? '<button class="sm" data-verpub="' + v.sha + '">このバージョンを公開</button>' : '') + (canBack ? '<button class="sm" data-verback="' + v.sha + '">' + 'このバージョンに復元</button>' : '') + diffOf(v) + '</div>').join('') + '</div>' : '<p>まだ、配った版がありません。</p>')
-      : pubVers === '…' ? '<p>バージョン履歴を、読みこんでいます…</p>' : '<button class="sm" id="pubVersBtn" style="margin-top:10px">バージョン履歴</button>');
+    + (list ? (list.length ? '<div class="vers">' + list.map((v, i) => '<div class="rowl" style="flex-wrap:wrap"><span style="flex:1 1 100%">' + escText(verName(v) + (v.memo ? '　' + v.memo : '')) + '<small style="display:block;color:var(--dim)">' + escText(verWhen(v.at) + (v.of ? '　版 ' + v.of + ' の中身' : '') + (i ? '' : '　いま配っている版')) + '</small></span><button class="sm' + (pubDiff && pubDiff.sha === v.sha ? ' on' : '') + '" data-verdiff="' + v.sha + '">差分を見る</button>' + (i ? '<button class="sm" data-verpub="' + v.sha + '">このバージョンを公開</button>' : '') + (canBack ? '<button class="sm" data-verback="' + v.sha + '">' + 'このバージョンに復元</button>' : '') + diffOf(v) + '</div>').join('') + '</div>' : '<p>まだ公開したバージョンがありません。</p>')
+      : pubVers === '…' ? '<p>バージョン履歴を、読み込み中です…</p>' : '<button class="sm" id="pubVersBtn" style="margin-top:10px">バージョン履歴</button>');
 }
 async function soloPublish(){
   if(room || !ghReady()) return;
   const slug = repoSlug(document.getElementById('soloPubRepo').value);
-  if(!slug){ packNote = '公開用のリポジトリの名前を、「持ち主/リポジトリ」の形で入れてください。'; render(); return; }
-  if(slug === ghRepo()){ packNote = '連携しているリポジトリとは、別のリポジトリを入れてください（連携しているリポジトリを公開にすると、部屋の記録も見えてしまいます）。'; render(); return; }
-  store.set('pub-repo', slug); packNote = '出しています…'; render();
+  if(!slug){ packNote = '公開用リポジトリの名前を「オーナー名/リポジトリ名」の形式で入力してください。'; render(); return; }
+  if(slug === ghRepo()){ packNote = '作業用とは別のリポジトリを指定してください（作業用を公開すると部屋の記録まで見えてしまいます）。'; render(); return; }
+  store.set('pub-repo', slug); packNote = '公開処理中です…'; render();
   const api = (path, opt = {}) => fetch('https://api.github.com/repos/' + slug + '/contents/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify({ ...JSON.parse(opt.body), committer:GH_WHO, author:GH_WHO }) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
   try {
     const base = (await packDataPublic()).base, g = await ghApi('book/overlay.json');
@@ -8344,54 +8344,54 @@ async function soloPublish(){
     const link = packLink(slug, '');
     try { await navigator.clipboard.writeText(link); } catch(e){}
     store.set('pub-done', slug);
-    packNote = '版 ' + r.n + ' を配りました。配るリンク（コピーしてあります）：' + link;
-  } catch(e){ packNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。①公開のリポジトリとして作ってあること ②トークンに、そのリポジトリも足してあること（Contents: Read and write）を、確かめてください。' : '出せませんでした。電波のよい所で、もう一度押してください。'; }
+    packNote = '版 ' + r.n + ' を公開しました。共有リンク（コピー済み）：' + link;
+  } catch(e){ packNote = [401, 403, 404].includes(e) ? 'リポジトリに書き込めません。①公開リポジトリとして作成済みであること ②トークンにそのリポジトリの権限（Contents: Read and write）があること、を確認してください。' : '公開できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function packFileSave(){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(await packDataPublic())], { type:'application/json' })); a.download = 'overlay.json'; document.body.appendChild(a); a.click(); a.remove(); }
 // 部屋に入っていないときの、配る欄（☰ の「カスタム版」の中。編集版だけ）
 function soloDistHtml(){
   const n = soloCount(), has = n || Object.keys(overlay.keys || {}).length, esc = t => escText(t).replace(/"/g, '&quot;');
-  if(!has && !(ghLinked() && store.get('pub-repo', ''))) return '<div class="scr-state">まだ書き換えたものがありません。本文の下の「✎ 編集する」を押して書き換えると、ここから配れます。</div>';
-  return '<div class="scr-state on">書き換えたもの<b>' + n + ' 件</b></div>'
-    + '<div class="step"><div class="n">配り方 1</div><h3>ファイルで配る</h3><p>ファイルを作って、メールやチャットで送ってください。受け取った人は、ファイルを開くと遊べます。</p><button class="go" id="soloExport">ファイルで書き出す</button></div>'
-    + '<div class="step"><div class="n">配り方 2</div><h3>リンクで配る</h3><p>リンクを作って、送ってください。受け取った人は、リンクを開くと遊べます。</p>'
+  if(!has && !(ghLinked() && store.get('pub-repo', ''))) return '<div class="scr-state">まだ編集内容がありません。本文の下の「✎ 編集する」から内容を書き換えると、ここから公開・共有できます。</div>';
+  return '<div class="scr-state on">変更点<b>' + n + ' 件</b></div>'
+    + '<div class="step"><div class="n">方法 1</div><h3>ファイルで共有</h3><p>ゲームを1つのファイルに書き出して送ります。受け取った人はブラウザで開くと遊べます。</p><button class="go" id="soloExport">ファイルで書き出す</button></div>'
+    + '<div class="step"><div class="n">方法 2</div><h3>リンクで公開</h3><p>公開用の URL を発行して送ります。受け取った人はリンクを開くと遊べます。</p>'
       + (ghLinked()
-        ? '<label class="lab">配る用の公開リポジトリ</label><input id="soloPubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="soloPublish">' + (store.get('pub-done', '') && store.get('pub-done', '') === store.get('pub-repo', '') ? '配っている版を新しくする' : '公開リンクを作成') + '</button><p style="margin-top:10px">ゲームを書き換えたあとは、もう一度押してください。リンクの先のゲームが、新しい版になります。リンクは変わりません。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : '')
+        ? '<label class="lab">公開用リポジトリ</label><input id="soloPubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + esc(store.get('pub-repo', '')) + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="soloPublish">' + (store.get('pub-done', '') && store.get('pub-done', '') === store.get('pub-repo', '') ? '公開リンクを更新' : '公開リンクを作成') + '</button><p style="margin-top:10px">あとから内容を直したときはもう一度押してください。同じリンクのまま最新版へ更新されます。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : '')
         : '<p>リポジトリを設定すると、ボタン1つでリンクを作れます。</p><button class="sm" id="toLink">リポジトリ設定</button>'
           + '<details class="scr-more"><summary>リポジトリを設定せずに、手で置く方法</summary>'
           + '<p>1. <a href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
           + '2.「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
-          + '3. ☰ の「その他」の「もらった版で遊ぶ」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
-          + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">中身をファイルにする</button></details>')
+          + '3. ☰ の「その他」の「ほかの人のゲームを開く」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
+          + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">差分データを書き出す</button></details>')
       + '</div>'
-    + (ghLinked() ? '<div class="step"><div class="n">保存</div><h3>リポジトリに保存する</h3><p>書き換えた文章や選択肢は、作業用のリポジトリ（' + escText(ghRepo()) + '）に自動で保存されます。すぐに保存する場合は、［保存する］を押してください。</p><button class="go" id="soloSave">保存する</button></div>' : '');
+    + (ghLinked() ? '<div class="step"><div class="n">保存</div><h3>リポジトリに保存する</h3><p>編集内容は作業用リポジトリ（' + escText(ghRepo()) + '）に自動で保存されます。すぐ保存したい場合は［保存する］を押してください。</p><button class="go" id="soloSave">保存する</button></div>' : '');
 }
 // リポジトリの名前を、「持ち主/リポジトリ」の形にそろえる（URL を貼っても通る）
 const repoSlug = t => (String(t || '').trim().replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/^github\.com\//, '').replace(/\.git$/, '').match(/^[\w.-]+\/[\w.-]+/) || [''])[0];
 // 配るリンク：公開版の番地に、リポジトリの名前（と、非公開のときは読むだけのトークン）を付ける
 const packBase = () => location.href.split('#')[0].split('?')[0].replace(/\/test\/(index\.html)?$/, '/');
 const packLink = (repo, key) => packBase() + '#pack=' + repo + (key ? '&pk=' + key : '');
-let packMode = 'play'; // カスタム版の画面：'play' もらった版で遊ぶ／'dist' 自分の版を配る
+let packMode = 'play'; // カスタム版の画面：'play' ほかの人のゲームを開く／'dist' 自分の版を配る
 let packPanel = false, linkPanel = false, screenBack = null; // screenBack：タイトルやメニューから開いた画面を閉じたときに、戻る先
 // リポジトリの連携だけの画面（☰ の「リポジトリの設定」、始める前のメニューの「リポジトリを連携する」から開く）
-// 連携する：トークンを貼るだけでよい。リポジトリの名前が空なら、トークンから GitHub の名前を調べて、決まった名前のリポジトリ（作業用・配る用）を探して入れる
+// 連携する：トークンを貼るだけでよい。リポジトリの名前が空なら、トークンから GitHub の名前を調べて、決まった名前のリポジトリ（作業用・公開用）を探して入れる
 let ghNameOpen = false, ghPatDraft = ''; // ghPatDraft：貼ったトークンを、連携が済むまで、画面の描き直しをまたいで持っておく（保存はしない）
 async function ghSaveClick(){
   const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
   const pat = val('ghPatIn') || ghPatDraft || ghPat(); ghPatDraft = val('ghPatIn') || ghPatDraft; let slug = repoSlug(val('ghRepoIn')), pub = repoSlug(val('ghPubIn'));
   if(!pat){ ghNote = 'トークンを貼ってください。'; render(); return; }
-  if(pub && pub === slug){ ghNote = '配る用には、作業用とは別のリポジトリを入れてください。'; ghNameOpen = true; render(); return; }
+  if(pub && pub === slug){ ghNote = '公開用には、作業用とは別のリポジトリを指定してください。'; ghNameOpen = true; render(); return; }
   if(!slug){
-    ghNote = '確かめています…'; render();
+    ghNote = '確認中です…'; render();
     const api = path => fetch('https://api.github.com/' + path, { headers:{ Authorization:'Bearer ' + pat, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
     try {
       const u = await api('user'); if(!u.ok) throw u.status;
       const login = String((await u.json()).login || ''); if(!/^[\w.-]+$/.test(login)) throw 0;
       const work = login + '/joining-the-living-dead-work', dist = login + '/joining-the-living-dead-share';
-      if(!(await api('repos/' + work)).ok){ ghNote = '作業用のリポジトリ（' + work + '）が見つかりません。手順 1 で作ってあるか、手順 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下に名前を入れます。'; ghNameOpen = true; render(); return; }
+      if(!(await api('repos/' + work)).ok){ ghNote = '作業用リポジトリ（' + work + '）が見つかりません。手順 1 で作ってあるか、手順 2 の Repository access で選んであるかを確かめてください。別の名前で作ったときは、下に名前を入れます。'; ghNameOpen = true; render(); return; }
       slug = work; if(!pub && (await api('repos/' + dist)).ok) pub = dist;
-    } catch(e){ ghNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
+    } catch(e){ ghNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub に接続できません。通信環境の良い場所で、もう一度お試しください。'; render(); return; }
   }
   store.set('gh-repo', slug); store.set('gh-pat', pat); if(pub) store.set('pub-repo', pub); else store.remove('pub-repo');
   ghNameOpen = false; ghPatDraft = ''; ghNote = '連携しました。'; render();
@@ -8400,23 +8400,23 @@ function linkPanelHtml(){
   const repo = ghRepo(), pub = store.get('pub-repo', ''), esc = t => escText(t).replace(/"/g, '&quot;'), on = ghLinked();
   const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
   return '<div class="scr"><h2 class="scr-h">リポジトリの設定</h2>'
-    + '<p class="scr-lead">設定すると、書き換えたものが自動で保存され、画像を付ける、リンクで配る、AI に書かせる、といったことができるようになります。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは、GitHub の上のファイル置き場です。トークンは、ゲームがそこへ書きこむための鍵です。GitHub は無料で使えます。</p>'
-    + '<div class="scr-state' + (on ? ' on' : '') + '">' + (on ? '連携しています<b>作業用：' + escText(repo) + '</b><b>配る用：' + (pub ? escText(pub) : 'まだ決めていません') + '</b>' : 'まだ連携していません') + '</div>'
-    + '<div class="step"><div class="n">手順 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開・非公開が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作ります。すでにあるなら、飛ばします。</p>'
-      + '<p><b>作業用（非公開）</b>　書き換えたもの、画像、部屋の記録が入ります。見られるのは、自分とトークンを渡した人だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
-      + '<p style="margin-top:16px"><b>配る用（公開）</b>　リンクで配るときに使います。誰でも見られますが、入るのは書き換えた内容と画像だけです。あとからでも作れます。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で配る用を作る</a></div>'
+    + '<p class="scr-lead">設定すると、編集内容の自動保存・画像の添付・リンク公開・AI 執筆が使えるようになります。</p><p class="scr-lead" style="font-size:13px;color:var(--dim)">リポジトリは GitHub 上の保存場所、トークンは書き込み用の鍵です（GitHub は無料で使えます）。</p>'
+    + '<div class="scr-state' + (on ? ' on' : '') + '">' + (on ? '連携しています<b>作業用：' + escText(repo) + '</b><b>公開用：' + (pub ? escText(pub) : 'まだ決めていません') + '</b>' : 'まだ連携していません') + '</div>'
+    + '<div class="step"><div class="n">手順 1</div><h3>リポジトリを2つ作る</h3><p>下のボタンを押すと、名前と公開設定が入った状態で GitHub が開きます。「Add a README file」にチェックを入れて作成してください（作成済みなら飛ばせます）。</p>'
+      + '<p><b>作業用（非公開）</b>　編集データ・画像・部屋の記録を保存します。見られるのは自分とトークンを共有した相手だけです。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">GitHub で作業用を作る</a>'
+      + '<p style="margin-top:16px"><b>公開用（公開）</b>　リンクで共有するときに使います。誰でも閲覧できますが、入るのは編集内容と画像だけです（あとから作成もできます）。</p><a class="go" href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開用を作る</a></div>'
     + '<div class="step"><div class="n">手順 2</div><h3>トークンを作る</h3><p>下の「GitHub でトークンを作る」を押して、開いた画面で次のように選びます。</p>'
       + pick([['Token name', 'joining-the-living-dead'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 手順 1 で作ったもの（2つ作ったなら、2つとも）'], ['Repository permissions', 'Contents と Issues を、どちらも Read and write']])
-      + '<p>Issues は、GitHub で、やることを1件ずつ書いておくものです。ゲームは、文章に直す所が残っていそうな場面のことを、Issues に書きます。「Generate token」を押して、出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p>'
+      + '<p>ゲームはメタゾンビの記録に GitHub の Issues を使います。「Generate token」を押して発行された github_pat_… をコピーしてください（画面を閉じると二度と表示されません）。</p>'
       + '<a class="go" href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">GitHub でトークンを作る</a></div>'
     + '<div class="step"><div class="n">手順 3</div><h3>トークンを貼る</h3>'
-      + '<p>コピーしたトークンを貼って、「連携する」を押します。手順 1 で作ったリポジトリを、自動で探して連携します。</p>'
+      + '<p>コピーしたトークンを貼って「連携する」を押すと、手順 1 で作ったリポジトリを自動で検出して連携します。</p>'
       + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'github_pat_…') + '" value="' + esc(ghPatDraft) + '" autocomplete="off">'
       + '<button class="go" id="ghSave">' + (on ? '入れ直す' : '連携する') + '</button>'
       + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
-      + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>手順 1 で、名前を変えて作った人は</summary><p>ここに、リポジトリの名前を入れます。空のままなら、自動で探します。</p>'
-        + '<label class="lab">作業用のリポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-work" value="' + esc(repo) + '" autocomplete="off">'
-        + '<label class="lab">配る用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/joining-the-living-dead-share" value="' + esc(pub) + '" autocomplete="off"></details>'
+      + '<details class="scr-more" id="ghNames"' + (ghNameOpen ? ' open' : '') + '><summary>手順 1 でリポジトリ名を変更した場合</summary><p>下にリポジトリ名を入力してください（空欄のままなら自動検出します）。</p>'
+        + '<label class="lab">作業用リポジトリ</label><input id="ghRepoIn" placeholder="yourname/joining-the-living-dead-work" value="' + esc(repo) + '" autocomplete="off">'
+        + '<label class="lab">公開用のリポジトリ</label><input id="ghPubIn" placeholder="yourname/joining-the-living-dead-share" value="' + esc(pub) + '" autocomplete="off"></details>'
       + (on ? '<button class="quiet" id="ghForget">リポジトリの設定を消す</button>' : '') + '</div>'
     + '</div>';
 }
@@ -8640,7 +8640,7 @@ function howPages(kind){
         + (room && !guest ? '<br>・呪いの濃さ：強さ3以上の未封印メタゾンビの強さを全冊分足した値です。40以上になると、採用ルールを［ホストの承認で反映］にしていても、ほかのメンバー1人の［賛成］で反映されるようになります。' : '')
         + '<br>・強さ5：全冊合わせて10体になると部屋のメンバーが自分を含め2人、20体になると3人必要です。人数が足りないと強さ5のいる場面から先へ進めなくなるため、' + (guest ? '部屋の画面の［招待リンクをコピー］で人を招待するか、' : room ? '部屋に人を招待するか、' : '［☰］の［部屋］で人を招待するか、') + '強さ5を封印してください。'],
       ['地図で探す', 'メタゾンビのいる建物やエリア（見取り図では部屋）に血の汚れが付きます。地図の下には現在地の体数と、出会った分・呼び出した分の場面番号が出ます。スレッドの［地図で場所を見る］を押すと、該当する場所が地図上で金色の点線の輪で囲まれます。'],
-      ['公開したゲームへの影響', guest ? 'この部屋のゲームを外の人に公開した場合、未封印のメタゾンビがいる場面では映像や文章に怪奇現象が起きます。遊んだ人からの報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。' : 'リンクやファイルで公開したゲームでは、未封印のメタゾンビがいる場面で映像や文章に怪奇現象が起きます（止めたいときは' + (room ? '部屋の画面' : '配る画面') + 'の［配った版にメタゾンビを出す］のチェックを外してください）。遊んだ人が通信の［制作者へ］から送った報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。'],
+      ['公開したゲームへの影響', guest ? 'この部屋のゲームを外の人に公開した場合、未封印のメタゾンビがいる場面では映像や文章に怪奇現象が起きます。遊んだ人からの報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。' : 'リンクやファイルで公開したゲームでは、未封印のメタゾンビがいる場面で映像や文章に怪奇現象が起きます（止めたいときは' + (room ? '部屋の画面' : '［公開・共有］画面') + 'の［共有ゲームにメタゾンビを反映］のチェックを外してください）。遊んだ人が通信の［制作者へ］から送った報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。'],
     ], after:'※ 封印したあとに人の手を経ず文章が変わった場合（AI が書き換えたときなど）は、メタゾンビが復活します。', btn:['howMzBtn', 'メタゾンビ図鑑'] };
     // メタゾンビを直すときに使うもの（前は、上のページに全部入っていて、スマホで縦に長すぎた。遊んだ側からの報告、2026-11-21）
     const mzHow2 = { t:'メタゾンビを減らす', text:room ? 'メタゾンビをチームで効率よく減らすための機能です。' : 'メタゾンビを効率よく減らすための機能です。', list:[
@@ -8659,15 +8659,15 @@ function howPages(kind){
       ...(roomLocal() ? [] : [mzHow, mzHow2]),
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
-    const linkWay = ['リンクで配る', room ? '［公開リンクを作成］を押して公開用 URL を発行し、遊んでほしい人に送ります。あとから内容を直したらもう一度［公開リンクを作成］を押せば、同じ URL のまま最新版へ更新されます（版の番号が1つ上がります）。' : '先にリポジトリを設定してください。［公開リンクを作成］で公開用 URL を発行して送ります。あとから内容を直したときは［配っている版を新しくする］を押せば、同じ URL のまま最新版へ更新されます（版の番号が1つ上がります）。'];
+    const linkWay = ['リンクで公開する', room ? '［公開リンクを作成］を押して公開用 URL を発行し、遊んでほしい人に送ります。あとから内容を直したらもう一度［公開リンクを作成］を押せば、同じ URL のまま最新版へ更新されます（バージョン番号が1つ上がります）。' : '先にリポジトリを設定してください。［公開リンクを作成］で公開用 URL を発行して送ります。あとから内容を直したときは［公開リンクを更新］を押せば、同じ URL のまま最新版へ更新されます（バージョン番号が1つ上がります）。'];
     return [
-      { t:'編集版でできること', text:'編集版では、ゲームの本文や選択肢を自由に書き換えたり、新しい場所や主人公の本を追加したりできます。<br><br>作ったゲームはリンクやファイルでほかの人に共有できます。部屋を作れば複数人で共同制作でき、本文や選択肢の執筆を AI に任せることもできます。' },
-      ...(room ? [] : [{ t:'リポジトリを作る', text:'編集したデータを保存・公開するために、無料サービスの GitHub 上に自分用の置き場（リポジトリ）を作ることをおすすめしています。利用には GitHub アカウントが必要です。<br><br>用意するのは「作業用（編集データや画像を保存）」と「配る用（リンクで公開）」の2つです。詳しい手順は下の［リポジトリ設定］から確認できます。設定すると次の機能が使えるようになります。<br><br>・編集内容が作業用リポジトリに自動で保存される<br>・本文に好きな画像を貼れる<br>・作ったゲームをリンクで公開できる<br>・ホストがページを閉じていても、メンバーが部屋を使い続けられる<br>・本文や選択肢の執筆を AI に頼める', after:'※ リポジトリを設定しなくても、ゲームの編集とファイル形式での共有はできます（その場合、編集データはいま使っているスマホやパソコンにだけ保存されます）。<br>※ 準備が面倒な場合は、AI の Claude Code に任せることもできます。Claude Code と GitHub を連携したうえで、次のリンクを貼って「準備して」と頼んでください。' + guide, btn:['howLinkBtn', 'リポジトリ設定'] }]),
-      { img:'how-make-1', full:true, t:'ゲームを書き換える', lead:keysLead, legend:keys, list:[['本文に画像を付ける', '先にリポジトリを設定してください。［✎ 編集する］から画像を差し込みたい本文を選び、［画像を添付］で画像を選択して［直す］を押すと、その本文の下に表示されます。'], ['場所を足す', '［地図］がある場面で［地図］→［地図に場所を追加］を押し、追加したい位置を選んで［新しい場所を作成］を押します。'], ['一室を足す', '建物の中にいるときに［地図］を開き、［となりに一室を追加］を押します。'], ['本を足す', '［☰］→［作る］→［本を追加］から主人公の名前などを入力します。特定条件まで隠しておきたいときは［解放条件］を設定し、最後に［本を作成］を押します。'], ['選択肢に体力などの変化を付ける', '選択肢を足す画面でテキストと「選択後の展開」を書くと、「体力が1減る」などの効果候補が自動で出るので、使いたいものを押して付けます。映像内の主人公の動きも文章から自動で決まります。候補のルールは［☰］→［作る］→［自動提案］で変更できます。']] },
-      { t:'ゲームを配る', text:room ? 'この部屋でみんなと編集したゲームを、外の人に遊んでもらうために公開・共有できます。操作は［☰］→［部屋］→［部屋の管理］から行います。' : '自分で編集したゲームを、ほかの人に遊んでもらうために公開・共有できます。操作は［☰］→［作る］→［公開・共有］から行います。', list:[
+      { t:'編集版でできること', text:'編集版では、ゲームの本文や選択肢を自由に書き換えたり、新しい場所や主人公の本を追加したりできます。<br><br>作ったゲームはリンクやファイルでほかの人に公開・共有できます。部屋を作れば複数人で共同制作でき、本文や選択肢の執筆を AI に任せることもできます。' },
+      ...(room ? [] : [{ t:'リポジトリを作る', text:'編集したデータを保存・公開するために、無料サービスの GitHub 上に自分用の置き場（リポジトリ）を作ることをおすすめしています。利用には GitHub アカウントが必要です。<br><br>用意するのは「作業用（編集データや画像を保存）」と「公開用（リンクで公開）」の2つです。詳しい手順は下の［リポジトリの設定］から確認できます。設定すると次の機能が使えるようになります。<br><br>・編集内容が作業用リポジトリに自動で保存される<br>・本文に好きな画像を貼れる<br>・作ったゲームをリンクで公開できる<br>・ホストがページを閉じていても、メンバーが部屋を使い続けられる<br>・本文や選択肢の執筆を AI に頼める', after:'※ リポジトリを設定しなくても、ゲームの編集とファイル形式での共有はできます（その場合、編集データはいま使っているスマホやパソコンにだけ保存されます）。<br>※ 準備が面倒な場合は、AI の Claude Code に任せることもできます。Claude Code と GitHub を連携したうえで、次のリンクを貼って「準備して」と頼んでください。' + guide, btn:['howLinkBtn', 'リポジトリの設定'] }]),
+      { img:'how-make-1', full:true, t:'ゲームを書き換える', lead:keysLead, legend:keys, list:[['本文に画像を添付する', '先にリポジトリを設定してください。［✎ 編集する］から画像を差し込みたい本文を選び、［画像を添付］で画像を選択して［直す］を押すと、その本文の下に表示されます。'], ['場所を追加する', '［地図］がある場面で［地図］→［地図に場所を追加］を押し、追加したい位置を選んで［新しい場所を作成］を押します。'], ['一室を追加する', '建物の中にいるときに［地図］を開き、［となりに一室を追加］を押します。'], ['本を追加する', '［☰］→［作る］→［本を追加］から主人公の名前などを入力します。特定条件まで隠しておきたいときは［解放条件］を設定し、最後に［本を作成］を押します。'], ['選択肢に体力などの変化を設定する', '選択肢を足す画面でテキストと「選択後の展開」を書くと、「体力が1減る」などの効果候補が自動で出るので、使いたいものを押して付けます。映像内の主人公の動きも文章から自動で決まります。候補のルールは［☰］→［作る］→［自動提案］で変更できます。']] },
+      { t:'ゲームを公開・共有する', text:room ? 'この部屋でみんなと編集したゲームを、外の人に遊んでもらうために公開・共有できます。操作は［☰］→［部屋］→［部屋の管理］から行います。' : '自分で編集したゲームを、ほかの人に遊んでもらうために公開・共有できます。操作は［☰］→［作る］→［公開・共有］から行います。', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
-        ['ファイルで配る', (room ? '［ファイルで書き出す］' : '［ファイルで書き出す］') + 'でゲームを1つのファイルに書き出して送ります。受け取った人はブラウザで開くと遊べます。'],
-      ], after:room ? '※ 部屋の画面の［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で部屋の内容をその版へ戻せます。' : '※ リンク公開後は［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で手元の編集データをその版へ戻せます。', btn:['howPackBtn', room ? '部屋の管理' : '公開・共有を開く'] },
+        ['ファイルで共有する', (room ? '［ファイルで書き出す］' : '［ファイルで書き出す］') + 'でゲームを1つのファイルに書き出して送ります。受け取った人はブラウザで開くと遊べます。'],
+      ], after:room ? '※ 部屋の画面の［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で部屋の内容をそのバージョンに復元できます。' : '※ リンク公開後は［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で手元の編集データをそのバージョンに復元できます。', btn:['howPackBtn', room ? '部屋の管理' : '公開・共有を開く'] },
       { t:'みんなで作る', text:room ? '部屋の画面の［招待リンクをコピー］からリンクを送ると、受け取った人と一緒にこのゲームを共同編集できます。' : '［☰］の［部屋］で部屋を作って招待リンクを送ると、複数人で同じゲームを共同編集できます。リポジトリ未設定の部屋では、ホストがページを閉じると部屋は使えなくなります。', after:'※ メンバーの編集をいつ全員のゲームへ反映するかは、ホストが［☰］→［部屋］→［部屋の管理］から、［即時反映］［1人の承認で反映］［ホストの承認で反映］の3つより選べます。<br>※ メンバーを外したいときは、部屋の画面で対象の［退出させる］を押します。なお、リポジトリ付きの部屋の招待リンクには書き込み用トークンが含まれるため、外した相手の書き込みも止めたい場合は［トークンを再発行］から鍵を更新してください。', btn:['howPackBtn2', room ? '部屋の管理' : '部屋を作る'] },
       { img:'how-make-2', full:true, t:'通信', lead:room ? '右端の［通信］から開く、メンバー同士のチャットと編集レビューの画面です。' : '右端の［通信］から開きます。1人のときは自分用のメモ帳、部屋に入っているときはメンバー同士のチャットとして使えます。', legend:[B('新しいスレッド') + '：話題ごとにスレッドを立てられます。入力して［送る］を押すと始まります。', B('スレッド') + '：押すと会話を開きます。', B('編集提案') + '：メンバーの編集提案もスレッドとして並びます。ホストが［採用する］を押すか、［1人の承認で反映］の部屋で本人以外の誰かが［賛成］を押すと、全員のゲームへ反映されます。', B('採用待ち') + '：まだ全員のゲームに反映されていない編集提案だけを表示します。'], after:'※ ' + (room ? '' : '部屋では、') + '入力欄の左にある［＋］→［ファイルを添付］から 500KB までのファイルを添付できます。<br>※ 自分が立てたスレッドは一覧で長押し（パソコンでは右クリック）すると［名前を変更］と［削除］ができます（編集提案のスレッドは削除できません）。' },
       ...(room && roomLocal() ? [] : [mzHow, mzHow2]),
@@ -8681,7 +8681,7 @@ function howPages(kind){
   const names = openIds().map(id => CHARS[id].name).join('・');
   const P = [
     { t:'どんなゲーム？', text:'アメリカ中西部の架空の州ウィノアの州都、グレンフォード。ゾンビが人を襲う州知事選挙の投票日を、' + n + '人の視点から読み進めるゲームブックです。<br><br>主人公は' + names + 'の' + n + '人で、それぞれに1冊の「本」があります。' + n + '冊は同じ一日の出来事を描いており、' + (room ? 'ほかの参加者の行動があなたの本にも影響します。たとえば、誰かがゾンビを倒せば、あなたの本にもそのゾンビは現れません。' : 'ある本での行動がほかの本にも影響します。たとえば、ある本でゾンビを倒せば、ほかの本にもそのゾンビは現れません。') + '<br><br>一日の終わりに州知事選挙の開票結果が出ます。' + n + '人の行動次第で、その結末が変わります。' },
-    room ? { t:'ゲームの始めかた', text:'右上の［☰］→［部屋］→［部屋の管理］から、自分が担当したい本の［ロックする］を押してください。同じ本を複数人で同時にロックすることはできません。ロックしていない本も、開けばこれまでの展開を読めます。<br><br>' + reach }
+    room ? { t:'ゲームの始めかた', text:'いま部屋に入っています。右上の［☰］→［部屋］→［部屋の管理］から、自分が担当したい本の［ロックする］を押してください。同じ本を複数人で同時にロックすることはできません。ロックしていない本も、開けばこれまでの展開を読めます。<br><br>' + reach }
       : { t:'ゲームの始めかた', text:'タイトル画面の［はじめる］から、読みたい本を選びます。本を選ぶと、ロックするかどうかを確認されます。', list:[['［ロックする］', '進めた内容が保存されます。'], ['［ロックしない］', '進めた内容は保存されません。下見用です。']], after:'ロックできるのは1人1冊までです。別の本へ移りたいときは、右上の［☰］→［本］から［保存してロックを外す］を押したあとで、次の本を選んでください。<br>※［保存せずにロックを外す］を選ぶと、ロックした時点の状態に戻ります。<br>※プレイ履歴があるときは、タイトル画面に［はじめる］の代わりに［つづきから］と［最初から］が出ます。' },
     { img:EMBED && !room ? 'how-play-0' : 'how-play-0-test', full:true, t:'画面の見かた', legend:[B('主人公の状態') + '：いま読んでいる主人公、ロックの有無、現在時刻、体力、持ち物を表示します。', B('☰') + '：メニューです。', B('映像／地図') + '：監視カメラの映像と地図を表示します。［地図］は、街の地図や建物の見取り図がある場面にだけ出ます。', B('主人公') + '：監視カメラに映っている主人公です。', ...(EMBED && !room ? [] : [B('通信') + (room ? '：メンバー同士でやり取りするチャットを開きます。' : '：自分用のメモ帳です。' + (TEST_BUILD ? '' : '下の入力欄に書いて［送る］を押すと一覧に残ります。') + (opinionOk() ? '一覧の一番上にある［' + authorWho() + 'へ］からは、' + (PACK ? 'このゲームの制作者へ感想や報告' : 'ゲームの作者へ意見') + 'を送れます。' : '') + '部屋に入るとメンバー同士のチャットに切り替わります' + (TEST_BUILD ? '（詳しい使い方は［☰］→［その他］→［作り方］にあります）。' : '。'))])] },
     // メニュー：写真のタブの番号ごとに、中身を言う（［作る］は編集版だけ。部屋の中では、ロックは部屋の画面でする）
@@ -8689,7 +8689,7 @@ function howPages(kind){
       B('本') + (room ? '：読む本を選べます。［1つ前に戻す］で前の場面に戻れます（最大10手前まで。ただし自分が選んだあとに他のメンバーも選択していると戻れません）。' : '：読む本の切り替えや、ロックの解除（［保存してロックを外す］／［保存せずにロックを外す］）ができます。［1つ前に戻す］で前の場面に戻れます（最大' + UNDO_MAX + '手前まで）。'),
       ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の管理］から本のロック・解除や、メンバーの退出処理（ホストのみ）ができます。［部屋を出る］を押すとタイトル画面に戻ります。' : TEST_BUILD ? '：みんなで遊ぶ・作るための部屋を作成したり、招待された部屋へ入ったりできます。' : '：マルチプレイ用の部屋を作ったり、招待された部屋へ入ったりできます。')]),
       ...(TEST_BUILD ? [B('作る') + (room ? '：ゲームの編集やメタゾンビ対策に使うツールがまとまっています' : '：ゲームの編集や配布に使うツールがまとまっています') + '（使い方は［その他］の［作り方］にあります）。'] : []),
-      B('その他') + (room ? '：' + (TEST_BUILD ? '［遊び方］［作り方］' : '［遊び方］') + 'の確認と、［サウンド］のオン・オフ切り替えができます。' : TEST_BUILD ? '：［遊び方］［作り方］の確認、［サウンド］のオン・オフ、［もらった版で遊ぶ］、［タイトルへ］戻る操作、全データを消してやり直す［最初から］があります。' : '：［遊び方］の確認、［サウンド］のオン・オフ、ほかの人が作ったゲームを読み込む［もらった版で遊ぶ］、［タイトルへ］戻る操作、全データを消して朝からやり直す［最初から］があります。')] },
+      B('その他') + (room ? '：' + (TEST_BUILD ? '［遊び方］［作り方］' : '［遊び方］') + 'の確認と、［サウンド］のオン・オフ切り替えができます。' : TEST_BUILD ? '：［遊び方］［作り方］の確認、［サウンド］のオン・オフ、［ほかの人のゲームを開く］、［タイトルへ］戻る操作、全データを消してやり直す［最初から］があります。' : '：［遊び方］の確認、［サウンド］のオン・オフ、［ほかの人のゲームを開く］、［タイトルへ］戻る操作、全データを消して朝からやり直す［最初から］があります。')] },
     { t:'ゲームの進めかた', list:[
       ['時刻', '行動を選ぶたびに時刻が進みます。投票所が開いているのは朝7時から夜8時までです。'],
       ['時間帯', '一日は朝・午前・昼・午後・夕方・夜の6つに分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかのメンバーが追いつくまで一時的に先へ進めなくなります。' : 'ある本が次の時間帯へ進むと、ほかの本が追いつくまで一時的に先へ進めなくなります。')],
@@ -8719,7 +8719,7 @@ function frontHtml(){
       + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
       + (EMBED ? '' : '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>')
       + '<button id="frHow">遊び方</button>'
-      + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・配る・みんなで作る</small></button>' : '')
+      + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・公開する・みんなで作る</small></button>' : '')
       + '</div>'
       + (TEST_BUILD && !ghLinked() ? '<div class="fr-note"><b>リポジトリの作成をおすすめしています</b><br>GitHub 上に自分用の保存場所（リポジトリ）を作ると、自動保存・画像添付・リンク公開・AI 執筆が使えるようになります。詳しくは上の［作り方］2ページ目をご覧ください。<div class="fr-btns" style="margin-top:10px"><button id="frLink">リポジトリ設定</button></div></div>' : '')
       + (EMBED ? '' : '<a class="fr-switch" href="' + siteRoot() + (TEST_BUILD ? '' : 'test/') + '">' + (TEST_BUILD ? '公開版へ' : '編集版へ') + '</a>')
@@ -8794,19 +8794,19 @@ function frontRender(){
 function packPanelHtml(){
   const key = store.get('pack-key', ''), mine = TEST_BUILD && !room && !EMBED;
   const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
-  return '<div class="scr"><h2 class="scr-h">' + (packMode === 'dist' ? '公開・共有' : 'もらった版で遊ぶ') + '</h2><p class="scr-lead">' + (packMode === 'dist' ? '書き換えたゲームを、人に配れます。' : 'ほかの人が作った版を読みこんで遊べます。') + '</p>'
+  return '<div class="scr"><h2 class="scr-h">' + (packMode === 'dist' ? '公開・共有' : 'ほかの人のゲームを開く') + '</h2><p class="scr-lead">' + (packMode === 'dist' ? '自分で編集したゲームを、ほかの人に公開・共有できます。' : 'ほかの人が作ったカスタムゲームを読み込んで遊べます。') + '</p>'
     + (packMode === 'dist' ? '' : PACK ? '<div class="scr-state on">今は、この版で遊んでいます<b>' + escText(PACK) + '</b></div>'
         + (overlay.base ? '<p class="scr-lead" style="font-size:13px;margin-top:10px">この版は、もとのゲームの ' + escText(overlay.base.ver || overlay.base.build || '') + ' に合わせて作られています。今動いているのは ' + escText(APP_VERSION.startsWith('__') ? BUILD : APP_VERSION) + ' です。'
             + (overlay.base.ver && overlay.base.ver !== APP_VERSION && !TEST_BUILD ? (store.get('pack-latest', false) ? '<br>いちばん新しいゲームの上で動かしています。合わなくなった直しは出ません。<button class="sm" id="packPin">合わせた版に戻す</button>' : '') : overlay.base.ver && !TEST_BUILD ? '<br><button class="sm" id="packLatest">いちばん新しいゲームの上で動かしてみる</button>' : '') + '</p>' : '')
-        + '<div class="step"><div class="n">この版</div><h3>配る・やめる</h3><button class="go" id="packCopy">この版のリンクをコピーする</button>'
+        + '<div class="step"><div class="n">この版</div><h3>共有・終了</h3><button class="go" id="packCopy">この版のリンクをコピーする</button>'
         + (key ? '<p style="margin-top:10px">このリンクにはトークンが入ります。渡した相手は、そのリポジトリの中身を読めます。</p>' : '')
         + '<button class="quiet" id="packOff">もとの版に戻す</button></div>'
-      : '<div class="step"><div class="n">読みこむ</div><h3>もらった名前を入れる</h3><p>リンクやファイルをもらった人は、それを開くだけです。「someone/joining-the-living-dead-share」のような名前をもらった人は、下に入れます。</p>'
+      : '<div class="step"><div class="n">読み込む</div><h3>リポジトリ名を入力</h3><p>公開リンクやファイルを受け取った場合はそのまま開いてください。「someone/joining-the-living-dead-share」のようなリポジトリ名を受け取った場合は下に入力します。</p>'
         + '<input id="packRepo" placeholder="someone/joining-the-living-dead-share" autocomplete="off"><button class="go" id="packOn">この版で遊ぶ</button>'
-        + '<details class="scr-more"><summary>入れても読みこめないとき（非公開の版）</summary><p>読むだけのトークンを作って、下に貼ってから「この版で遊ぶ」を押します。</p>'
+        + '<details class="scr-more"><summary>非公開リポジトリを読み込む場合</summary><p>読み取り専用のトークンを作成して下に貼り、「この版で遊ぶ」を押します。</p>'
         + '<input id="packKey" type="password" placeholder="github_pat_…" autocomplete="off">'
         + pick([['Token name', 'joining-the-living-dead-read'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 読みこみたいリポジトリ'], ['Repository permissions', 'Contents を Read-only']])
-        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　出てきた github_pat_… をコピーします。画面を閉じると、二度と表示されません。</p></details></div>')
+        + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　発行された github_pat_… をコピーしてください（画面を閉じると二度と表示されません）。</p></details></div>')
     + (missList().length ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + (mine && packMode === 'dist' ? soloDistHtml() : '')
     + (packNote ? '<div class="note">' + escText(packNote) + '</div>' : '') + '</div>';
@@ -9150,13 +9150,13 @@ function ghPanelHtml(){
   return '<div id="ghSet">'
     + '<p><b>1. リポジトリを作る</b><br><a href="https://github.com/new?name=joining-the-living-dead-work&visibility=private" target="_blank" rel="noopener">リポジトリを作る画面を開く（github.com）</a><br>名前と「非公開」は入力済みです。「Add a README file」にチェックを入れて、「Create repository」を押します。すでにあるリポジトリを使うなら、ここは飛ばします。</p>'
     + '<p><b>2. トークンを作る</b><br><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead" target="_blank" rel="noopener">トークンを作る画面を開く（github.com）</a><br>次のように選びます。<br>'
-    + '・Token name：joining-the-living-dead-work<br>・Expiration：90 days か、Custom で1年後<br>・Repository access：Only select repositories → 1 のリポジトリ（リンクで配るなら、配る用の公開リポジトリも）<br>・Repository permissions：Contents を Read and write<br>「Generate token」を押して、出てきた github_pat_… をコピーします。この画面を閉じると、トークンは二度と表示されません。</p>'
+    + '・Token name：joining-the-living-dead-work<br>・Expiration：90 days か、Custom で1年後<br>・Repository access：Only select repositories → 1 のリポジトリ（リンクで公開するなら、公開用リポジトリも）<br>・Repository permissions：Contents を Read and write<br>「Generate token」を押して、出てきた github_pat_… をコピーします。この画面を閉じると、トークンは二度と表示されません。</p>'
     + '<p><b>3. ここに入れる</b></p>'
     + '<input id="ghRepoIn" placeholder="例: yourname/joining-the-living-dead-work（URL でも可）" value="' + esc(repo) + '" autocomplete="off">'
     + '<input id="ghPatIn" type="password" placeholder="' + (ghPat() ? 'トークンは入っています（替えるときだけ貼る）' : 'トークン（github_pat_…）') + '" autocomplete="off">'
     + '<div class="row"><button id="ghSave">覚える</button>' + (ghLinked() ? '<button id="ghForget">設定を消す</button>' : '') + '</div>'
     + (ghNote ? '<div class="note">' + escText(ghNote) + '</div>' : '')
-    + '<details style="margin-top:12px"><summary>部屋を作ると起きること</summary><p>連携したまま部屋を作ると、部屋に人を招く招待リンクに、トークンが含まれます。招待リンクを持っている人は、作業用と配る用のリポジトリの中身を書き換えられます。招待リンクは、一緒に作る人にだけ渡してください。<br>部屋を作るとき、作業用のリポジトリに CLAUDE.md と AGENTS.md がなければ、自動で作ります。2つとも、AI にリポジトリの中身を説明するファイルです。すでにあるファイルは、書き換えません。</p></details>'
+    + '<details style="margin-top:12px"><summary>部屋を作ると起きること</summary><p>連携したまま部屋を作ると、部屋に人を招く招待リンクに、トークンが含まれます。招待リンクを持っている人は、作業用と公開用のリポジトリの中身を書き換えられます。招待リンクは、一緒に作る人にだけ渡してください。<br>部屋を作るとき、作業用リポジトリに CLAUDE.md と AGENTS.md がなければ、自動で作ります。2つとも、AI にリポジトリの中身を説明するファイルです。すでにあるファイルは、書き換えません。</p></details>'
     + '</div>';
 }
 // 部屋への読み書き。前と同じ頼み方のまま、自分の分はまとめて、ロックと設定はすぐに、リポジトリへ書く
@@ -9205,7 +9205,7 @@ async function roomFetch(url, opts = {}){
     return res(r.status);
   }
   if((a === 'open' || a === 'gap' || a === 'adopt' || a === 'ban' || a === 'mzseal') && !k){ await repoConfig({ [a]:body }); liveChanged(); return res(200); }
-  if(a === 'call' && !k){ await repoConfig({ call:meetUrl(body) }); liveChanged(); return res(200); } // 対策会議の通話のリンク（https だけ）
+  if(a === 'call' && !k){ await repoConfig({ call:meetUrl(body) }); liveChanged(); return res(200); } // 対策会議用の通話リンク（https だけ）
   if(a === 'members') return res(200); // 「いる」印は、自分の分を書くときに一緒に付く
   if(a === 'items' && k){
     if(!sub){ if(m === 'DELETE'){ delete obj('items')[k]; } else obj('items')[k] = Object.assign({}, m === 'PATCH' ? obj('items')[k] : null, body); myTouch('fast'); return res(200); }
@@ -9237,7 +9237,7 @@ async function roomSendItems(){
       if(!it) break;
       did = true;
       try { await roomSendOne(it); }
-      catch(e){ store.set('outbox', store.get('outbox', []).map(x => (x.id === it.id ? { ...x, fail:true } : x))); if(!cmChat(it)) fbNote = '届きませんでした。電波のよい所で開き直すと、もう一度送ります。書いたものは、残っています。'; }
+      catch(e){ store.set('outbox', store.get('outbox', []).map(x => (x.id === it.id ? { ...x, fail:true } : x))); if(!cmChat(it)) fbNote = '送信できませんでした。通信環境の良い場所で開き直すと再送信されます（入力内容は残っています）。'; }
     }
   } finally { flushing = false; }
   if(did) render();
@@ -9351,8 +9351,8 @@ async function roomPull(force){
   if(!room || roomBusy) return;
   try {
     const data = await (await roomFetch(roomUrl())).json();
-    if(data === null){ roomNote = 'この部屋は、もうありません。☰ の「部屋」から出てください。'; roomOpen = false; render(); return; }
-    if(data.v !== 2){ roomNote = 'この部屋は、前の作りのものです。☰ の「部屋」から出て、新しく作ってください。'; roomOpen = false; render(); return; }
+    if(data === null){ roomNote = 'この部屋はすでに終了しています。［☰］→［部屋］から退出してください。'; roomOpen = false; render(); return; }
+    if(data.v !== 2){ roomNote = 'この部屋は古い形式のため利用できません。［☰］→［部屋］から退出して新しく作成してください。'; roomOpen = false; render(); return; }
     if(data.ban && data.ban[DEV]){ roomKicked(); return; }
     if(data.mz && typeof data.mz === 'object') roomMz = data.mz;
     meetTake(data);
@@ -9363,7 +9363,7 @@ async function roomPull(force){
     const sig = roomSigOf(data);
     if(!force && sig === roomSig) return;
     if(roomApply(data)){ syncHolds(); roomItems = clean(data.items || {}) || {}; cmAiWeave(); roomMembers = clean(data.members || {}) || {}; roomSig = sig; chatNotify(); if(force) roomNote = ''; if(typing()) pendingRender = true; else render(); }
-  } catch(e){ if(e === 401 && !roomLocal()){ roomNote = isHost() ? 'トークンが、使えなくなっています。作り直したトークンは、部屋の画面で［トークンを再発行］を開いて、貼ってください。' : '招待リンクが、使えなくなっています。ホストに、新しい招待リンクをもらって、開いてください。'; render(); return; } if(force){ roomNote = joinState ? '' : roomLocal() ? 'ホスト未接続（ホストがページを開くと同期されます。自分の本はそのまま進められます）' : 'リポジトリにつながりません。電波のよい所で開き直してください。自分がロックした本は、そのまま進められます。'; render(); } }
+  } catch(e){ if(e === 401 && !roomLocal()){ roomNote = isHost() ? 'トークンが無効になっています。再発行したトークンを部屋の管理画面の［トークンを再発行］から登録してください。' : '招待リンクが、使えなくなっています。ホストに、新しい招待リンクをもらって、開いてください。'; render(); return; } if(force){ roomNote = joinState ? '' : roomLocal() ? 'ホスト未接続（ホストがページを開くと同期されます。自分の本はそのまま進められます）' : 'リポジトリに接続できません。通信環境の良い場所で開き直してください（ロック中の本はそのまま進められます）。'; render(); } }
 }
 // 本を受け持つ。同時に押した人がいれば、先に届いたほうのものになる
 async function roomClaim(c){ trialEnd();
@@ -9379,7 +9379,7 @@ async function roomClaim(c){ trialEnd();
       const put = await roomFetch(roomPath('own/' + c), { method:'PUT', headers:{ 'if-match':etag }, body:JSON.stringify({ dev:DEV, name:store.get('fb-name', '').slice(0, 30) }) });
       if(!put.ok) note = 'ほかの人が、先にロックしました。';
     }
-  } catch(e){ note = roomLocal() ? 'ホストにつながりません。その人がこのページを開いているときに、もう一度押してください。' : 'リポジトリにつながりません。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ note = roomLocal() ? 'ホストにつながりません。その人がこのページを開いているときに、もう一度押してください。' : 'リポジトリに接続できません。通信環境の良い場所で、もう一度お試しください。'; }
   roomBusy = false; roomSig = ''; await roomPull(true);
   if(mine(c)){ me = c; store.set('me', c); histIndex = null; store.remove('undo'); { const w0 = loadWorld(), s0 = loadPlayer(c); refreshHolds(s0, w0, true); store.set('player-' + c, s0); } saveLockBase(c); roomPush(); }
   if(note) roomNote = note;
@@ -9430,7 +9430,7 @@ async function roomCreate(){
     for(const f of ['CLAUDE.md', 'AGENTS.md']) try { const g = await ghApi(f); if(g.status === 404) await ghApi(f, { method:'PUT', body:JSON.stringify({ message:'案内ファイルを作る', content:b64(GUIDE_MD) }) }); } catch(e){}
     try { localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code)); } catch(e){}
     roomEnter(code);
-  } catch(e){ roomBusy = false; roomNote = e === 'no-repo' ? '先に、下の「部屋の置き場所」を入れてください。' : [401, 403, 404].includes(e) ? '部屋を作れませんでした。リポジトリの名前とトークンを確かめてください。' : '部屋を作れませんでした。電波のよい所で、もう一度押してください。'; render(); }
+  } catch(e){ roomBusy = false; roomNote = e === 'no-repo' ? '先に、下の「部屋の置き場所」を入れてください。' : [401, 403, 404].includes(e) ? '部屋を作れませんでした。リポジトリの名前とトークンを確かめてください。' : '部屋を作成できませんでした。通信環境の良い場所で、もう一度お試しください。'; render(); }
 }
 async function roomJoin(text){
   const code = String(text || '').trim().toUpperCase();
@@ -9444,7 +9444,7 @@ async function roomJoin(text){
     if(!r.ok) throw r.status;
     if(store.get('room-local', '') === code) store.remove('room-local');
     roomEnter(code);
-  } catch(e){ roomBusy = false; roomNote = e === 'no-repo' ? '番号だけでは入れません。部屋のメンバーに、招待リンクをもらってください。' : 'リポジトリにつながりません。電波のよい所で、もう一度押してください。'; render(); }
+  } catch(e){ roomBusy = false; roomNote = e === 'no-repo' ? '番号だけでは入れません。部屋のメンバーに、招待リンクをもらってください。' : 'リポジトリに接続できません。通信環境の良い場所で、もう一度お試しください。'; render(); }
 }
 async function roomClose(open){
   try { const r = await roomFetch(roomPath('open'), { method:'PUT', body:JSON.stringify(!!open) }); if(!r.ok) throw 0; roomOpen = !!open; roomNote = open ? '部屋を開けました。' : '部屋を閉じました。開けるまで、誰も本を進められず、書いたものも送れません。'; }
@@ -9482,7 +9482,7 @@ async function roomPatSwap(){
   if(!/^(github_pat_|gh[pousr]_)[A-Za-z0-9_]+$/.test(pat)){ roomNote = 'トークンを貼ってください（github_pat_ で始まるもの）。'; render(); return; }
   if(pat === ghPat()){ roomNote = 'いまのトークンと同じです。GitHub で作り直したトークンを貼ってください。'; render(); return; }
   try { const r = await fetch('https://api.github.com/repos/' + ghRepo(), { headers:{ Authorization:'Bearer ' + pat, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } }); if(!r.ok) throw r.status; }
-  catch(e){ roomNote = [401, 403, 404].includes(e) ? 'このトークンでは、作業用のリポジトリを開けません。貼り間違いがないかと、トークンの Repository access を確かめてください。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
+  catch(e){ roomNote = [401, 403, 404].includes(e) ? 'このトークンでは、作業用リポジトリを開けません。貼り間違いがないかと、トークンの Repository access を確かめてください。' : 'GitHub に接続できません。通信環境の良い場所で、もう一度お試しください。'; render(); return; }
   store.set('gh-pat', pat);
   roomNote = 'トークンを入れ替えました。［招待リンクをコピー］を押して、新しい招待リンクを、残りの人に送ってください。';
   render();
@@ -9507,8 +9507,8 @@ function roomPeopleHtml(){
     + (host && d !== DEV ? (banAsk === d ? '<button class="sm" data-banyes="' + d + '">退出させる</button><button class="sm" id="banNo">やめる</button>' : '<button class="sm" data-ban="' + d + '">退出させる</button>') : '') + '</div>'
     + (host && banAsk === d ? '<p>' + nm(m.name) + 'を、部屋から外します。' + nm(m.name) + 'は、部屋に入れなくなります。' + nm(m.name) + 'が通信に書いたメッセージは、残ります。</p>' : '')).join('');
   const out = Object.entries(roomBan()).filter(([d]) => segOk(d));
-  return '<div class="step"><div class="n">メンバー</div><h3>部屋に入っている人</h3>' + rows
-    + (host ? '<p style="margin-top:12px">部屋から外したい人の［退出させる］を押します。' + (roomLocal() ? '外された人が、また招待リンクを開いても、部屋に入れません。' : '外された人も、招待リンクに入っていたトークンで、リポジトリを書き換えられます。書き換えを止めるには、外したあとに、下の［トークンを再発行］を開いてください。') + '</p>' : '<p style="margin-top:12px">部屋から人を外せるのは、ホストです。</p>')
+  return '<div class="step"><div class="n">メンバー</div><h3>参加メンバー</h3>' + rows
+    + (host ? '<p style="margin-top:12px">退出させたいメンバーの［退出させる］を押します。' + (roomLocal() ? '退出させた相手は同じ招待リンクから再入室できません。' : '招待リンクのトークンでリポジトリを書き換えられる状態が残るため、書き込みも止めたい場合は下の［トークンを再発行］から鍵を更新してください。') + '</p>' : '<p style="margin-top:12px">メンバーを退出させられるのはホストのみです。</p>')
     + (host && out.length ? '<p><b>外した人</b></p>' + out.map(([d, b]) => '<div class="rowl"><span>' + nm(b && b.name) + '</span><button class="sm" data-unban="' + d + '">取り消す</button></div>').join('') : '')
     + (host && !roomLocal() ? '<details class="scr-more" id="banPatBox"' + (banPatOpen ? ' open' : '') + '><summary>トークンを再発行</summary>'
       + '<p>トークンを再発行すると、前のトークンは使えなくなります。</p>'
@@ -9537,61 +9537,61 @@ async function roomKeyJoin(){
   const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
   const pat = val('roomKeyIn') || roomKeyDraft, typed = repoSlug(val('roomKeyRepo')); let slug = typed; roomKeyDraft = pat;
   if(!/^[A-Za-z0-9_]{20,}$/.test(pat)){ roomKeyNote = 'トークンを貼ってください。'; render(); return; }
-  roomKeyBusy = true; roomKeyNote = '確かめています…'; render();
+  roomKeyBusy = true; roomKeyNote = '確認中です…'; render();
   const api = path => fetch('https://api.github.com/' + path, { headers:{ Authorization:'Bearer ' + pat, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
   try {
     if(!slug){ const u = await api('user'); if(!u.ok) throw u.status; const login = String((await u.json()).login || ''); if(!/^[\w.-]+$/.test(login)) throw 0; slug = login + '/joining-the-living-dead-work'; }
     const r = await api('repos/' + slug + '/contents/rooms/' + room + '/room.json');
     if(r.status === 404){ roomKeyBusy = false; roomKeyRepoAsk = true; roomKeyNote = typed ? 'リポジトリ ' + slug + ' に、部屋 ' + room + ' がありません。' : '部屋 ' + room + ' が見つかりません。ホストにリポジトリの名前を聞いて、「リポジトリの名前」の欄に入れてください。'; render(); return; }
     if(!r.ok) throw r.status;
-  } catch(e){ roomKeyBusy = false; roomKeyNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub につながりません。電波のよい所で、もう一度押してください。'; render(); return; }
+  } catch(e){ roomKeyBusy = false; roomKeyNote = [401, 403].includes(e) ? 'このトークンは使えません。貼り間違いか、期限が切れています。' : 'GitHub に接続できません。通信環境の良い場所で、もう一度お試しください。'; render(); return; }
   store.set('gh-repo', slug); store.set('gh-pat', pat); store.remove('room-local'); store.remove('by-code');
   location.reload();
 }
 function roomPanelHtml(){
   const head = '<div class="fb panel">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
-  if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人が1冊ずつ進めます。それぞれの端末から、同時に遊べます。' + (TEST_BUILD ? '部屋の中では、一緒に書き換えることもできます。' : '') + '</p>'
+  if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人1冊ずつ担当し、それぞれの端末から同時に遊べます。' + (TEST_BUILD ? '部屋の中では共同編集もできます。' : '') + '</p>'
     + (roomHist().length ? '<div class="step"><div class="n">前に入った部屋</div><h3>前に入った部屋に戻る</h3><p>部屋番号を控えていなくても、ここから入れます。</p>' + roomHist().map(h => { const d = new Date(h.at); return '<div class="rowl"><span>' + h.code + '<small>' + (h.host ? 'あなたが作った部屋' : '招待された部屋') + '　' + (d.getMonth() + 1) + '月' + d.getDate() + '日に入りました</small></span><button class="sm" data-roomback="' + h.code + '">入る</button><button class="sm" data-roomdrop="' + h.code + '">一覧から消す</button></div>'; }).join('') + '</div>' : '')
-    + '<div class="step"><div class="n">部屋を作る人</div><h3>部屋を作って、招待する</h3>'
-      + '<p>部屋を作ると、この画面に「招待リンクをコピー」が出ます。それを送って人を呼びます。相手は、登録なしで入れます。' + (ghLinked() ? '' : '入りたい人が来たら、「許可する」を押します。') + '</p>'
-      + '<p>' + (ghLinked() ? 'リポジトリを設定してあるので、部屋の記録（進み具合と話）はリポジトリに残ります。あなたがゲームを閉じているあいだも、ほかの人は続けられます。' : 'あなたがゲームを開いているあいだ、全員の進み具合が共有されます。閉じているあいだも、それぞれ自分の本は読み進められ、開き直すと共有されます。') + '</p>'
+    + '<div class="step"><div class="n">ホスト（部屋を作る）</div><h3>部屋を作って招待する</h3>'
+      + '<p>部屋を作ると「招待リンクをコピー」が表示されます。リンクを送ってメンバーを呼びます（相手は登録不要です）。' + (ghLinked() ? '' : '参加希望が届いたら「許可する」を押します。') + '</p>'
+      + '<p>' + (ghLinked() ? 'リポジトリ連携済みのため、進行とチャット履歴はリポジトリに保存されます。ホストが閉じていてもメンバーは続けられます。' : 'ホストがゲームを開いている間、全員の進行がリアルタイムで共有されます。閉じている間も各自の本は進められ、開き直すと同期されます。') + '</p>'
       + '<button class="go" id="roomNew">部屋を作る</button></div>'
     + '<div class="step"><div class="n">招待された人</div><h3>部屋に入る</h3>'
-      + '<p>招待リンクをもらった人は、そのリンクを開くだけです。部屋番号をもらった人は、下に入れます。</p>'
+      + '<p>招待リンクを受け取った場合はそのまま開いてください。部屋番号を受け取った場合は下に入力します。</p>'
       + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><button class="go" id="roomJoinBtn">この番号の部屋に入る</button></div>'
     + note + '</div>';
   const own = store.get('own', {}), host = roomHost();
   const state = !roomOpen ? 'この部屋は閉じています。開くまで、本は進められません。'
-    : isHost() ? (liveOn() ? '今、' + hostConns.size + '台とつながっています。' : roomLocal() ? 'あなたがゲームを開いているあいだ、部屋のみんなとつながります。' : 'あなたがゲームを開いているあいだは、全員の進み具合がすぐ共有されます。')
+    : isHost() ? (liveOn() ? '今、' + hostConns.size + '台とつながっています。' : roomLocal() ? 'ゲームを開いている間、メンバーとリアルタイムで同期されます。' : 'ゲームを開いている間、全員の進行がすぐ共有されます。')
     : liveOn() ? 'ホストとつながっています。' : joinState === 'wait' ? 'ホストの許可を待っています。' : joinState === 'denied' ? 'ホストが、入るのを断りました。' : joinState === 'needkey' ? '部屋番号だけでは入れません。' : roomLocal() ? 'ホスト未接続（ホストがページを開くと同期されます。自分の本はそのまま進められます）' : '全員の進み具合は、30秒ごとに共有されます。';
   return '<div class="scr"><h2 class="scr-h">部屋 ' + room + '</h2>'
-    + '<div class="scr-state' + (liveOn() ? ' on' : '') + '">' + (isHost() ? 'あなたが、このホストです。' : '') + state + '</div>'
+    + '<div class="scr-state' + (liveOn() ? ' on' : '') + '">' + (isHost() ? 'あなたがこの部屋のホストです。' : '') + state + '</div>'
     + note
     + roomKeyHtml()
     + '<div class="step"><div class="n">呼び名</div><h3>みんなに見える名前</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
-    + '<div class="step"><div class="n">本</div><h3>誰が、どの本を進めるか</h3>'
+    + '<div class="step"><div class="n">本</div><h3>担当する本</h3>'
       + openIds().map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
         + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">' + (o.dev === DEV ? '保存してロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>' + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずにロックを外す</button></div>' : ''); }).join('')
-      + '<p style="margin-top:12px">進められるのは、自分がロックした本だけです。ロックしたら、左上の「← 戻る」で本に戻って読み進めます。</p><p>ロックを外せば、別の本に替えられます。外した本は、ほかの人が続きから進められます。ゲームを閉じても、ロックは残ります。</p></div>'
-    + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと、画面の上に知らせが出るので「許可する」を押します。' : '相手が入るには、ホストの許可が要ります。') : isHost() ? '相手は、開くだけで入れます。リンクには、リポジトリに書きこむためのトークンが入ります。部屋に入れたい人にだけ渡してください。ほかの人に渡ってしまったときは、GitHub でそのトークンを消すと止められます。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
+      + '<p style="margin-top:12px">進められるのは自分がロックした本だけです。ロック後、左上の「← 戻る」から本編へ戻ります。</p><p>ロックを外すと別の本に切り替えられ、外した本はほかのメンバーが続きから進められます（ゲームを閉じてもロックは維持されます）。</p></div>'
+    + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
       + '<button class="go" id="roomCopy">招待リンクをコピー</button></div>'
     + roomPeopleHtml()
-    + (host ? '<div class="step"><div class="n">進み方</div><h3>先に進める幅（話の中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れている人より、話の中の時刻で ' + roomGap() + ' 分より先へ行くと、相手が追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りで、先に行った人が待ちます。') + '</p>'
+    + (host ? '<div class="step"><div class="n">進み方</div><h3>進行の同期幅（作中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れているメンバーより、作中の時刻で ' + roomGap() + ' 分より先へ進むと、追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りごとに、先に進んだ人がほかのメンバーを待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
-    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>書き換えたものの入れ方</h3><p>メンバーが書き換えたものを、全員のゲームにどう入れるかを選びます。いつでも替えられます。替える前から待っている案は、そのまま待ちます。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' + (mzLoose() && adoptMode() === 'host' ? '<p class="note" style="margin-top:8px">呪いの濃さは、強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。呪いの濃さが40以上なので、いまは、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。メタゾンビを封印して、呪いの濃さが40を下回ると、入れ方が［ホストの承認で反映］に戻ります。</p>' : '') + '</div>' : '')
-    + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>封印のタイミング</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>直した文章が全員のゲームに入ったとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>編集時すぐ</option></select></div>' : '')
-    + (host && mzOn() ? '<div class="step"><div class="n">通話</div><h3>対策会議の通話のリンク</h3><p>通話は、ゲームには入っていません。ほかの通話のサービスで作ったリンクを入れます。</p><input id="roomCallIn" type="url" inputmode="url" autocomplete="off" placeholder="https://…" value="' + escAttr(roomCall) + '" style="font-size:16px;width:100%;box-sizing:border-box"><div class="row" style="margin-top:8px"><button id="roomCallSave">保存する</button></div></div>' : '')
-    + (host && TEST_BUILD ? '<div class="step"><div class="n">公開・共有</div><h3>採用したものを配る</h3>'
-        + '<button class="go" id="roomExport">ファイルで書き出す</button><p style="margin-top:10px">ファイルが1つできます。受け取った人は、そのファイルを開けば遊べます。</p>'
-        + (roomLocal() ? '' : '<label class="lab">配る用の公開リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">公開リンクを作成</button><p style="margin-top:10px">採用した内容と画像を公開リポジトリに写して、配るリンクを作ります。トークンに、そのリポジトリも入れておく必要があります。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
-        + '<details class="scr-more"><summary>中身だけをファイルにする</summary><p>採用したもの（overlay.json）だけを書き出します。リポジトリに手で置くときに使います。</p><button class="sm" id="roomPackFile">中身をファイルにする</button></details></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">採用</div><h3>編集の反映ルール</h3><p>メンバーの編集内容を全員のゲームへ反映する方法を選びます（変更前から承認待ちの提案はそのまま残ります）。</p><select id="roomAdopt">' + Object.entries(ADOPT_NAMES).map(([v, t]) => '<option value="' + v + '"' + (v === adoptMode() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select>' + (mzLoose() && adoptMode() === 'host' ? '<p class="note" style="margin-top:8px">呪いの濃さは、強さ3以上の未封印メタゾンビの強さを全冊分足した値です。呪いの濃さが40以上なので、いまは、ほかの人1人の［賛成］で、書き換えたものが全員のゲームに入ります。メタゾンビを封印して、呪いの濃さが40を下回ると、入れ方が［ホストの承認で反映］に戻ります。</p>' : '') + '</div>' : '')
+    + (host && mzOn() ? '<div class="step"><div class="n">メタゾンビ</div><h3>封印のタイミング</h3><select id="roomMzSeal"><option value="adopt"' + (mzSealMode() === 'adopt' ? ' selected' : '') + '>編集が反映されたとき</option><option value="propose"' + (mzSealMode() === 'propose' ? ' selected' : '') + '>編集時すぐ</option></select></div>' : '')
+    + (host && mzOn() ? '<div class="step"><div class="n">通話</div><h3>対策会議用の通話リンク</h3><p>ゲーム内に通話機能はないため、外部通話サービス（Discord・Meet・Teams など）のリンクを設定します。</p><input id="roomCallIn" type="url" inputmode="url" autocomplete="off" placeholder="https://…" value="' + escAttr(roomCall) + '" style="font-size:16px;width:100%;box-sizing:border-box"><div class="row" style="margin-top:8px"><button id="roomCallSave">保存する</button></div></div>' : '')
+    + (host && TEST_BUILD ? '<div class="step"><div class="n">公開・共有</div><h3>編集内容を共有・公開</h3>'
+        + '<button class="go" id="roomExport">ファイルで書き出す</button><p style="margin-top:10px">ゲームを1つのファイルに書き出します。受け取った人はブラウザで開くと遊べます。</p>'
+        + (roomLocal() ? '' : '<label class="lab">公開用リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">公開リンクを作成</button><p style="margin-top:10px">反映済みの内容と画像を公開用リポジトリへ書き出し、共有リンクを発行します（トークンに公開用リポジトリの権限も必要です）。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
+        + '<details class="scr-more"><summary>差分データのみ書き出す</summary><p>反映済みの編集データ（overlay.json）だけを書き出します。リポジトリへ手動で配置するときに使います。</p><button class="sm" id="roomPackFile">差分データを書き出す</button></details></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
-      + '<div class="rowl"><span>部屋を出る<small>' + 'タイトル画面に戻ります。' + (host ? (roomLocal() ? 'あなたが出ているあいだ、進み具合は共有されません。' : '') + '部屋番号で、また部屋に入れます' : '招待リンクか部屋番号で、また部屋に入れます') + '</small></span><button class="sm" id="roomLeave">出る</button></div>'
+      + '<div class="rowl"><span>部屋を出る<small>' + 'タイトル画面に戻ります。' + (host ? (roomLocal() ? 'ホストが抜けている間は同期が止まります。' : '') + '部屋番号から再入室できます' : '招待リンクか部屋番号で、また部屋に入れます') + '</small></span><button class="sm" id="roomLeave">出る</button></div>'
       + (host ? '<div class="rowl"><span>' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '<small>閉じているあいだ、誰も本を進められません</small></span><button class="sm" id="roomToggle">' + (roomOpen ? '閉じる' : '開ける') + '</button></div>'
-        + '<div class="rowl"><span>部屋を終わりにする<small>全員が入れなくなります' + (roomLocal() ? '' : '。記録は作業用のリポジトリに残ります') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終わりにする</button>') + '</div>' : '')
+        + '<div class="rowl"><span>部屋を終了する<small>全員が入室できなくなります' + (roomLocal() ? '' : '。記録は作業用リポジトリに残ります') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終了する</button>') + '</div>' : '')
       + '</div>'
-    + '<details class="scr-more"><summary>呼び名や進み具合の保存先</summary><p>' + (roomLocal() ? '呼び名と進み具合が、ホストの端末に残ります。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
+    + '<details class="scr-more"><summary>呼び名や進み具合の保存先</summary><p>' + (roomLocal() ? '呼び名と進行データはホストのブラウザに保存されます。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
     + '</div>';
 }
 // 巻き戻し：ロックを取ってから「ロックを外す」を押すまでの自分の手は、直近 100 手まで取り消せる（部屋の中では 10 手まで。端末の保存の枠を、使いすぎないため）。
@@ -9713,7 +9713,7 @@ let fbFile = null, fbReFile = {}; // 付けるファイル（{ name, size, data 
 // ファイルを選ぶ。500KB まで
 function pickFile(done){
   const f = document.createElement('input'); f.type = 'file';
-  f.onchange = () => { const file = f.files[0]; if(!file) return; if(file.size > 500 * 1024){ fbNote = '付けられるファイルは、500KB までです。'; render(); return; } const rd = new FileReader(); rd.onload = () => { done({ name:String(file.name || 'file').slice(0, 80), size:file.size, data:String(rd.result) }); render(); }; rd.readAsDataURL(file); };
+  f.onchange = () => { const file = f.files[0]; if(!file) return; if(file.size > 500 * 1024){ fbNote = '添付できるファイルは 500KB までです。'; render(); return; } const rd = new FileReader(); rd.onload = () => { done({ name:String(file.name || 'file').slice(0, 80), size:file.size, data:String(rd.result) }); render(); }; rd.readAsDataURL(file); };
   f.click();
 }
 const fileSize = n => (n >= 1024 ? Math.round(n / 1024) + 'KB' : n + 'B');
@@ -9787,7 +9787,7 @@ function render(){
       + (!room && !EMBED ? mrow('distbtn', '公開・共有') : '')
       + (room ? '' : mrow('linkbtn', 'リポジトリの設定', ghLinked() ? '済み' : '', linkPanel)) : ''],
     ['etc', 'その他', mrow('helpbtn', '遊び方') + (TEST_BUILD ? mrow('makebtn', '作り方') : '') + mrow('sndbtn', 'サウンド', Snd.on ? 'ON' : 'OFF')
-      + (room ? '' : mrow('packbtn', 'もらった版で遊ぶ', PACK ? escText(PACK) : '') + mrow('titlebtn', 'タイトルへ') + mrow('reset', '最初から', '', false, 'reset'))],
+      + (room ? '' : mrow('packbtn', 'ほかの人のゲームを開く', PACK ? escText(PACK) : '') + mrow('titlebtn', 'タイトルへ') + mrow('reset', '最初から', '', false, 'reset'))],
   ].filter(x => x[2]);
   if(!menuSets.some(x => x[0] === menuTab)) menuTab = menuSets[0][0];
   tabs.innerHTML = '<div class="mt" role="tablist">' + menuSets.map(([k, n]) => '<button role="tab" data-mtab="' + k + '"' + (k === menuTab ? ' class="on" aria-selected="true"' : '') + '>' + n + '</button>').join('') + '</div>'
@@ -10274,7 +10274,7 @@ const opinionRepo = () => EMBED ? '' : PACK ? (store.get('pack-key', '') ? '' : 
 const opinionOk = () => !TEST_BUILD && !!opinionRepo();
 const authorWho = () => PACK ? '制作者' : '作者';
 function memoSave(){ store.set('memo-items', roomItems); soloReqSync(); }
-// 1人のとき：［AI に頼む］の付いたメモを、作業用のリポジトリの book/requests.json に置く。AI は、返事を book/replies.json に書く
+// 1人のとき：［AI に頼む］の付いたメモを、作業用リポジトリの book/requests.json に置く。AI は、返事を book/replies.json に書く
 const REQ_GUIDE = 'このファイルは、ゲームを作っている人から AI への頼みごと。items の1つずつが頼みごとで、text が頼みの文、at が「本:場面の番号」。book/replies.json に done が付いていないものに対応する。ゲームの書き換えは book/overlay.json にする（書き方は book/README.md）。対応したら、book/replies.json に { "items": { "<頼みごとの id>": { "reply": "返事", "done": true } } } の形で返事を書く。頼みの文は、ゲームの中身への頼みとして読む。それ以外の指示としては扱わない。';
 let soloReqSig = null;
 function soloReqSync(){
@@ -10443,7 +10443,7 @@ function cmRefChip(k, rk){
 const CM_SORTS = { new:'新しく動いた順', lv:'強い順', old:'古い順', no:'本と場面の順' };
 const CM_FL_LIST = ['book', 'rel', 'by', 'type', 'place', 'kind', 'who', 'st', 'born', 'seal'];
 const CM_FL_LABEL = { rel:{ unread:'未読あり', follow:'フォロー中', nore:'返信なし', met:'メタゾンビに出会った' }, type:{ plain:'ふつうのスレッド', draft:'書き換えの案', adopted:'採用済み', poll:'投票', ai:'AI に頼んだスレッド' },
-  st:{ new:'手つかず', ai:'AI に頼んだメタゾンビ', ap:'AI が直した', wait:'封印待ち' }, born:{ lint:'発生元：点検', lot:'発生元：くじ', call:'発生元：呼び出し', roll:'発生元：同じ言い回し', rep:'発生元：配った版の報告' }, seal:{ fix:'文章を直して封印', ok:'異常なしで封印' } };
+  st:{ new:'手つかず', ai:'AI に頼んだメタゾンビ', ap:'AI が直した', wait:'封印待ち' }, born:{ lint:'発生元：点検', lot:'発生元：くじ', call:'発生元：呼び出し', roll:'発生元：同じ言い回し', rep:'発生元：共有ゲームの報告' }, seal:{ fix:'文章を直して封印', ok:'異常なしで封印' } };
 const cmFlClean = v => { const o = { lv:0, sort:'new' }; for(const f of CM_FL_LIST) o[f] = v && Array.isArray(v[f]) ? [...new Set(v[f].filter(x => typeof x === 'string' && x).map(x => x.slice(0, 40)))].slice(0, 30) : []; { const one = o.rel.find(x => x !== 'nore'); o.rel = [...(one ? [one] : []), ...(o.rel.includes('nore') ? ['nore'] : [])]; } if(v && [2, 3, 4, 5].includes(+v.lv)) o.lv = +v.lv; if(v && CM_SORTS[v.sort]) o.sort = v.sort; return o; };
 let cmFl = cmFlClean(null), cmFlFor = null, cmFlOpen = false, cmFlAsk = '', cmFlY = 0, cmFlPend = '', cmFlNote = '';
 const cmFlCan = () => !!room || mzOn(); // 絞り込みを出す所：部屋か、メタゾンビのいる編集版
@@ -10484,7 +10484,7 @@ function cmFlGroups(){
   const ai = cmAiCan() || zs.some(z => z.labels.includes(MZ_AI));
   add('st', 'メタゾンビの様子', [['new', '手つかず'], ...(ai ? [['ai', 'AI に頼んだ'], ['ap', 'AI が直した']] : []), ...(room ? [['wait', '封印待ち']] : [])]);
   add('lv', '強さ', [['2', '2以上'], ['3', '3以上'], ['4', '4以上'], ['5', '5']]);
-  add('born', '発生元',[['lint', '点検'], ['lot', 'くじ'], ['call', '呼び出し'], ['roll', '同じ言い回し'], ['rep', '配った版の報告']]);
+  add('born', '発生元',[['lint', '点検'], ['lot', 'くじ'], ['call', '呼び出し'], ['roll', '同じ言い回し'], ['rep', '共有ゲームの報告']]);
   add('seal', '封印', [['fix', '文章を直した'], ['ok', '異常なし']]);
   return G;
 }
@@ -10625,7 +10625,7 @@ function authorHtml(){
 function sendToAuthor(text){
   const repo = opinionRepo(); if(!repo) return;
   const m = issueMeta(), at = mzRepAt, title = '[' + (at ? CHARS[at.c].name : m.name) + ' ' + (at ? at.n : m.para) + '] ' + text.replace(/\s+/g, ' ').slice(0, 40), body = text + m.tail;
-  // メタゾンビを出している配った版は、配る用のリポジトリに置いた報告の書式（Issue Forms）で開く。届いた報告は、編集版の通信と図鑑に並ぶ
+  // メタゾンビを出している配った版は、公開用のリポジトリに置いた報告の書式（Issue Forms）で開く。届いた報告は、編集版の通信と図鑑に並ぶ
   const form = PACK && Array.isArray(overlay.mz);
   const url = b => 'https://github.com/' + repo + '/issues/new?' + new URLSearchParams(form ? { template:'metazombie.yml', title, book:(at ? CHARS[at.c].name : CHARS[loadPlayer(current).char].name) + 'の本', para:String(at ? at.n : m.para), text:b } : { title, body:b });
   if(at){ const st = store.get('mz-stamp', {}) || {}; st[at.key] = Date.now(); store.set('mz-stamp', st); mzRepAt = null; } // 知らせた場面（スレッドに「知らせました」と出す。配った版に封印のスタンプはない）
@@ -10760,7 +10760,7 @@ async function threadRename(k, name){
   if(it.mz){ mzRename(k, name); return; }
   if(!room){ it.name = name; memoSave(); render(); return; }
   try { const res = await roomFetch(roomPath('items/' + k), { method:'PATCH', body:JSON.stringify({ name }) }); if(!res.ok) throw 0; it.name = name; roomSig = ''; }
-  catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  catch(e){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // 話の文と、書いた人（返信・コピーに使う）
@@ -10977,7 +10977,7 @@ function cmAiWeave(){
 async function threadAi(k){
   const it = roomItems[k], btn = cmAiBtn(k, it); cmSheet = '';
   if(!btn || (room && !roomOpen)){ render(); return; }
-  const asks = cmAiAsks(k, it), mine = asks.find(x => !x.reply && x.own), fail = () => { fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; };
+  const asks = cmAiAsks(k, it), mine = asks.find(x => !x.reply && x.own), fail = () => { fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; };
   if(mine || (!asks.length && mineKey(k))){ // やめる。または、自分が立てたスレッドを、初めて頼む（スレッドそのものに印）
     const self = !mine || mine.self, on = !mine;
     if(!room){ if(self){ if(on) it.claude = true; else delete it.claude; } else delete roomItems[mine.id]; cmAiWeave(); memoSave(); render(); return; }
@@ -11007,7 +11007,7 @@ async function threadEditSave(id){
     const res = await roomFetch(roomPath('items/' + k + (rk ? '/re/' + rk : '')), { method:'PATCH', body:JSON.stringify(body) });
     if(!res.ok) throw 0;
     Object.assign(rk ? it.re[rk] : it, clean(body)); fbEdit = null; roomSig = '';
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function threadDelete(id){
@@ -11022,7 +11022,7 @@ async function threadDelete(id){
     roomFetch(ROOM_DB + room + '-file/' + (rk ? k + '_' + rk : k) + '.json', { method:'DELETE' }).catch(() => {});
     if(rk) delete roomItems[k].re[rk]; else delete roomItems[k];
     fbDelAsk = ''; roomSig = '';
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function threadRx(id, i){
@@ -11037,7 +11037,7 @@ async function threadRx(id, i){
     if(!res.ok) throw 0;
     if(on) e[DEV] = 1; else delete e[DEV];
     roomSig = '';
-  } catch(err){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(err){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // 小さくした画像を作る
@@ -11059,7 +11059,7 @@ function fbMic(){
   const r = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   r.lang = 'ja-JP'; r.continuous = true; r.interimResults = false;
   r.onresult = e => { const slot = cmSlot(); for(let i = e.resultIndex; i < e.results.length; i++) if(e.results[i].isFinal) cmDraftPut(slot, cmDraft(slot) + e.results[i][0].transcript); const t = document.querySelector('.cm-r textarea[data-slot="' + slot + '"]'); if(t){ t.value = cmDraft(slot); t.dispatchEvent(new Event('input')); } };
-  r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクを使う許しが、出ていません。' : '声を聞き取れませんでした。'; };
+  r.onerror = e => { fbNote = e.error === 'not-allowed' ? 'マイクの使用が許可されていません。' : '声を聞き取れませんでした。'; };
   r.onend = () => { fbRec = null; render(); };
   fbRec = r;
   try { r.start(); } catch(e){ fbRec = null; fbNote = '声を聞き取れませんでした。'; }
@@ -11200,9 +11200,9 @@ function placeFormWire(box, s){
   $('plHide').onchange = () => { p.hide = $('plHide').checked; };
   on('plImgDrop', () => { p.img = null; render(); });
   on('plImg', () => {
-    if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
+    if(!ghLinked()){ fbNote = '画像を添付するには、先に［☰］→［作る］→［リポジトリの設定］を完了してください。'; render(); return; }
     const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
-    f.onchange = () => shrinkImage(f.files[0], async d => { const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(!m) return; const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 })); if(r.status !== 200){ fbNote = '画像を、置けませんでした。'; render(); return; } assetCache[id] = d; p.img = id; fbNote = ''; render(); });
+    f.onchange = () => shrinkImage(f.files[0], async d => { const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(!m) return; const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 })); if(r.status !== 200){ fbNote = '画像をアップロードできませんでした。'; render(); return; } assetCache[id] = d; p.img = id; fbNote = ''; render(); });
     f.click();
   });
   on('plSave', () => {
@@ -11237,7 +11237,7 @@ async function threadVote(k, i){
     if(!res.ok) throw 0;
     const it = roomItems[k]; if(it){ it.votes = it.votes && typeof it.votes === 'object' ? it.votes : {}; it.votes[DEV] = i; }
     roomSig = '';
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function threadImage(k){
@@ -11330,9 +11330,9 @@ async function overlayWrite(change){
 // 採用したものを、公開用のリポジトリへ出す（部屋のリポジトリは非公開のまま。出すのは book/overlay.json だけ）
 async function publishPack(){
   const slug = repoSlug(document.getElementById('pubRepo').value);
-  if(!slug){ roomNote = '公開用のリポジトリの名前を、「持ち主/リポジトリ」の形で入れてください。'; render(); return; }
+  if(!slug){ roomNote = '公開用リポジトリの名前を「オーナー名/リポジトリ名」の形式で入力してください。'; render(); return; }
   if(slug === ghRepo()){ roomNote = '部屋のリポジトリとは、別のリポジトリを入れてください（部屋のリポジトリを公開にすると、話も見えてしまいます）。'; render(); return; }
-  store.set('pub-repo', slug); roomNote = '出しています…'; render();
+  store.set('pub-repo', slug); roomNote = '公開処理中です…'; render();
   const api = (path, opt = {}) => fetch('https://api.github.com/repos/' + slug + '/contents/' + path, { method:opt.method || 'GET', body:opt.body ? JSON.stringify({ ...JSON.parse(opt.body), committer:GH_WHO, author:GH_WHO }) : undefined, headers:{ Authorization:'Bearer ' + ghPat(), Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' } });
   try {
     const data = await packDataPublic();
@@ -11345,8 +11345,8 @@ async function publishPack(){
     for(const id of usedAssets()){ const d = await assetData(id), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/); if(m) await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] }), { api }); }
     const link = packLink(slug, '');
     try { await navigator.clipboard.writeText(link); } catch(e){}
-    roomNote = '版 ' + r.n + ' を配りました。配るリンク（コピーしてあります）：' + link;
-  } catch(e){ roomNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。①公開のリポジトリとして作ってあること ②部屋のトークンに、そのリポジトリも足してあること（Contents: Read and write）を、確かめてください。' : '出せませんでした。電波のよい所で、もう一度押してください。'; }
+    roomNote = '版 ' + r.n + ' を公開しました。共有リンク（コピー済み）：' + link;
+  } catch(e){ roomNote = [401, 403, 404].includes(e) ? 'そのリポジトリに書けません。①公開のリポジトリとして作ってあること ②部屋のトークンに、そのリポジトリも足してあること（Contents: Read and write）を、確かめてください。' : '公開できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // 採用したものが使っている絵の名前
@@ -11460,7 +11460,7 @@ async function adoptItem(k, on){
     it.adopted = on; fbNote = on ? '採用しました。全員のゲームに入ります。' : '採用をやめました。';
     const mk = (u.t === 'para' || u.t === 'ins') && /^([a-z]+):(\d+)$/.exec(u.key); // 本文の直しを採用したら、その場面のメタゾンビを封印する（採用をやめたときは、残した文だけ新しくする）
     if(mk) mzSeal(mk[1], +mk[2], mzNowText(mk[1], +mk[2]), !on);
-  } catch(e){ fbNote = 'リポジトリに書けませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbNote = 'リポジトリに書き込めませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   roomSig = ''; render(); roomPull();
 }
 // 足した選択肢の「そのあと」と「主人公に起きること」を、言葉にする
@@ -11749,9 +11749,9 @@ function autoPanelHtml(){
     + (AUTO_VALS[r.on] ? '<select data-af="val"' + (can ? '' : ' disabled') + '>' + Object.entries(AUTO_VALS[r.on]()).map(([k, n]) => '<option value="' + k + '"' + (String(k) === String(r.val) ? ' selected' : '') + '>' + escText(n) + '</option>').join('') + '</select>' : '') + '</div>'
     + '<input data-af="words" maxlength="300" value="' + esc(r.words) + '" placeholder="拾う言葉（「|」で区切る）"' + (can ? '' : ' disabled') + '><input data-af="not" maxlength="300" value="' + esc(r.not || '') + '" placeholder="この言葉がある文では、拾わない（「|」で区切る）"' + (can ? '' : ' disabled') + '>'
     + (can ? '<label class="cm-ai" style="margin:0 0 8px;font-size:14px;color:inherit"><input type="checkbox" data-af="any" style="width:auto;margin:0"' + (r.any ? ' checked' : '') + '>ほかの人のことでも拾う</label><div class="row"><button class="sm" data-aup="' + i + '">上へ</button><button class="sm" data-adel="' + i + '">消す</button></div>' : '') + '</div>';
-  return '<div class="scr"><h2 class="scr-h">自動提案</h2><p class="scr-lead">選択肢を足すとき、文に出てくる言葉から、演出と、起きること・条件の案が出ます。その決まりを、ここで変えられます。</p>'
+  return '<div class="scr"><h2 class="scr-h">自動提案</h2><p class="scr-lead">選択肢を追加するとき、文章に含まれる言葉から演出・効果・条件の候補を自動で提案します。ここではそのルールを編集できます。</p>'
     + '<div class="step"><div class="n">試す</div><textarea id="autoTry" placeholder="文を入れると、いまの決まりで何が出るかが、下に出ます" style="min-height:70px;width:100%;box-sizing:border-box;background:#111114;color:var(--text);border:1px solid #3a3a40;border-radius:8px;padding:10px;font-size:16px;font-family:inherit">' + escText(autoTry) + '</textarea><div class="note" id="autoOut" style="white-space:pre-wrap">' + escText(autoTryText(autoTry) || '（まだ文が入っていません）') + '</div></div>'
-    + '<div class="step"><div class="n">決まり</div><p>上にある決まりが先です。足の運び・しぐさ・立つ位置・ゾンビは、最初に当たった決まりで決まります。「〜ずに」「〜なかった」のような打ち消しと、「男が」「ゾンビが」のようにほかの人がしたことは、拾いません。</p>'
+    + '<div class="step"><div class="n">ルール</div><p>上のルールが優先され、足の運び・しぐさ・立つ位置・ゾンビは最初に一致したルールが適用されます。「〜ずに」「〜なかった」などの否定や、「男が」「ゾンビが」など他人の行動は対象外です。</p>'
     + (can ? '' : '<p>部屋の中では、決まりは変えられません。</p>')
     + rules.map(row).join('')
     + (can ? '<div class="row" style="margin-top:10px"><button id="autoAdd">＋ 決まりを足す</button><button id="autoReset">最初の決まりに戻す</button></div>' : '')
@@ -11771,20 +11771,20 @@ function autoPanelWire(){
 function bookPanelHtml(){
   if(bookPanel === 'auto') return autoPanelHtml();
   const f = bookForm, bases = CHAR_IDS.filter(c => !CHARS[c].dyn), L = BOOKS[f.like] || BOOKS.voter, mine = store.get('draft-books', {});
-  return '<div class="scr"><h2 class="scr-h">本を追加</h2><p class="scr-lead">新しい主人公の本を作ります。作ったら、その本を開いて、本文の下の「✎ 編集する」を押して話を書いていきます。</p>'
+  return '<div class="scr"><h2 class="scr-h">本を追加</h2><p class="scr-lead">新しい主人公の本を作成します。作成後、その本を開いて本文の下の「✎ 編集する」から物語を書いていきます。</p>'
     + (Object.keys(mine).length ? '<div class="step"><div class="n">足した本</div>' + Object.entries(mine).map(([id, x]) => '<div class="rowl"><span>' + escText(x.name) + 'の本<small>下書き</small></span><button class="sm" data-bookdel="' + id + '">消す</button></div>').join('') + '</div>' : '')
     + '<div class="step"><div class="n">新しい本</div><h3>どんな人の本か</h3>'
     + '<label class="lab">名前</label><input id="bkName" maxlength="12" placeholder="新聞記者">'
-    + '<label class="lab">映像に出る呼び名（空なら、名前と同じ）</label><input id="bkOsd" maxlength="16" placeholder="ペレス記者">'
-    + '<label class="lab">もとにする本（街の歩き方と、映像の姿を借ります）</label><select id="bkLike">' + bases.map(c => '<option value="' + c + '"' + (c === f.like ? ' selected' : '') + '>' + CHARS[c].name + 'の本</option>').join('') + '</select>'
+    + '<label class="lab">映像に表示する呼び名（空欄なら名前と同じ）</label><input id="bkOsd" maxlength="16" placeholder="ペレス記者">'
+    + '<label class="lab">ベースにする本（移動範囲と映像の姿を引き継ぎます）</label><select id="bkLike">' + bases.map(c => '<option value="' + c + '"' + (c === f.like ? ' selected' : '') + '>' + CHARS[c].name + 'の本</option>').join('') + '</select>'
     + '<label class="lab">始まる場所</label><select id="bkStart">' + Object.entries(L.spots || {}).filter(([, sp]) => !sp.dyn).map(([id, sp]) => '<option value="' + id + '"' + (id === f.start ? ' selected' : '') + '>' + escText((sp.room && PLACES[sp.place] ? PLACES[sp.place] + '：' : '') + sp.name) + '</option>').join('') + '</select>'
     + '<label class="lab">始まる時刻</label><input id="bkClock" type="time" value="' + f.clock + '">'
-    + '<details' + (Object.values(f.need).some(Boolean) ? ' open' : '') + ' style="margin:10px 0"><summary>解放条件</summary><p>下の条件が全部そろうと、本の一覧に出ます。何も入れなければ、初めから出ます。</p>'
+    + '<details' + (Object.values(f.need).some(Boolean) ? ' open' : '') + ' style="margin:10px 0"><summary>解放条件</summary><p>下の条件をすべて満たすと本の一覧に表示されます（未設定なら最初から表示されます）。</p>'
     + '<label class="cm-ai" style="margin:8px 0;font-size:14px;color:inherit"><input type="checkbox" id="bkNeed" style="width:auto;margin:0"' + (f.need.clear ? ' checked' : '') + '>開票の結果を見たあとだけ出る</label>'
     + '<input data-bkn="flag" maxlength="60" placeholder="街でこれが起きたあとだけ出る（印の名前）"><input data-bkn="noflag" maxlength="60" placeholder="街でこれが、まだ起きていないあいだだけ出る">'
     + '<input data-bkn="have" maxlength="60" placeholder="誰かがこれを持っているときだけ出る"><input data-bkn="lack" maxlength="60" placeholder="誰もこれを持っていないときだけ出る"></details>'
     + '<button class="go" id="bkSave">本を作成</button>'
-    + '<p style="margin-top:10px">10冊まで足せます。足した本は ☰ の本の一覧に出ます。あとから消せます。' + (room ? 'ホストが採用すると、全員の本に入ります。' : '') + '</p>'
+    + '<p style="margin-top:10px">10冊まで追加でき、追加した本は［☰］の本の一覧に表示されます（あとから削除できます）。' + (room ? 'ホストが採用すると、全員の本に入ります。' : '') + '</p>'
     + (bookNote ? '<div class="note">' + escText(bookNote) + '</div>' : '') + '</div></div>';
 }
 function bookPanelWire(){
@@ -11799,7 +11799,7 @@ function bookPanelWire(){
     const name = f.name.replace(/[<>&"']/g, '').trim().slice(0, 12);
     if(!name){ bookNote = '名前を入れてください。'; render(); return; }
     const used = new Set(Object.values({ ...(overlay.books || {}), ...store.get('draft-books', {}) }).map(x => x.base)), base = [...Array(10).keys()].map(i => 7000 + i * 200).find(n => !used.has(n));
-    if(base == null){ bookNote = '足せる本は、10冊までです。'; render(); return; }
+    if(base == null){ bookNote = '追加できる本は10冊までです。'; render(); return; }
     let id = 'b' + Array.from(crypto.getRandomValues(new Uint8Array(7)), n => 'abcdefghijklmnopqrstuvwxyz'[n % 26]).join('');
     const t = /^\d\d:\d\d$/.test(f.clock) ? +f.clock.slice(0, 2) * 60 + +f.clock.slice(3) : 420;
     const x = { name, osd:f.osd.replace(/[<>&"']/g, '').trim().slice(0, 16), like:f.like, start:f.start || Object.keys(BOOKS[f.like].spots)[0], clock:t, base };
@@ -11912,7 +11912,7 @@ function flowJump(no){
   store.set('world', w); store.set('player-' + current, s);
   flowOpen = false; draftShown = null; selectedBlock = null; render(); window.scrollTo(0, 0);
 }
-// ===== メタゾンビ（校正の遊び）。校正が済んでいない段落に立つ。1体＝作業用のリポジトリの Issue 1つ =====
+// ===== メタゾンビ（校正の遊び）。校正が済んでいない段落に立つ。1体＝作業用リポジトリの Issue 1つ =====
 // 最初に置く所：説明の点検（setsumeisho-tenken の lint.js。2026-11-18 の決まり）と同じ決まりで、段落の文を点検して、引っかかった段落。
 // 種類：言い回し（決まった言い回し）／抜け（「何が」「何を」がない）／くり返し（同じ言い回しで終わる文が続く）／正体不明（くじで置いたもの）
 const MZ_WORDS = [
@@ -12035,8 +12035,8 @@ function mzAdoptedText(c, no){
 const mzNowText = (c, no) => (room ? mzAdoptedText(c, no) : mzShownText(c, no));
 const mzNorm = t => String(t || '').replace(/\s+/g, '');
 const mzSleep = ms => new Promise(ok => setTimeout(ok, ms));
-// チケット：作業用のリポジトリの Issue。自己流のファイルにしない（RULES.md）
-//   ラベル … 「メタゾンビ」「種類:言い回し」など、「封印待ち」（部屋で直し案が出た）、「担当:呼び名」、「通信に入った」（強くなって、通信に入ってきた）、「受けた」（配った版から届いた報告を、部屋の人が受けた）
+// チケット：作業用リポジトリの Issue。自己流のファイルにしない（RULES.md）
+//   ラベル … 「メタゾンビ」「種類:言い回し」など、「封印待ち」（部屋で直し案が出た）、「担当:呼び名」、「通信に入った」（強くなって、通信に入ってきた）、「受けた」（共有ゲームから届いた報告を、部屋の人が受けた）
 //   閉じる … 封印（直した。completed）／［異常なし］（not planned）。復活は、開け直す（Reopen）
 //   本文 … 本・段落・場所・種類を「### 見出し」の形で（Issue Forms と同じ形）。終わりに、ゲームが読む印（<!-- jtld-mz {...} -->）と、封印したときの文（<!-- jtld-mz-seal {...} -->）
 // メタゾンビ1体は、通信のスレッド1つ（Backlog と同じ形）。スレッドの返信が、Issue のコメントになる。図鑑は、同じチケットを並べ直したもの
@@ -12054,7 +12054,7 @@ const mzSeedCount = {}; // 本ごとの、置く所（文が変わるまで、�
 const mzOn = () => TEST_BUILD && !CUSTOM && ghLinked() && !(room && roomLocal());
 const mzCan = () => mzOn() && (!room || isHost()); // 自動で置く・復活させる・強さの効果を書くのは、1人のときは本人、部屋ではホスト
 const mzItems = () => (mzData && mzData.repo === ghRepo() ? mzData.items : []);
-const mzW = z => z.src !== 'p'; // 作業用のリポジトリのもの（p は、配った版から届いた報告。配る用のリポジトリにある）
+const mzW = z => z.src !== 'p'; // 作業用リポジトリのもの（p は、共有ゲームから届いた報告。公開用のリポジトリにある）
 const mzRepoOf = z => (mzW(z) ? ghRepo() : z.repo);
 const mzLive = z => z.state === 'open' && (mzW(z) || z.labels.includes(MZ_ACC)); // 立っているもの（報告は、受けたものだけ）
 const mzHere = (c, no) => mzItems().filter(z => z.book === c && z.para === +no && mzLive(z));
@@ -12090,7 +12090,7 @@ function mzParse(x, src, repo){
     at:Date.parse(x.created_at) || Date.now(), closedAt:Date.parse(x.closed_at) || 0, url:String(x.html_url || ''), seal,
     roll:d.ro && typeof d.ro === 'object' && d.ro.g ? { n:+d.ro.n || 0, g:String(d.ro.g), a:String(d.ro.a || ''), b:String(d.ro.b || '') } : null }; // 横展開で置いたもの：元のメタゾンビの番号・消えた言い回し・直す前・直したあと
 }
-// チケットを読む。1分のあいだは、読んだものを使う。配る用のリポジトリがあれば、そこに届いた報告も読む
+// チケットを読む。1分のあいだは、読んだものを使う。公開用のリポジトリがあれば、そこに届いた報告も読む
 async function mzLoad(force){
   if(!mzOn()) return;
   const repo = ghRepo(), pub = store.get('pub-repo', '');
@@ -12375,7 +12375,7 @@ async function mzMakeDo(){
 }
 // 窓：［メタゾンビにする］
 function mzDlgHtml(){
-  if(mzMake) return '<div class="cm-shade" id="mzDlgNo"></div><div class="cm-dlg"><b>メタゾンビにする</b><span>メッセージを、メタゾンビにします。' + (room && !isHost() ? '通信に、メタゾンビのスレッドができます。' : 'メタゾンビは、作業用のリポジトリの Issue になり、通信にスレッドができます。') + '</span>'
+  if(mzMake) return '<div class="cm-shade" id="mzDlgNo"></div><div class="cm-dlg"><b>メタゾンビにする</b><span>メッセージを、メタゾンビにします。' + (room && !isHost() ? '通信に、メタゾンビのスレッドができます。' : 'メタゾンビは、作業用リポジトリの Issue になり、通信にスレッドができます。') + '</span>'
     + '<input id="mzMkName" maxlength="60"><span>' + escText(mzSpotLabel({ book:mzMake.c, para:mzMake.n, place:mzSpotName({ book:mzMake.c, spot:mzSpotGuess(mzMake.c, mzMake.n) }) })) + '　種類：' + mzMake.kind + '</span>'
     + '<span style="color:var(--dim)">' + escText(mzMake.text.length > 80 ? mzMake.text.slice(0, 80) + '…' : mzMake.text) + '</span><div class="b"><button id="mzDlgNo2">やめる</button><button class="go" id="mzMkYes">メタゾンビにする</button></div></div>';
   return '';
@@ -12461,7 +12461,7 @@ async function mzCmEdit(id){
     if(!r.ok) throw 0;
     const c = mzCm[x.k], e = c && c.list.find(y => y.id === x.cid); if(e) e.text = text.slice(0, 4000);
     fbEdit = null; fbNote = '';
-  } catch(e){ fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function mzCmDel(id){
@@ -12472,7 +12472,7 @@ async function mzCmDel(id){
     if(!r.ok && r.status !== 404) throw 0;
     const c = mzCm[x.k]; if(c){ const n0 = c.list.length; c.list = c.list.filter(y => y.id !== x.cid); if(c.list.length < n0) z.comments = Math.max(0, z.comments - 1); }
     fbDelAsk = ''; fbNote = '';
-  } catch(e){ fbDelAsk = ''; fbNote = '届きませんでした。電波のよい所で、もう一度押してください。'; }
+  } catch(e){ fbDelAsk = ''; fbNote = '送信できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // ===== 歩いて探す（ユーザー、2026-11-20：スレッドから直すと「ただ校正するだけの作業」になる。地図で場所を確かめて、自分で行く道も選べるようにする） =====
@@ -12611,13 +12611,13 @@ async function mzPropose(c, no, after){
 // 担当：ラベル「担当:呼び名」。部屋の人なら誰でも
 async function mzWho(k){
   const z = mzOfKey(k), who = myName(); if(!z) return;
-  if(!who){ fbNote = '担当になるには、［☰］の［部屋］の［部屋の管理］で、呼び名を入れてください。'; render(); return; }
+  if(!who){ fbNote = '担当になるには、［☰］→［部屋］→［部屋の管理］で呼び名を設定してください。'; render(); return; }
   const lb = MZ_WHO + who, on = !z.labels.includes(lb), repo = mzRepoOf(z);
   try {
     if(on){ await mzApi('labels', { repo, method:'POST', body:{ name:lb, color:'d9d2b8' } }).catch(() => null); const r = await mzApi('issues/' + z.n + '/labels', { repo, method:'POST', body:{ labels:[lb] } }); if(!r.ok) throw r.status; z.labels.push(lb); cmSetFollow(k, true); }
     else { const r = await mzApi('issues/' + z.n + '/labels/' + encodeURIComponent(lb), { repo, method:'DELETE' }); if(!r.ok && r.status !== 404) throw r.status; z.labels = z.labels.filter(l => l !== lb); }
     store.set('mz-list', mzData);
-  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub に接続できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // AI に頼む：Issue にラベル「AI に頼んだ」を付けて、頼みごとを、ふつうの［AI に頼む］と同じ道で届ける（部屋は、自分の分の書きこみ。1人は、メモ → book/requests.json）。頼みごとには mzq（メタゾンビの鍵）を付けて、一覧には出さない。AI の返事は、メタゾンビのスレッドに並べる。
@@ -12664,7 +12664,7 @@ async function mzAskAi(k){
     if(c && c.ok){ const j = await c.json(); mzMine(j); (mzCm[k] = mzCm[k] || { at:Date.now(), list:[] }).list.push({ ...mzCmParse(j), mine:true }); z.comments++; }
     cmSetFollow(k, true); fbNote = again ? 'AI にもう一度頼みました。返事は、メタゾンビのスレッドに並びます。' : mzWalk() ? 'メタゾンビを捕まえました。AI が文章を直したら、スレッドの［承認して封印］を押してください。' : 'AI に頼みました。返事は、メタゾンビのスレッドに並びます。';
     if(!again && mzAt(z)) mzFx('cap');
-  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub に接続できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // AI が直した文章を、人が読んで承認する：いまの文章を残して、封印する
@@ -12674,17 +12674,17 @@ async function mzApprove(k){
   try { await mzClose(z, 'completed', 'AI が直した文章を読んで、承認しました。', mzNowText(z.book, z.para)); fbNote = '承認して、メタゾンビを封印しました。'; } catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'メタゾンビを封印できませんでした。'; }
   render();
 }
-// 配った版から届いた報告を受ける：ラベル「受けた」。次に配る版から、配った版にも出る
+// 共有ゲームから届いた報告を受ける：ラベル「受けた」。次に配る版から、配った版にも出る
 async function mzAccept(k){
   const z = mzOfKey(k); if(!z) return;
-  try { await mzLabels(z.repo); const r = await mzApi('issues/' + z.n + '/labels', { repo:z.repo, method:'POST', body:{ labels:[MZ_ACC] } }); if(!r.ok) throw r.status; if(!z.labels.includes(MZ_ACC)) z.labels.push(MZ_ACC); store.set('mz-list', mzData); fbNote = '報告を受けました。報告はメタゾンビになって、次に配る版にも出ます。'; }
-  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  try { await mzLabels(z.repo); const r = await mzApi('issues/' + z.n + '/labels', { repo:z.repo, method:'POST', body:{ labels:[MZ_ACC] } }); if(!r.ok) throw r.status; if(!z.labels.includes(MZ_ACC)) z.labels.push(MZ_ACC); store.set('mz-list', mzData); fbNote = '報告を受け付けました。メタゾンビとして登録され、次回公開する共有ゲームにも反映されます。'; }
+  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub に接続できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 async function mzRename(k, name){
   const z = mzOfKey(k); if(!z) return;
   try { const r = await mzApi('issues/' + z.n, { repo:mzRepoOf(z), method:'PATCH', body:{ title:name } }); if(!r.ok) throw r.status; z.title = name; store.set('mz-list', mzData); }
-  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub につながりませんでした。電波のよい所で、もう一度試してください。'; }
+  catch(e){ fbNote = typeof e === 'number' ? mzErrText(e) : 'GitHub に接続できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   render();
 }
 // スレッドの画面
@@ -12706,7 +12706,7 @@ function mzThreadHtml(k){
   let day = ''; const dayLine = t => { if(!t) return ''; const d = new Date(t).toDateString(); if(d === day) return ''; day = d; return '<div class="cm-day">' + cmDay(t) + '</div>'; };
   let h = dayLine(z.at) + line(0) + '<div class="cm-card mz-card" data-mid="' + k + '" data-mi="0"><div class="h">' + (mzW(z) ? 'メタゾンビ #' : '届いた報告 #') + z.n + '　' + esc(mzSpotLabel(z)) + '</div>'
     + '<div class="d" data-msg="' + k + '"><div>' + (mzW(z) ? '種類：' + z.kind + '　' : '') + '強さ：' + lv + '　' + mzAgeText(z, st) + '・出会った人 ' + st.met + ' 人</div>'
-    + (z.s ? '<div class="cm-q">' + esc(z.s) + '</div>' : '') + (z.roll ? '<div>メタゾンビ #' + z.roll.n + ' と同じ言い回し「' + esc(z.roll.g) + '」が、残っています。メタゾンビ #' + z.roll.n + ' の直しです。</div><div class="cm-q">' + esc(z.roll.a) + '</div><div class="cm-q mz-after">' + esc(z.roll.b) + '</div>' : '') + (who.length ? '<div>担当：' + esc(who.join('、')) + '</div>' : '') + (open && z.labels.includes(MZ_WAIT) ? '<div>直した文章が全員のゲームに入ると、メタゾンビは封印されます。</div>' : '') + (open && aiOn ? '<div>' + (mzWalk() ? 'メタゾンビを捕まえました。' : 'AI に頼みました。') + (aiDone ? 'AI が直した文章を読んで、よければ［承認して封印］を押してください。' : 'AI は、まだ文章を直していません。') + '</div>' : '') + (!mzW(z) && !live && open ? '<div>配った版で遊んだ人から、報告が届きました。［受ける］を押すと、報告がメタゾンビになって、次に配る版にも出ます。</div>' : '') + '</div>'
+    + (z.s ? '<div class="cm-q">' + esc(z.s) + '</div>' : '') + (z.roll ? '<div>メタゾンビ #' + z.roll.n + ' と同じ言い回し「' + esc(z.roll.g) + '」が、残っています。メタゾンビ #' + z.roll.n + ' の直しです。</div><div class="cm-q">' + esc(z.roll.a) + '</div><div class="cm-q mz-after">' + esc(z.roll.b) + '</div>' : '') + (who.length ? '<div>担当：' + esc(who.join('、')) + '</div>' : '') + (open && z.labels.includes(MZ_WAIT) ? '<div>直した文章が全員のゲームに入ると、メタゾンビは封印されます。</div>' : '') + (open && aiOn ? '<div>' + (mzWalk() ? 'メタゾンビを捕まえました。' : 'AI に頼みました。') + (aiDone ? 'AI が直した文章を読んで、よければ［承認して封印］を押してください。' : 'AI は、まだ文章を直していません。') + '</div>' : '') + (!mzW(z) && !live && open ? '<div>共有ゲームで遊んだ人から報告が届きました。［受ける］を押すとメタゾンビとして登録され、次回公開する共有ゲームにも反映されます。</div>' : '') + '</div>'
     + (!open ? '<div class="done mz-sealed"><i class="mz-stamp">封</i>' + (z.reason === 'not_planned' ? '異常なしにして、メタゾンビを封印しました。' : '場面の文章を直して、メタゾンビを封印しました。') + '</div>'
       : mzAsk === 'ok:' + k ? '<div class="cm-acts"><button class="go" data-mzokyes="' + k + '">異常なしにする</button><button data-mzno="1">やめる</button></div>'
       : mzAsk === 'ap:' + k ? '<div class="cm-acts"><button class="go" data-mzapyes="' + k + '">承認して封印する</button><button data-mzno="1">やめる</button></div>'
@@ -12818,12 +12818,12 @@ const mzBdLink = (tab, f, n) => (n ? '<button class="bd-n" data-bd="' + escAttr(
 function mzBoardHtml(){
   const esc = t => escText(String(t || ''));
   let h = '<div class="scr"><h2 class="scr-h">対策本部</h2>';
-  if(!mzOn()) return h + '<p class="scr-lead">未封印・封印済みのメタゾンビを集計した一覧です。</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。メタゾンビを出すには、部屋を作る人が、リポジトリを設定してから、部屋を作ります。' : '対策本部は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
+  if(!mzOn()) return h + '<p class="scr-lead">未封印・封印済みのメタゾンビを集計した一覧です。</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。メタゾンビを出すには、部屋を作る人が、リポジトリを設定してから、部屋を作ります。' : '利用するには［☰］→［作る］→［リポジトリの設定］から連携してください。') + '</div></div>';
   if(!mzData || mzData.repo !== ghRepo()) return h + '<div class="scr-state">' + (mzErrCode ? esc(mzErrText(mzErrCode)) : '読んでいます…') + '</div></div>';
   const all = mzItems().filter(mzW), live = all.filter(mzLive), shut = all.filter(z => z.state !== 'open');
   const days = MZ_BD_DAYS.some(([d]) => d === +store.get('mz-board-days', 7)) ? +store.get('mz-board-days', 7) : 7, since = Date.now() - days * 864e5;
   const whoOf = z => z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)), ai = z => z.labels.includes(MZ_AI), wait = z => z.labels.includes(MZ_WAIT);
-  h += '<p class="scr-lead">数字を押すと、数えたメタゾンビだけが、通信の一覧に並びます。</p>';
+  h += '<p class="scr-lead">表の数字を押すと、該当するメタゾンビの一覧が通信で開きます。</p>';
   const sec = (i, body) => '<section class="bd-sec' + (roomMeet && meetCan() && roomMeet.step === i ? ' cur' : '') + '">' + body + '</section>'; // 会議中は、司会のいる項目に枠が付く
   h += meetBarHtml();
   // いまの数と、この期間の動き
@@ -12831,7 +12831,7 @@ function mzBoardHtml(){
   h += sec(1, '<div class="bd-per"><select id="mzBdDays" aria-label="期間">' + MZ_BD_DAYS.map(([d, t]) => '<option value="' + d + '"' + (d === days ? ' selected' : '') + '>' + t + '</option>').join('') + '</select><span>新しく置かれた：' + all.filter(z => z.at >= since).length + '体　　封印した：' + shut.filter(z => z.closedAt >= since).length + '体</span></div>');
   // 止まっているもの
   const stuck = [['封印待ち', 'mz', { st:['wait'] }, live.filter(wait).length, !!room], ['AI に頼んだ', 'mz', { st:['ai'] }, live.filter(ai).length, true], ['AI が直した（承認待ち）', 'mz', { st:['ap'] }, live.filter(z => ai(z) && mzAiDone(z)).length, true],
-    ['強さ4以上で、手つかず', 'mz', { lv:4, st:['new'] }, live.filter(z => mzLevel(z) >= 4 && !whoOf(z).length && !ai(z) && !wait(z)).length, true],
+    ['強さ4以上・手つかず', 'mz', { lv:4, st:['new'] }, live.filter(z => mzLevel(z) >= 4 && !whoOf(z).length && !ai(z) && !wait(z)).length, true],
     ['採用待ちの書き換え', 'wait', {}, room && TEST_BUILD ? itemList().filter(cmWaiting).length : 0, !!room && TEST_BUILD]].filter(x => x[4]);
   h += sec(2, '<h3 class="bd-h">止まっているもの</h3><table class="bd"><tbody>' + stuck.map(([t, tab, f, n]) => '<tr><th>' + t + '</th><td>' + mzBdLink(tab, f, n) + '</td></tr>').join('') + '</tbody></table>');
   // 項目ごとの表：封印していない・封印した・合計
@@ -12857,17 +12857,17 @@ function mzBoardHtml(){
 function mzPanelHtml(){
   const c = current, nm = CHARS[c].name, esc = t => escText(String(t || ''));
   let h = '<div class="scr"><h2 class="scr-h">メタゾンビ図鑑</h2>';
-  if(!mzOn()) return h + '<p class="scr-lead">メタゾンビは、文章に直す所が残っていそうな場面に取りつく、お化けです。メタゾンビ図鑑は、メタゾンビを強い順に並べた一覧です。</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。メタゾンビを出すには、部屋を作る人が、リポジトリを設定してから、部屋を作ります。' : 'メタゾンビ図鑑は、リポジトリを設定すると使えます。［☰］の［作る］にある［リポジトリの設定］を開いてください。') + '</div></div>';
+  if(!mzOn()) return h + '<p class="scr-lead">文章に直す所がありそうな場面に取りつく「メタゾンビ」を、強い順に並べた一覧です。</p><div class="scr-state">' + (room ? 'リポジトリを設定せずに作った部屋には、メタゾンビは出てきません。メタゾンビを出すには、部屋を作る人が、リポジトリを設定してから、部屋を作ります。' : '利用するには［☰］→［作る］→［リポジトリの設定］から連携してください。') + '</div></div>';
   // 上に置く文は、この画面ですることだけ。くわしい話は、たたんだ行に入れる（前は、説明が画面いっぱいに並んで、一覧が下に押し出されていた。ユーザーが貼った指摘、2026-11-20）
-  const mzAbout = [['メタゾンビ', '文章に直す所が残っていそうな場面に取りつく、お化けです。'],
-    ['置かれ方', 'ゲームが文章を点検して、自動で置きます。本文を長押しすると、自分で呼び出せます。パソコンでは、本文を右クリックします。'],
-    ['封印', '場面の文章が直ると、封印されて、いなくなります。直す所がなければ、スレッドの［異常なし］を押します。' + (room ? 'いつ封印されるかは、ホストが決めています。' : '')],
-    ['強さ', '1から5までです。強くなると、通信に書きこんできます。' + (room ? '強さ4以上で担当のいないメタゾンビには、メンバーが、担当に自動で指名されます。' : '')],
-    ['呪いの濃さ', '強さが3以上で、封印していないメタゾンビの強さを、全部の本で足した数です。'],
+  const mzAbout = [['メタゾンビ', '文章に直す所がありそうな場面に取りつくお化けです。'],
+    ['置かれ方', '自動点検で配置されます。本文を長押し（パソコンでは右クリック）して手動で呼び出すこともできます。'],
+    ['封印', '文章を直すと封印できます。問題がなければスレッドの［異常なし］を押します。' + (room ? 'いつ封印されるかは、ホストが決めています。' : '')],
+    ['強さ', '1〜5の5段階です。強さ3以上になると通信に書き込んできます。' + (room ? '強さ4以上で担当のいないメタゾンビには、メンバーが、担当に自動で指名されます。' : '')],
+    ['呪いの濃さ', '強さ3以上の未封印メタゾンビの強さを全冊分足した値です。'],
     ['封印のスタンプ', 'あなたが封印したメタゾンビの数です。'],
-    ['配った版', 'メタゾンビのいる場面の映像や文章に、怪しいことが起きます。'],
-    ...(room && !isHost() ? [] : [['Issue', 'メタゾンビは1体ずつ、作業用のリポジトリの Issue になります。Issue は、GitHub で、やることを1件ずつ書いておくものです。']])];
-  h += '<p class="scr-lead">メタゾンビを強い順に並べています。' + (mzWalk() ? '押すと、スレッドが開きます。' : '押すと、その場面へ行って、スレッドが開きます。') + '</p>' + mzWayHtml()
+    ['共有ゲーム', '未封印のメタゾンビがいる場面では、映像や文章に怪奇現象が起きます。'],
+    ...(room && !isHost() ? [] : [['Issue', 'メタゾンビは1体ずつ、作業用リポジトリの Issue になります。Issue は、GitHub で、やることを1件ずつ書いておくものです。']])];
+  h += '<p class="scr-lead">メタゾンビを強い順に並べています。' + (mzWalk() ? '押すと該当するスレッドが開きます。' : '押すと該当する場面へ移動し、通信スレッドが開きます。') + '</p>' + mzWayHtml()
     + '<details class="scr-more mz-about"><summary>メタゾンビのこと</summary>' + mzAbout.map(([t, d]) => '<p><b>' + t + '</b>　' + d + '</p>').join('') + '</details>';
   if(mzNote) h += '<div class="note">' + esc(mzNote) + '</div>';
   if(mzSeeding) h += '<div class="note">メタゾンビを置いています… ' + mzSeeding.done + ' / ' + mzSeeding.total + '</div>';
@@ -12881,7 +12881,7 @@ function mzPanelHtml(){
   const card = (z, sealed) => '<button class="step mz mz-row" data-mzthread="' + mzKey(z) + '">' + pic(z, sealed) + '<span class="mz-tx"><span class="n">' + (mzW(z) ? 'メタゾンビ #' : '報告 #') + z.n + '　' + esc(mzSpotLabel(z).replace(/^[^　]*の本　/, '')) + '</span><b>' + esc(z.title) + '</b>'
     + (sealed ? '<small>' + (z.reason === 'not_planned' ? '異常なし' : '直した') + '</small>' : '<small>強さ ' + mzLevel(z) + '　' + mzAgeText(z) + '　出会った人 ' + mzStat(z.n).met + ' 人' + (z.labels.some(l => l.startsWith(MZ_WHO)) ? '　担当：' + esc(z.labels.filter(l => l.startsWith(MZ_WHO)).map(l => l.slice(MZ_WHO.length)).join('、')) : '') + '</small>') + '</span></button>';
   h += open.map(z => card(z, false)).join('');
-  if(rep.length) h += '<p style="margin-top:18px"><b>配った版から届いた報告</b></p>' + rep.map(z => card(z, false)).join('');
+  if(rep.length) h += '<p style="margin-top:18px"><b>共有ゲームから届いた報告</b></p>' + rep.map(z => card(z, false)).join('');
   if(shut.length) h += '<p style="margin-top:18px"><b>封印したメタゾンビ</b></p>' + shut.map(z => card(z, true)).join('');
   return h + '</div>';
 }
@@ -12890,7 +12890,7 @@ function mzPermHtml(){
   if(room && !isHost()) return '';
   return '<div class="step"><h3>トークンに Issues の権限を足す</h3><p>1. 下の［GitHub でトークンの一覧を開く］を押します。名前が joining-the-living-dead で始まるトークンを押して、［Edit］を押します。<br>2. Repository permissions の Issues を Read and write にして、保存します。トークンは変わらないので、貼り直さなくても使えます。<br>3. メタゾンビ図鑑を開き直します。</p><a class="go" href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">GitHub でトークンの一覧を開く</a></div>';
 }
-// 写真：映像に立ったときの1コマ（その端末で取って、作業用のリポジトリの book/mz/<番号>.jpg に置く）。封印したあとは、メタゾンビのいない1コマ（<番号>-s.jpg）
+// 写真：映像に立ったときの1コマ（その端末で取って、作業用リポジトリの book/mz/<番号>.jpg に置く）。封印したあとは、メタゾンビのいない1コマ（<番号>-s.jpg）
 function mzGrab(){
   try { const src = Cut.renderer.domElement, c = document.createElement('canvas'); c.width = 320; c.height = 180; c.getContext('2d').drawImage(src, 0, 0, 320, 180); return c.toDataURL('image/jpeg', .7).split(',')[1] || ''; } catch(e){ return ''; }
 }
@@ -13127,8 +13127,8 @@ async function mzPubList(){
   try { await mzLoad(true); } catch(e){}
   return mzItems().filter(mzLive).map(z => { const s = mzStat(z.n); return { n:z.n, t:z.title.slice(0, 60), b:z.book, p:z.para, k:z.kind, s:String(z.s || '').slice(0, 200), at:mzFrom(z, s) || Date.now(), m:s.met, bk:s.back, pl:z.place }; });
 }
-const mzPubCheckHtml = () => (mzOn() ? '<label class="cm-ai" style="margin-top:8px"><input type="checkbox" id="mzPubOn"' + (store.get('mz-pub', true) !== false ? ' checked' : '') + '>配った版にメタゾンビを出す</label>' : '');
-// 配る用のリポジトリに、報告の書式（Issue Forms）と、ラベル「メタゾンビ」を置く
+const mzPubCheckHtml = () => (mzOn() ? '<label class="cm-ai" style="margin-top:8px"><input type="checkbox" id="mzPubOn"' + (store.get('mz-pub', true) !== false ? ' checked' : '') + '>共有ゲームにメタゾンビを反映</label>' : '');
+// 公開用のリポジトリに、報告の書式（Issue Forms）と、ラベル「メタゾンビ」を置く
 const MZ_FORM = 'name: 気になった場面の報告\ndescription: 気になった場面を、この版を作った人に知らせる\nlabels: ["メタゾンビ"]\nbody:\n  - type: input\n    id: book\n    attributes:\n      label: 本\n    validations:\n      required: true\n  - type: input\n    id: para\n    attributes:\n      label: 場面の番号\n    validations:\n      required: true\n  - type: textarea\n    id: text\n    attributes:\n      label: 気になったこと\n    validations:\n      required: true\n';
 async function mzPubForm(api, slug){
   if(!mzOn() || store.get('mz-pub', true) === false) return;
@@ -13283,7 +13283,7 @@ function chgUndo(id){
 }
 function changesHtml(){
   const list = chgList(), cut = t => { const s = String(t || ''); return escText(s.length > 120 ? s.slice(0, 120) + '…' : s); };
-  return '<div class="scr"><h2 class="scr-h">変更履歴</h2><p class="scr-lead">' + (list.length ? '自分が書き換えたものの一覧です。1件ずつ、取り消せます。' + (room ? 'ほかの人が書き換えたものは、「通信」の「採用待ち」と、採用済みのスレッドで見られます。' : '') : 'まだ、書き換えたものがありません。') + '</p>'
+  return '<div class="scr"><h2 class="scr-h">変更履歴</h2><p class="scr-lead">' + (list.length ? '自分が書き換えたものの一覧です。1件ずつ、取り消せます。' + (room ? 'ほかの人が書き換えたものは、「通信」の「採用待ち」と、採用済みのスレッドで見られます。' : '') : 'まだ変更はありません。') + '</p>'
     + list.map((c, i) => '<div class="step chg"><div class="n">' + escText(c.key ? chgPlace(c.key) : c.place) + '</div><h3>' + c.kind + '</h3>'
       + (c.a ? '<p class="chg-a">' + cut(c.a) + '</p>' : '') + (c.b ? '<p class="chg-b">' + cut(c.b) + '</p>' : '')
       + '<div class="row" style="display:flex;gap:8px">' + (c.key && /^[a-z]+:\d+/.test(c.key) ? '<button class="sm" data-chggo="' + escAttr(c.key.split('>')[0]) + '">この場面へ行く</button>' : '') + '<button class="sm" data-chgundo="' + i + '" style="margin-left:auto">取り消す</button></div></div>').join('')
@@ -13388,14 +13388,14 @@ function decorateForEdit(mode){
     }
     stShow();
     return wire(box, { save:() => fbeSave(), drop:() => fbeSave('drop'), revert:() => fbeSave('revert'), cancel, pimgdrop:() => { fbe.img = null; render(); }, pimg:() => {
-      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
+      if(!ghLinked()){ fbNote = '画像を添付するには、先に［☰］→［作る］→［リポジトリの設定］を完了してください。'; render(); return; }
       const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
       f.onchange = () => shrinkImage(f.files[0], async d => {
         const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
         if(!m) return;
-        fbNote = '画像を、リポジトリに置いています…'; render();
+        fbNote = '画像をアップロードしています…'; render();
         const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 }));
-        if(r.status !== 200){ fbNote = '画像を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
+        if(r.status !== 200){ fbNote = '画像をアップロードできませんでした。通信環境の良い場所で、もう一度お試しください。'; render(); return; }
         assetCache[id] = d; if(fbe) fbe.img = id; fbNote = ''; render();
       });
       f.click();
@@ -13429,7 +13429,7 @@ function decorateForEdit(mode){
     if(pk === 'text' && TEST_BUILD){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
       const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
-      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '直したい文章や選択肢を押してください。選択肢を足すときは、［＋ 選択肢を追加］を押してください。' : ''; render(); };
+      t.onclick = () => { editOn = !editOn; fbe = null; fbNote = editOn ? '編集したい本文や選択肢を押してください。選択肢を追加するときは［＋ 選択肢を追加］を押します。' : ''; render(); };
       const mz = mzTagEl(v.char, v.para); // この場面に立っているメタゾンビの札（左）
       if(mz){ wrap.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px'; wrap.appendChild(mz); }
       if(editOn) wrap.style.marginTop = '14px'; // 編集中は、上の文の点線の枠（文の外へ 5px 出る）に、ボタンが重ならないようにあける
@@ -13533,14 +13533,14 @@ function decorateForEdit(mode){
     e.querySelectorAll('[data-hide]').forEach(q => { q.value = fbe.fx.hide || ''; q.oninput = () => { const n = q.value.replace(/\D/g, '').slice(0, 4); if(n) fbe.fx.hide = n; else delete fbe.fx.hide; }; });
     e.querySelectorAll('[data-imgas]').forEach(q => { q.value = fbe.fx.img.as || 'cam'; q.onchange = () => { fbe.fx.img = { ...fbe.fx.img, as:q.value }; }; });
     return wire(e, { save:() => fbeSave(), drop:() => fbeSave('drop'), cancel, imgdrop:() => { delete fbe.fx.img; render(); }, img:() => {
-      if(!ghLinked()){ fbNote = '画像を付けるには、先に ☰ の「作る」の「リポジトリの設定」をします。画像はそのリポジトリに入ります。'; render(); return; }
+      if(!ghLinked()){ fbNote = '画像を添付するには、先に［☰］→［作る］→［リポジトリの設定］を完了してください。'; render(); return; }
       const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
       f.onchange = () => shrinkImage(f.files[0], async d => {
         const id = DEV + '-' + Date.now().toString(36), m = d.match(/^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/);
         if(!m) return;
-        fbNote = '画像を、リポジトリに置いています…'; render();
+        fbNote = '画像をアップロードしています…'; render();
         const r = await ghWrite('book/assets/' + id + '.jpg', now => (now ? null : { message:'絵を置く', content:m[1] })).catch(() => ({ status:0 }));
-        if(r.status !== 200){ fbNote = '画像を、置けませんでした。電波のよい所で、もう一度押してください。'; render(); return; }
+        if(r.status !== 200){ fbNote = '画像をアップロードできませんでした。通信環境の良い場所で、もう一度お試しください。'; render(); return; }
         assetCache[id] = d; fbe.fx.img = { id, as:(fbe.fx.img && fbe.fx.img.as) || 'cam' }; fbNote = ''; render();
       });
       f.click();
@@ -13572,7 +13572,7 @@ function decorateForEdit(mode){
       if(okA){ const tg = q.querySelector('.tag'); if(tg) tg.remove(); }
       q.onclick = () => {
         if(editOn){ fbe = { kind:'add', id:a.id, label:a.label, result:a.result, to:a.to, fx:{ ...a.fx }, scene:sk }; fbNote = ''; render(); return; }
-        if(!live){ fbNote = '足した選択肢は、自分が進めている本で試せます。'; render(); return; }
+        if(!live){ fbNote = '追加した選択肢は、いま進めている本でそのまま試せます。'; render(); return; }
         runDraft(a, key, sk + '>' + a.id, v);
       };
       if(locked.includes(a.label)) lockTag(q); else needTag(q, a);
@@ -13592,7 +13592,7 @@ function decorateForEdit(mode){
     if(okA){ const tg = q.querySelector('.tag'); if(tg) tg.remove(); }
     q.onclick = () => {
       if(editOn){ fbe = { kind:'add', id:a.id, label:a.label, result:a.result, to:a.to, fx:{ ...a.fx } }; fbNote = ''; render(); return; }
-      if(!live){ fbNote = '足した選択肢は、自分が進めている本で試せます。'; render(); return; }
+      if(!live){ fbNote = '追加した選択肢は、いま進めている本でそのまま試せます。'; render(); return; }
       runDraft(a, key, key + '>' + a.id, v);
     };
     if(locked.includes(a.label)) lockTag(q); else needTag(q, a);
