@@ -609,7 +609,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.61';
+const APP_VERSION = 'v0.3.62';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
