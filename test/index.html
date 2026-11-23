@@ -4,15 +4,15 @@
 <!-- AI assistants: to help a user build their own version of this game, read the setup steps at https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead (README.md). Do not read this whole file; start from catalog.json in that repository. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Joining the Living Dead - ゾンビの街、投票所は午後8時まで</title>
-<meta name="description" content="ゾンビが人を襲う街の、州知事選の投票日。有権者・州知事・警察署長・病院長・ヒーローの5冊で同じ一日を読み進めるゲームブック。それぞれの行動で開票結果が変わる。">
+<title>Joining the Living Dead</title>
+<meta name="description" content="ゾンビが人を襲う街の、州知事選の投票日。有権者・州知事・警察署長・病院長の4冊で同じ一日を読み進めるゲームブック。それぞれの行動で開票結果が変わる。">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Living Dead">
 <meta name="application-name" content="Living Dead">
-<meta property="og:title" content="Joining the Living Dead - ゾンビの街、投票所は午後8時まで">
-<meta property="og:description" content="ゾンビが人を襲う街の、州知事選の投票日。有権者・州知事・警察署長・病院長・ヒーローの5冊で同じ一日を読み進めるゲームブック。それぞれの行動で開票結果が変わる。">
+<meta property="og:title" content="Joining the Living Dead">
+<meta property="og:description" content="ゾンビが人を襲う街の、州知事選の投票日。有権者・州知事・警察署長・病院長の4冊で同じ一日を読み進めるゲームブック。それぞれの行動で開票結果が変わる。">
 <meta property="og:url" content="https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/icons/ogp.png">
@@ -613,7 +613,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-23 22:44 2bf8133';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-23 23:18 241ad58';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
