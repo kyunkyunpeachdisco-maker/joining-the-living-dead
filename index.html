@@ -611,7 +611,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.67';
+const APP_VERSION = 'v0.3.68';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -3888,7 +3888,7 @@ function planDirector(){
 
 // ===== 足したカメラ =====
 // 場面ごと（映像の名前ごと）に、追加分（overlay.cams[場面][名前]）と、この端末の下書き（draft-cams）。1台：{ name, pos:[x, y, z], yaw 左右の向き, pitch 上下の向き, fov 画角 }
-let camEdit = null; // カメラを置いている最中の、位置と向き
+let camEdit = null, camOpen = false; // カメラを置いている最中の、位置と向き。camOpen：部屋で、編集を始めずに、カメラの欄を開いている
 // 場面の名前：通りは、映像の名前（夜の版も、同じ場面として扱う）。建物の中は「plan:建物:階」。本が違っても、同じ場面なら、同じカメラ
 const camScene = () => { const c = String((Cut.state && Cut.state.cam) || ''); return c.endsWith('n') && CAM_DEFS[c.slice(0, -1)] ? c.slice(0, -1) : c; };
 const camNum = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
@@ -5210,7 +5210,7 @@ const PACK = EMBED || room ? '' : store.get('pack', '');
 const workOf = id => shelfList().find(x => x.id === id) || null, workNow = workOf(work);
 const GOT = !EMBED && !room && !!workNow && workNow.kind === 'got'; // 部屋でもらった作品：中身は端末にある
 const workName = id => id === 'base' ? 'もとのゲーム' : id ? (workOf(id) || {}).name || '' : LS.get('work-name', '') || '自分の作品';
-const WORK_KIND = { mine:'自分の作品', edit:'ほかの人の作品（自分も書き換えられます）', pack:'公開された作品', got:'遊ぶ部屋から棚に入れた作品' };
+const WORK_KIND = { mine:'自分の作品', edit:'ほかの人の作品（自分も書き換えられます）', pack:'公開された作品', got:'遊ぶ部屋から追加した作品' };
 let CUSTOM = !!EMBED || !!PACK || GOT, packNote = '';
 let overlay = EMBED || (PACK && store.get('pack-cache', null)) || store.get('overlay', null) || { keys:{}, items:{} }, overlaySha = null;
 // 素材（絵）の番地。置き場所は、追加分のリポジトリの book/assets/<名前>.jpg
@@ -5379,7 +5379,7 @@ const unitName = u => u === 'guide' ? '遊び方・作り方の文' : CHARS[u] ?
 const roomRo = () => !!room && ((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).ro === true;
 const editOk = u => !CUSTOM && (!room || (!roomRo() && mine(u)));
 function editNo(u){
-  if(CUSTOM) return 'この作品は書き換えられません。［☰］→［そのほか］→［作品の棚］で写しを作ると、写しを書き換えられます。';
+  if(CUSTOM) return 'この作品は書き換えられません。［☰］→［その他］→［作品一覧］でコピーを作ると、コピーを書き換えられます。';
   if(roomRo()) return 'この部屋の作品は、ホストが作った作品ではないので、書き換えられません。';
   const o = store.get('own', {})[u];
   return o && o.dev !== DEV ? (o.name || '名前なし') + 'が' + unitName(u) + 'をロックしているので、書き換えられません。書き換えてほしい所は、［通信］に書けます。' : unitName(u) + 'をロックすると、書き換えられます。';
@@ -5399,7 +5399,7 @@ let editAsking = false;
 async function editAsk(u, go){
   if(editAsking) return;
   const no = t => { if(front) alert(t); else { fbNote = t; render(); } };
-  if(CUSTOM){ if(confirm('この作品は書き換えられません。写しを作って、写しを書き換えますか？')) workCopy(); return; }
+  if(CUSTOM){ if(confirm('この作品は書き換えられません。コピーを作って、コピーを書き換えますか？')) workCopy(); return; }
   editAsking = true;
   try {
     if(room){
@@ -5658,7 +5658,7 @@ function soloDistHtml(){
           + '<details class="scr-more"><summary>リポジトリを設定せずに、手で置く方法</summary>'
           + '<p>1. <a href="https://github.com/new?name=joining-the-living-dead-share&visibility=public" target="_blank" rel="noopener">GitHub で公開のリポジトリを作る</a>。「Add a README file」にチェックを入れます。<br>'
           + '2.「中身をコピーする」を押します。作ったリポジトリで「Add file」→「Create new file」を押し、名前に book/overlay.json と入れて、貼り付けて、「Commit changes」を押します。<br>'
-          + '3. ☰ の「その他」の「ほかの人のゲームを開く」にリポジトリの名前を入れて「この版で遊ぶ」を押すと、「この版のリンクをコピーする」が出ます。</p>'
+          + '3. ［☰］→［その他］→［作品一覧］にリポジトリの名前を入れて、［追加して開く］を押します。もう一度［作品一覧］を開いて、［この版のリンクをコピーする］を押します。</p>'
           + '<button class="sm" id="soloCopy">中身をコピーする</button> <button class="sm" id="soloPackFile">差分データを書き出す</button></details>')
       + '</div>'
     + (ghLinked() ? '<div class="step"><div class="n">保存</div><h3>リポジトリに保存する</h3><p>編集内容は作業用リポジトリ（' + escText(ghRepo()) + '）に自動で保存されます。すぐ保存したい場合は［保存する］を押してください。</p><button class="go" id="soloSave">保存する</button></div>' : '');
@@ -5668,7 +5668,7 @@ const repoSlug = t => (String(t || '').trim().replace(/^https?:\/\/(www\.)?githu
 // 配るリンク：公開版の番地に、リポジトリの名前（と、非公開のときは読むだけのトークン）を付ける
 const packBase = () => location.href.split('#')[0].split('?')[0].replace(/\/test\/(index\.html)?$/, '/');
 const packLink = (repo, key) => packBase() + '#pack=' + repo + (key ? '&pk=' + key : '');
-let packMode = 'play'; // カスタム版の画面：'play' ほかの人のゲームを開く／'dist' 自分の版を配る
+let packMode = 'play'; // カスタム版の画面：'play' 作品一覧／'dist' 自分の版を配る
 let packPanel = false, linkPanel = false, screenBack = null; // screenBack：タイトルやメニューから開いた画面を閉じたときに、戻る先
 // リポジトリの連携だけの画面（☰ の「リポジトリの設定」、始める前のメニューの「リポジトリを連携する」から開く）
 // 連携する：トークンを貼るだけでよい。リポジトリの名前が空なら、トークンから GitHub の名前を調べて、決まった名前のリポジトリ（作業用・公開用）を探して入れる
@@ -5925,10 +5925,10 @@ function howPages(kind){
   // 説明の文は、Gemini が直したもの（v3。2026-11-23。ドライブの「文章の受け渡し」の 01_説明の文_Gemini_v3）を、立場ごとの組み立てに当てはめたもの。
   //   v3 の「ホスト」は、決まりどおり「ホスト」にした。書き出しに出ていない場合（リポジトリなしの部屋など）の文は、前の文を、v3 の言い回しに寄せてある
   const guest = !!room && !isHost(), n = openIds().length;
-  const reach = roomLocal() ? 'ホストがゲームを開いているあいだ、全員の進み具合が共有されます。' : '全員の進み具合は自動で共有されます。';
+  const reach = roomLocal() ? (isHost() ? 'あなたがゲームを開いているあいだ、全員の進み具合が共有されます。' : '部屋を作ったホストがゲームを開いているあいだ、全員の進み具合が共有されます。') : '全員の進み具合は自動で共有されます。';
   const B = t => '<b>' + t + '</b>';
   if(kind === 'make'){
-    const keysLead = '本文の下にある［✎ 編集する］を押すと、いま見ている場面の内容を書き換えられます。', keys = [B('本文') + '：本文を書き換えられます。', B('✔ 編集を終える'), B('選択肢') + '：選択肢の変更・削除ができます。', B('＋ 選択肢を追加')];
+    const keysLead = room ? '読んでいる本をロックして、本文の下にある［✎ 編集する］を押すと、いま見ている場面の内容を書き換えられます。' : '本文の下にある［✎ 編集する］を押すと、いま見ている場面の内容を書き換えられます。', keys = [B('本文') + '：本文を書き換えられます。', B('✔ 編集を終える'), B('選択肢') + '：選択肢の変更・削除ができます。', B('＋ 選択肢を追加')];
     // メタゾンビのページ（作る人と、招待された人で、同じ形。招待された人には、Issue・封印の時期の決め方・呪いの濃さ・配る側の操作を出さない）
     const mzHow = { t:'メタゾンビ', text:'メタゾンビは、文章に直す所がありそうな場面に取りつくお化けです。' + (room ? 'ゲームが本文を自動点検して配置します。' : '作業用リポジトリを設定すると、ゲームが本文を自動点検して配置します。') + '<br><br>' + (guest ? '1体ごとに通信スレッドが作られ、一覧の［メタゾンビ］で絞り込めます。強い順に並んだ「メタゾンビ図鑑」は［☰］→［作る］→［メタゾンビ図鑑］、または下の［メタゾンビ図鑑］から見られます。' : '1体ごとに作業用リポジトリの Issue（GitHub のタスク）と通信スレッドが作られ、Issue 番号がそのままメタゾンビの番号になります。通信一覧の［メタゾンビ］で絞り込めるほか、強い順に並んだ「メタゾンビ図鑑」は［☰］→［作る］→［メタゾンビ図鑑］、または下の［メタゾンビ図鑑］から見られます。'), list:[
       ['封印する', 'スレッドの［✎ 直す］から場面の文章を直すと封印できます' + (guest ? '（封印のタイミングはホストが設定しています）。問題なければ［異常なし］で封印でき、［封印済み］へ移ります。' : room ? '。初期設定では修正が全員のゲームへ採用された時点で封印されますが、直してすぐ封印したいときは部屋の画面の［封印のタイミング］で［編集時すぐ］を選んでください。問題なければ［異常なし］で封印でき、［封印済み］へ移ります。' : '。問題なければ［異常なし］で封印でき、封印済みの一覧（［封印済み］）へ移ります。')],
@@ -5950,10 +5950,18 @@ function howPages(kind){
       ['直し方を選ぶ', 'スレッドか図鑑で2つのモードを切り替えられます。<br>・［すぐ直す］：スレッドから［この場面へ行く］［✎ 直す］［AI に頼む］［異常なし］をいつでも押せます。<br>・［場面へ行って直す］：主人公がその場面にいる間だけ、本文の上とスレッドで操作できます（本文の上には［✎ 直す］［捕まえる］、スレッドには［✎ 直す］［捕まえる］［異常なし］が出ます）。映像では種類ごとに姿が変わり、強いほど近くに立ちます。［捕まえる］は AI に修正を頼むボタンで、直ったあとの［承認して封印］はどの場面にいても押せます。なお、本がもう進められないときは［場面へ行って直す］でもスレッドから［この場面へ行く］［✎ 直す］［捕まえる］を押せます。'],
       ['絞り込む', '通信一覧の［絞り込み］で、本・場所・強さなどによる絞り込みや並び替え（新しく動いた順・強い順・古い順・本と場面の順）ができます。よく使う条件は［条件を保存］で残せます。'],
     ] };
+    // 2人の書き換えがぶつからないための決まり
+    const lockHow = { t:'書き換えがぶつからないようにする', list:[
+      ...(room ? [['本をロックして書き換える', '本を書き換えられるのは、その本をロックした人です。ほかの人がロックしている本を直してほしいときは、［通信］で頼みます。'], ['カメラを追加する', '映像を開いているときに、本文の下の［カメラを足す］を押します。本をロックしていなくても、場面にカメラを追加できます。'], ['遊び方と作り方の文を書き換える', '遊び方と作り方のページにある［✎ 編集する］を押します。遊び方と作り方の文を同時に書き換えられるのは、1人です。']]
+        : [['部屋で本を書き換える', '部屋で本を書き換えられるのは、その本をロックした人です。']]),
+      ...(guest ? [] : [room ? ['この部屋のほかで、ゲームが書き換えられているとき', '部屋の外での書き換えが30分間なければ、この部屋でゲームを書き換えられるようになります。'] : ['ほかの部屋や人が作品を書き換えているとき', '1つの作品を同時に書き換えられるのは、1つの部屋か1人です。ほかの部屋や人の書き換えが30分間なければ、自分がその作品を書き換えられるようになります。']]),
+    ] };
+    if(guest && roomRo()) return [{ t:'一緒に遊ぶ', text:'この部屋の作品は、ホストが作った作品ではないので、書き換えられません。' }];
     if(guest) return [
       { t:'一緒に作る', text:'この部屋では、ゲームを遊びながら本文や選択肢を書き換えられます。編集内容はメンバー全員に共有され、ゲーム本体へ反映されるタイミングはホストが設定しています。' },
       { img:'how-make-1', full:true, t:'書き換える', lead:keysLead, legend:keys },
-      { t:'通信', text:'右端の［通信］から、メンバー同士でやり取りできます。', list:[['AI に頼む', roomLocal() ? 'この部屋では、AI に頼めません。' : '入力欄の上にある［AI に頼む］にチェックを入れて依頼を送ります。ホストが AI に対応させると、通信に返事が届きます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', 'ホストに頼んで、GitHub 側でこの部屋のリポジトリにアクセスできるメンバーへ追加してもらってください。']])] },
+      lockHow,
+      { t:'通信', text:'右端の［通信］から、メンバー同士でやり取りできます。', list:roomLocal() ? [] : [['AI に頼む', '入力欄の上にある［AI に頼む］にチェックを入れて依頼を送ります。ホストが AI に対応させると、通信に返事が届きます。'], ...(roomLocal() ? [] : [['自分の Claude Code を使う', 'ホストに頼んで、GitHub 側でこの部屋のリポジトリにアクセスできるメンバーへ追加してもらってください。']])] },
       ...(roomLocal() ? [] : [mzHow, mzHow2]),
     ];
     const guide = '<br><a href="https://github.com/kyunkyunpeachdisco-maker/joining-the-living-dead" target="_blank" rel="noopener">github.com/kyunkyunpeachdisco-maker/joining-the-living-dead</a>';
@@ -5962,18 +5970,28 @@ function howPages(kind){
       { t:'編集版でできること', text:'編集版では、ゲームの本文や選択肢を自由に書き換えたり、新しい場所や主人公の本を追加したりできます。<br><br>作ったゲームはリンクやファイルでほかの人に公開・共有できます。部屋を作れば複数人で共同制作でき、本文や選択肢の執筆を AI に任せることもできます。' },
       ...(room ? [] : [{ t:'リポジトリを作る', text:'編集したデータを保存・公開するために、無料サービスの GitHub 上に自分用の置き場（リポジトリ）を作ることをおすすめしています。利用には GitHub アカウントが必要です。<br><br>用意するのは「作業用（編集データや画像を保存）」と「公開用（リンクで公開）」の2つです。詳しい手順は下の［リポジトリの設定］から確認できます。設定すると次の機能が使えるようになります。<br><br>・編集内容が作業用リポジトリに自動で保存される<br>・本文に好きな画像を貼れる<br>・作ったゲームをリンクで公開できる<br>・ホストがページを閉じていても、メンバーが部屋を使い続けられる<br>・本文や選択肢の執筆を AI に頼める', after:'※ リポジトリを設定しなくても、ゲームの編集とファイル形式での共有はできます（その場合、編集データはいま使っているスマホやパソコンにだけ保存されます）。<br>※ 準備が面倒な場合は、AI の Claude Code に任せることもできます。Claude Code と GitHub を連携したうえで、次のリンクを貼って「準備して」と頼んでください。' + guide, btn:['howLinkBtn', 'リポジトリの設定'] }]),
       { img:'how-make-1', full:true, t:'ゲームを書き換える', lead:keysLead, legend:keys, list:[['本文に画像を添付する', '先にリポジトリを設定してください。［✎ 編集する］から画像を差し込みたい本文を選び、［画像を添付］で画像を選択して［直す］を押すと、その本文の下に表示されます。'], ['場所を追加する', '［地図］がある場面で［地図］→［地図に場所を追加］を押し、追加したい位置を選んで［新しい場所を作成］を押します。'], ['一室を追加する', '建物の中にいるときに［地図］を開き、［となりに一室を追加］を押します。'], ['本を追加する', '［☰］→［作る］→［本を追加］から主人公の名前などを入力します。特定条件まで隠しておきたいときは［解放条件］を設定し、最後に［本を作成］を押します。'], ['選択肢に体力などの変化を設定する', '選択肢を足す画面でテキストと「選択後の展開」を書くと、「体力が1減る」などの効果候補が自動で出るので、使いたいものを押して付けます。映像内の主人公の動きも文章から自動で決まります。候補のルールは［☰］→［作る］→［自動提案］で変更できます。']] },
+      lockHow,
+      ...(room ? [] : [{ t:'作品を分けて持つ', text:'書き換えた内容・本の進行・リポジトリの設定は、作品ごとに分かれます。', list:[
+        ['新しい作品を作る', '［作品一覧］で［新しい作品を作る］を押し、作品の名前を入力します。'],
+        ['作品のコピーを作る', '［作品一覧］で、いま開いている作品の［コピーを作る］を押すと、同じ内容の作品が増えます。コピーを書き換えても、もとの作品の内容は変わりません。'],
+        ['公開された作品のコピーを書き換える', '公開された作品を開いて［✎ 編集する］を押すと、コピーを作るか確認されます。コピーは自分の作品になり、コピーの内容を書き換えられます。'],
+      ] }]),
       { t:'ゲームを公開・共有する', text:room ? 'この部屋でみんなと編集したゲームを、外の人に遊んでもらうために公開・共有できます。操作は［☰］→［部屋］→［部屋の管理］から行います。' : '自分で編集したゲームを、ほかの人に遊んでもらうために公開・共有できます。操作は［☰］→［作る］→［公開・共有］から行います。', list:[
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで共有する', (room ? '［ファイルで書き出す］' : '［ファイルで書き出す］') + 'でゲームを1つのファイルに書き出して送ります。受け取った人はブラウザで開くと遊べます。'],
       ], after:room ? '※ 部屋の画面の［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で部屋の内容をそのバージョンに復元できます。' : '※ リンク公開後は［バージョン履歴］から過去のバージョンを確認できます。［差分を見る］で1つ前との差分表示、［このバージョンを公開］で再公開、［このバージョンに復元］で手元の編集データをそのバージョンに復元できます。', btn:['howPackBtn', room ? '部屋の管理' : '公開・共有を開く'] },
-      { t:'みんなで作る', text:room ? '部屋の画面の［招待リンクをコピー］からリンクを送ると、受け取った人と一緒にこのゲームを共同編集できます。' : '［☰］の［部屋］で部屋を作って招待リンクを送ると、複数人で同じゲームを共同編集できます。リポジトリ未設定の部屋では、ホストがページを閉じると部屋は使えなくなります。', after:'※ メンバーの編集をいつ全員のゲームへ反映するかは、ホストが［☰］→［部屋］→［部屋の管理］から、［即時反映］［1人の承認で反映］［ホストの承認で反映］の3つより選べます。<br>※ メンバーを外したいときは、部屋の画面で対象の［退出させる］を押します。なお、リポジトリ付きの部屋の招待リンクには書き込み用トークンが含まれるため、外した相手の書き込みも止めたい場合は［トークンを再発行］から鍵を更新してください。', btn:['howPackBtn2', room ? '部屋の管理' : '部屋を作る'] },
+      { t:'みんなで作る', text:room ? '部屋の画面の［招待リンクをコピー］からリンクを送ると、受け取った人と一緒にこのゲームを共同編集できます。' : '［☰］の［部屋］で部屋を作って招待リンクを送ると、複数人で同じゲームを共同編集できます。', list:room ? (roomLocal() && isHost() && (store.get('seed', null) || {}).mine ? [['部屋での書き換えを取りこむ', '［☰］→［部屋］→［部屋の管理］で［書き換えを取りこむ］を押すと、この部屋での書き換えが、部屋を作るときに開いていたゲームに入ります。']] : []) : [
+        ['遊ぶ部屋を作る', 'ホストがゲームを開いている間に、メンバーの進行が共有されます。リポジトリを設定していないときは、［部屋を作る］を押すと遊ぶ部屋ができます。'],
+        ['一緒に作る部屋を作る', '一緒に作る部屋は、リポジトリを設定すると作れます。メンバーは、画像の添付と、AI への依頼もできます。招待リンクに、作業用リポジトリへ書き込めるトークンが入ります。'],
+        ['部屋での書き換えを取りこむ', '遊ぶ部屋では、ホストが［☰］→［部屋］→［部屋の管理］で［書き換えを取りこむ］を押すと、部屋での書き換えが自分の作品に入ります。一緒に作る部屋での書き換えは、作業用リポジトリの作品に入ります。'],
+      ], after:'※ メンバーの編集をいつ全員のゲームへ反映するかは、ホストが［☰］→［部屋］→［部屋の管理］から、［即時反映］［1人の承認で反映］［ホストの承認で反映］の3つより選べます。<br>※ メンバーを外したいときは、部屋の画面で対象の［退出させる］を押します。' + (room && roomLocal() ? '' : 'なお、' + (room ? 'この部屋' : '一緒に作る部屋') + 'の招待リンクには書き込み用トークンが含まれるため、外した相手の書き込みも止めたい場合は［トークンを再発行］から鍵を更新してください。'), btn:['howPackBtn2', room ? '部屋の管理' : '部屋を作る'] },
       { img:'how-make-2', full:true, t:'通信', lead:room ? '右端の［通信］から開く、メンバー同士のチャットと編集レビューの画面です。' : '右端の［通信］から開きます。1人のときは自分用のメモ帳、部屋に入っているときはメンバー同士のチャットとして使えます。', legend:[B('新しいスレッド') + '：話題ごとにスレッドを立てられます。入力して［送る］を押すと始まります。', B('スレッド') + '：押すと会話を開きます。', B('編集提案') + '：メンバーの編集提案もスレッドとして並びます。ホストが［採用する］を押すか、［1人の承認で反映］の部屋で本人以外の誰かが［賛成］を押すと、全員のゲームへ反映されます。', B('採用待ち') + '：まだ全員のゲームに反映されていない編集提案だけを表示します。'], after:'※ ' + (room ? '' : '部屋では、') + '入力欄の左にある［＋］→［ファイルを添付］から 500KB までのファイルを添付できます。<br>※ 自分が立てたスレッドは一覧で長押し（パソコンでは右クリック）すると［名前を変更］と［削除］ができます（編集提案のスレッドは削除できません）。' },
       ...(room && roomLocal() ? [] : [mzHow, mzHow2]),
-      { t:'AI に本文や選択肢を書かせる', text:'Claude Code・Codex・Antigravity など、GitHub のリポジトリを扱える AI ならどれでも利用できます。あらかじめ AI と GitHub を連携しておいてください。', list:[
+      ...(room && roomLocal() ? [] : [{ t:'AI に本文や選択肢を書かせる', text:'Claude Code・Codex・Antigravity など、GitHub のリポジトリを扱える AI ならどれでも利用できます。あらかじめ AI と GitHub を連携しておいてください。', list:[
         ['AI に直接頼む', 'AI で作業用リポジトリを開き、書いてほしい内容を直接伝えます。'],
         ['通信から頼む', '入力欄の上にある［AI に頼む］にチェックを入れて依頼を送ります' + (room ? '。ホストが AI で' : '（リポジトリ設定後に表示されます）。AI で') + '作業用リポジトリを開いて「依頼に対応して」と伝えると、AI がリポジトリを書き換えて通信に返事を書きます。'],
         ['AI の変更をゲームへ取り込む', '［☰］→［作る］→［更新］を押すと、AI が書き換えた内容がゲームに反映されます' + (room ? '。' : '（リポジトリ設定後に表示されます）。')],
-      ], after:room ? '※ Claude Code を使う場合は、次のリンクを貼って「準備して」と頼むとリポジトリ設定を手伝ってくれます。' + guide : '' },
+      ], after:room ? '※ Claude Code を使う場合は、次のリンクを貼って「準備して」と頼むとリポジトリ設定を手伝ってくれます。' + guide : '' }]),
     ];
   }
   const names = openIds().map(id => CHARS[id].name).join('・');
@@ -5987,7 +6005,7 @@ function howPages(kind){
       B('本') + (room ? '：読む本を選べます。［1つ前に戻す］で前の場面に戻れます（最大10手前まで。ただし自分が選んだあとに他のメンバーも選択していると戻れません）。' : '：読む本の切り替えや、ロックの解除（［保存してロックを外す］／［保存せずにロックを外す］）ができます。［1つ前に戻す］で前の場面に戻れます（最大' + UNDO_MAX + '手前まで）。'),
       ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の管理］から本のロック・解除や、メンバーの退出処理（ホストのみ）ができます。［部屋を出る］を押すとタイトル画面に戻ります。' : TEST_BUILD ? '：みんなで遊ぶ・作るための部屋を作成したり、招待された部屋へ入ったりできます。' : '：マルチプレイ用の部屋を作ったり、招待された部屋へ入ったりできます。')]),
       ...(TEST_BUILD ? [B('作る') + (room ? '：ゲームの編集やメタゾンビ対策に使うツールがまとまっています' : '：ゲームの編集や配布に使うツールがまとまっています') + '（使い方は［その他］の［作り方］にあります）。'] : []),
-      B('その他') + (room ? '：' + (TEST_BUILD ? '［遊び方］［作り方］' : '［遊び方］') + 'の確認と、［サウンド］のオン・オフ切り替えができます。' : TEST_BUILD ? '：［遊び方］［作り方］の確認、［サウンド］のオン・オフ、［ほかの人のゲームを開く］、［タイトルへ］戻る操作、全データを消してやり直す［最初から］があります。' : '：［遊び方］の確認、［サウンド］のオン・オフ、［ほかの人のゲームを開く］、［タイトルへ］戻る操作、全データを消して朝からやり直す［最初から］があります。')] },
+      B('その他') + (room ? '：' + (TEST_BUILD ? '［遊び方］［作り方］' : '［遊び方］') + 'の確認と、［サウンド］のオン・オフ切り替えができます。' : TEST_BUILD ? '：［遊び方］［作り方］の確認、［サウンド］のオン・オフ、' + (EMBED ? '' : '［作品一覧］、') + '［タイトルへ］戻る操作、進行を消して朝からやり直す［最初から］があります。' : '：［遊び方］の確認、［サウンド］のオン・オフ、' + (EMBED ? '' : '［作品一覧］、') + '［タイトルへ］戻る操作、進行を消して朝からやり直す［最初から］があります。')] },
     { t:'ゲームの進めかた', list:[
       ['時刻', '行動を選ぶたびに時刻が進みます。投票所が開いているのは朝7時から夜8時までです。'],
       ['時間帯', '一日は朝・午前・昼・午後・夕方・夜の6つに分かれています。' + (room ? '先に次の時間帯へ入った人は、ほかのメンバーが追いつくまで一時的に先へ進めなくなります。' : 'ある本が次の時間帯へ進むと、ほかの本が追いつくまで一時的に先へ進めなくなります。')],
@@ -5996,6 +6014,20 @@ function howPages(kind){
       ...(mzPub() ? [['読めない文章', 'にじんだり欠けたりして読めない箇所は、押すと元の文章を読めます。']] : []), // 配った版では、メタゾンビとは名乗らない（怪奇現象の正体は言わない）
       ...(room || EMBED ? [] : [['みんなで遊ぶ', '［☰］の［部屋］で部屋を作り、招待リンクを送ると、複数人で1冊ずつ分担して遊べます。ホストは、［☰］→［部屋］→［部屋の管理］から、対象メンバーの［退出させる］を押します。']]),
     ] },
+    ...(room || EMBED ? [] : [{ t:'作品一覧', text:'このゲームをもとに作られたゲームを「作品」と呼びます。作品は、タイトル画面の［作品一覧］に並びます。', list:[
+      ['公開された作品を開く', '公開リンクを開くと、作品一覧に作品が追加され、ゲームが始まります。'],
+      [TEST_BUILD ? '自分の作品に戻る' : 'もとのゲームに戻る', '［作品一覧］で、' + (TEST_BUILD ? '自分の作品' : '「もとのゲーム」') + 'の［開く］を押します。'],
+      ['作品を続きから読む', '本の進行は、作品ごとに分かれています。［作品一覧］で作品の［開く］を押すと、前に保存した所から読めます。'],
+    ] }]),
+    ...(guest && roomLocal() ? [{ t:'ホストがゲームを閉じているとき', list:[
+      ['ロックした本を進める', '自分がロックした本は、ホストがゲームを閉じている間も進められます。'],
+      ['ロックしていない本を進める', '誰もロックしていない本は、本文の上に「ホストとつながっていません」と表示されてから進めた内容が、1人につき1冊まで保存されます。次にホストとつながると、進めた内容が部屋に反映されます。'],
+      ['進めた内容を部屋に反映できなかったとき', '本文の上に、反映できない理由とボタンが表示されます。［自分の進行を取り消す］を押すと、ホストとつながっていない間に進めた内容が消えます。［自分の進行を残す（ホストの許可が要ります）］を押してホストが許可すると、進めた内容が部屋に反映され、ほかの人の進行が戻ることがあります。'],
+    ] }] : []),
+    ...(guest ? [{ t:'部屋のゲームを作品一覧に追加する', text:'［☰］→［部屋］→［部屋の管理］で［作品一覧に追加］を押すと、部屋で遊んでいるゲームを、部屋を出たあとも遊べます。' + (roomLocal() ? 'ホストが許可していないときは、［作品一覧に追加］は表示されません。' : ''), list:[
+      ['作品一覧から開く', '部屋を出て、タイトル画面の［作品一覧］を押し、追加したゲームの［開く］を押します。'],
+      ...(roomLocal() ? [['作品一覧のゲームを最新の内容にする', 'もう一度部屋に入って［作品一覧に追加］を押します。']] : []),
+    ] }] : []),
     // 部屋に入っている人には、通信の画面の説明を出す（公開版でも、部屋の中では［通信］を使う）
     ...(room ? [{ t:'通信', text:'右端の［通信］から開く、メンバー同士のチャットです。', list:[
       ['スレッドを始める', '話題ごとにスレッドを立てられます。入力欄に書いて［送る］を押すと始まり、最初のメッセージがタイトルになります。'],
@@ -6016,6 +6048,7 @@ function frontHtml(){
       + '<div class="fr-btns">'
       + (go ? '<button class="main" id="frResume">つづきから</button><button id="frNew">最初から<small>全員の進み具合を消して朝からやり直す</small></button>' : '<button class="main" id="frStart">はじめる</button>')
       + (EMBED ? '' : '<button id="frRoomT">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '<small>部屋を作る・招待された部屋に入る</small></button>')
+      + (EMBED ? '' : '<button id="frPack">作品一覧<small>' + (TEST_BUILD ? '開く作品を替える・新しい作品を作る' : 'ほかの人の作品を開く・もとのゲームに戻る') + '</small></button>')
       + '<button id="frHow">遊び方</button>'
       + (TEST_BUILD ? '<button id="frMake">作り方<small>書き換える・公開する・みんなで作る</small></button>' : '')
       + '</div>'
@@ -6069,7 +6102,7 @@ function frontRender(){
   on('frMake', () => { howPage = 0; howBack = 'title'; howKind = 'make'; go('how'); });
   on('frBack', () => go('title'));
   on('frRoom', () => { menuOpen = false; roomPanel = true; packPanel = linkPanel = bookPanel = false; screenBack = 'menu'; go(null); });
-  on('frPack', () => { menuOpen = false; packPanel = true; roomPanel = false; linkPanel = false; go(null); window.scrollTo(0, 0); });
+  on('frPack', () => { menuOpen = false; packMode = 'play'; packPanel = true; roomPanel = linkPanel = bookPanel = false; screenBack = 'title'; go(null); window.scrollTo(0, 0); });
   on('frRoomT', () => { menuOpen = false; roomPanel = true; packPanel = linkPanel = bookPanel = false; screenBack = 'title'; go(null); });
   on('frLink', () => { menuOpen = false; linkPanel = true; packPanel = roomPanel = bookPanel = false; screenBack = 'title'; go(null); });
   on('frPrev', () => { howPage--; howPick = null; frontRender(); });
@@ -6092,18 +6125,18 @@ function frontRender(){
 // 棚の一覧
 function shelfHtml(){
   const ids = [TEST_BUILD ? '' : 'base', ...shelfList().filter(x => TEST_BUILD || ['pack', 'got'].includes(x.kind)).map(x => x.id)];
-  return '<div class="step"><div class="n">作品</div><h3>作品を開く</h3>' + ids.map(id => { const e = workOf(id), on = id === work, kind = id === 'base' ? '' : WORK_KIND[e ? e.kind : 'mine'];
+  return '<div class="step"><div class="n">作品</div><h3>作品を開く</h3>' + ids.map(id => { const e = workOf(id), on = id === work, kind0 = id === 'base' ? '' : WORK_KIND[e ? e.kind : 'mine'], kind = kind0 === workName(id) ? '' : kind0;
     return '<div class="rowl" style="flex-wrap:wrap"><span style="flex:1 1 100%">' + escText(workName(id)) + '<small style="display:block">' + [on ? 'いま開いている作品' : '', kind, e && e.repo && e.repo !== e.name ? escText(e.repo) : ''].filter(Boolean).join('　') + '</small></span>'
       + (on ? '' : '<button class="sm" data-wopen="' + id + '">開く</button>')
       + (id === 'base' ? '' : '<button class="sm" data-wname="' + id + '">名前を変える</button>')
-      + (on && TEST_BUILD ? '<button class="sm" id="workCopy">写しを作る</button>' : '')
-      + (!on && e ? (shelfDelAsk === id ? '<button class="sm" data-wdelyes="' + id + '">本当に棚から消す</button><button class="sm" data-wdelno="1">やめる</button>' : '<button class="sm" data-wdel="' + id + '">棚から消す</button>') : '') + '</div>'; }).join('')
+      + (on && TEST_BUILD ? '<button class="sm" id="workCopy">コピーを作る</button>' : '')
+      + (!on && e ? (shelfDelAsk === id ? '<button class="sm" data-wdelyes="' + id + '">本当に一覧から消す</button><button class="sm" data-wdelno="1">やめる</button>' : '<button class="sm" data-wdel="' + id + '">一覧から消す</button>') : '') + '</div>'; }).join('')
     + (TEST_BUILD ? '<button class="go" id="workNew">新しい作品を作る</button>' : '') + '</div>';
 }
 let shelfDelAsk = '';
 function workOpen(id){ LS.set(WORK_NOW, id); location.reload(); }
 const workAsk = (t, v) => { const n = prompt(t, v); return n === null ? null : n.replace(/[<>]/g, '').trim().slice(0, 40); };
-function workAdd(e, vals){ const id = workId(); LS.set('shelf', [...shelfList(), { id, ...e }]); for(const [k, v] of Object.entries(vals || {})) if(!LS.set(workKey(id, k), v)){ workWipe(id); packNote = '保存できる量を超えるので、作品を棚に入れられませんでした。使っていない作品を棚から消してください。'; render(); return ''; } return id; }
+function workAdd(e, vals){ const id = workId(); LS.set('shelf', [...shelfList(), { id, ...e }]); for(const [k, v] of Object.entries(vals || {})) if(!LS.set(workKey(id, k), v)){ workWipe(id); packNote = '保存できる量を超えるので、作品を追加できませんでした。［作品一覧］で、使っていない作品の［一覧から消す］を押してください。'; render(); return ''; } return id; }
 function workWipe(id){
   if(!id || id === 'base') return;
   LS.set('shelf', shelfList().filter(x => x.id !== id)); for(const k of LS.keys()) if(k.startsWith('w-' + id + '-')) LS.del(k);
@@ -6113,9 +6146,9 @@ function workWipe(id){
 function workNew(){ const n = workAsk('新しい作品の名前', ''); if(n === null) return; const id = workAdd({ kind:'mine', name:n || '新しい作品' }); if(id) workOpen(id); }
 // いま開いている作品と同じ内容の、自分の作品を作る（もとの作品とは、つながらない）
 function workCopy(){
-  const n = workAsk('写しの名前', workName(work) + 'の写し'); if(n === null) return;
+  const n = workAsk('コピーの名前', workName(work) + 'のコピー'); if(n === null) return;
   const o = soloOverlay(overlay), src = GOT ? { work } : PACK ? { repo:PACK, key:store.get('pack-key', '') } : ghLinked() ? { repo:ghRepo(), key:ghPat() } : store.get('asset-work', null);
-  const id = workAdd({ kind:'mine', name:n || workName(work) + 'の写し' }, { draft:o.keys, 'draft-spots':o.spots, 'draft-cams':o.cams, 'draft-books':o.books, overlay:{ base:overlay.base || null, keys:{}, items:{}, poses:o.poses, spots:{}, books:{}, cams:{}, auto:autoNow() }, ...(src ? { 'asset-work':src } : {}) });
+  const id = workAdd({ kind:'mine', name:n || workName(work) + 'のコピー' }, { draft:o.keys, 'draft-spots':o.spots, 'draft-cams':o.cams, 'draft-books':o.books, overlay:{ base:overlay.base || null, keys:{}, items:{}, poses:o.poses, spots:{}, books:{}, cams:{}, auto:autoNow() }, ...(src ? { 'asset-work':src } : {}) });
   if(id) workOpen(id);
 }
 // 部屋の作品を、棚に入れる。一緒に作る部屋：同じリポジトリを書き換える作品。遊ぶ部屋：ホストが許したとき、中身を端末に残す
@@ -6125,39 +6158,39 @@ const gotSame = () => { const l = shelfList().filter(x => x.kind === 'got'), u =
 async function roomKeep(){
   if(!roomTakeOk()) return;
   const gotNow = roomLocal() && gotSame();
-  const n = gotNow ? gotNow.name : workAsk('棚に入れる作品の名前', '部屋 ' + room + ' の作品'); if(n === null) return;
+  const n = gotNow ? gotNow.name : workAsk('追加する作品の名前', '部屋 ' + room + ' の作品'); if(n === null) return;
   const name = n || '部屋 ' + room + ' の作品';
   if(!roomLocal()){
     const same = shelfList().find(x => x.kind === 'edit' && x.repo === ghRepo()) || (LS.get('gh-repo', '') === ghRepo() ? { name:workName('') } : null);
-    if(same){ roomNote = 'この作品は、もう棚にあります。棚での名前は「' + same.name + '」です。'; render(); return; }
+    if(same){ roomNote = 'この作品は、「' + same.name + '」の名前で、もう作品一覧にあります。'; render(); return; }
     const id = workAdd({ kind:'edit', name, repo:ghRepo() }, { 'gh-repo':ghRepo(), 'gh-pat':ghPat(), 'gh-own':ghRepo() });
-    roomNote = id ? 'この作品を棚に入れました。この作品は、部屋を出ると、［☰］の［そのほか］の［作品の棚］から開けます。' : '棚に入れられませんでした。'; render(); return;
+    roomNote = id ? 'この作品を追加しました。この作品は、部屋を出ると、タイトル画面の［作品一覧］から開けます。' : '作品一覧に追加できませんでした。'; render(); return;
   }
   const uid = uidNow(), own = ['', ...shelfList().filter(x => ['mine', 'edit'].includes(x.kind)).map(x => x.id)].find(x => uid && LS.get(workKey(x, 'uid'), '') === uid);
-  if(own !== undefined){ roomNote = 'この作品は、もう棚にあります。棚での名前は「' + workName(own) + '」です。'; render(); return; }
+  if(own !== undefined){ roomNote = 'この作品は、「' + workName(own) + '」の名前で、もう作品一覧にあります。'; render(); return; }
   const had = gotSame();
-  roomNote = '棚に入れています…'; render();
+  roomNote = '作品一覧に追加しています…'; render();
   const vals = { overlay:{ base:overlay.base || null, ...verPick(overlay), items:{}, poses:overlay.poses || {}, auto:overlay.auto || null }, ...(uid ? { uid } : {}) };
-  if(had && !LS.set(workKey(had.id, 'overlay'), vals.overlay)){ roomNote = '保存できる量を超えるので、棚の「' + had.name + '」を最新の内容にできませんでした。'; render(); return; }
+  if(had && !LS.set(workKey(had.id, 'overlay'), vals.overlay)){ roomNote = '保存できる量を超えるので、作品一覧の「' + had.name + '」を最新の内容にできませんでした。'; render(); return; }
   if(had && uid && had.uid !== uid){ LS.set('shelf', shelfList().map(x => (x.id === had.id ? { ...x, uid } : x))); LS.set(workKey(had.id, 'uid'), uid); }
   const id = had ? had.id : workAdd({ kind:'got', name, room, ...(uid ? { uid } : {}) }, { overlay:{ base:overlay.base || null, ...verPick(overlay), items:{}, poses:overlay.poses || {}, auto:overlay.auto || null } });
   let miss = 0;
   if(id) for(const a of usedAssets()){ const u = await assetData(a).catch(() => ''); if(!u){ miss++; continue; } try { await (await caches.open(BASE + 'room-assets')).put(location.origin + '/__jtld/w-' + id + '/' + a + '.jpg', new Response(u)); } catch(e){ miss++; } }
-  roomNote = id ? (had ? '棚の「' + had.name + '」を、最新の内容にしました。' : 'この作品を棚に入れました。この作品は、部屋を出ると、［☰］の［そのほか］の［作品の棚］から開けます。') + (miss ? 'この作品の画像' + miss + '枚は、棚に入れられませんでした。' : '') : '棚に入れられませんでした。'; render();
+  roomNote = id ? (had ? '作品一覧の「' + had.name + '」を、最新の内容にしました。' : 'この作品を追加しました。この作品は、部屋を出ると、タイトル画面の［作品一覧］から開けます。') + (miss ? 'この作品の画像' + miss + '枚は、作品一覧に追加できませんでした。' : '') : '作品一覧に追加できませんでした。'; render();
 }
 function packPanelHtml(){
   const key = store.get('pack-key', ''), mine = TEST_BUILD && !room && !EMBED;
   const pick = rows => '<table class="pick">' + rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
-  return '<div class="scr"><h2 class="scr-h">' + (packMode === 'dist' ? '公開・共有' : '作品の棚') + '</h2><p class="scr-lead">' + (packMode === 'dist' ? '自分で編集したゲームを、ほかの人に公開・共有できます。' : 'このゲームをもとに作られた作品を並べています。本の進行は、作品ごとに分かれています。') + '</p>' + (packMode === 'dist' ? '' : shelfHtml())
+  return '<div class="scr"><h2 class="scr-h">' + (packMode === 'dist' ? '公開・共有' : '作品一覧') + '</h2><p class="scr-lead">' + (packMode === 'dist' ? '自分で編集したゲームを、ほかの人に公開・共有できます。' : 'このゲームをもとに作られた作品を並べています。本の進行は、作品ごとに分かれています。') + '</p>' + (packMode === 'dist' ? '' : shelfHtml())
     + (packMode === 'dist' ? '' : PACK ? '<div class="scr-state on">今は、この版で遊んでいます<b>' + escText(workName(work)) + '</b></div>'
         + (overlay.base ? '<p class="scr-lead" style="font-size:13px;margin-top:10px">この版は、もとのゲームの ' + escText(overlay.base.ver || overlay.base.build || '') + ' に合わせて作られています。今動いているのは ' + escText(APP_VERSION.startsWith('__') ? BUILD : APP_VERSION) + ' です。'
             + (overlay.base.ver && overlay.base.ver !== APP_VERSION && !TEST_BUILD ? (store.get('pack-latest', false) ? '<br>いちばん新しいゲームの上で動かしています。合わなくなった直しは出ません。<button class="sm" id="packPin">合わせた版に戻す</button>' : '') : overlay.base.ver && !TEST_BUILD ? '<br><button class="sm" id="packLatest">いちばん新しいゲームの上で動かしてみる</button>' : '') + '</p>' : '')
         + '<div class="step"><div class="n">この版</div><h3>共有</h3><button class="go" id="packCopy">この版のリンクをコピーする</button>'
         + (key ? '<p style="margin-top:10px">このリンクにはトークンが入ります。渡した相手は、そのリポジトリの中身を読めます。</p>' : '')
         + '</div>' : '')
-    + (packMode === 'dist' ? '' : '<div class="step"><div class="n">読み込む</div><h3>公開された作品を棚に入れる</h3><p>公開リンクやファイルを受け取った場合はそのまま開いてください。「someone/joining-the-living-dead-share」のようなリポジトリ名を受け取った場合は下に入力します。</p>'
-        + '<input id="packRepo" placeholder="someone/joining-the-living-dead-share" autocomplete="off"><button class="go" id="packOn">棚に入れて開く</button>'
-        + '<details class="scr-more"><summary>非公開リポジトリを読み込む場合</summary><p>読み取り専用のトークンを作成して下に貼り、「棚に入れて開く」を押します。</p>'
+    + (packMode === 'dist' ? '' : '<div class="step"><div class="n">読み込む</div><h3>公開された作品を追加する</h3><p>公開リンクやファイルを受け取った場合はそのまま開いてください。「someone/joining-the-living-dead-share」のようなリポジトリ名を受け取った場合は下に入力します。</p>'
+        + '<input id="packRepo" placeholder="someone/joining-the-living-dead-share" autocomplete="off"><button class="go" id="packOn">追加して開く</button>'
+        + '<details class="scr-more"><summary>非公開リポジトリを読み込む場合</summary><p>読み取り専用のトークンを作成して下に貼り、「追加して開く」を押します。</p>'
         + '<input id="packKey" type="password" placeholder="github_pat_…" autocomplete="off">'
         + pick([['Token name', 'joining-the-living-dead-read'], ['Expiration', '90 days か、Custom で1年後'], ['Repository access', 'Only select repositories → 読みこみたいリポジトリ'], ['Repository permissions', 'Contents を Read-only']])
         + '<p><a href="https://github.com/settings/personal-access-tokens/new?name=joining-the-living-dead-read" target="_blank" rel="noopener">GitHub でトークンを作る</a>　発行された github_pat_… をコピーしてください（画面を閉じると二度と表示されません）。</p></details></div>')
@@ -7079,7 +7112,7 @@ function roomPanelHtml(){
     + (roomHist().length ? '<div class="step"><div class="n">前に入った部屋</div><h3>前に入った部屋に戻る</h3><p>部屋番号を控えていなくても、ここから入れます。</p>' + roomHist().map(h => { const d = new Date(h.at); return '<div class="rowl"><span>' + h.code + '<small>' + (h.host ? 'あなたが作った部屋' : '招待された部屋') + '　' + (d.getMonth() + 1) + '月' + d.getDate() + '日に入りました</small></span><button class="sm" data-roomback="' + h.code + '">入る</button><button class="sm" data-roomdrop="' + h.code + '">一覧から消す</button></div>'; }).join('') + '</div>' : '')
     + '<div class="step"><div class="n">ホスト（部屋を作る）</div><h3>部屋を作って招待する</h3>'
       + '<p>部屋を作ると「招待リンクをコピー」が表示されます。リンクを送ってメンバーを呼びます（相手は登録不要です）。</p>'
-      + '<p>部屋で使う作品：' + escText(workName(work)) + '（［☰］の［そのほか］の［作品の棚］で替えられます）</p>' + (ghLinked() ? '<h3 style="margin-top:14px">遊ぶ部屋</h3>' : '') + '<p>参加希望が届いたら「許可する」を押します。ホストがゲームを開いている間、全員の進行がリアルタイムで共有されます。閉じている間も各自の本は進められ、開き直すと同期されます。</p>'
+      + '<p>部屋で使う作品：' + escText(workName(work)) + '（［☰］の［その他］の［作品一覧］で替えられます）</p>' + (ghLinked() ? '<h3 style="margin-top:14px">遊ぶ部屋</h3>' : '') + '<p>参加希望が届いたら「許可する」を押します。ホストがゲームを開いている間、全員の進行がリアルタイムで共有されます。閉じている間も各自の本は進められ、開き直すと同期されます。</p>'
       + '<button class="go" id="roomPlay">' + (ghLinked() ? '遊ぶ部屋を作る' : '部屋を作る') + '</button>'
       + (ghLinked() ? '<h3 style="margin-top:20px">一緒に作る部屋</h3><p>メンバー全員が、部屋の作品を書き換えて、作業用リポジトリに保存できます。招待リンクに、作業用リポジトリへ書き込めるトークンが入ります。進行とチャット履歴は、作業用リポジトリに保存されます。ホストがゲームを閉じている間も、メンバーの進行は共有されます。</p><button class="go" id="roomNew">一緒に作る部屋を作る</button>' : '') + '</div>'
     + '<div class="step"><div class="n">招待された人</div><h3>部屋に入る</h3>'
@@ -7101,8 +7134,8 @@ function roomPanelHtml(){
       + '<p style="margin-top:12px">進められるのは自分がロックした本だけです。ロック後、左上の「← 戻る」から本編へ戻ります。</p><p>ロックを外すと別の本に切り替えられ、外した本はほかのメンバーが続きから進められます（ゲームを閉じてもロックは維持されます）。</p></div>'
     + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
       + '<button class="go" id="roomCopy">招待リンクをコピー</button></div>'
-    + (host && roomLocal() ? '<div class="step"><div class="n">作品</div><p><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="roomTakeSet" style="width:20px;height:20px;margin:3px 0 0;flex:none"' + (((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).take === true ? ' checked' : '') + '><span>メンバーが、この部屋の作品を自分の棚に入れるのを許可する</span></label></p></div>' : '')
-    + (roomTakeOk() ? '<div class="step"><div class="n">作品</div><h3>この部屋の作品を棚に入れる</h3><p>' + (roomLocal() ? '部屋を出たあとも、この作品で遊べます。' : '部屋を出たあとも、この作品を書き換えて、作業用リポジトリに保存できます。') + '</p><button class="go" id="roomKeep">棚に入れる</button></div>' : '')
+    + (host && roomLocal() ? '<div class="step"><div class="n">作品</div><p><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="roomTakeSet" style="width:20px;height:20px;margin:3px 0 0;flex:none"' + (((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).take === true ? ' checked' : '') + '><span>メンバーが、この部屋の作品を作品一覧に追加するのを許可する</span></label></p></div>' : '')
+    + (roomTakeOk() ? '<div class="step"><div class="n">作品</div><h3>この部屋の作品を作品一覧に追加する</h3><p>' + (roomLocal() ? '部屋を出たあとも、この作品で遊べます。' : '部屋を出たあとも、この作品を書き換えて、作業用リポジトリに保存できます。') + '</p><button class="go" id="roomKeep">作品一覧に追加</button></div>' : '')
     + roomPeopleHtml()
     + (host ? '<div class="step"><div class="n">進み方</div><h3>進行の同期幅（作中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れているメンバーより、作中の時刻で ' + roomGap() + ' 分より先へ進むと、追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りごとに、先に進んだ人がほかのメンバーを待ちます。') + '</p>'
         + '<select id="roomGap">' + [[5, '5分（ほぼ交互に進む）'], [15, '15分'], [30, '30分'], [60, '1時間'], [0, '時間帯の区切りだけ（いちばん待たない）']].map(([n, t]) => '<option value="' + n + '"' + (n === roomGap() ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>' : '')
@@ -7113,7 +7146,7 @@ function roomPanelHtml(){
         + '<button class="go" id="roomExport">ファイルで書き出す</button><p style="margin-top:10px">ゲームを1つのファイルに書き出します。受け取った人はブラウザで開くと遊べます。</p>'
         + (roomLocal() ? '' : '<label class="lab">公開用リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">公開リンクを作成</button><p style="margin-top:10px">反映済みの内容と画像を公開用リポジトリへ書き出し、共有リンクを発行します（トークンに公開用リポジトリの権限も必要です）。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
         + '<details class="scr-more"><summary>差分データのみ書き出す</summary><p>反映済みの編集データ（overlay.json）だけを書き出します。リポジトリへ手動で配置するときに使います。</p><button class="sm" id="roomPackFile">差分データを書き出す</button></details></div>' : '')
-    + (host && TEST_BUILD && roomLocal() && (store.get('seed', null) || {}).mine ? '<div class="step"><div class="n">作品</div><h3>部屋での書き換えを取りこむ</h3><p>この部屋で作品に加えた書き換えを、作品の棚の「' + escText(workName(work)) + '」に取りこみます。同じ所を「' + escText(workName(work)) + '」でも書き換えていたときは、部屋での書き換えが残ります。</p><button class="go" id="roomTake">書き換えを取りこむ</button></div>' : '')
+    + (host && TEST_BUILD && roomLocal() && (store.get('seed', null) || {}).mine ? '<div class="step"><div class="n">作品</div><h3>部屋での書き換えを取りこむ</h3><p>この部屋で作品に加えた書き換えを、作品一覧の「' + escText(workName(work)) + '」に取りこみます。同じ所を「' + escText(workName(work)) + '」でも書き換えていたときは、部屋での書き換えが残ります。</p><button class="go" id="roomTake">書き換えを取りこむ</button></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
       + '<div class="rowl"><span>部屋を出る<small>' + 'タイトル画面に戻ります。' + (host ? (roomLocal() ? 'ホストが抜けている間は同期が止まります。' : '') + '部屋番号から再入室できます' : '招待リンクか部屋番号で、また部屋に入れます') + '</small></span><button class="sm" id="roomLeave">出る</button></div>'
@@ -7317,7 +7350,7 @@ function render(){
       + (!room && !EMBED ? mrow('distbtn', '公開・共有') : '')
       + (room ? '' : mrow('linkbtn', 'リポジトリの設定', ghLinked() ? '済み' : '', linkPanel)) : ''],
     ['etc', 'その他', mrow('helpbtn', '遊び方') + (TEST_BUILD ? mrow('makebtn', '作り方') : '') + mrow('sndbtn', 'サウンド', Snd.on ? 'ON' : 'OFF')
-      + (room ? '' : mrow('packbtn', '作品の棚', escText(workName(work))) + mrow('titlebtn', 'タイトルへ') + mrow('reset', '最初から', '', false, 'reset'))],
+      + (room ? '' : (EMBED ? '' : mrow('packbtn', '作品一覧', escText(workName(work)))) + mrow('titlebtn', 'タイトルへ') + mrow('reset', '最初から', '', false, 'reset'))],
   ].filter(x => x[2]);
   if(!menuSets.some(x => x[0] === menuTab)) menuTab = menuSets[0][0];
   tabs.innerHTML = '<div class="mt" role="tablist">' + menuSets.map(([k, n]) => '<button role="tab" data-mtab="' + k + '"' + (k === menuTab ? ' class="on" aria-selected="true"' : '') + '>' + n + '</button>').join('') + '</div>'
@@ -8639,6 +8672,8 @@ function decorateMap(){
     on('markYes', () => { const text = mapMark.text.trim(); if(!text) return; queueIssue('mark|' + Date.now(), 'その他', '地図の印：' + text, text, true, { at:mk, pos:[mapMark.x, mapMark.y] }); mapMark = null; render(); });
   }
 }
+// 部屋で、編集を始めていないとき：本をロックしなくても、カメラを足せる
+const camFree = () => TEST_BUILD && !!room && !editOn && !CUSTOM && !roomRo() && videoOn && !!Cut.built && !!Cut.raf && !!Cut.key && !!lastView && loadPlayer(current).status === 'active' && !!spotOf(loadPlayer(current));
 // カメラを置く欄
 function camBox(boxEl, btns, wire){
   const scene = camScene(), list = Object.values(shownCams(scene)), e = camEdit;
@@ -10982,7 +11017,9 @@ function decorateForEdit(mode){
       const mz = mzTagEl(v.char, v.para); // この場面に立っているメタゾンビの札（左）
       if(mz){ wrap.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px'; wrap.appendChild(mz); }
       if(editOn) wrap.style.marginTop = '14px'; // 編集中は、上の文の点線の枠（文の外へ 5px 出る）に、ボタンが重ならないようにあける
-      wrap.appendChild(t); el.after(wrap);
+      wrap.appendChild(t);
+      if(camFree()){ const q = document.createElement('button'); q.className = 'fbe tgl'; q.id = 'camFreeBtn'; q.style.marginLeft = '8px'; q.textContent = camOpen ? '✔ カメラを閉じる' : 'カメラを足す'; q.onclick = () => { camOpen = !camOpen; camEdit = null; fbNote = ''; render(); }; wrap.appendChild(q); }
+      el.after(wrap);
     }
   }
   // 編集中：この場面の数を、つまみで変えて試す（この端末だけで変わる）
@@ -11008,7 +11045,7 @@ function decorateForEdit(mode){
     });
     const cb = main.querySelector('.choices'); if(cb) cb.before(tb);
     if(videoOn && Cut.built && Cut.raf && Cut.key) cb && cb.before(camBox(boxEl, btns, wire));
-  }
+  } else if(camOpen && camFree()){ const cb = main.querySelector('.choices'); if(cb) cb.before(camBox(boxEl, btns, wire)); }
   if(draftShown && draftShown.key !== key) draftShown = null;
   if(draftShown && draftShown.key === key){ const m = document.createElement('div'); m.className = 'msg draftmsg'; m.textContent = draftShown.text; const first = main.querySelector('.msg, .text'); if(first) first.before(m);
     // 絵：文の下に出すか、監視カメラの映像として出す（読めるまでは、出さない）
