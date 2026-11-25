@@ -157,6 +157,7 @@ header{background:#000;border-bottom:1px solid var(--line);padding:6px 12px}
 .tabs .me select{font-size:16px;background:var(--panel);color:var(--text);border:1px solid var(--gold);border-radius:6px;padding:3px 4px}
 .lockbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:12px;font-size:13px;color:var(--dim)}
 .lockbar b{color:var(--text);font-weight:normal}
+.lockbar span button{min-height:40px;padding:8px 14px;margin:4px 6px 0 0;background:var(--panel);color:var(--text);border:1px solid var(--gold);border-radius:6px;font-size:14px}
 .lockbar.mine{border-color:var(--gold)}
 .lockbar.other{border-color:var(--red)}
 .lockbar > button{margin-left:auto;background:var(--panel);color:var(--text);border:1px solid var(--gold);border-radius:6px;padding:6px 12px;font-size:14px}
@@ -613,7 +614,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 04:09 05218de';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 09:07 b45b836';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -635,7 +636,7 @@ const shelfList = () => { const v = LS.get('shelf', []); return Array.isArray(v)
 const workKey = (id, key) => (id ? 'w-' + id + '-' : '') + key;
 const workId = () => 'x' + Math.random().toString(36).slice(2, 9);
 // 進行を、ほかの作品へ写す
-function workCopyPlay(from, to){ for(const k of ['ver', 'world', 'me', 'current', 'undo', ...LS.keys().filter(k => k.startsWith(workKey(from, 'player-')) || k.startsWith(workKey(from, 'lockbase-'))).map(k => k.slice(workKey(from, '').length))]){ const v = LS.get(workKey(from, k), undefined); if(v !== undefined) LS.set(workKey(to, k), v); } }
+function workCopyPlay(from, to){ const done = []; for(const k of ['world', 'me', 'current', ...LS.keys().filter(k => k.startsWith(workKey(from, 'player-')) || k.startsWith(workKey(from, 'lockbase-'))).map(k => k.slice(workKey(from, '').length))]){ const v = LS.get(workKey(from, k), undefined); if(v === undefined) continue; if(!LS.set(workKey(to, k), v)){ for(const d of done) LS.del(workKey(to, d)); return false; } done.push(k); } const ver = LS.get(workKey(from, 'ver'), undefined); return ver === undefined || LS.set(workKey(to, 'ver'), ver); }
 // 公開された作品を、棚から探す。なければ足す
 function shelfPack(repo, key){
   const list = shelfList(); let e = list.find(x => x.kind === 'pack' && x.repo === repo);
@@ -646,12 +647,12 @@ function shelfPack(repo, key){
 // 前の版で付けた「もらった版」を、棚に移す（前の版を開いて付けたものも、戻ってきたときに移る）
 if(!EMBED && LS.get('pack', '')){
   const had = shelfList().some(x => x.kind === 'pack' && x.repo === LS.get('pack')), id = shelfPack(LS.get('pack'), LS.get('pack-key', ''));
-  for(const k of ['pack-cache', 'pack-latest']) if(LS.get(k)) LS.set(workKey(id, k), LS.get(k));
+  for(const k of ['pack-cache', 'pack-latest']) if(LS.get(k)){ const v = LS.get(k); LS.del(k); LS.set(workKey(id, k), v); } // 読み直せるものなので、先に場所を空ける
   if(!had){ workCopyPlay('', id); LS.set('work', id); LS.set('work-pub', id); }
   for(const k of ['pack', 'pack-cache', 'pack-key', 'pack-latest']) LS.del(k);
 }
 let work = EMBED ? '' : LS.get(WORK_NOW, TEST_BUILD ? '' : 'base');
-if(!EMBED && !TEST_BUILD && LS.get('w-base-ver') === null){ workCopyPlay('', 'base'); LS.set('w-base-ver', LS.get('ver', 0)); }
+if(!EMBED && !TEST_BUILD && LS.get('w-base-ver') === null){ if(workCopyPlay('', 'base')) LS.set('w-base-ver', LS.get('ver', 0)); else setTimeout(() => alert('前の進行は消えていませんが、空き容量が足りないので、開けませんでした。'), 1500); }
 if(work && work !== 'base' && !shelfList().some(x => x.id === work)) work = TEST_BUILD ? '' : 'base';
 // 部屋番号。招待リンクの # の後ろに付いてきたら、覚える
 let room = (() => {
@@ -662,7 +663,7 @@ let room = (() => {
     // 公開された作品のリンク：棚に足して、開く（今の作品は、そのまま残る）。部屋に入っていれば、部屋から出る
     if(pk && !m && !EMBED){ work = shelfPack(pk[1], pt ? pt[1] : ''); LS.set(WORK_NOW, work); LS.del('room'); history.replaceState(null, '', location.pathname + location.search); }
     // 招待リンクのリポジトリとトークンは、その部屋の中だけで使う（部屋の外の、自分のリポジトリの設定には入れない）
-    if(m && r && k){ localStorage.setItem(BASE + 'room-' + m[1] + '-room-repo', JSON.stringify({ repo:r[1], pat:k[1] })); if(localStorage.getItem(BASE + 'gh-repo') === JSON.stringify(r[1])) localStorage.setItem(BASE + 'gh-pat', JSON.stringify(k[1])); }
+    if(m && r && k){ localStorage.setItem(BASE + 'room-' + m[1] + '-room-repo', JSON.stringify({ repo:r[1], pat:k[1] })); if(localStorage.getItem(BASE + 'gh-repo') === JSON.stringify(r[1]) && localStorage.getItem(BASE + 'room-' + m[1] + '-host-of') === null) localStorage.setItem(BASE + 'gh-pat', JSON.stringify(k[1])); }
     if(m && /[#&]l=1/.test(location.hash)) localStorage.setItem(BASE + 'room-local', JSON.stringify(m[1]));
     else if(m && r && k && localStorage.getItem(BASE + 'room-local') === JSON.stringify(m[1])) localStorage.removeItem(BASE + 'room-local'); // 前に番号だけで入った端末が、招待リンクを開き直した。消さないと、リポジトリにつながらないままになる
     if(m){ localStorage.setItem(BASE + 'room', JSON.stringify(m[1])); if(!/invite=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search); }
@@ -684,6 +685,7 @@ let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
 // localStorage が使えない環境でも遊べるよう、メモリにも同じ内容を持っておく（その場合はページを閉じると消える）
 const memory = {};
+let roomWiped = false; // 部屋を終わりにして、記録を消した。ページを開き直すまで、書かない
 // 保存せずに試す：ロックしていない本を開いているあいだ、街（world）・その本の進み具合・戻すの記録は、ここに覚えるだけで、保存も送信もしない
 let trial = null; // { c:本, mem:{ 鍵:中身 }, off:本物を読み書きしている深さ, moved:試しで打った手の数 }
 const trialKey = key => !!trial && !trial.off && trial.c === current && (key === 'world' || key === 'undo' || key === 'player-' + trial.c);
@@ -702,6 +704,7 @@ const store = {
     return fallback;
   },
   set(key, value){
+    if(roomWiped) return;
     if(trialKey(key)){ trial.mem[key] = JSON.stringify(value); if(trial.prov) provSave(); return; }
     const k = keyOf(key);
     memory[k] = JSON.stringify(value);
@@ -8052,12 +8055,17 @@ const repoBase = (code = room) => 'rooms/' + code + '/';
 // build(今あるファイル) が、書く中身を返す。null を返したら、やめる（412 を返す。ロックが、もうほかの人のものだった、など）
 const ghWait = i => new Promise(z => setTimeout(z, 250 + Math.random() * 700 * (i + 1)));
 const ghDecode = meta => { try { return JSON.parse(decodeURIComponent(escape(atob(String(meta.content).replace(/\s/g, ''))))); } catch(e){ return null; } };
+// 1MB を超えるファイルは、一覧の返事に本文が入らない
+async function ghBig(path, meta){ const r = await ghApi(path, { raw:true }); if(r.ok) meta.content = b64(await r.text()); }
 async function ghWrite(path, build, opt = {}){
   const api = opt.api || ghApi;
   for(let i = 0; i < 6; i++){
     const g = await api(path);
     if(!g.ok && g.status !== 404) return { status:g.status };
-    const meta = g.ok ? await g.json() : null, body = build(meta);
+    const meta = g.ok ? await g.json() : null;
+    if(meta && !meta.content && meta.size > 0 && !opt.api) await ghBig(path, meta);
+    if(opt.json && meta && !ghDecode(meta)) return { status:422, meta }; // 読めない中身を、空だと思って上書きしない
+    const body = build(meta);
     if(!body) return { status:412, meta };
     const r = await api(path, { method:'PUT', keepalive:opt.keepalive, body:JSON.stringify({ ...body, ...(meta ? { sha:meta.sha } : {}) }) });
     if(r.ok) return { status:200, sha:(await r.json()).content.sha };
@@ -8271,8 +8279,10 @@ function workSeed(id){
 }
 // ホスト：部屋の作品を替える。初めて使う作品は、写しを部屋の置き場所に入れる
 let slotBusy = false;
+const SLOT_HOLD = '書き換えている文を保存するか、書き換えをやめてから、作品を替えてください。';
 async function slotSet(id){
   if(!isHost() || !roomLocal() || slotBusy || id === slot) return;
+  if(slotHold()){ roomNote = SLOT_HOLD; render(); return; }
   slotBusy = true; roomNote = '作品を替えています…'; render();
   try { await repoConfig({ slot:id, works:roomWorks() }); liveChanged(); await slotGo(id); }
   catch(e){ roomNote = '作品を替えられませんでした。'; }
@@ -8280,27 +8290,28 @@ async function slotSet(id){
 }
 async function slotAdd(wid){
   if(!isHost() || !roomLocal() || slotBusy) return;
+  if(slotHold()){ roomNote = SLOT_HOLD; render(); return; }
   const had = roomWorks().find(x => LS.get(slotKey(x.id, 'work'), x.id ? null : '') === wid); if(had) return slotSet(had.id);
   if(roomWorks().length >= 8){ roomNote = '1つの部屋で使える作品は、8つまでです。'; render(); return; }
   const sd = workSeed(wid); if(!sd){ roomNote = '部屋を出て、［作品一覧］で「' + workName(wid) + '」を一度開くと、替えられるようになります。'; render(); return; }
   const id = 's' + Math.random().toString(36).slice(2, 9), F = vfsLoad(), path = 'book/s-' + id + '/overlay.json';
   F[path] = { sha:'s' + Date.now().toString(36), content:b64(JSON.stringify(sd.data)) };
   let ok = LS.set(slotKey(id, 'work'), wid) && LS.set(slotKey(id, 'seed'), { mine:sd.mine, data:verPick(sd.data) }) && LS.set(slotKey(id, 'asset-src'), sd.src);
-  try { localStorage.setItem(vfsKey(room), JSON.stringify(F)); } catch(e){ ok = false; }
-  if(!ok){ delete F[path]; vfsSave(); for(const k of ['work', 'seed', 'asset-src']) LS.del(slotKey(id, k)); roomNote = '保存できる量が足りないので、作品を替えられませんでした。部屋を出て、いらない作品を［作品一覧］から消してください。'; render(); return; }
+  if(ok) ok = vfsSave();
+  if(!ok){ delete F[path]; vfsSave(); for(const k of ['work', 'seed', 'asset-src']) LS.del(slotKey(id, k)); roomNote = '空き容量が足りないので、作品を替えられませんでした。部屋を出て、いらない作品を［作品一覧］から消してください。'; render(); return; }
   slotBusy = true; roomNote = '作品を替えています…'; render();
-  try { await repoConfig({ slot:id, works:[...roomWorks(), { id, name:workName(wid), ro:sd.ro }] }); liveChanged(); await slotGo(id); }
+  try { await repoConfig({ slot:id, take:false, works:[...roomWorks(), { id, name:roomNameOf(wid), ro:sd.ro }] }); liveChanged(); await slotGo(id); }
   catch(e){ roomNote = '作品を替えられませんでした。'; }
   slotBusy = false; render();
 }
 // 部屋の作品が替わった：書きかけがあれば、ボタンを押すまで待つ
 let slotWait = null, slotGoing = false;
-const slotHold = () => typing() || !!fbe || !!camEdit;
+const slotHold = () => typing() || !!fbe || !!camEdit || (howEdit && howPick != null) || !!mapMark || (bookPanel && !!(bookForm.name || bookForm.osd));
 async function slotGo(id){
   if(slotGoing) return; slotGoing = true;
   try { clearTimeout(roomTimer); if(CHAR_IDS.some(mine)) await roomPush(); if(myDirty) await myFlush(); } catch(e){}
-  LS.set('room-' + room + '-slot', id);
-  try { sessionStorage.setItem('jtld-slot', roomWorkName(id)); } catch(e){}
+  if(!LS.set('room-' + room + '-slot', id)){ slotGoing = false; slotWait = id; roomNote = '空き容量が足りないので、作品を替えられませんでした。'; render(); return; }
+  try { sessionStorage.setItem('jtld-slot', roomWorkName(id)); history.scrollRestoration = 'manual'; } catch(e){}
   location.reload();
 }
 function slotCheck(){
@@ -8331,7 +8342,7 @@ async function unitFree(u){ if(!room || !mine(u)) return; try { await roomFetch(
 let editAsking = false;
 async function editAsk(u, go){
   if(editAsking) return;
-  const no = t => { if(front) alert(t); else { fbNote = t; render(); } };
+  const no = t => { if(front) alert(t); else { fbNote = t; render(); const q = [...document.querySelectorAll('#main .note')].find(x => x.textContent.includes(t.slice(0, 12))); if(q) q.scrollIntoView({ block:'center' }); } };
   if(CUSTOM){ if(confirm('この作品は書き換えられません。コピーを作って、コピーを書き換えますか？')) workCopy(); return; }
   editAsking = true;
   try {
@@ -8357,16 +8368,20 @@ function outside(fn){ const r = room; room = null; try { return fn(); } finally 
 // 遊ぶ部屋で反映した分を、部屋の外の自分の作品に加える（部屋を作ったときの写しと見比べて、変わった所だけ）
 function roomTake(){
   const sd = store.get('seed', null); if(!sd || !sd.mine || !isHost()) return;
-  const B = verPick(sd.data), R = verPick(overlay), out = { keys:{}, spots:{}, books:{}, cams:{} };
+  if(work && work !== 'base' && !workOf(work)){ const id = workAdd({ kind:'mine', name:roomWorkName(slot) }); if(!id) return; LS.set(slotKey(slot, 'work'), id); work = id; } // 作品一覧から消した作品
+  const B = verPick(sd.data), R = verPick(overlay), out = { keys:{}, spots:{}, books:{}, cams:{} }; let ok = false;
   outside(() => {
     const base = store.get('overlay', null) || {}, M = verPick(soloOverlay(base));
     for(const key of new Set([...Object.keys(B.keys), ...Object.keys(R.keys), ...Object.keys(M.keys)])){ const d = keyMerge(B.keys[key], R.keys[key], M.keys[key]); if(d) out.keys[key] = d; }
     for(const t of ['spots', 'cams']) for(const g of new Set([...Object.keys(B[t]), ...Object.keys(R[t]), ...Object.keys(M[t])])){ const d = merge3(B[t][g], R[t][g], M[t][g]); if(Object.keys(d).length) out[t][g] = d; }
     out.books = merge3(B.books, R.books, M.books);
-    store.set('overlay', { ...base, keys:{}, items:{}, spots:{}, books:{}, cams:{} });
-    store.set('draft', out.keys); store.set('draft-spots', out.spots); store.set('draft-cams', out.cams); store.set('draft-books', out.books);
+    const put = [['draft', out.keys], ['draft-spots', out.spots], ['draft-cams', out.cams], ['draft-books', out.books], ['overlay', { ...base, keys:{}, items:{}, spots:{}, books:{}, cams:{} }]].map(([k, v]) => [keyOf(k), v]), old = put.map(([k]) => { try { return localStorage.getItem(k); } catch(e){ return null; } });
+    ok = put.every(([k, v]) => LS.set(k.slice(BASE.length), v));
+    if(!ok){ for(const [k] of put) LS.del(k.slice(BASE.length)); put.forEach(([k], i) => { try { if(old[i] !== null) localStorage.setItem(k, old[i]); } catch(e){} }); return; }
+    for(const [k] of put) delete memory[k];
     clearTimeout(autoSaveTimer); store.set('take-save', true);
   });
+  if(!ok){ roomNote = '空き容量が足りないので、部屋での書き換えを取りこめませんでした。'; return; }
   store.set('seed', { mine:true, data:R });
   roomNote = 'この部屋での書き換えを、作品「' + workName(work) + '」に取りこみました。';
 }
@@ -8398,6 +8413,7 @@ async function soloPull(manual){
       const meta = await g.json();
       if(meta.sha === soloSha){ if(manual) soloPullNote = '新しい更新はありません'; }
       else {
+        if(!meta.content && meta.size > 0) await ghBig('book/overlay.json', meta);
         const dec = ghDecode(meta); if(!dec) throw 0;
         const repo = clean(Object.assign({ v:1, keys:{} }, dec)) || {}, sig = () => JSON.stringify([verPick(soloMine()), overlay.keys, overlay.poses, overlay.auto]), before = sig();
         soloTake(soloMerge(repo), repo, repo); uidTake(repo); soloSha = meta.sha;
@@ -8411,6 +8427,7 @@ async function soloPull(manual){
   soloPulling = false; if(manual) render();
 }
 function autoSaveSoon(){ try { if(!ghLinked()) return; clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => soloSave(true), 4000); } catch(e){} }
+const OV_BAD = '作業用リポジトリの book/overlay.json を読めないので、自分の書き換えをリポジトリに保存していません。自分の書き換えは、消えていません。book/overlay.json を、読めていたときの内容に戻してください。';
 async function soloSave(quiet){
   if(room || !ghReady()) return;
   if(quiet !== true){ packNote = 'リポジトリに保存しています…'; render(); }
@@ -8419,11 +8436,11 @@ async function soloSave(quiet){
     const auto = quiet === true, base = auto && soloBase ? soloBase : (soloBase = (await packDataPublic()).base);
     if(!auto || !soloGuideSeen) soloGuideSeen = true, ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
     let merged = null, repo = null;
-    const r = await ghWrite('book/overlay.json', meta => { repo = clean(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null)) || {}; merged = soloMerge(repo); uidTake(repo); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...repo, ...merged, uid:uidMake(), poses:repo.poses || overlay.poses || {}, base, ...autoPut(repo.auto) })) }; });
+    const r = await ghWrite('book/overlay.json', meta => { repo = clean(Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null)) || {}; merged = soloMerge(repo); uidTake(repo); return { message:'直したものを保存する', content:b64(JSON.stringify({ ...repo, ...merged, uid:uidMake(), poses:repo.poses || overlay.poses || {}, base, ...autoPut(repo.auto) })) }; }, { json:true });
     if(r.status !== 200) throw r.status;
     soloTake(merged, merged, repo); clearTimeout(autoSaveTimer); soloSha = null;
     if(quiet !== true) packNote = 'リポジトリ（' + ghRepo() + '）の book/overlay.json に保存しました。Claude Code でこのリポジトリを開くと続きを編集できます。';
-  } catch(e){ if(quiet !== true || packPanel) packNote = [401, 403, 404].includes(e) ? 'リポジトリに書き込めません。リポジトリ名とトークン権限（Contents: Read and write）を確認してください。' : '保存できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
+  } catch(e){ if(e === 422) packNote = OV_BAD; else if(quiet !== true || packPanel) packNote = [401, 403, 404].includes(e) ? 'リポジトリに書き込めません。リポジトリ名とトークン権限（Contents: Read and write）を確認してください。' : '保存できませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   if(quiet !== true || packPanel) render();
 }
 // 部屋に入っていないとき：連携したリポジトリの中身に、この端末の下書きを重ねて、公開用のリポジトリへ出す。出すのは book/overlay.json と、使っている絵だけ
@@ -8829,7 +8846,7 @@ function sndSwitch(){
 }
 // ===== タイトル・始める前のメニュー・操作説明 =====
 // front：'title'（タイトル）・'menu'（本を選ぶ）・'how'（操作説明）・null（出さない）。自動の試し（webdriver）では、初めから出さない
-let front = room || navigator.webdriver ? null : 'title', howPage = 0, howBack = 'title', howKind = 'play', howEdit = false, howPick = null, howUnits = [], howKeep = 0;
+let front = room || navigator.webdriver || LS.get('ended', null) || LS.get('kicked', null) ? null : 'title', howPage = 0, howBack = 'title', howKind = 'play', howEdit = false, howPick = null, howUnits = [], howKeep = 0;
 const hasProgress = () => { const w = loadWorld(); return !!w.lock || CHAR_IDS.some(id => (loadPlayer(id).history || []).length > 0); };
 // 操作説明のページ。1ページに、1つのこと
 // 説明のページ。読む人の立場で、中身が変わる
@@ -8844,7 +8861,7 @@ const guideSafe = t => escText(t).replace(/&lt;br&gt;/g, '<br>').replace(/&lt;(\
 function guideSave(k, revert){
   const u = howUnits[k], ta = document.getElementById('gTa');
   if(!u) return;
-  if(!editOk('guide')){ alert(editNo('guide')); howEdit = false; howPick = null; frontRender(); return; }
+  if(!editOk('guide')){ alert(editNo('guide')); return; }
   const key = guideKey(howKind), d = draftOf(key), id = key + '|para|guide|' + u.orig, val = revert ? u.orig : (ta ? ta.value : '').trim().replace(/\r?\n/g, '<br>');
   if(!val) return;
   d.paras = d.paras.filter(q => !(q.kind === 'guide' && q.before === u.orig));
@@ -9283,8 +9300,19 @@ const DEV_KEY = (() => { let k = store.get('dev-key', ''); if(!k){ k = Array.fro
 const vfsKey = code => BASE + 'vfs-' + code;
 let vfsMem = null, vfsSeq = 0;
 const vfsWait = {};
-function vfsLoad(){ if(!vfsMem){ try { vfsMem = JSON.parse(localStorage.getItem(vfsKey(room)) || '{}') || {}; } catch(e){ vfsMem = {}; } } return vfsMem; }
-function vfsSave(){ try { localStorage.setItem(vfsKey(room), JSON.stringify(vfsMem)); } catch(e){} }
+// 同じ部屋を2つのタブで開いても消し合わないように、保存が変わっていたら読み直す
+let vfsRaw = null, vfsWarned = false;
+function vfsLoad(){
+  let t = null; try { t = localStorage.getItem(vfsKey(room)); } catch(e){ return vfsMem || (vfsMem = {}); }
+  if(!vfsMem || (t !== null && t !== vfsRaw)){ try { vfsMem = JSON.parse(t || '{}') || {}; } catch(e){ vfsMem = {}; } vfsRaw = t; }
+  return vfsMem;
+}
+function vfsSave(){
+  if(roomWiped) return true;
+  const t = JSON.stringify(vfsMem);
+  try { localStorage.setItem(vfsKey(room), t); vfsRaw = t; return true; }
+  catch(e){ if(!vfsWarned){ vfsWarned = true; setTimeout(() => alert('空き容量が足りないので、部屋での進行と書き換えを保存できません。')); } return false; }
+}
 const vfsPathOk = p => typeof p === 'string' && p.length < 200 && /^[A-Za-z0-9_.\/-]+$/.test(p) && !p.includes('..') && (p === 'rooms/' + room || p.startsWith('rooms/' + room + '/') || p === 'book' || p.startsWith('book/') || p === 'CLAUDE.md' || p === 'AGENTS.md');
 const vfsHash = t => { let h = 5381; for(let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h.toString(36); };
 function vfsDo(m, path, body, raw){
@@ -9303,11 +9331,27 @@ function vfsDo(m, path, body, raw){
     if(!body || typeof body.content !== 'string' || body.content.length > 1500000 || !/^[A-Za-z0-9+\/=\s]*$/.test(body.content)) return { status:400 };
     if(f ? f.sha !== body.sha : !!body.sha) return { status:409 };
     const sha = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    F[path] = { sha, content:body.content }; vfsSave();
+    F[path] = { sha, content:body.content }; if(!vfsSave()){ if(f) F[path] = f; else delete F[path]; return { status:507 }; }
     return { status:200, json:{ content:{ sha } } };
   }
-  if(m === 'DELETE'){ if(!f) return { status:404 }; if(!body || f.sha !== body.sha) return { status:409 }; delete F[path]; vfsSave(); return { status:200, json:{} }; }
+  if(m === 'DELETE'){ if(!f) return { status:404 }; if(!body || f.sha !== body.sha) return { status:409 }; delete F[path]; if(!vfsSave()){ F[path] = f; return { status:507 }; } return { status:200, json:{} }; }
   return { status:405 };
+}
+// 参加者の端末からの読み書き：書けるのは、自分の分（m）・空いているか自分のロック（own）・自分の付けた画像とファイルだけ。部屋の設定と作品（room.json・book）は、ホストだけが書く
+function vfsGuest(dev, m, path, body, raw){
+  if(m === 'GET') return vfsDo(m, path, body, raw);
+  const g = /^rooms\/([A-Z2-9]{8})\/(?:s-([a-z0-9]{2,16})\/)?(m|own|img|file)\/([A-Za-z0-9_-]{1,160})\.(json|jpg|bin)$/.exec(path), no = { status:403 };
+  if(!g || g[1] !== room || (g[2] && !roomWorks().some(x => x.id === g[2])) || (m !== 'PUT' && m !== 'DELETE')) return no;
+  const [, , , kind, name, ext] = g;
+  if(kind === 'm') return name === dev && ext === 'json' && m === 'PUT' ? vfsDo(m, path, body, raw) : no;
+  if(kind === 'own'){
+    if(ext !== 'json' || !segOk(name)) return no;
+    const f = vfsLoad()[path], o = f ? ghDecode(f) : null, his = !o || !o.dev || o.dev === dev, free = name === 'guide' && o && Date.now() - (Number(o.at) || 0) >= STALE;
+    if(m === 'DELETE') return his || free ? vfsDo(m, path, body, raw) : no;
+    const n = body && typeof body.content === 'string' && body.content.length < 2000 ? ghDecode(body) : null;
+    return his && n && n.dev === dev ? vfsDo(m, path, body, raw) : no;
+  }
+  return (name.startsWith(dev + '-') || name.includes('_' + dev + '-')) && ext === (kind === 'img' ? 'jpg' : 'bin') ? vfsDo(m, path, body, raw) : no;
 }
 const vfsRes = r => ({ ok:r.status >= 200 && r.status < 300, status:r.status, json:async () => (r.json == null ? null : r.json), text:async () => r.text || '' });
 const hostAssetId = p => { const m = /^book\/assets\/([A-Za-z0-9_-]{1,60})\.jpg$/.exec(String(p)); return m ? m[1] : ''; };
@@ -9332,6 +9376,7 @@ async function vfsApi0(path, opt = {}){
   // ホストに、じかに頼む。つながるまで、少し待つ
   for(let i = 0; i < 40 && !(hostConn && peerOn); i++){ if(i % 12 === 0) peerStart(); await new Promise(z => setTimeout(z, 250)); }
   if(!(hostConn && peerOn)) return vfsRes({ status:503 });
+  if(hostConn.lost) return vfsRes({ status:503 }); // つなぎ直し中。頼むと、失敗と出たあとで実行されることがある
   const id = ++vfsSeq;
   return new Promise(done => {
     const t = setTimeout(() => { delete vfsWait[id]; done(vfsRes({ status:503 })); }, 12000);
@@ -9341,9 +9386,9 @@ async function vfsApi0(path, opt = {}){
 }
 let peer = null, hostConn = null, peerOn = false, peerLib = null, peerRetryT = 0, liveT = 0, liveGotT = 0, liveChT = 0;
 // joinPending：入りたいと言ってきて、まだ許可していない端末（ホストの側）。joinState：自分が、許可を待っている（wait）・断られた（denied）
-const joinPending = new Map(), joinDenied = new Set(); let joinState = '';
+const joinPending = new Map(), joinDenied = new Set(); let joinState = '', oldSeen = '';
 const hostConns = new Map(), liveFiles = {}; // hostConns：つないできた相手 → その端末の名前　liveFiles：じかに受け取った、端末ごとの分
-const liveOn = () => peerOn && (isHost() ? hostConns.size > 0 : !!hostConn);
+const liveOn = () => peerOn && (isHost() ? hostConns.size > 0 : !!hostConn && !hostConn.lost);
 const liveMine = () => ({ ...myFile, name:store.get('fb-name', '').slice(0, 30), icon:store.get('fb-icon', ''), at:Date.now() });
 const liveAll = msg => { if(isHost()){ for(const c of hostConns.keys()) try { c.send(msg); } catch(e){} } else if(hostConn && peerOn) try { hostConn.send(msg); } catch(e){} };
 function liveSend(){ clearTimeout(liveT); liveT = setTimeout(() => { if(liveOn() && !sendAfter()) liveAll({ t:'file', dev:DEV, data:liveMine(), slot }); }, 300); }
@@ -9380,36 +9425,41 @@ async function peerStart(){
   peer.on('connection', c => { if(isHost()) hostAccept(c); else c.close(); });
   peer.on('disconnected', () => { if(isHost()){ peerOn = false; peerShow(); } peerRetry(8000); });
   peer.on('error', e => {
-    const t = e && e.type;
+    const t = e && e.type; dialAt = 0;
     if(t === 'peer-unavailable'){ peerOn = false; hostConn = null; offAt = 0; peerShow(); if(provOf() === null && !typing()) render(); peerRetry(30000); return; } // ホストが開いていない
     if(t === 'unavailable-id' || (peer && peer.destroyed) || ['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)){ try { peer.destroy(); } catch(x){} peer = null; peerOn = false; hostConn = null; peerShow(); peerRetry(t === 'unavailable-id' ? 120000 : 30000); }
   });
 }
+// dialAt：つないでいる途中（二重につながないように。つながらなければ30秒で忘れる）
+let dialAt = 0;
 function memberConnect(){
-  if(!peer || peer.destroyed || hostConn) return;
+  if(!peer || peer.destroyed || hostConn || Date.now() - dialAt < 30000) return;
   if(peer.disconnected){ peer.reconnect(); return; }
+  dialAt = Date.now();
   const c = peer.connect('jtld-room-' + room, { reliable:true });
   // ホストがいるかを、10秒ごとに確かめる。ページを閉じても、切れた知らせが届かないことがあるため。3回続けて返事がなければ、切れたことにする（返事をしない前の版のホストには、使わない）
   let hbMiss = 0, hbOk = false, hbT = 0;
-  c.on('open', () => { hostConn = c; c.send({ t:'hello', dev:DEV, key:DEV_KEY, l:roomLocal() ? 1 : 0, name:store.get('fb-name', '').slice(0, 30) }); });
+  c.on('open', () => { dialAt = 0; hostConn = c; c.send({ t:'hello', dev:DEV, key:DEV_KEY, l:roomLocal() ? 1 : 0, sv:1, name:store.get('fb-name', '').slice(0, 30) }); });
   c.on('data', msg => {
     if(!msg || typeof msg !== 'object') return;
     hbMiss = 0;
     if(msg.t === 'hb'){ hbOk = true; return; }
-    if(msg.t === 'welcome'){ clearInterval(hbT); try { c.send({ t:'hb' }); } catch(e){} hbT = setInterval(() => { if(document.visibilityState !== 'visible') return; if(hbOk && hbMiss >= 3){ clearInterval(hbT); gone(); try { c.close(); } catch(e){} return; } hbMiss++; try { c.send({ t:'hb' }); } catch(e){} }, 10000); const was = joinState; joinState = ''; peerOn = true; store.set('welcomed', true); provWait = false; liveSend(); roomSig = ''; roomPull(true).then(provMerge); if(was && !typing()) render(); else peerShow(); }
+    if(msg.t === 'welcome'){ clearInterval(hbT); try { c.send({ t:'hb' }); } catch(e){} hbT = setInterval(() => { if(document.visibilityState !== 'visible' || c._f) return; if(hbOk && hbMiss >= 3){ clearInterval(hbT); gone(); try { c.close(); } catch(e){} return; } hbMiss++; try { c.send({ t:'hb' }); } catch(e){} }, 10000); const was = joinState; joinState = ''; peerOn = true; store.set('welcomed', true); provWait = false; liveSend(); roomSig = ''; roomPull(true).then(provMerge); if(!typing()) render(); else pendingRender = true; }
     else if(msg.t === 'wait'){ joinState = 'wait'; if(!typing()) render(); }
     else if(msg.t === 'denied'){ joinState = 'denied'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'needkey'){ joinState = 'needkey'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'provok') provReply(msg.ok === true);
     else if(msg.t === 'file'){ if((msg.slot || '') === slot) liveGot(String(msg.dev || ''), msg.data); }
     else if(msg.t === 'changed'){ clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300); }
+    else if(msg.t === 'ended') roomEnded();
     else if(msg.t === 'refresh'){ roomSig = ''; roomPull(true); }
     else if(msg.t === 'vfsr' && vfsWait[msg.id]){ const f = vfsWait[msg.id]; delete vfsWait[msg.id]; f({ status:+msg.status || 500, json:msg.json, text:typeof msg.text === 'string' ? msg.text : '' }); }
   });
-  const gone = () => { clearInterval(hbT); if(hostConn === c){ if(peerOn){ offAt = Date.now(); offTick(); } hostConn = null; peerOn = false; provWait = false; if(!typing()) render(); } peerRetry(15000); };
+  const gone = () => { dialAt = 0; clearInterval(hbT); if(hostConn === c){ if(peerOn){ offAt = Date.now(); offTick(); } hostConn = null; peerOn = false; provWait = false; if(!typing()) render(); } peerRetry(15000); };
   c.on('close', gone); c.on('error', gone);
 }
 function hostWelcome(c, d){
+  for(const [o, dv] of [...hostConns]) if(dv === d && o !== c){ hostConns.delete(o); const q = provAsks.get(d); if(q && q.c === o) q.c = c; try { o.close(); } catch(e){} } // 同じ端末の、前のつながり
   hostConns.set(c, d); c.send({ t:'welcome' });
   for(const [o, data] of Object.entries(liveFiles)) if(o !== d) c.send({ t:'file', dev:o, data, slot });
   c.send({ t:'file', dev:DEV, data:liveMine(), slot });
@@ -9425,15 +9475,18 @@ function joinAnswer(d, ok){
 }
 // 本文の上に出す知らせ：入りたい人がいる（ホスト）・許可を待っている（入る人）
 function joinBannerHtml(){
+  if(!room && LS.get('ended', null)) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストが、部屋 ' + escText(String(LS.get('ended'))) + ' を終了しました。</b><button id="endedOk">閉じる</button></div>';
   if(!room){ let k = null; try { k = JSON.parse(localStorage.getItem(BASE + 'kicked') || 'null'); } catch(e){} return k ? '<div class="lockbar" style="border-color:var(--red)"><b>部屋から外されました</b>　部屋 ' + escText(String(k)) + ' を作った人が、あなたを外しました。<button id="kickedOk">閉じる</button></div>' : ''; }
   if(!roomLocal()) return '';
   if(slotWait !== null) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストが、部屋で使う作品を「' + escText(roomWorkName(slotWait)) + '」に替えました。</b><button id="slotGo">「' + escText(roomWorkName(slotWait)) + '」を開く</button></div>';
   if(provList) return provHtml();
   if(provNote) return '<div class="lockbar" style="border-color:var(--gold)"><b>' + escText(provNote) + '</b><button id="provOk">閉じる</button></div>';
+  if(isHost() && oldSeen) return '<div class="lockbar" style="border-color:var(--gold)"><b>' + escText(oldSeen) + 'のゲームは前の版なので、部屋につながりません。</b>　' + escText(oldSeen) + 'に、ゲームのページを開き直すように伝えてください。<button id="oldOk">閉じる</button></div>';
   if(isHost() && provAsks.size) return provAskHtml();
   if(isHost() && joinPending.size) return '<div class="lockbar" style="border-color:var(--gold)"><b>部屋に入りたい人がいます</b>' + [...joinPending].map(([d, q]) => '<span style="flex-basis:100%">' + escText(q.name || '名前なし') + '　<button data-joinok="' + d + '">許可する</button> <button data-joinno="' + d + '">断る</button></span>').join('') + '</div>';
   if(joinState === 'wait') return '<div class="lockbar" style="border-color:var(--gold)"><b>許可を待っています</b>　ホストが許可すると、入れます。</div>';
   if(joinState === 'needkey') return '<div class="lockbar" style="border-color:var(--red)"><b>部屋番号だけでは入れません</b>　ホストに、招待リンクをもらってください。<button id="needKeyBtn">部屋の管理</button></div>';
+  if(!joinState && offRoom() && store.get('welcomed', false) && Date.now() - offAt >= 12000 && mine(current) && !roomPanel) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストとつながっていません。</b><span style="flex-basis:100%">' + CHARS[current].name + 'の本は、このまま進められます。進行は、ホストとつながると、部屋に反映されます。</span></div>';
   if(joinState === 'denied') return '<div class="lockbar" style="border-color:var(--red)"><b>入れませんでした</b>　ホストが、断りました。<button id="roomLeave2">部屋を出る</button></div>';
   return '';
 }
@@ -9449,6 +9502,7 @@ function hostAccept(c){
       if(!keys[d]){ keys[d] = k; store.set('peer-keys', keys); }
       if(isBanned(d)){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => c.close(), 300); return; } // 部屋から外した端末
       if(msg.l && !roomLocal()){ try { c.send({ t:'needkey' }); } catch(e){} setTimeout(() => c.close(), 300); return; } // リポジトリのある部屋に、番号だけで入った端末。読み書きを代わりにできないので、つながない
+      if(slot && !msg.sv){ oldSeen = String(msg.name || '').replace(/[<>]/g, '').slice(0, 30) || '名前なし'; setTimeout(() => c.close(), 300); if(!typing()) render(); return; } // 作品の切り替えを知らない前の版。つなぐと、進行がはじめの作品に混ざる
       // リポジトリのない部屋は、ホストが許可した端末だけを入れる（一度許可した端末は、次からそのまま入れる）
       if(roomLocal() && !store.get('room-allowed', {})[d]){
         if(joinDenied.has(d)){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => c.close(), 300); return; }
@@ -9465,7 +9519,7 @@ function hostAccept(c){
       (ok ? assetData(id) : Promise.resolve('')).catch(() => '').then(u => { try { c.send(u ? { t:'vfsr', id:msg.id, status:200, json:{ content:u.split(',')[1] } } : { t:'vfsr', id:msg.id, status:404 }); } catch(e){} });
     } else if(msg.t === 'provask' && dev && roomLocal()){ provAsked(c, dev, msg);
     } else if(msg.t === 'vfs' && dev && roomLocal()){ // リポジトリのない部屋：置き場所の読み書きを、代わりにする
-      const r = vfsDo(String(msg.m), String(msg.path), msg.body && typeof msg.body === 'object' ? msg.body : null, !!msg.raw);
+      const r = vfsGuest(dev, String(msg.m), String(msg.path), msg.body && typeof msg.body === 'object' ? msg.body : null, !!msg.raw);
       try { c.send({ t:'vfsr', id:msg.id, status:r.status, json:r.json, text:r.text }); } catch(e){}
     } else if(msg.t === 'refresh' && dev){
       for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'refresh' }); } catch(e){}
@@ -9672,6 +9726,7 @@ function roomApply0(data){
   roomApplying = true;
   try {
     store.set('world', { ...w, events, once, votes, lock:null });
+    if(!isHost() && roomLocal()){ const was = store.get('own', {}); for(const x of CHAR_IDS){ if(was[x] && was[x].dev === DEV && !(own[x] && own[x].dev === DEV)){ if(selfFree !== x) provNote = 'ホストが、' + CHARS[x].name + 'の本のロックを外しました。'; selfFree = ''; } } }
     store.set('own', own); store.set('ats', ats); store.set('gap', Math.max(0, Math.min(600, Number(data.gap) || 0))); store.set('adopt-mode', ['auto', 'peer', 'host'].includes(data.adopt) ? data.adopt : 'auto'); store.set('mz-seal-mode', data.mzseal === 'propose' ? 'propose' : 'adopt');
     for(const [id, p] of Object.entries(players)){
       const local = store.get('player-' + id, null), hist = Array.isArray(p.history) ? p.history : [];
@@ -9767,10 +9822,10 @@ async function provMerge(){
 }
 function provHtml(){
   const why = [...new Set(provList.map(x => x.why))].join('。');
-  return '<div class="lockbar" style="border-color:var(--red)"><b>自分の進行を部屋に反映できません</b><span style="flex-basis:100%">' + escText(why) + '。</span>'
-    + (provWait ? '<span>ホストの返事を待っています。</span>' : '<button id="provDrop" style="background:var(--gold);color:#111;margin-left:0">自分の進行を取り消す</button><button id="provKeep" style="margin-left:0">自分の進行を残す（ホストの許可が要ります）</button>') + '</div>';
+  return '<div class="lockbar" style="border-color:var(--red)"><b>自分の進行を部屋に反映できません</b><span style="flex-basis:100%">' + escText(why) + '。' + (provOf() ? 'ホストとつながっていない間に、自分は' + CHARS[provOf().c].name + 'の本を' + (provOf().moved || 0) + '手進めました。' : '') + '自分の進行を残すには、ホストの許可が要ります。</span>'
+    + (provWait ? '<span>ホストの返事を待っています。</span>' : '<button id="provDrop" style="background:var(--gold);color:#111;margin-left:0">自分の進行を取り消す</button><button id="provKeep" style="margin-left:0">自分の進行を残す</button>') + '</div>';
 }
-function provDrop(){ const p = provOf(); if(!p) return; provClear(); provNote = CHARS[p.c].name + 'の本の、自分の進行を取り消しました。'; render(); }
+function provDrop(){ const p = provOf(); if(!p || !confirm(CHARS[p.c].name + 'の本で、ホストとつながっていない間に進めた' + (p.moved || 0) + '手を取り消しますか？')) return; provClear(); provNote = CHARS[p.c].name + 'の本の、自分の進行を取り消しました。'; render(); }
 function provAsk(){
   const p = provOf(); if(!p || !provList || offRoom()) return;
   const books = [...new Set(provList.map(x => x.book))]; if(!books.includes(p.c) && provSig(realIO(() => loadPlayer(p.c))) !== provSig(p.base.players[p.c])) books.push(p.c);
@@ -9798,7 +9853,7 @@ function provPast(x, p){ // p は、本 x の前の様子か
   return p.history.length === h.length ? provSig(p) === provSig(now) : h[p.history.length].para === p.para && h[p.history.length].clock === p.clock;
 }
 function provAskHtml(){
-  return '<div class="lockbar" style="border-color:var(--gold)"><b>進行を部屋に反映したい人がいます</b>' + [...provAsks].map(([d, q]) => '<span style="flex-basis:100%">' + escText((roomMembers[d] || {}).name || '名前なし') + 'が、ホストとつながっていない間に' + CHARS[q.book].name + 'の本を進めました。［許可する］を押すと、' + q.books.filter(x => x !== q.book).map(x => CHARS[x].name + 'の本の進行は話の中の' + fmt(q.base.players[x].clock) + 'まで戻り、').join('') + CHARS[q.book].name + 'の本の進行は' + escText((roomMembers[d] || {}).name || '名前なし') + 'の進行になります。　<button data-provyes="' + d + '">許可する</button> <button data-provno="' + d + '">断る</button></span>').join('') + '</div>';
+  return '<div class="lockbar" style="border-color:var(--gold)"><b>進行を部屋に反映したい人がいます</b>' + [...provAsks].map(([d, q]) => '<span style="flex-basis:100%">' + escText((roomMembers[d] || {}).name || '名前なし') + 'が、ホストとつながっていない間に進めた' + CHARS[q.book].name + 'の本の進行を、部屋に反映しようとしています。［許可する］を押すと、' + q.books.filter(x => x !== q.book).map(x => CHARS[x].name + 'の本の進行は話の中の' + fmt(q.base.players[x].clock) + 'まで戻り、').join('') + CHARS[q.book].name + 'の本は、' + escText((roomMembers[d] || {}).name || '名前なし') + 'の進行に替わります。' + (t => t ? '消えるのは、' + t + 'です。' : '')(q.books.map(x => { const n = (realIO(() => loadPlayer(x)).history || []).length - q.base.players[x].history.length; return n > 0 ? CHARS[x].name + 'の本の、いまの進行のうち' + n + '手' : ''; }).filter(Boolean).join('と、')) + '　<button data-provyes="' + d + '">許可する</button> <button data-provno="' + d + '">断る</button></span>').join('') + '</div>';
 }
 async function provAnswer(d, ok){
   const q = provAsks.get(d); if(!q || !isHost()) return;
@@ -9884,7 +9939,7 @@ async function roomClaim(c){ if((provOf() || {}).c === c){ roomNote = CHARS[c].n
 async function roomRelease(c){ trialEnd();
   if(roomBusy) return;
   try {
-    if(mine(c)){ store.remove('lockbase-' + c); clearTimeout(roomTimer); await roomPush(); }
+    if(mine(c)){ selfFree = c; store.remove('lockbase-' + c); clearTimeout(roomTimer); await roomPush(); }
     const r = await roomFetch(roomPath('own/' + c), { method:'DELETE' });
     if(!r.ok) throw 0;
   } catch(e){ roomNote = '部屋につながりません。'; render(); return; }
@@ -9896,6 +9951,7 @@ const roomHist = () => { try { const v = JSON.parse(localStorage.getItem(BASE + 
 const roomHistSave = list => { try { localStorage.setItem(BASE + 'room-hist', JSON.stringify(list.slice(0, 8))); } catch(e){} };
 let roomHistDone = false;
 function roomHistTouch(){ if(!room || roomHistDone) return; roomHistDone = true; const local = roomLocal(); roomHistSave([{ code:room, at:Date.now(), host:isHost(), local, repo:local ? '' : ghRepo() }, ...roomHist().filter(x => x.code !== room)]); }
+function roomWipe(code){ for(const k of LS.keys()) if(k === 'vfs-' + code || k.startsWith('room-' + code + '-')) LS.del(k); }
 function roomHistDrop(code){ roomHistSave(roomHist().filter(x => x.code !== code)); }
 function roomBack(code){
   const h = roomHist().find(x => x.code === code); if(!h || room) return;
@@ -9921,7 +9977,7 @@ async function roomCreate(play){
       put('seed', { mine:TEST_BUILD && !CUSTOM, data:verPick(seed) });
       LS.set('room-' + code + '-work', work);
       put('asset-src', GOT ? { work } : PACK ? { repo:PACK, key:store.get('pack-key', '') } : TEST_BUILD && ghLinked() ? { repo:ghRepo(), mine:true } : null);
-      localStorage.setItem(vfsKey(code), JSON.stringify({ ['rooms/' + code + '/room.json']:{ sha:'s0', content:b64(JSON.stringify({ v:3, host:DEV, open:true, gap:0, updated:Date.now(), slot:'', works:[{ id:'', name:workName(work), ro:CUSTOM }], ...(CUSTOM ? { ro:true } : {}) })) }, 'book/overlay.json':{ sha:'s1', content:b64(JSON.stringify(seed)) } }));
+      localStorage.setItem(vfsKey(code), JSON.stringify({ ['rooms/' + code + '/room.json']:{ sha:'s0', content:b64(JSON.stringify({ v:3, host:DEV, open:true, gap:0, updated:Date.now(), slot:'', works:[{ id:'', name:roomNameOf(work), ro:CUSTOM }], ...(CUSTOM ? { ro:true } : {}) })) }, 'book/overlay.json':{ sha:'s1', content:b64(JSON.stringify(seed)) } }));
       localStorage.setItem(BASE + 'room-local', JSON.stringify(code));
       localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code));
       roomEnter(code);
@@ -9962,6 +10018,7 @@ function roomLeave(){ try { localStorage.removeItem(BASE + 'room'); } catch(e){}
 // ホストに、部屋から外された。部屋を出て、開き直したあとに知らせる
 let kickedOnce = false;
 function roomKicked(){ if(kickedOnce) return; kickedOnce = true; roomHistDrop(room); try { localStorage.setItem(BASE + 'kicked', JSON.stringify(room)); } catch(e){} try { history.scrollRestoration = 'manual'; } catch(e){} roomLeave(); } // 開き直したら、いちばん上（知らせ）から見せる
+function roomEnded(){ if(kickedOnce) return; kickedOnce = true; roomHistDrop(room); LS.set('ended', room); try { history.scrollRestoration = 'manual'; } catch(e){} roomLeave(); } // ホストが、部屋を終わりにした
 // 部屋の人を外す（on）・外したのを取り消す。ホストだけ
 let banAsk = '';
 async function roomBanSet(d, on){
@@ -9976,7 +10033,8 @@ async function roomBanSet(d, on){
     if(on){
       for(const [c, dv] of hostConns) if(dv === d){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => { try { c.close(); } catch(e){} }, 300); }
       const own = store.get('own', {});
-      for(const c of CHAR_IDS) if(own[c] && own[c].dev === d) try { await roomFetch(roomPath('own/' + c), { method:'DELETE' }); } catch(e){}
+      if(roomLocal()){ const F = vfsLoad(); let n = 0; for(const k of Object.keys(F)) if(/^rooms\/[A-Z2-9]{8}\/(s-[a-z0-9]+\/)?own\//.test(k) && (ghDecode(F[k]) || {}).dev === d){ delete F[k]; n++; } if(n) vfsSave(); delete repoSeen.dirs.own; }
+      else for(const c of [...CHAR_IDS, 'guide']) if(own[c] && own[c].dev === d) try { await roomFetch(roomPath('own/' + c), { method:'DELETE' }); } catch(e){}
       const a = store.get('room-allowed', {}); if(a[d]){ delete a[d]; store.set('room-allowed', a); }
       note = who + 'を、部屋から外しました。';
     } else note = who + 'を、また部屋に入れるようにしました。' + (roomLocal() ? who + 'が招待リンクを開いたら、［許可する］を押してください。' : '［招待リンクをコピー］を押して、招待リンクを送ると、' + who + 'は部屋に入れます。');
@@ -9995,11 +10053,12 @@ async function roomPatSwap(){
   render();
 }
 const roomHost = () => store.get('host-of', '') === room;
-let roomDelAsk = false;
+let roomDelAsk = false, roomDropAsk = '', freeAsk = '', slotAsk = '', copiedAt = 0, selfFree = '';
 async function roomDelete(){
   try {
     const r = await roomFetch(roomUrl(), { method:'DELETE' });
     if(!r.ok) throw 0;
+    if(roomLocal()){ const code = room; liveAll({ t:'ended' }); roomHistDrop(code); await new Promise(z => setTimeout(z, 1500)); roomWiped = true; try { localStorage.removeItem(BASE + 'room'); } catch(e){} roomWipe(code); location.reload(); return; } // 参加者が「終わった」を読む間だけ待つ
     try { localStorage.removeItem(BASE + 'room-' + room + '-host-of'); } catch(e){}
     roomLeave();
   } catch(e){ roomDelAsk = false; roomNote = '部屋につながりません。消えていません。'; render(); }
@@ -10010,7 +10069,7 @@ let banPatOpen = false;
 function roomPeopleHtml(){
   const host = isHost(), nm = n => escText(String(n || '') || '名前なし');
   const people = Object.entries(roomMembers).filter(([d, m]) => m && typeof m === 'object' && !isBanned(d)).sort(([a], [b]) => (a === DEV ? -1 : b === DEV ? 1 : 0));
-  const rows = people.map(([d, m]) => '<div class="rowl"><span>' + nm(m.name) + '<small>' + (d === DEV ? 'あなた' : hereNow(m) ? 'いまゲームを開いています' : '') + '</small></span>'
+  const rows = people.map(([d, m]) => '<div class="rowl"><span>' + nm(m.name) + '<small>' + (d === DEV ? 'あなた' : hereNow(m) && !offRoom() ? 'いまゲームを開いています' : '') + '</small></span>'
     + (host && d !== DEV ? (banAsk === d ? '<button class="sm" data-banyes="' + d + '">退出させる</button><button class="sm" id="banNo">やめる</button>' : '<button class="sm" data-ban="' + d + '">退出させる</button>') : '') + '</div>'
     + (host && banAsk === d ? '<p>' + nm(m.name) + 'を、部屋から外します。' + nm(m.name) + 'は、部屋に入れなくなります。' + nm(m.name) + 'が通信に書いたメッセージは、残ります。</p>' : '')).join('');
   const out = Object.entries(roomBan()).filter(([d]) => segOk(d));
@@ -10055,45 +10114,57 @@ async function roomKeyJoin(){
   store.set('room-repo', { repo:slug, pat }); store.remove('room-local'); store.remove('by-code');
   location.reload();
 }
+// 部屋の中での作品の名前：名前を付けていない自分の作品は、だれの作品か分かるように出す
+const roomNameOf = id => id === '' && !LS.get('work-name', '') ? (store.get('fb-name', '') || 'ホスト').slice(0, 20) + 'の作品' : workName(id);
 function roomWorksHtml(host){
   const list = roomWorks(), used = new Set(list.map(x => LS.get(slotKey(x.id, 'work'), x.id ? null : '')));
-  if(!host) return list.length > 1 ? '<div class="step"><div class="n">作品</div><h3>部屋で使っている作品</h3><p>' + escText(roomWorkName(slot)) + '</p></div>' : '';
+  const ask = '<button class="sm" id="slotYes">部屋で使う作品を替える</button><button class="sm" id="slotNo">やめる</button>';
+  if(!host) return roomWorkName(slot) ? '<div class="step"><div class="n">作品</div><h3>部屋で使っている作品</h3><p>' + escText(roomWorkName(slot)) + '</p></div>' : '';
   const more = [TEST_BUILD ? '' : 'base', ...shelfList().filter(x => TEST_BUILD || ['pack', 'got'].includes(x.kind)).map(x => x.id)].filter(id => !used.has(id));
+  if(list.length < 2 && !more.length) return '<div class="step"><div class="n">作品</div><h3>部屋で使っている作品</h3><p>' + escText(roomWorkName(slot)) + '</p></div>';
   return '<div class="step"><div class="n">作品</div><h3>部屋で使う作品を替える</h3>'
-    + list.map(x => '<div class="rowl"><span>' + escText(roomWorkName(x.id)) + '<small>' + (x.id === slot ? 'いま使っている作品' : '') + '</small></span>' + (x.id === slot ? '' : '<button class="sm" data-rslot="' + x.id + '">替える</button>') + '</div>').join('')
-    + more.map(id => '<div class="rowl"><span>' + escText(workName(id)) + '<small>まだ部屋で使っていない作品</small></span><button class="sm" data-rslotadd="' + id + '">替える</button></div>').join('')
+    + list.map(x => '<div class="rowl"><span>' + escText(roomWorkName(x.id)) + '<small>' + (x.id === slot ? 'いま使っている作品' : '') + '</small></span>' + (x.id === slot ? '' : slotAsk === 's:' + x.id ? ask : '<button class="sm" data-rslot="' + x.id + '">替える</button>') + '</div>').join('')
+    + more.map(id => '<div class="rowl"><span>' + escText(roomNameOf(id)) + '<small>まだ部屋で使っていない作品</small></span>' + (slotAsk === 'a:' + id ? ask : '<button class="sm" data-rslotadd="' + id + '">替える</button>') + '</div>').join('')
     + '<p style="margin-top:12px">作品を替えると、メンバーの使う作品も替わります。本の進行とロックは、作品ごとに分かれます。</p></div>';
 }
 function roomPanelHtml(){
   const head = '<div class="fb panel">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
   if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人1冊ずつ担当し、それぞれの端末から同時に遊べます。' + (TEST_BUILD ? '部屋の中では共同編集もできます。' : '') + '</p>'
-    + (roomHist().length ? '<div class="step"><div class="n">前に入った部屋</div><h3>前に入った部屋に戻る</h3><p>部屋番号を控えていなくても、ここから入れます。</p>' + roomHist().map(h => { const d = new Date(h.at); return '<div class="rowl"><span>' + h.code + '<small>' + (h.host ? 'あなたが作った部屋' : '招待された部屋') + '　' + (d.getMonth() + 1) + '月' + d.getDate() + '日に入りました</small></span><button class="sm" data-roomback="' + h.code + '">入る</button><button class="sm" data-roomdrop="' + h.code + '">一覧から消す</button></div>'; }).join('') + '</div>' : '')
+    + (roomHist().length ? '<div class="step"><div class="n">前に入った部屋</div><h3>前に入った部屋に戻る</h3><p>部屋番号を控えていなくても、ここから入れます。</p>' + roomHist().map(h => { const d = new Date(h.at); return '<div class="rowl"><span>' + h.code + '<small>' + (h.host ? 'あなたが作った部屋' : '招待された部屋') + '　' + (d.getMonth() + 1) + '月' + d.getDate() + '日に入りました</small></span>' + (roomDropAsk === h.code ? '<button class="sm" data-roomdropyes="' + h.code + '">消す</button><button class="sm" id="roomDropNo">やめる</button></div><p>部屋 ' + h.code + ' での' + (h.local && h.host ? '進行が消え、ほかの人も遊べなくなります。' : h.local ? '進行のうち、ホストにまだ届いていない分が消えます。' : '進行のうち、まだ共有されていない分が消えます。') + '</p>' : '<button class="sm" data-roomback="' + h.code + '">入る</button><button class="sm" data-roomdrop="' + h.code + '">一覧から消す</button></div>'); }).join('') + '</div>' : '')
     + '<div class="step"><div class="n">ホスト（部屋を作る）</div><h3>部屋を作って招待する</h3>'
       + '<p>部屋を作ると「招待リンクをコピー」が表示されます。リンクを送ってメンバーを呼びます（相手は登録不要です）。</p>'
-      + '<p>部屋で使う作品：' + escText(workName(work)) + '（［☰］の［その他］の［作品一覧］で替えられます）</p>' + (ghLinked() ? '<h3 style="margin-top:14px">遊ぶ部屋</h3>' : '') + '<p>参加希望が届いたら「許可する」を押します。ホストがゲームを開いている間、全員の進行がリアルタイムで共有されます。閉じている間も各自の本は進められ、開き直すと同期されます。</p>'
+      + '<p>部屋で使う作品：' + escText(workName(work)) + '（タイトル画面の［作品一覧］で替えられます）</p>' + (ghLinked() ? '<h3 style="margin-top:14px">遊ぶ部屋</h3>' : '') + '<p>参加希望が届いたら「許可する」を押します。ホストがゲームを開いている間、全員の進行がリアルタイムで共有されます。閉じている間も各自の本は進められ、開き直すと同期されます。</p>'
       + '<button class="go" id="roomPlay">' + (ghLinked() ? '遊ぶ部屋を作る' : '部屋を作る') + '</button>'
       + (ghLinked() ? '<h3 style="margin-top:20px">一緒に作る部屋</h3><p>メンバー全員が、部屋の作品を書き換えて、作業用リポジトリに保存できます。招待リンクに、作業用リポジトリへ書き込めるトークンが入ります。進行とチャット履歴は、作業用リポジトリに保存されます。ホストがゲームを閉じている間も、メンバーの進行は共有されます。</p><button class="go" id="roomNew">一緒に作る部屋を作る</button>' : '') + '</div>'
     + '<div class="step"><div class="n">招待された人</div><h3>部屋に入る</h3>'
       + '<p>招待リンクを受け取った場合はそのまま開いてください。部屋番号を受け取った場合は下に入力します。</p>'
       + '<input id="roomCode" placeholder="部屋番号（8文字）" maxlength="8" autocapitalize="characters" autocomplete="off"><button class="go" id="roomJoinBtn">この番号の部屋に入る</button></div>'
     + note + '</div>';
-  const own = store.get('own', {}), host = roomHost();
+  const own = store.get('own', {}), host = roomHost(), off = offRoom() ? ' disabled' : '';
   const state = !roomOpen ? 'この部屋は閉じています。開くまで、本は進められません。'
     : isHost() ? (liveOn() ? '今、' + hostConns.size + '台とつながっています。' : roomLocal() ? 'ゲームを開いている間、メンバーとリアルタイムで同期されます。' : 'ゲームを開いている間、全員の進行がすぐ共有されます。')
     : liveOn() ? 'ホストとつながっています。' : joinState === 'wait' ? 'ホストの許可を待っています。' : joinState === 'denied' ? 'ホストが、入るのを断りました。' : joinState === 'needkey' ? '部屋番号だけでは入れません。' : roomLocal() ? 'ホスト未接続（ホストがページを開くと同期されます。自分の本はそのまま進められます）' : '全員の進み具合は、30秒ごとに共有されます。';
+  if(roomLocal() && !isHost() && !store.get('welcomed', false)) return '<div class="scr"><h2 class="scr-h">部屋 ' + room + '</h2>'
+    + '<div class="scr-state">' + (joinState === 'wait' ? 'ホストの許可を待っています。' : joinState === 'denied' ? 'ホストが、入るのを断りました。' : joinState === 'needkey' ? '部屋番号だけでは入れません。' : Date.now() - offAt < 20000 ? 'ホストを探しています。' : 'ホストが見つかりません。部屋番号が合っているか、ホストがゲームを開いているかを、確かめてください。') + '</div>' + note
+    + '<div class="step"><div class="n">呼び名</div><h3>みんなに見える名前</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
+    + roomKeyHtml()
+    + '<div class="step"><div class="rowl"><span>部屋を出る<small>タイトル画面に戻ります。</small></span><button class="sm" id="roomLeave">出る</button></div></div></div>';
   return '<div class="scr"><h2 class="scr-h">部屋 ' + room + '</h2>'
     + '<div class="scr-state' + (liveOn() ? ' on' : '') + '">' + (isHost() ? 'あなたがこの部屋のホストです。' : '') + state + '</div>'
     + note
     + roomKeyHtml()
     + '<div class="step"><div class="n">呼び名</div><h3>みんなに見える名前</h3><input id="roomName" placeholder="呼び名（本名は入れない）" maxlength="30"></div>'
+    + (host ? '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
+      + '<button class="go" id="roomCopy">' + (Date.now() - copiedAt < 4000 ? '✔ コピーしました' : '招待リンクをコピー') + '</button></div>' : '')
     + '<div class="step"><div class="n">本</div><h3>担当する本</h3>'
       + openIds().map(c => { const o = own[c]; return '<div class="rowl"><span>' + CHARS[c].name + 'の本<small>' + (o ? ownerName(o) : 'まだ誰も') + '</small></span>'
-        + (o ? (o.dev === DEV || host ? '<button class="sm" data-free="' + c + '">' + (o.dev === DEV ? '保存してロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '">ロックする</button>' : '') + '</div>' + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずにロックを外す</button></div>' : ''); }).join('')
-      + '<p style="margin-top:12px">進められるのは自分がロックした本だけです。ロック後、左上の「← 戻る」から本編へ戻ります。</p><p>ロックを外すと別の本に切り替えられ、外した本はほかのメンバーが続きから進められます（ゲームを閉じてもロックは維持されます）。</p></div>'
-    + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
-      + '<button class="go" id="roomCopy">招待リンクをコピー</button></div>'
+        + (o ? (freeAsk === c && o.dev !== DEV ? '<button class="sm" data-freeyes="' + c + '">外す</button><button class="sm" id="freeNo">やめる</button>' : o.dev === DEV || host ? '<button class="sm" data-free="' + c + '"' + off + '>' + (o.dev === DEV ? '保存してロックを外す' : 'ロックを外す') + '</button>' : '') : roomOpen ? '<button class="sm" data-claim="' + c + '"' + off + '>ロックする</button>' : '') + '</div>' + (freeAsk === c && o && o.dev !== DEV ? '<p>' + ownerName(o) + 'は、' + CHARS[c].name + 'の本を進められなくなります。これまでの進行は、残ります。</p>' : '') + (o && o.dev === DEV && c === current && canDrop() ? '<div style="text-align:right;margin:0 0 10px"><button class="sm" id="roomDrop">保存せずにロックを外す</button></div>' : ''); }).join('')
+      + (off ? '<p class="note">ホストとつながるまで、ロックの操作はできません。</p>' : '') + '<p style="margin-top:12px">進められるのは自分がロックした本だけです。ロック後、左上の「← 戻る」から本編へ戻ります。</p><p>ロックを外すと別の本に切り替えられ、外した本はほかのメンバーが続きから進められます（ゲームを閉じてもロックは維持されます）。</p></div>'
+    + (host ? '' : '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
+      + '<button class="go" id="roomCopy">' + (Date.now() - copiedAt < 4000 ? '✔ コピーしました' : '招待リンクをコピー') + '</button></div>')
     + (roomLocal() ? roomWorksHtml(host) : '')
     + (host && roomLocal() ? '<div class="step"><div class="n">作品</div><p><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="roomTakeSet" style="width:20px;height:20px;margin:3px 0 0;flex:none"' + (((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).take === true ? ' checked' : '') + '><span>メンバーが、この部屋の作品を作品一覧に追加するのを許可する</span></label></p></div>' : '')
+    + (host && TEST_BUILD && roomLocal() && (store.get('seed', null) || {}).mine ? '<div class="step"><div class="n">作品</div><h3>部屋での書き換えを取りこむ</h3><p>この部屋で作品に加えた書き換えを、作品一覧の「' + escText(workName(work)) + '」に取りこみます。同じ所を「' + escText(workName(work)) + '」でも書き換えていたときは、部屋での書き換えが残ります。</p><button class="go" id="roomTake">書き換えを取りこむ</button></div>' : '')
     + (roomTakeOk() ? '<div class="step"><div class="n">作品</div><h3>この部屋の作品を作品一覧に追加する</h3><p>' + (roomLocal() ? '部屋を出たあとも、この作品で遊べます。' : '部屋を出たあとも、この作品を書き換えて、作業用リポジトリに保存できます。') + '</p><button class="go" id="roomKeep">作品一覧に追加</button></div>' : '')
     + roomPeopleHtml()
     + (host ? '<div class="step"><div class="n">進み方</div><h3>進行の同期幅（作中の時刻）</h3><p>' + (roomGap() ? 'いちばん遅れているメンバーより、作中の時刻で ' + roomGap() + ' 分より先へ進むと、追いつくまで待ちます。' : '朝・午前・昼・午後・夕方・夜の区切りごとに、先に進んだ人がほかのメンバーを待ちます。') + '</p>'
@@ -10105,12 +10176,11 @@ function roomPanelHtml(){
         + '<button class="go" id="roomExport">ファイルで書き出す</button><p style="margin-top:10px">ゲームを1つのファイルに書き出します。受け取った人はブラウザで開くと遊べます。</p>'
         + (roomLocal() ? '' : '<label class="lab">公開用リポジトリ</label><input id="pubRepo" placeholder="yourname/joining-the-living-dead-share" value="' + escText(store.get('pub-repo', '')).replace(/"/g, '&quot;') + '" autocomplete="off"><input id="pubMemo" maxlength="60" placeholder="この版のメモ（何を変えたか）" autocomplete="off" style="margin-top:8px">' + mzPubCheckHtml() + '<button class="go" id="roomPublish">公開リンクを作成</button><p style="margin-top:10px">反映済みの内容と画像を公開用リポジトリへ書き出し、共有リンクを発行します（トークンに公開用リポジトリの権限も必要です）。</p>' + (store.get('pub-repo', '') ? pubVersHtml() : ''))
         + '<details class="scr-more"><summary>差分データのみ書き出す</summary><p>反映済みの編集データ（overlay.json）だけを書き出します。リポジトリへ手動で配置するときに使います。</p><button class="sm" id="roomPackFile">差分データを書き出す</button></details></div>' : '')
-    + (host && TEST_BUILD && roomLocal() && (store.get('seed', null) || {}).mine ? '<div class="step"><div class="n">作品</div><h3>部屋での書き換えを取りこむ</h3><p>この部屋で作品に加えた書き換えを、作品一覧の「' + escText(workName(work)) + '」に取りこみます。同じ所を「' + escText(workName(work)) + '」でも書き換えていたときは、部屋での書き換えが残ります。</p><button class="go" id="roomTake">書き換えを取りこむ</button></div>' : '')
     + (host ? '<div class="fb panel">' + missHtml() + '</div>' : '')
     + '<div class="step"><div class="n">部屋</div><h3>' + (host ? '部屋を出る・閉じる' : '部屋を出る') + '</h3>'
       + '<div class="rowl"><span>部屋を出る<small>' + 'タイトル画面に戻ります。' + (host ? (roomLocal() ? 'ホストが抜けている間は同期が止まります。' : '') + '部屋番号から再入室できます' : '招待リンクか部屋番号で、また部屋に入れます') + '</small></span><button class="sm" id="roomLeave">出る</button></div>'
       + (host ? '<div class="rowl"><span>' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '<small>閉じているあいだ、誰も本を進められません</small></span><button class="sm" id="roomToggle">' + (roomOpen ? '閉じる' : '開ける') + '</button></div>'
-        + '<div class="rowl"><span>部屋を終了する<small>全員が入室できなくなります' + (roomLocal() ? '' : '。記録は作業用リポジトリに残ります') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終了する</button>') + '</div>' : '')
+        + '<div class="rowl"><span>部屋を終了する<small>' + (roomLocal() ? '全員が部屋に入れなくなり、部屋での進行が消えます。' : '全員が部屋に入れなくなります。記録は作業用リポジトリに残ります。') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終了する</button>') + '</div>' : '')
       + '</div>'
     + '<details class="scr-more"><summary>呼び名や進み具合の保存先</summary><p>' + (roomLocal() ? '呼び名と進行データはホストのブラウザに保存されます。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
     + '</div>';
@@ -10255,7 +10325,7 @@ let cmComposing = false;
 document.addEventListener('compositionstart', () => { cmComposing = true; }, true);
 document.addEventListener('compositionend', () => { cmComposing = false; }, true);
 const typing = () => { const a = document.activeElement; if(!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false; return !(a.matches('.cm-r textarea[data-slot]') && !cmComposing && window.matchMedia && matchMedia('(pointer:fine)').matches); };
-let fbSetOpen = false, fbe = null, editOn = false, draftShown = null, flushing = false;
+let fbSetOpen = false, fbe = null, editChar = '', editOn = false, draftShown = null, flushing = false;
 // 今の場面の文（出来事の文・本文・選択肢）
 function sceneText(){ const v = lastView; return v ? (v.msg ? v.msg + '\n\n' : '') + v.text + '\n\n【選択肢】\n' + v.labels.map(l => '・' + l).join('\n') : ''; }
 function fbStart(){
@@ -10355,7 +10425,7 @@ function render(){
     // 結果の段落（res の付いた段落）と結果のページのあいだは、映像は、もとの場面のまま。地図や番号から、ほかの場面へは移れない
     const hold = resOn || !!paraOf(s)?.res;
     document.getElementById('stat').innerHTML = whose + statHtml(resOn && s.resClock ? { ...v, clock:s.resClock } : v);
-    if(mode === 'live' && trialOn()){
+    if(mode === 'live' && trialOn() && !(trial.prov && provList)){
       const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'ロックなし';
       html += '<div class="lockbar"><b>' + (trial.prov ? offRoom() ? 'ホストとつながっていません' : '部屋に反映していない進行があります' : other) + '</b>' + (trial.prov ? '（つながるまでの自分の進行は、保存されます）' : '（進行は保存されません）') + (trial.moved ? '<button id="trialBack">' + (trial.prov ? '自分の進行を取り消す' : 'もとの場面に戻る') + '</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
       if(undoOpen && undoCount()) html += undoListHtml(s);
@@ -10445,11 +10515,12 @@ function render(){
   on('endSave', releaseLock);
   document.querySelectorAll('[data-hop]').forEach(el => { el.onclick = () => hopBook(el.dataset.hop); });
   on('dropBtn', dropLock);
-  on('trialBack', () => { if(trialOn() && trial.prov){ if(provWait) return; store.remove('prov'); provList = null; } trialEnd(); undoOpen = false; render(); window.scrollTo(0, 0); });
+  on('trialBack', () => { if(trialOn() && trial.prov){ if(provWait || !confirm(CHARS[trial.c].name + 'の本で、ホストとつながっていない間に進めた' + trial.moved + '手を取り消しますか？')) return; store.remove('prov'); provList = null; } trialEnd(); undoOpen = false; render(); window.scrollTo(0, 0); });
   on('roomDrop', dropLock);
   on('skipWait', () => { const p = loadPlayer(current), ats = store.get('ats', {}); p.skipped = Object.assign(p.skipped || {}, Object.fromEntries(behind(p).map(o => [o.char, ats[o.char] || 0]))); store.set('player-' + current, p); render(); });
   document.querySelectorAll('[data-claim]').forEach(el => { el.onclick = () => { current = el.dataset.claim; store.set('current', current); roomClaim(current); }; });
-  document.querySelectorAll('[data-free]').forEach(el => { el.onclick = () => roomRelease(el.dataset.free); });
+  document.querySelectorAll('[data-free]').forEach(el => { el.onclick = () => { const o = store.get('own', {})[el.dataset.free]; if(o && o.dev !== DEV){ freeAsk = el.dataset.free; render(); } else roomRelease(el.dataset.free); }; });
+  document.querySelectorAll('[data-freeyes]').forEach(el => { el.onclick = () => { freeAsk = ''; roomRelease(el.dataset.freeyes); }; }); on('freeNo', () => { freeAsk = ''; render(); });
   const fbSet = document.getElementById('fbSet'); if(fbSet) fbSet.ontoggle = () => { fbSetOpen = fbSet.open; };
   on('fbTab', () => { fbOpen = !fbOpen; cmHoldUnread = ''; if(fbOpen){ mapOpen = false; if(room) roomPull(); if(cmThread && cmItem(cmThread)){ cmOpenAt = room || /^mz_/.test(cmThread) ? { k:cmThread, n:store.get('seen-items', {})[cmThread] || 0 } : null; cmScroll = true; cmShown = null; cmBelow = false; } } else { fbNote = ''; fbMax = false; } render(); });
   on('fbReset', () => { fbDrafts.edit = fbOrig; render(); });
@@ -10615,7 +10686,8 @@ function render(){
   if(rn){ rn.value = store.get('fb-name', ''); rn.onchange = () => { const name = rn.value.trim().slice(0, 30); store.set('fb-name', name); for(const c of CHAR_IDS.filter(mine)) roomFetch(roomPath('own/' + c), { method:'PUT', body:JSON.stringify({ dev:DEV, name }) }).catch(() => {}); roomSig = ''; roomPull(); }; }
   on('roomJoinBtn', () => roomJoin(document.getElementById('roomCode').value));
   document.querySelectorAll('[data-roomback]').forEach(el => { el.onclick = () => roomBack(el.dataset.roomback); });
-  document.querySelectorAll('[data-roomdrop]').forEach(el => { el.onclick = () => { roomHistDrop(el.dataset.roomdrop); render(); }; });
+  document.querySelectorAll('[data-roomdrop]').forEach(el => { el.onclick = () => { roomDropAsk = el.dataset.roomdrop; render(); }; });
+  document.querySelectorAll('[data-roomdropyes]').forEach(el => { el.onclick = () => { const code = el.dataset.roomdropyes; roomDropAsk = ''; roomHistDrop(code); roomWipe(code); render(); }; }); on('roomDropNo', () => { roomDropAsk = ''; render(); });
   on('roomLeave', roomLeave); on('menuLeave', roomLeave);
   on('roomDel', () => { roomDelAsk = true; render(); });
   // 部屋の人を外す・取り消す、トークンを入れ替える、外されたという知らせを閉じる
@@ -10625,6 +10697,7 @@ function render(){
   on('banNo', () => { banAsk = ''; render(); });
   on('banPatSave', roomPatSwap);
   { const bp = document.getElementById('banPatBox'); if(bp) bp.ontoggle = () => { banPatOpen = bp.open; }; }
+  on('endedOk', () => { LS.del('ended'); render(); });
   on('kickedOk', () => { try { localStorage.removeItem(BASE + 'kicked'); } catch(e){} render(); });
   on('roomExport', exportCustom);
   on('missSave', missSave);
@@ -10645,7 +10718,7 @@ function render(){
   on('ghForget', () => { store.remove('gh-repo'); store.remove('gh-pat'); ghNote = 'リポジトリの名前とトークンを消しました。'; render(); });
   on('roomDelNo', () => { roomDelAsk = false; render(); });
   on('roomDelYes', roomDelete);
-  on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room + (roomLocal() ? '&l=1' : '&r=' + ghRepo() + '&k=' + ghPat())).then(() => { roomNote = roomLocal() ? '招待リンクをコピーしました。部屋に入れたい人に渡してください。' : '招待リンクをコピーしました。このリンクには、リポジトリに書きこむためのトークンが入っています。部屋に入れたい人にだけ渡してください。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
+  on('roomCopy', () => { navigator.clipboard.writeText(location.href.split('#')[0] + '#room=' + room + (roomLocal() ? '&l=1' : '&r=' + ghRepo() + '&k=' + ghPat())).then(() => { copiedAt = Date.now(); setTimeout(() => { if(roomPanel && !typing()) render(); }, 4100); roomNote = roomLocal() ? '招待リンクをコピーしました。部屋に入れたい人に渡してください。' : '招待リンクをコピーしました。このリンクには、リポジトリに書きこむためのトークンが入っています。部屋に入れたい人にだけ渡してください。'; render(); }, () => { roomNote = 'コピーできませんでした。部屋番号を伝えてください。'; render(); }); });
   on('soloPullBtn', () => (room ? roomPullNow() : soloPull(true)));
   on('chgbtn', () => { chgPanel = true; roomPanel = packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); window.scrollTo(0, 0); });
   // メタゾンビ図鑑
@@ -10708,8 +10781,8 @@ function render(){
   on('linkClose', () => { linkPanel = false; ghNote = ''; render(); });
   on('packLatest', () => { store.set('pack-latest', true); location.replace(siteRoot()); });
   on('packPin', () => { store.remove('pack-latest'); location.reload(); });
-  on('workNew', workNew); on('workCopy', workCopy); on('roomKeep', roomKeep); on('slotGo', () => { if(slotWait !== null) slotGo(slotWait); });
-  document.querySelectorAll('[data-rslot]').forEach(q => { q.onclick = () => slotSet(q.dataset.rslot); }); document.querySelectorAll('[data-rslotadd]').forEach(q => { q.onclick = () => slotAdd(q.dataset.rslotadd); });
+  on('workNew', workNew); on('workCopy', workCopy); on('roomKeep', roomKeep); on('oldOk', () => { oldSeen = ''; render(); }); on('slotGo', () => { if(slotWait !== null) slotGo(slotWait); });
+  document.querySelectorAll('[data-rslot]').forEach(q => { q.onclick = () => { slotAsk = 's:' + q.dataset.rslot; render(); }; }); document.querySelectorAll('[data-rslotadd]').forEach(q => { q.onclick = () => { slotAsk = 'a:' + q.dataset.rslotadd; render(); }; }); on('slotYes', () => { const [k, v] = [slotAsk.slice(0, 1), slotAsk.slice(2)]; slotAsk = ''; if(k === 's') slotSet(v); else slotAdd(v); }); on('slotNo', () => { slotAsk = ''; render(); });
 
   on('roomTakeSet', () => { const v = document.getElementById('roomTakeSet').checked; roomFetch(roomPath('take'), { method:'PUT', body:JSON.stringify(v) }).then(() => { roomSig = ''; return roomPull(true); }).catch(() => { roomNote = '設定できませんでした。'; }).then(render); });
   for(const [k, f] of [['wopen', workOpen], ['wdel', id => { shelfDelAsk = id; render(); }], ['wdelno', () => { shelfDelAsk = ''; render(); }], ['wdelyes', id => { shelfDelAsk = ''; workWipe(id); render(); }], ['wname', id => { const n = workAsk('作品の名前', workName(id)); if(!n) return; if(id) LS.set('shelf', shelfList().map(x => (x.id === id ? { ...x, name:n } : x))); else LS.set('work-name', n); render(); }]]) document.querySelectorAll('[data-' + k + ']').forEach(q => { q.onclick = () => f(q.dataset[k]); });
@@ -11400,8 +11473,8 @@ function cmGo(at){
   window.scrollTo(0, 0);
 }
 // 採用のしかた：「すぐ入る」「誰か1人が賛成したら入る」のときは、ホストの端末が、代わりに採用する
-const unitOfDraft = u => u.t === 'cam' || u.t === 'book' ? '' : u.t === 'spot' ? String((u.x || {}).book || '') : String(u.key || '').split(':')[0];
-function adoptOk(k){ const it = roomItems[k], b = it && it.draft ? unitOfDraft(it.draft) : '', o = b ? store.get('own', {})[b] : null; return !o || o.dev === String(k).split('-')[0]; }
+const unitOfDraft = u => u.t === 'cam' ? '' : u.t === 'book' ? String((u.x || {}).id || '') : u.t === 'spot' ? String((u.x || {}).book || '') : String(u.key || '').split(':')[0];
+function adoptOk(k){ const it = roomItems[k], u = it && it.draft, b = u ? unitOfDraft(u) : '', o = b ? store.get('own', {})[b] : null, by = String(k).split('-')[0]; if(roomRo() || (u && u.t === 'book' && (overlay.books || {})[b] && !(o && o.dev === by))) return false; return !o || o.dev === by; }
 async function cmAutoAdopt(){
   if(!room || !TEST_BUILD || !isHost() || !roomOpen || cmAdopting) return;
   const mode = adoptNow(); if(mode === 'host') return; // メタゾンビの呪いが濃いと、「ホストが採用する」でも、賛成で入る
@@ -11834,7 +11907,8 @@ function unitApply(d, u, on){
   else if(u.t === 'cond'){ d.cond = { ...d.cond }; delete d.cond[x.orig]; if(on) d.cond[x.orig] = x.fx; }
   return d;
 }
-const unitOk = u => !!u && typeof u === 'object' && (u.t === 'cam' ? !!u.x && typeof u.x === 'object' && /^c[a-z0-9]{2,20}$/.test(String(u.x.id)) && typeof u.x.scene === 'string' && u.x.scene.length < 60 : true) && (u.t === 'book' ? !!u.x && typeof u.x === 'object' && /^[a-z]{3,12}$/.test(String(u.x.id)) && !!CHARS[u.x.like] : true) && (u.t === 'spot' ? !!u.x && typeof u.x === 'object' && /^[a-z0-9]{2,24}$/.test(String(u.x.id)) && !!CHARS[u.x.book] : true) && typeof u.key === 'string' && u.key.length < 200 && ['para', 'ins', 'label', 'del', 'off', 'add', 'cond', 'spot', 'book', 'cam'].includes(u.t) && u.x != null && (['del', 'off'].includes(u.t) ? typeof u.x === 'string' : typeof u.x === 'object');
+const badName = t => ['__proto__', 'constructor', 'prototype', 'hasOwnProperty', 'toString', 'valueOf'].includes(String(t));
+const unitOk = u => !!u && !(u.x && typeof u.x === 'object' && ['scene', 'book', 'like', 'id'].some(f => badName(u.x[f]))) && !badName(u.key) && typeof u === 'object' && (u.t === 'cam' ? !!u.x && typeof u.x === 'object' && /^c[a-z0-9]{2,20}$/.test(String(u.x.id)) && typeof u.x.scene === 'string' && u.x.scene.length < 60 : true) && (u.t === 'book' ? !!u.x && typeof u.x === 'object' && /^[a-z]{3,12}$/.test(String(u.x.id)) && !!CHARS[u.x.like] : true) && (u.t === 'spot' ? !!u.x && typeof u.x === 'object' && /^[a-z0-9]{2,24}$/.test(String(u.x.id)) && !!CHARS[u.x.book] : true) && typeof u.key === 'string' && u.key.length < 200 && ['para', 'ins', 'label', 'del', 'off', 'add', 'cond', 'spot', 'book', 'cam'].includes(u.t) && u.x != null && (['del', 'off'].includes(u.t) ? typeof u.x === 'string' : typeof u.x === 'object');
 // 画面に出す直し：採用されたものに、自分の下書きを重ねる。ok は、採用されたままのもの（下書きの印を付けない）
 function ovKeys(key){
   const K = overlay.keys || {}, m = /^([a-z]+):(\d+)(>.*)?$/.exec(key), out = K[key] ? [K[key]] : [];
@@ -11859,7 +11933,7 @@ async function overlayWrite(change){
   const path = 'book/overlay.json';
   let o = null;
   ghApi('book/README.md').then(g2 => { if(g2.status === 404) ghWrite('book/README.md', now => (now ? null : { message:'直し方の案内を置く', content:b64(BOOK_GUIDE_MD) })); }).catch(() => {});
-  const r = await ghWrite(path, meta => { o = Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null); change(o); o.base = baseNow(); uidTake(o); o.uid = uidMake(); return { message:'本に採用する', content:b64(JSON.stringify(o)) }; }); // この版の原本に合わせて、採用した
+  const r = await ghWrite(path, meta => { o = Object.assign({ v:1, keys:{}, items:{} }, meta ? ghDecode(meta) : null); change(o); o.base = baseNow(); uidTake(o); o.uid = uidMake(); return { message:'本に採用する', content:b64(JSON.stringify(o)) }; }, { json:true }); // この版の原本に合わせて、採用した
   if(r.status !== 200) throw r.status;
   const c = clean(o); overlay = { base:c.base || null, keys:c.keys || {}, items:c.items || {}, poses:c.poses || {}, spots:c.spots || {}, books:c.books || {}, cams:c.cams || {}, auto:c.auto || null }; overlaySha = r.sha; overlayPoses(); store.set('overlay', overlay);
   liveChanged();
@@ -11990,6 +12064,7 @@ const BOOK_GUIDE_MD = '# book/ の中身と、直し方\n\nここには、ゲー
 async function adoptItem(k, on){
   const it = roomItems[k], u = it && it.draft;
   if(!isHost() || !unitOk(u)) return;
+  if(roomRo()){ fbNote = editNo(''); render(); return; }
   if(on && !adoptOk(k)){ fbNote = unitName(unitOfDraft(u)) + 'のロックが外れると、この書き換えを採用できます。'; render(); return; }
   if(on){ const L = await workLock(); if(!L.ok){ fbNote = lockText(L); render(); return; } }
   fbNote = on ? '採用しています…' : '採用をやめています…'; render();
@@ -11999,7 +12074,7 @@ async function adoptItem(k, on){
     it.adopted = on; fbNote = on ? '採用しました。全員のゲームに入ります。' : '採用をやめました。';
     const mk = (u.t === 'para' || u.t === 'ins') && /^([a-z]+):(\d+)$/.exec(u.key); // 本文の直しを採用したら、その場面のメタゾンビを封印する（採用をやめたときは、残した文だけ新しくする）
     if(mk) mzSeal(mk[1], +mk[2], mzNowText(mk[1], +mk[2]), !on);
-  } catch(e){ fbNote = 'リポジトリに書き込めませんでした。通信環境の良い場所で、もう一度お試しください。'; }
+  } catch(e){ fbNote = e === 422 ? '作業用リポジトリの book/overlay.json を読めないので、採用できませんでした。book/overlay.json を、読めていたときの内容に戻してください。' : e === 507 ? '空き容量が足りないので、書き換えを採用できませんでした。' : 'リポジトリに書き込めませんでした。通信環境の良い場所で、もう一度お試しください。'; }
   roomSig = ''; render(); roomPull();
 }
 // 足した選択肢の「そのあと」と「主人公に起きること」を、言葉にする
@@ -13841,7 +13916,7 @@ function sceneTrail(sk){
   return out.join(' の先の ') + ' を選んだあとの場面';
 }
 function fbeSave(act){
-  if(!editOk(lastView.char)){ fbNote = editNo(lastView.char); editOn = false; fbe = null; render(); return; }
+  if(!editOk(lastView.char)){ fbNote = editNo(lastView.char); if(!(fbe && editChar === lastView.char && room && !roomRo())){ editOn = false; fbe = null; } render(); return; }
   // 足した選択肢の置き場所：どこでも使える隠し選択肢は「本:*」。印を付け外ししたら、前の置き場所から移す
   const e = fbe, origin = e.scene || viewKey(), anyAdd = e.kind === 'add' && !!(e.fx && e.fx.hide && e.fx.any);
   const key = anyAdd ? anyKey() : origin === anyKey() ? viewKey() : origin;
@@ -13894,11 +13969,16 @@ function fbeSave(act){
   if(textEdit && !room) mzSeal(mk[1], +mk[2], mzShownText(mk[1], +mk[2]), act === 'revert' || (e.kind === 'para' && !e.insId && (act === 'drop' ? '' : val) === e.before));
   else if(textEdit && room && act !== 'revert') mzPropose(mk[1], +mk[2], act === 'drop' ? '' : val);
 }
+let fbeWas = null, fbeSnap = '';
+const fbeKey = e => JSON.stringify([e.value, e.label, e.result, e.to]);
+function fbeDirty(){ return !!fbe && fbe === fbeWas && fbeKey(fbe) !== fbeSnap; }
 // 文と選択肢を、下書きを重ねて組み直す。編集中は、段落と選択肢を押すとその場で直せる
 function decorateForEdit(mode){
   if(!(TEST_BUILD || CUSTOM || (room && Object.keys(verPick(overlay)).some(k => Object.keys(verPick(overlay)[k]).length))) || !lastView || mode === 'history') return;
   const main = document.getElementById('main'), v = lastView, key = viewKey(), d = shownOf(key);
-  if(editOn && !editOk(v.char)){ editOn = false; fbe = null; } // ほかの本へ移ったとき・ロックが外れたとき
+  if(fbe !== fbeWas){ fbeWas = fbe; fbeSnap = fbe ? fbeKey(fbe) : ''; }
+  if(editOn && editOk(v.char)) editChar = v.char;
+  else if(editOn && !(fbe && editChar === v.char && room && !roomRo())){ editOn = false; fbe = null; } // ほかの本へ移ったとき・ロックが外れたとき
   missCheck(key, v);
   const btns = list => '<div class="row">' + list.map(([k, name]) => '<button data-k="' + k + '">' + name + '</button>').join('') + '</div>';
   const wire = (box, map) => { box.querySelectorAll('[data-k]').forEach(q => { q.onclick = ev => { ev.stopPropagation(); map[q.dataset.k](); }; }); return box; };
@@ -13974,7 +14054,7 @@ function decorateForEdit(mode){
     if(pk === 'text' && TEST_BUILD){
       const wrap = document.createElement('div'); wrap.style.textAlign = 'right';
       const t = document.createElement('button'); t.className = 'fbe tgl'; t.textContent = editOn ? '✔ 編集を終える' : '✎ 編集する';
-      t.onclick = () => { if(!editOn && !t.dataset.go){ editAsk(lastView.char, () => { editOn = true; fbe = null; fbNote = '編集したい本文や選択肢を押してください。選択肢を追加するときは［＋ 選択肢を追加］を押します。'; render(); }); return; } editOn = !editOn; fbe = null; fbNote = editOn ? '編集したい本文や選択肢を押してください。選択肢を追加するときは［＋ 選択肢を追加］を押します。' : ''; render(); };
+      t.onclick = () => { if(!editOn && !t.dataset.go){ editAsk(lastView.char, () => { editOn = true; fbe = null; fbNote = '編集したい本文や選択肢を押してください。選択肢を追加するときは［＋ 選択肢を追加］を押します。'; render(); }); return; } if(editOn && fbeDirty() && !confirm('書き換えた文を保存せずに、編集を終えますか？')) return; editOn = !editOn; fbe = null; fbNote = editOn ? '編集したい本文や選択肢を押してください。選択肢を追加するときは［＋ 選択肢を追加］を押します。' : ''; render(); };
       const mz = mzTagEl(v.char, v.para); // この場面に立っているメタゾンビの札（左）
       if(mz){ wrap.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px'; wrap.appendChild(mz); }
       if(editOn) wrap.style.marginTop = '14px'; // 編集中は、上の文の点線の枠（文の外へ 5px 出る）に、ボタンが重ならないようにあける
@@ -14240,7 +14320,8 @@ if(TEST_BUILD && !room){ soloPull().then(() => { if(store.get('take-save', false
 // 部屋に入っていれば、開いたとき・画面に戻ったとき・30秒ごとに、ほかの人の進み具合を読みこむ
 if(room){
   if(myDirty) myTouch('fast');
-  try { const n = sessionStorage.getItem('jtld-slot'); if(n){ sessionStorage.removeItem('jtld-slot'); provNote = '部屋で使う作品が「' + n + '」に替わりました。'; } } catch(e){}
+  try { const n = sessionStorage.getItem('jtld-slot'); if(n){ sessionStorage.removeItem('jtld-slot'); provNote = '部屋で使う作品が「' + n + '」に替わりました。前の作品の進行とロックは、残っています。'; window.scrollTo(0, 0); } } catch(e){}
+  if(roomLocal() && !isHost() && !store.get('welcomed', false)){ roomPanel = true; render(); setTimeout(() => { if(!typing()) render(); }, 21000); }
   peerStart(); if(roomLocal() && !isHost()) offTick();
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') peerStart(); });
   // 画面を離れるときに、まだ書いていない分を書く。開いているあいだは、3分ごとに「いる」印を書く
