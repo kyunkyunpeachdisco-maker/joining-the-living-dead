@@ -301,7 +301,7 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .help{margin:0 0 16px;font-size:12px;color:var(--dim);line-height:1.7;border:1px solid var(--line);border-radius:4px;padding:10px 12px}
 /* 画面の右端のつまみ：押すと、映像・地図が横から出入りする */
 .edgetab{position:fixed;right:0;z-index:9;writing-mode:vertical-rl;white-space:nowrap;background:#15171c;color:#cfc7b4;border:1px solid #4a4436;border-right:0;border-radius:6px 0 0 6px;padding:10px 5px;font-size:13px;letter-spacing:.2em;line-height:1;text-orientation:upright}
-.edgetab.on{background:#3a3220;color:#f0d890;border-color:#a8780a}
+.edgetab.on{background:#3a3220;color:#f0d890;border-color:#a8780a}.edgetab.trk{border-color:#e0b04a;color:#e0b04a}#drawerBody .mz-quest{margin:0 0 8px}
 #videoTab{top:58px}
 #drawer,#fbDrawer{position:fixed;right:0;top:112px;z-index:8;width:min(94vw,560px);transform:translateX(100%);transition:transform .22s ease-out}
 #drawer.open,#fbDrawer.open{transform:translateX(0)}
@@ -362,12 +362,12 @@ select{-webkit-appearance:none;appearance:none;background-color:#0f1013;color:#e
 .mz-tx{display:flex;flex-direction:column;gap:3px;min-width:0}.mz-tx .n{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.04em;color:var(--gold)}.mz-tx b{font-family:var(--f-mincho);font-size:16px}.mz-tx small{font-size:12px;color:var(--dim)}
 .mz-blood{pointer-events:none}
 .mz-ring{fill:none;stroke:#e0b04a;stroke-width:2.2;pointer-events:none}.mz-ring.trk{stroke-dasharray:5 3;animation:mzRing 1.4s linear infinite}@keyframes mzRing{to{stroke-dashoffset:-16}}
-.mz-way{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 12px;font-size:13px;color:#8d8778}.mz-card .mz-way{margin:10px 14px 12px}.mz-way button{background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.mz-way button.on{border-color:#e0b04a;color:#e0b04a;background:#231f14}.cm-q.mz-after{border-left-color:#6e9e6e}
+.mz-way{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 12px;font-size:13px;color:#8d8778}.mz-way button{background:none;border:1px solid #3a3a40;color:#c9c2b3;border-radius:99px;padding:4px 12px;font-size:13px}.mz-way button.on{border-color:#e0b04a;color:#e0b04a;background:#231f14}.cm-q.mz-after{border-left-color:#6e9e6e}
 .mz-hint{margin:8px 14px 0;font-size:13px;color:#c9c2b3}
 .mz-fx{position:absolute;inset:0;pointer-events:none;z-index:5}.mz-fx.cap{background:radial-gradient(circle,rgba(224,176,74,.85),rgba(224,176,74,0) 70%);animation:mzFx .7s ease-out forwards}.mz-fx.seal{background:rgba(255,255,255,.7);animation:mzFx .5s ease-out forwards}@keyframes mzFx{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
 .lg.capm{width:13px;border-radius:50%;border-color:#e0b04a;background:rgba(224,176,74,.18)}
 .mz-capm{fill:rgba(224,176,74,.18);stroke:#e0b04a;stroke-width:1.6;pointer-events:none}
-.lockbar.mz-quest{border-color:#6b5a2e}.lockbar.mz-quest b{color:#e0b04a}
+.mz-tag .sm.face{border-color:#e0b04a;color:#e0b04a;background:#231f14}.lockbar.mz-quest{border-color:#6b5a2e}.lockbar.mz-quest b{color:#e0b04a}
 .mz-blood circle{fill:#6a0a0a;opacity:.62}
 .planmap .mz-blood circle{fill:#d01c1c;opacity:.85;stroke:#3a0000;stroke-width:.8}
 @keyframes mz-blink{50%{opacity:.2}}
@@ -614,7 +614,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 13:20 23b52ff';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 23:18 0f774fe';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -6061,8 +6061,8 @@ function syncTuck(anim){
   if(tuck){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); wrap.classList.toggle('tucked', (mapOpen && !d.hidden) || (fbOpen && TEST_BUILD) || panelOpen() || menuOpen); }, 230); }
   else { wrap.classList.remove('tucked'); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); }
 }
-function townMapSvg(s, w, choices, live){
-  const B = bookOf(s), here = sceneOf(s).spot, mapId = B.spots[here].map || '', M = mapId ? B.maps[mapId] : B.map, seen = new Set([...(s.spots || []), here]);
+function townMapSvg(s, w, choices, live, at){ // at：今いる場所ではなく、その場所の載っている地図を出す（現在地の印は付けない）
+  const B = bookOf(s), here = at || sceneOf(s).spot, mapId = B.spots[here].map || '', M = mapId ? B.maps[mapId] : B.map, seen = new Set([...(s.spots || []), at ? '' : here]);
   const onMap = sp => sp.at && (sp.map || '') === mapId;
   const P = ([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`;
   const rx = y => M.river.x + M.river.amp * Math.sin(y / 30);
@@ -6108,7 +6108,7 @@ function townMapSvg(s, w, choices, live){
   for(const ch of choices) if(ch.dest && B.spots[ch.dest] && onMap(B.spots[ch.dest])) reach[ch.dest] = reach[ch.dest] === 'free' || !ch.risky ? 'free' : 'risk';
   for(const [id, sp] of Object.entries(B.spots)){
     if(!onMap(sp)) continue;
-    const [x, y] = sp.at, cur = id === here, known = seen.has(id);
+    const [x, y] = sp.at, cur = !at && id === here, known = seen.has(id);
     const lx = x + (sp.label?.[0] ?? 0), ly = y + (sp.label?.[1] ?? -12);
     g += cur ? `<circle cx="${x}" cy="${y}" r="12" class="m-here"/><circle cx="${x}" cy="${y}" r="3.2" fill="#b0281b"/>` : `<circle cx="${x}" cy="${y}" r="2.8" class="m-spot" fill="${known ? '#22190f' : '#f3e8cc'}" stroke="#22190f" stroke-width=".9"/>`;
     g += `<text x="${lx}" y="${ly}" class="m-label${cur ? ' m-label-here' : ''}">${escText(sp.short || sp.name)}${cur ? '（現在地）' : ''}</text>`;
@@ -6120,7 +6120,7 @@ function townMapSvg(s, w, choices, live){
   g += `<line x1="${M.w / 3}" y1="0" x2="${M.w / 3}" y2="${M.h}" class="m-fold"/><line x1="${M.w * 2 / 3}" y1="0" x2="${M.w * 2 / 3}" y2="${M.h}" class="m-fold"/><line x1="0" y1="${M.h / 2}" x2="${M.w}" y2="${M.h / 2}" class="m-fold"/>`;
   g += `<rect width="${M.w}" height="${M.h}" filter="url(#m-grain)" opacity=".35" pointer-events="none"/><rect width="${M.w}" height="${M.h}" fill="url(#m-burn)" pointer-events="none"/>`;
   return `<div class="map${mapZoom ? ' zoom' : ''}"><div class="map-tools"><button id="mapZoom">${mapZoom ? '縮小' : '拡大'}</button></div><div class="map-scroll" id="mapScroll"><svg viewBox="0 0 ${M.w} ${M.h}" role="img" aria-label="${M.title}"><defs>${defs}</defs>${g}</svg></div>`
-    + `<p>${M.note || '赤い丸が現在地。点線の道は、庭を抜ける道。'}</p></div>`;
+    + (at ? '</div>' : `<p>${M.note || '赤い丸が現在地。点線の道は、庭を抜ける道。'}</p></div>`);
 }
 
 function planOf(s){
@@ -6291,7 +6291,7 @@ const PLAN_EXTRAS = {
 // 館内図（旧作ホラー風）。行った部屋だけ色が付き、今いる部屋が光る
 let planFloorView = null;
 function planMapSvg(s, plan, taps = null, risks = {}){
-  const P = PLANS[plan], here = planOf(s);
+  const P = PLANS[plan], po = planOf(s), here = po && po.plan === plan ? po : null;
   const floor = planFloorView && P.floors.includes(planFloorView) ? planFloorView : here ? here.floor : P.rooms[P.hub].floor;
   const seen = new Set(s.rooms || []);
   const rooms = Object.entries(P.rooms).filter(([, r]) => r.floor === floor);
@@ -8883,23 +8883,23 @@ function howPages(kind){
     const keysLead = room ? '読んでいる本をロックして、本文の下にある［✎ 編集する］を押すと、いま見ている場面の内容を書き換えられます。' : '本文の下にある［✎ 編集する］を押すと、いま見ている場面の内容を書き換えられます。', keys = [B('本文') + '：本文を書き換えられます。', B('✔ 編集を終える'), B('選択肢') + '：選択肢の変更・削除ができます。', B('＋ 選択肢を追加')];
     // メタゾンビのページ（作る人と、招待された人で、同じ形。招待された人には、Issue・封印の時期の決め方・呪いの濃さ・配る側の操作を出さない）
     const mzHow = { t:'メタゾンビ', text:'メタゾンビは、文章に直す所がありそうな場面に取りつくお化けです。' + (room ? 'ゲームが本文を自動点検して配置します。' : '作業用リポジトリを設定すると、ゲームが本文を自動点検して配置します。') + '<br><br>' + (guest ? '1体ごとに通信スレッドが作られ、一覧の［メタゾンビ］で絞り込めます。強い順に並んだ「メタゾンビ図鑑」は［☰］→［作る］→［メタゾンビ図鑑］、または下の［メタゾンビ図鑑］から見られます。' : '1体ごとに作業用リポジトリの Issue（GitHub のタスク）と通信スレッドが作られ、Issue 番号がそのままメタゾンビの番号になります。通信一覧の［メタゾンビ］で絞り込めるほか、強い順に並んだ「メタゾンビ図鑑」は［☰］→［作る］→［メタゾンビ図鑑］、または下の［メタゾンビ図鑑］から見られます。'), list:[
-      ['封印する', 'スレッドの［✎ 直す］から場面の文章を直すと封印できます' + (guest ? '（封印のタイミングはホストが設定しています）。問題なければ［異常なし］で封印でき、［封印済み］へ移ります。' : room ? '。初期設定では修正が全員のゲームへ採用された時点で封印されますが、直してすぐ封印したいときは部屋の画面の［封印のタイミング］で［編集時すぐ］を選んでください。問題なければ［異常なし］で封印でき、［封印済み］へ移ります。' : '。問題なければ［異常なし］で封印でき、封印済みの一覧（［封印済み］）へ移ります。')],
+      ['封印する', '本の主人公が、メタゾンビのいる場面へ行くと、本文の下に［メタゾンビ #番号］が出ます。［メタゾンビ #番号］を押すと、スレッドが開きます。スレッドの［✎ 直す］から場面の文章を直すと、メタゾンビを封印できます' + (guest ? '（封印のタイミングはホストが設定しています）。文章に問題がなければ、［異常なし］を押して、メタゾンビを封印します。封印したメタゾンビは、通信一覧の［封印済み］へ移ります。' : room ? '。初期設定では、直した文章が全員のゲームに反映されると、メタゾンビが封印されます。文章を直してすぐメタゾンビを封印したいときは、部屋の画面の［封印のタイミング］で［編集時すぐ］を選んでください。文章に問題がなければ、［異常なし］を押して、メタゾンビを封印します。封印したメタゾンビは、通信一覧の［封印済み］へ移ります。' : '。文章に問題がなければ、［異常なし］を押して、メタゾンビを封印します。封印したメタゾンビは、通信一覧の［封印済み］へ移ります。') + (room ? 'ほかの人がロックしている本の文章は、直せません。誰もロックしていない本なら、［✎ 直す］を押すと、本をロックするかを聞かれます。' : '')],
       ['呼び出す', '気になった本文を長押し（パソコンでは右クリック）するか、通信メッセージを長押しして［メタゾンビにする］を押すと手動で1体呼び出せます。'],
       ['種類', '自動点検で配置されるのは次の3種類です。<br>・言い回し：「〜だけで」などが残っている場面<br>・抜け：主語や目的語（「何が」「何を」）が抜けている場面<br>・くり返し：同じ語尾の文が続いている場面<br>また、点検で1体も出なかった建物（州立グレンフォード病院など）やエリア（ノースエンドなど）にも「正体不明」が1体置かれます。'],
       ['強くなる', '強さは1〜5の5段階で、経過日数と出会った人数によって上がります。メタゾンビのいる場面へ入ると「出会った」記録がスレッドに残ります。<br>・日数の数え方：自動配置されたものは誰かが最初に出会った時から、手動で呼び出したものは呼び出した時から数えます。<br>・強さ3：メタゾンビが通信に書き込んできます。'
         + (room && !guest ? '<br>・呪いの濃さ：強さ3以上の未封印メタゾンビの強さを全冊分足した値です。40以上になると、採用ルールを［ホストの承認で反映］にしていても、ほかのメンバー1人の［賛成］で反映されるようになります。' : '')
         + '<br>・強さ5：全冊合わせて10体になると部屋のメンバーが自分を含め2人、20体になると3人必要です。人数が足りないと強さ5のいる場面から先へ進めなくなるため、' + (guest ? '部屋の画面の［招待リンクをコピー］で人を招待するか、' : room ? '部屋に人を招待するか、' : '［☰］の［部屋］で人を招待するか、') + '強さ5を封印してください。'],
-      ['地図で探す', 'メタゾンビのいる建物やエリア（見取り図では部屋）に血の汚れが付きます。地図の下には現在地の体数と、出会った分・呼び出した分の場面番号が出ます。スレッドの［地図で場所を見る］を押すと、該当する場所が地図上で金色の点線の輪で囲まれます。'],
+      ['地図で探す', 'メタゾンビのいる建物やエリア（見取り図では部屋）に血の汚れが付きます。地図の下には現在地の体数と、出会った分・呼び出した分の場面番号が出ます。スレッドの［地図で場所を見る］を押すと、地図が開きます。メタゾンビのいる場所が地図に載っていれば、その場所が金色の点線の輪で囲まれます。地図といっしょに出る［追うのをやめる］を押すと、点線の輪が消えます。'],
       ['公開したゲームへの影響', guest ? 'この部屋のゲームを外の人に公開した場合、未封印のメタゾンビがいる場面では映像や文章に怪奇現象が起きます。遊んだ人からの報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。' : 'リンクやファイルで公開したゲームでは、未封印のメタゾンビがいる場面で映像や文章に怪奇現象が起きます（止めたいときは' + (room ? '部屋の画面' : '［公開・共有］画面') + 'の［共有ゲームにメタゾンビを反映］のチェックを外してください）。遊んだ人が通信の［制作者へ］から送った報告は通信と図鑑に届き、スレッドの［受ける］を押すとメタゾンビとして登録されます。'],
     ], after:'※ 封印したあとに人の手を経ず文章が変わった場合（AI が書き換えたときなど）は、メタゾンビが復活します。', btn:['howMzBtn', 'メタゾンビ図鑑'] };
     // メタゾンビを直すときに使うもの（前は、上のページに全部入っていて、スマホで縦に長すぎた。遊んだ側からの報告、2026-11-21）
     const mzHow2 = { t:'メタゾンビを減らす', text:room ? 'メタゾンビをチームで効率よく減らすための機能です。' : 'メタゾンビを効率よく減らすための機能です。', list:[
       ...(room ? [['担当', 'スレッドの［担当になる］を押すと担当者になれ、呼び名がスレッド・通信一覧・図鑑に表示されます（呼び名は部屋の画面で設定します）。自分が担当している場所は地図上で金色の輪が付きます。強さ4以上で担当者がいないメタゾンビには、受け持ちの少ないメンバーが自動で指名されます（7日間来ていない人は対象外、1人1日3体まで）。辞退するときはスレッドの［担当をやめる］を押します。']] : []),
-      ['AI に頼む', 'スレッドの［AI に頼む］を押すと、文章修正の依頼が AI に届きます。AI が直した文章を確認して［承認して封印］を押すと封印完了です。返事のあとやり直したいときは［AI に再依頼］が使えます。なお、強さ5でまだ依頼していないメタゾンビには自動で依頼が付きます（1日3体まで）。'],
+      ['AI に頼む', '初期設定の直し方（［場面へ行って直す］）では、本の主人公が、メタゾンビのいる場面へ行くと、スレッドに［捕まえる］が出ます。［捕まえる］を押すと、文章を直す依頼を AI に出せます' + (guest ? '' : '（AI の動かし方は、次のページにあります）') + '。AI が文章を直すと、スレッドに、直した文章と［承認して封印］［AI に再依頼］が出ます。直した文章を確認して［承認して封印］を押すと、メタゾンビを封印できます。AI に文章をもう一度直してほしいときは、［AI に再依頼］を押します。なお、強さ5でまだ依頼していないメタゾンビには自動で依頼が付きます（1日3体まで）。'],
       ['対策本部', '［☰］→［作る］→［対策本部］から、メタゾンビの集計表を見られます。本ごと・種類ごと・発生元ごと（部屋では担当ごとも）に整理されており、数字を押すと該当分だけが通信一覧に絞り込まれます。'],
       ...(room ? [['対策会議', '部屋では、対策本部の表を上から5項目に分けて全員で順に確認する進捗会議を開けます。<br>・開始と参加：ホストが対策本部の［会議を始める］を押すと司会として始まり、ほかのメンバーには「対策会議が始まりました。」と［参加する］が出ます。会議中に別画面へ移った場合は［会議に戻る］から戻れます。<br>・進行と交代：司会が［次へ］を押すと全員の画面で注目枠が次へ移ります。ほかのメンバーが［司会を引き継ぐ］を押して司会を代わることもできます。<br>・外部通話：音声通話機能はないため、ホストが部屋の画面に外部通話サービスのリンクを保存しておき、対策本部の［通話を開く］から開いて併用します。<br>・終了と議事録：司会が［会議を終える］→［議事録を保存して終了］を押すと、メタゾンビの数・前回からの増減・会議中の動きをまとめた議事録スレッドが通信に立ち、以降の対策本部に前回比が出ます。']] : []),
       ['同じ言い回しを調べる', '文章を直して封印すると、消した言い回しがほかの場面に残っていないかを自動検索し、該当場面へ新しくメタゾンビを配置します（1回の修正につき5体まで）。新しく置かれたスレッドには参考として先の修正例が表示され、同じ言い回しが［異常なし］で2回封印されると、以降は配置されなくなります。'],
-      ['直し方を選ぶ', 'スレッドか図鑑で2つのモードを切り替えられます。<br>・［すぐ直す］：スレッドから［この場面へ行く］［✎ 直す］［AI に頼む］［異常なし］をいつでも押せます。<br>・［場面へ行って直す］：主人公がその場面にいる間だけ、本文の上とスレッドで操作できます（本文の上には［✎ 直す］［捕まえる］、スレッドには［✎ 直す］［捕まえる］［異常なし］が出ます）。映像では種類ごとに姿が変わり、強いほど近くに立ちます。［捕まえる］は AI に修正を頼むボタンで、直ったあとの［承認して封印］はどの場面にいても押せます。なお、本がもう進められないときは［場面へ行って直す］でもスレッドから［この場面へ行く］［✎ 直す］［捕まえる］を押せます。'],
+      ['直し方を選ぶ', 'メタゾンビ図鑑で、文章の直し方を次の2つから選べます。' + mzWayNote() + '<br>・［場面へ行って直す］（初期設定）：本の主人公がメタゾンビのいる場面にいる間だけ、スレッドに［✎ 直す］［捕まえる］［異常なし］が出ます。この直し方では、映像に映るメタゾンビの姿が種類ごとに変わり、強いメタゾンビほど近くに立ちます。AI が文章を直したあとの［承認して封印］は、どの場面にいても押せます。なお、物語が終わったときや、主人公がゾンビになったときなど、本をもう進められないときは、スレッドの［この場面へ行く］［✎ 直す］［捕まえる］を押せます。<br>・［すぐ直す］：どの場面にいても、スレッドの［この場面へ行く］［✎ 直す］［AI に頼む］［異常なし］を押せます。スレッドの［AI に頼む］ボタン（入力欄の上のチェックとは別のもの）を押すと、［捕まえる］と同じ依頼を AI に出せます。<br>［この場面へ行く］を押すと、メタゾンビのいる本が開き、その本の主人公が、メタゾンビのいる場面へ移ります。自分がロックしていない本や、もう進められない本では、移ったあとの進行は保存されません。'],
       ['絞り込む', '通信一覧の［絞り込み］で、本・場所・強さなどによる絞り込みや並び替え（新しく動いた順・強い順・古い順・本と場面の順）ができます。よく使う条件は［条件を保存］で残せます。'],
     ] };
     // 2人の書き換えがぶつからないための決まり
@@ -10585,6 +10585,8 @@ let menuOpen = false; // 右上の ☰ で開くメニュー
 let menuTab = 'book'; // メニューの中で、いま選んでいるタブ（book＝本、room＝部屋、make＝作る、etc＝そのほか）。開き直しても、前のタブのまま
 
 function render(){
+  // 自分がロックしたのに、試しのまま：進めた分が保存されない。試しを終わる（ロックの途中で画面を描き直すと、試しが始まり、そこで手を打つと残った）
+  if(trialOn() && !trial.prov && !trial.peek && room && mine(current) && !roomBusy){ if(trial.moved) roomNote = '本をロックせずに進めた内容は、保存されていません。'; trialEnd(); undoOpen = false; }
   if(trial && trial.c !== current){ if(trial.moved) trialKeep[trial.c] = trial; trial = null; }
   if(trial && !trial.moved && !trial.prov) provStart();
   if(!trial && histIndex === null && trialWanted()){ const pv = provOf(); if(pv && pv.c === current) provBack(pv); else if(trialKeep[current]){ trial = trialKeep[current]; delete trialKeep[current]; } else trialStart(); }
@@ -10604,6 +10606,7 @@ function render(){
   const menuSets = [
     ['book', '本', (TEST_BUILD ? CHAR_IDS : openIds()).map(id => { const st = !bookOpen(id) ? 'まだ出ていない本' : room ? (own[id] ? ownerName(own[id]) + 'がロック中' : '') : id === w.lock ? 'ロック中' : ''; return `<button data-char="${id}" class="${id === current ? 'on' : ''}"><span>${CHARS[id].name}の本</span>${st ? '<small>' + escText(st) + '</small>' : ''}</button>`; }).join('')
       + (mode === 'live' && undoCount() ? '<hr>' + mrow('undobtn', '1つ前に戻す', '', undoOpen) : '')
+      + (trialOn() && !trial.prov && histIndex === null && (trial.moved || histLen) ? '<hr>' + (trial.moved ? mrow('trialBack', 'もとの場面に戻る', '進行は保存されません') : '') + (histLen ? mrow('histOpen', 'これまでの履歴を読む') : '') : '')
       + (!room && w.lock ? '<hr><button id="saveBtn"><span>保存してロックを外す</span></button>' + (canDrop() ? '<button id="dropBtn"><span>保存せずにロックを外す</span></button>' : '') : '')],
     ['room', '部屋', EMBED ? '' : mrow('roombtn', room ? '部屋の管理' : '部屋を作る・招待された部屋に入る', room ? '部屋 ' + room : '', roomPanel) + (room ? mrow('menuLeave', '部屋を出る', 'タイトル画面に戻ります') : '')],   // 部屋の中には［タイトルへ］がないので、戻り方をここに出す（ユーザー「部屋作ったあとタイトルへの戻り方がよく分からない」、2026-11-20）
     ['make', '作る', TEST_BUILD ? mrow('flowbtn', 'フロー', '', flowOpen) + mrow('bookbtn', '本を追加', '', bookPanel === true) + mrow('autobtn', '自動提案', '', bookPanel === 'auto') + mrow('chgbtn', '変更履歴', chgList().length ? chgList().length + ' 件' : '', chgPanel)
@@ -10619,7 +10622,10 @@ function render(){
     + '<div class="ml">' + menuSets.find(x => x[0] === menuTab)[2] + '</div>'
     + (TEST_BUILD ? '' : `<div style="font-size:11px;color:#6a6458;text-align:right;padding-top:6px">${APP_VERSION}</div>`); // 編集版では出さない（どの版かは、意見を送るときに自動で付く）
   const lkReal = room ? null : realIO(() => loadWorld().lock), lkOn = room ? mine(current) : lkReal === current;
-  const whose = `<span><b>${CHARS[current].name}</b>${lkOn ? '<span class="lk on">ロック中</span>' : !room && !lkReal ? '<button class="lk" id="lockAsk">ロックなし</button>' : room && own[current] ? '' : '<span class="lk">ロックなし</span>'}</span>`;
+  // ロックの状態は、上の帯の札に出す。本文の前後に、状態の箱を並べない（ユーザー「全パラグラフの文より前にロック状態とターゲットが表示されるのは微妙」「UIの問題」、2026-11-26）
+  const tryOn = trialOn() && !trial.prov, other = room ? own[current] : null;
+  const pill = tryOn && trial.moved ? '<button class="lk" id="stPill">進行は保存されません</button>' : lkOn ? '<span class="lk on">ロック中</span>' : other ? '<button class="lk" id="stPill">' + ownerName(other) + 'がロック中</button>' : '<button class="lk" id="lockAsk">ロックなし</button>';
+  const whose = `<span><b>${CHARS[current].name}</b>${pill}</span>`;
 
   let html = '', drawerHtml = '';
   if(mode === 'history'){
@@ -10658,9 +10664,8 @@ function render(){
     // 結果の段落（res の付いた段落）と結果のページのあいだは、映像は、もとの場面のまま。地図や番号から、ほかの場面へは移れない
     const hold = resOn || !!paraOf(s)?.res;
     document.getElementById('stat').innerHTML = whose + statHtml(resOn && s.resClock ? { ...v, clock:s.resClock } : v);
-    if(mode === 'live' && trialOn() && !(trial.prov && provList)){
-      const own0 = room ? own[current] : null, lk = !room && realIO(() => loadWorld().lock), other = own0 ? ownerName(own0) + 'がロックしている本です。' : lk ? CHARS[lk].name + 'の本をロック中です。' : 'ロックなし';
-      html += '<div class="lockbar"><b>' + (trial.prov ? offRoom() ? 'ホストとつながっていません' : '部屋に反映していない進行があります' : other) + '</b>' + (trial.prov ? '（つながるまでの自分の進行は、保存されます）' : '（進行は保存されません）') + (trial.moved ? '<button id="trialBack">' + (trial.prov ? '自分の進行を取り消す' : 'もとの場面に戻る') + '</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
+    if(mode === 'live' && trialOn() && trial.prov && !provList){
+      html += '<div class="lockbar"><b>' + (offRoom() ? 'ホストとつながっていません' : '部屋に反映していない進行があります') + '</b>' + '（つながるまでの自分の進行は、保存されます）' + (trial.moved ? '<button id="trialBack">' + '自分の進行を取り消す' + '</button>' : '') + (histLen ? '<button id="histOpen">これまでの履歴を読む</button>' : '') + '</div>';
       if(undoOpen && undoCount()) html += undoListHtml(s);
     } else if(mode === 'live'){ if(undoOpen && undoCount()) html += undoListHtml(s); } // 自分が進めている間は帯を出さない（ロックを外すは ☰ の中）
     else if(room) html += own[current]
@@ -10674,7 +10679,6 @@ function render(){
     if(wait.length) html += `<div class="lockbar other">${roomGap() ? `<b>${fmt(s.clock)}まで来ました。</b>${wait.map(o => CHARS[o.char].name + '（今 ' + fmt(o.clock) + '）').join('と')}が${fmt(s.clock - roomGap())}を過ぎるまで、先へは進めません` : `<b>${PERIOD_NAMES[periodOf(s.clock)]}に入りました。</b>${wait.map(o => CHARS[o.char].name).join('と')}が${PERIOD_NAMES[periodOf(s.clock) - 1]}を終えるまで、先へは進めません`}${mode !== 'live' ? '' : !room ? '<button id="endSave">保存してロックを外す</button>' + wait.filter(o => openIds().includes(o.char)).map(o => '<button data-hop="' + o.char + '">保存して、' + CHARS[o.char].name + 'の本へ移る</button>').join('') : wait.every(o => Date.now() - (store.get('ats', {})[o.char] || 0) >= STALE) ? '<br>30分のあいだ動きがないので、待たずに進めます。そのときは、相手がこのあと、あなたの時刻より前にすることは、あなたの本には出ません<button id="skipWait">待たずに先へ進む</button>' : ''}</div>`;
     // 人手が足りない：強いメタゾンビのいる場面から先へ進めない（編集版。部屋に人を招待するか、封印すれば進める）
     const gate = mode === 'live' && !resOn ? mzGate(s.char, s.para) : 0;
-    if(mode === 'live') html += mzQuestHtml(s);
     if(gate) html += '<div class="lockbar other">強さ5のメタゾンビが増えたので、先へ進むには、メンバーがあと ' + gate + ' 人要ります。' + (room ? '部屋に人を招待するか' : '［☰］の［部屋］で部屋を作って人を招待するか') + '、強さ5のメタゾンビを封印すると、進めます。</div>';
     let vh = viewHtml(v, { notices, interactive:mode === 'live' && !wait.length && !gate, resNext:resOn ? s.resNext : '' });
     const spNow = s.status === 'active' && !hold ? spotOf(s) : null;
@@ -10695,6 +10699,13 @@ function render(){
     if(mode === 'live') store.set('player-' + current, s); // 届いた気配を既読にする
     if(!hold || !Cut.built) setCutscene(cctvState(s, w)); // 結果のページ・結果の段落のあいだ、映像は、もとの場面のまま
     mzPubNoSignal(s);
+  }
+  // 追っているメタゾンビのいる場所の地図を出す：今いる場面に地図がないとき。地図があっても、［地図で場所を見る］を押したときに、その地図に載っていなければ
+  mzAimNow = null; if(!mapOpen && mzAimAt !== null){ mzAimAt = null; planFloorView = null; }
+  if(mode === 'live' && mzOn()){
+    const a = mzAimOf(s), po = planOf(s), sp = s.status === 'active' && !po ? spotOf(s) : null;
+    if(a && (!drawerHtml || (mzAimAt === mzTrackKey() && !(a.plan ? po && po.plan === a.plan : sp && (sp.map || '') === (a.sp.map || ''))))){ mzAimNow = a; drawerHtml = a.plan ? planMapSvg(s, a.plan) : townMapSvg(s, w, [], false, a.id); }
+    drawerHtml = mzQuestHtml(s) + drawerHtml; // 追っているメタゾンビは、地図の上に出す
   }
   if(!resOn) html += resultHtml();
   if(room && roomNote && !roomPanel) html = '<div class="fb panel"><div class="note">' + roomNote + '</div></div>' + html;
@@ -10718,7 +10729,7 @@ function render(){
   drawer.hidden = !drawerHtml; drawer.classList.toggle('open', mapOpen && !!drawerHtml);
   document.getElementById('drawerBody').innerHTML = drawerHtml;
   decorateMap();
-  document.getElementById('mapTab').classList.toggle('on', mapOpen);
+  document.getElementById('mapTab').classList.toggle('on', mapOpen); document.getElementById('mapTab').classList.toggle('trk', !!document.querySelector('#drawerBody .mz-quest'));
   const fbD = document.getElementById('fbDrawer');
   const fbCan = TEST_BUILD || !!room || !EMBED;
   fbD.hidden = !fbCan; fbD.classList.toggle('open', fbOpen && fbCan);
@@ -10741,14 +10752,14 @@ function render(){
     { const rn = document.getElementById('resNext'); if(rn) rn.onclick = resNext; }
     document.querySelectorAll('[data-spot]').forEach(el => el.onclick = () => { const ch = choices.find(c => c.dest === el.dataset.spot && !c.risky); if(ch) act(ch); });
   }
-  on('histOpen', () => { histIndex = Math.max(0, histLen - 1); render(); window.scrollTo(0, 0); });
+  on('histOpen', () => { menuOpen = false; histIndex = Math.max(0, histLen - 1); render(); window.scrollTo(0, 0); });
   document.querySelectorAll('.tabs button[data-char]').forEach(b => b.onclick = () => { selectedBlock = null; histIndex = null; current = b.dataset.char; store.set('current', current); menuOpen = false; render(); window.scrollTo(0, 0); askLock(); });
   on('lockBtn', takeLock);
   on('saveBtn', () => { menuOpen = false; releaseLock(); });
   on('endSave', releaseLock);
   document.querySelectorAll('[data-hop]').forEach(el => { el.onclick = () => hopBook(el.dataset.hop); });
   on('dropBtn', dropLock);
-  on('trialBack', () => { if(trialOn() && trial.prov){ if(provWait || !confirm(CHARS[trial.c].name + 'の本で、ホストとつながっていない間に進めた' + trial.moved + '手を取り消しますか？')) return; store.remove('prov'); provList = null; } trialEnd(); undoOpen = false; render(); window.scrollTo(0, 0); });
+  on('trialBack', () => { if(trialOn() && trial.prov){ if(provWait || !confirm(CHARS[trial.c].name + 'の本で、ホストとつながっていない間に進めた' + trial.moved + '手を取り消しますか？')) return; store.remove('prov'); provList = null; } trialEnd(); undoOpen = menuOpen = false; render(); window.scrollTo(0, 0); });
   on('roomDrop', dropLock);
   on('skipWait', () => { const p = loadPlayer(current), ats = store.get('ats', {}); p.skipped = Object.assign(p.skipped || {}, Object.fromEntries(behind(p).map(o => [o.char, ats[o.char] || 0]))); store.set('player-' + current, p); render(); });
   document.querySelectorAll('[data-claim]').forEach(el => { el.onclick = () => { current = el.dataset.claim; store.set('current', current); roomClaim(current); }; });
@@ -10873,7 +10884,8 @@ function render(){
   placePosters();
   mzPubDecorate(); mzPubArrive(mode);
   on('undobtn', () => { menuOpen = false; undoOpen = true; render(); window.scrollTo(0, 0); });
-  on('lockAsk', () => askLock());
+  const stMenu = () => { menuTab = 'book'; menuOpen = true; render(); window.scrollTo(0, 0); };
+  on('stPill', stMenu); on('lockAsk', () => { askLock(); if(!document.getElementById('lockAskBox')) stMenu(); });
   on('undoClose', () => { undoOpen = false; render(); });
   document.querySelectorAll('.undolist button[data-undo]').forEach(b => b.onclick = () => undoTo(+b.dataset.undo));
   on('menubtn', () => { menuOpen = !menuOpen; render(); });
@@ -10896,7 +10908,7 @@ function render(){
   document.querySelectorAll('.pm-tabs button').forEach(b => b.onclick = () => { planFloorView = b.dataset.floor; render(); });
   const scroller = document.getElementById('mapScroll');
   if(scroller && mapZoom){
-    const at = spotOf(s)?.at, l = at ? { x:at[0], y:at[1] } : LANDMARKS[s.place] || { x:MAP_W / 2, y:MAP_H / 2 }, k = scroller.scrollWidth / MAP_W;
+    const at = mzAimNow ? mzAimNow.sp.at : spotOf(s)?.at, l = at ? { x:at[0], y:at[1] } : LANDMARKS[s.place] || { x:MAP_W / 2, y:MAP_H / 2 }, k = scroller.scrollWidth / MAP_W;
     scroller.scrollLeft = l.x * k - scroller.clientWidth / 2;
     scroller.scrollTop = l.y * k - scroller.clientHeight / 2;
   }
@@ -10906,7 +10918,7 @@ function render(){
     if(videoOn){ wrap.classList.add('slideout'); setTimeout(() => { wrap.classList.remove('slideout'); videoOn = false; store.set('video', false); render(); }, 230); }
     else { videoOn = true; store.set('video', true); wrap.classList.add('slidein'); setTimeout(() => wrap.classList.remove('slidein'), 260); render(); }
   });
-  on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); placeTabs(); setTimeout(placeTabs, 260); });
+  on('mapTab', () => { if(fbOpen){ fbOpen = false; mapOpen = true; render(); return; } mapOpen = !mapOpen; if(!mapOpen && mzAimAt !== null){ render(); syncTuck(true); placeTabs(); setTimeout(placeTabs, 260); return; } document.getElementById('drawer').classList.toggle('open', mapOpen); document.getElementById('mapTab').classList.toggle('on', mapOpen); syncTuck(true); placeTabs(); setTimeout(placeTabs, 260); });
   on('roombtn', () => { roomPanel = true; packPanel = linkPanel = bookPanel = false; menuOpen = false; render(); });
   on('screenClose', () => { const back = screenBack; screenBack = null; chgPanel = mzPanel = false; mzAsk = ''; mzNote = ''; roomPanel = packPanel = linkPanel = bookPanel = false; roomNote = ''; ghNote = ''; render(); if(back && !room){ front = back; frontRender(); } });
   on('roomNew', () => roomCreate()); on('roomPlay', () => roomCreate(true)); on('roomTake', () => { roomTake(); render(); });
@@ -10972,7 +10984,6 @@ function render(){
   document.querySelectorAll('[data-mztrack]').forEach(el => { el.onclick = () => mzTrack(el.dataset.mztrack); });
   document.querySelectorAll('[data-mzqopen]').forEach(el => { el.onclick = () => { mapOpen = false; mzOpenThread(el.dataset.mzqopen); }; }); // 追っている知らせの［スレッドを開く］。図鑑のカード（data-mzthread）とは別にする（同じ名前にして、図鑑の動きを上書きしていた）
   on('mzTrackNo', () => { store.remove('mz-track'); render(); });
-  on('mzMapOpen', () => { mapOpen = true; render(); });
   document.querySelectorAll('[data-mzok]').forEach(el => { el.onclick = () => { mzAsk = 'ok:' + el.dataset.mzok; render(); }; });
   document.querySelectorAll('[data-mzokyes]').forEach(el => { el.onclick = () => mzNothing(el.dataset.mzokyes); });
   document.querySelectorAll('[data-mzno]').forEach(el => { el.onclick = () => { mzAsk = ''; render(); }; });
@@ -11699,6 +11710,11 @@ function cmOnScroll(){
 function cmGo(at){
   const sc = cmSceneOf(at); if(!sc) return;
   fbOpen = false; cmSheet = ''; histIndex = null; menuOpen = false; current = sc.c; store.set('current', current); render();
+  if(!trialOn() && canActReal() && CHARS[current]){ // 自分が進めている本（ユーザー、2026-11-26：［この場面へ行く］は、ゲームの進行を気にせず、行けるでいい）
+    const p = loadPlayer(current);
+    if(p.status === 'active'){ if(p.para !== sc.n) flowJump(sc.n, '通信'); window.scrollTo(0, 0); return; }
+    if(BOOKS[current].paras[sc.n]){ trialStart(); trial.peek = true; const q = loadPlayer(current); q.book = current; store.set('player-' + current, q); } // 終わった本・ゾンビになった本：進行は変えずに、保存しない試しで、その場面を開く
+  }
   if(trialOn()){
     const p = loadPlayer(current), bk = BOOKS[p.book];
     if(bk && bk.paras[sc.n] && p.para !== sc.n){ const sp = Object.values(bk.spots || {}).find(x => x.no === sc.n); p.para = sc.n; p.menu = null; p.msg = ''; if(sp && sp.place) p.place = sp.place; store.set('player-' + current, p); trial.moved++; render(); }
@@ -11907,7 +11923,7 @@ function fbMic(){
 let mapMark = null; // null：何もしていない　true：置く所を待っている　{x, y, text}：文を書いている
 function decorateMap(){
   const body = document.getElementById('drawerBody'), svg = body.querySelector('.map-scroll svg'), s = loadPlayer(current), sp = s.status === 'active' ? spotOf(s) : null;
-  if(body.firstChild) mzRadar(body, s, sp); // メタゾンビのレーダー（編集版と、呪われた配った版）
+  if(body.firstChild) mzRadar(body, s, sp); if(mzAimNow) return; // メタゾンビのレーダー（編集版と、呪われた配った版）
   if(TEST_BUILD && sp && planOf(s) && (!sp.dyn || sp.room)){ roomBox(body, s, sp); return; }
   if(!TEST_BUILD || !svg || !sp || !sp.at || planOf(s)) return;
   const mk = 'map:' + (sp.map || s.book), NS = 'http://www.w3.org/2000/svg', now = Date.now();
@@ -12732,7 +12748,7 @@ function flowHtml(){
     return '<div class="fb panel"><b>フロー：' + CHARS[s.char].name + 'の本</b>'
       + '<div class="row" style="margin:8px 0"><button id="flowList">一覧で見る</button>' + (at !== s.para ? '<button id="flowHere">今いる場面へ戻す</button>' : '') + (can && at !== s.para ? '<button data-jump="' + at + '">この場面へ移る</button>' : '') + '</div>'
       + '<p>箱を押すと、その場面が真ん中に来ます。左は来る道、右は出る道です。</p>'
-      + '<div class="lgd"><span><i class="lg cur"></i>見ている場面</span><span><i class="lg here"></i>主人公が今いる場面</span><span><i class="lg draft"></i>足した選択肢</span></div>' + (walkOnly ? '<p>［場面へ行って直す］を選んでいるあいだは、［この場面へ移る］は表示されません。</p>' : '')
+      + '<div class="lgd"><span><i class="lg cur"></i>見ている場面</span><span><i class="lg here"></i>主人公が今いる場面</span><span><i class="lg draft"></i>足した選択肢</span></div>' + (walkOnly ? '<p>直し方が［場面へ行って直す］のときは、見ている場面へ移れません。直し方は、メタゾンビ図鑑で選べます。</p>' : '')
       + '<svg class="flowmap" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="フロー">' + g + '</svg>'
       + '<p>' + esc(at + '　' + name(at)) + (ins.length ? '' : '　ここへ来る道は、見つかりません（本の初めの場面か、行き先が選んだときに決まる選択肢から来る場面）。') + '</p>'
       + (body.trim() ? '<div class="flowtext"><b>' + at + ' の文章</b>' + scBodyHtml(body) + '</div>' : '') + '</div>';
@@ -12747,13 +12763,13 @@ function flowHtml(){
   }).join('');
   return '<div class="fb panel"><b>フロー：' + CHARS[s.char].name + 'の本</b>'
     + '<div class="row" style="margin:8px 0"><button id="flowMap">図で見る</button></div>'
-    + '<p>' + (can ? '番号を押すと、その場面へ移ります。試すための機能です。上の「1つ前に戻す」で、移る前に戻れます。' : walkOnly ? '［場面へ行って直す］を選んでいるあいだは、番号を押しても、その場面へ移れません。' : '自分が進めている本なら、番号を押して、その場面へ移れます。') + '明るい字は、通った場面。金色の線が、今いる場面。</p>' + rows + '</div>';
+    + '<p>' + (can ? '番号を押すと、その場面へ移ります。試すための機能です。上の「1つ前に戻す」で、移る前に戻れます。' : walkOnly ? '直し方が［場面へ行って直す］のときは、場面の番号を押しても、場面へ移れません。直し方は、メタゾンビ図鑑で選べます。' : '自分が進めている本なら、番号を押して、その場面へ移れます。') + '明るい字は、通った場面。金色の線が、今いる場面。</p>' + rows + '</div>';
 }
-function flowJump(no){
+function flowJump(no, from){
   if(!TEST_BUILD || !canAct()) return;
   const w = loadWorld(), s = loadPlayer(current);
   if(s.status !== 'active' || !bookOf(s).paras[no]) return;
-  pushUndo(w, s); record(s, '（フローから ' + no + ' へ移る）');
+  pushUndo(w, s); record(s, '（' + (from || 'フロー') + 'から ' + no + ' へ移る）');
   s.msg = ''; s.menu = null; s.aware = null; s.follow = null; s.offcam = false; s.pose = null; s.spos = null; s.scam = null; s.after = null;
   go(s, w, no);
   const p = paraOf(s); if(p.spot){ s.spots = s.spots || []; if(!s.spots.includes(p.spot)) s.spots.push(p.spot); }
@@ -13326,9 +13342,9 @@ async function mzCmDel(id){
 }
 // ===== 歩いて探す（ユーザー、2026-11-20：スレッドから直すと「ただ校正するだけの作業」になる。地図で場所を確かめて、自分で行く道も選べるようにする） =====
 // 追っているメタゾンビ：［地図で場所を見る］を押したもの。1体だけ。端末に覚える。封印されたら、外れる
-// 直し方（端末ごと。mz-way）：fast＝すぐ直す（スレッドから、場面へ行く・直す・AI に頼む・異常なし、ができる。初め）／walk＝場面へ行って直す（主人公が、メタゾンビのいる場面にいるときだけ、できる）。
+// 直し方（端末ごとに1つ。mz-way。切り替えはメタゾンビ図鑑だけ）：walk＝場面へ行って直す（初め。主人公が、メタゾンビのいる場面にいるときだけ、できる）／fast＝すぐ直す（スレッドから、場面へ行く・直す・AI に頼む・異常なし、ができる）。
 // ユーザーの絵：超能力（AI）でメタゾンビを倒せるが、それには、メタゾンビと向き合わないといけない。場所を確かめるボタン（［地図で場所を見る］）・担当・返信は、どちらでも出す。本をもう進められないときは、walk でも全部出す（歩いて行けないので）
-const mzWalk = () => store.get('mz-way', 'fast') === 'walk';
+const mzWalk = () => store.get('mz-way', 'walk') !== 'fast';
 const mzAt = z => !!z && histIndex === null && !!lastView && lastView.char === z.book && lastView.para === z.para; // 主人公が、いまその場面にいる（前の場面を見返しているときは、数えない）
 const mzStuck = z => { try { const p = loadPlayer(z.book); return !!p && p.status !== 'active'; } catch(e){ return false; } }; // その本は、もう進められない
 const mzCanAct = z => !mzWalk() || mzAt(z) || mzStuck(z);
@@ -13340,7 +13356,8 @@ function mzFx(kind){
   if(!mzWalk()) return; // ［すぐ直す］は、静かなまま
   try { Cut.ghostFx = { kind, at:performance.now() }; mzSnd(kind); const box = document.getElementById('cutscene'); if(!box || box.hidden) return; const e = document.createElement('div'); e.className = 'mz-fx ' + kind; box.appendChild(e); setTimeout(() => e.remove(), 1300); } catch(e){}
 }
-const mzWayHtml = () => '<div class="mz-way"><span>直し方</span><button data-mzway="fast"' + (mzWalk() ? '' : ' class="on"') + '>すぐ直す</button><button data-mzway="walk"' + (mzWalk() ? ' class="on"' : '') + '>場面へ行って直す</button></div>';
+const mzWayHtml = () => '<div class="mz-way"><span>直し方</span><button data-mzway="walk"' + (mzWalk() ? ' class="on"' : '') + '>場面へ行って直す</button><button data-mzway="fast"' + (mzWalk() ? '' : ' class="on"') + '>すぐ直す</button>' + (mzWayNote() ? '<small style="flex-basis:100%">' + mzWayNote() + '</small>' : '') + '</div>';
+const mzWayNote = () => (room ? 'メンバーは、直し方を1人ずつ別々に選べます。' : '');
 const mzTrackKey = () => { const k = mzOn() ? store.get('mz-track', '') : '', z = k && mzOfKey(k); return z && mzLive(z) ? k : ''; };
 const mzMineWho = z => !!room && !!myName() && !!z && z.labels.includes(MZ_WHO + myName()); // 自分が担当している
 function mzTrack(k){
@@ -13348,33 +13365,37 @@ function mzTrack(k){
   store.set('mz-track', k);
   fbOpen = false; cmSheet = ''; histIndex = null; menuOpen = false; roomPanel = packPanel = linkPanel = bookPanel = false;
   if(current !== z.book && CHARS[z.book] && openIds().includes(z.book)){ current = z.book; store.set('current', current); }
-  mapOpen = true; render();
+  { const a = mzAimOf(loadPlayer(current)); planFloorView = a && a.plan ? PLANS[a.plan].rooms[a.sp.room].floor : null; }
+  mapOpen = true; mzAimAt = k; render();
 }
-// 本文の上の知らせ：追っているメタゾンビの場所と、いまいる場面との関係
+// 追っているメタゾンビのいる場所の載っている地図：{ id（街の地図に載っている場所）か plan（見取り図）, sp（その場所） }。地図に載らないなら null
+// 街を歩く場面のほかは、地図がない。前は、そこで［地図で場所を見る］を押すと、何も開かなかった（ユーザー、2026-11-25）
+let mzAimAt = null, mzAimNow = null; // ［地図で場所を見る］で開いている相手・いま、今いる場所の代わりに出している地図
+function mzAimOf(s){
+  const k = mzTrackKey(), z = k && mzOfKey(k), B = z && BOOKS[z.book]; if(!B || !B.spots || z.book !== s.char || s.book === 'monster' || histIndex !== null) return null;
+  const sp = Object.values(B.spots).find(x => x && x.name === z.place); if(!sp) return null;
+  const inside = sp.room && PLANS[sp.place] && PLANS[sp.place].rooms[sp.room], po = planOf(s);
+  if(inside && po && po.plan === sp.place) return { plan:sp.place, sp };
+  const id = Object.keys(B.spots).find(i => B.spots[i] === sp && Array.isArray(sp.at)) || Object.keys(B.spots).find(i => B.spots[i].place === sp.place && Array.isArray(B.spots[i].at));
+  if(id && (B.spots[id].map ? (B.maps || {})[B.spots[id].map] : B.map)) return { id, sp:B.spots[id] };
+  return inside ? { plan:sp.place, sp } : null;
+}
+// 地図の引き出しの中に出す：追っているメタゾンビの場所と、いまいる場面との関係
 function mzQuestHtml(s){
-  const k = mzTrackKey(); if(!k) return mzFaceHtml(s, '');
-  const z = mzOfKey(k), B = BOOKS[z.book]; if(!B) return mzFaceHtml(s, '');
-  let where = '', fix = false;
+  const k = mzTrackKey(); if(!k) return '';
+  const z = mzOfKey(k), B = BOOKS[z.book]; if(!B) return '';
+  let where = '';
   if(s.char !== z.book) where = (CHARS[z.book] ? CHARS[z.book].name + 'の本の、' : '') + (z.place || '場面 ' + z.para) + 'にいます。';
-  else if(s.para === z.para){ where = 'この場面にいます。'; fix = true; }
+  else if(s.para === z.para){ where = 'この場面にいます。'; }
   else {
     const zsp = Object.values(B.spots || {}).find(x => x && x.name === z.place), cur = B.spots[(sceneOf(s) || {}).spot] || {}, here = zsp && zsp.place && (cur.place || s.place) === zsp.place;
-    where = here ? (PLACES[zsp.place] || z.place) + 'のどこかにいます。選択肢を選んで、メタゾンビを探してください。' : (z.place || '場面 ' + z.para) + 'にいます。地図に、金色の輪が付きます。';
+    where = here ? (PLACES[zsp.place] || z.place) + 'のどこかにいます。選択肢を選んで、メタゾンビを探してください。' : (z.place || '場面 ' + z.para) + 'にいます。' + (mzAimOf(s) ? '地図の金色の点線の輪が、その場所です。' : '');
     if(s.status !== 'active') where += CHARS[z.book].name + 'の本は、もう進められません。［スレッドを開く］を押して、［この場面へ行く］を押してください。';
   }
   return '<div class="lockbar mz-quest"><b>追っているメタゾンビ</b><span style="flex-basis:100%">#' + z.n + '　' + escText(z.title) + '</span><span style="flex-basis:100%">' + escText(where) + '</span>'
-    + (fix ? '<button data-mzfix="' + k + '">✎ 直す</button>' + mzAiBtn(z, k) : '') + '<button data-mzqopen="' + k + '">スレッドを開く</button><button id="mzTrackNo">追うのをやめる</button></div>' + mzFaceHtml(s, k);
+    + '<button data-mzqopen="' + k + '">スレッドを開く</button><button id="mzTrackNo">追うのをやめる</button></div>';
 }
-const mzAiBtn = (z, k) => (cmAiCan() && !mzCap(z) ? '<button data-mzai="' + k + '">' + mzAiWord() + '</button>' : '');
-// 場面へ行って直す、のとき：いまの場面にいるメタゾンビを、本文の上に出す（追っているものは、上の知らせに出ているので、除く）
-function mzFaceHtml(s, skip){
-  if(!mzOn() || !mzWalk() || histIndex !== null) return '';
-  const here = mzHere(s.char, s.para).filter(z => mzKey(z) !== skip), free = here.filter(z => !mzCap(z)), caps = here.filter(mzCap);
-  return free.slice(0, 3).map(z => { const k = mzKey(z); return '<div class="lockbar mz-quest"><b>メタゾンビが取りついています</b><span style="flex-basis:100%">#' + z.n + '　' + escText(z.title) + '</span>'
-    + (z.s ? '<span style="flex-basis:100%">' + escText(z.s) + '</span>' : '') + (cmAiCan() ? '<span style="flex-basis:100%">［捕まえる］を押すと、AI に、文章を直すように頼みます。</span>' : '') + '<button data-mzfix="' + k + '">✎ 直す</button>' + mzAiBtn(z, k) + '<button data-mzqopen="' + k + '">スレッドを開く</button></div>'; }).join('')
-    + (caps.length ? '<div class="lockbar mz-quest"><b>メタゾンビを捕まえてあります</b><span style="flex-basis:100%">AI が文章を直したら、スレッドの［承認して封印］を押してください。</span>' + caps.slice(0, 4).map(z => '<button data-mzqopen="' + mzKey(z) + '">#' + z.n + ' のスレッドを開く</button>').join('') + '</div>' : '') + mzNearHtml(s);
-}
-// いまいる建物やエリアにいる、まだ捕まえていないメタゾンビの数（いまの場面にいるものは、上の知らせに出ているので、数えない）。「近い・遠い」は出さない（場面のつながりは、計算で追いきれない）
+// いまいる建物やエリアにいる、まだ捕まえていないメタゾンビの数（いまの場面にいるものは、数えない）。「近い・遠い」は出さない（場面のつながりは、計算で追いきれない）
 function mzNear(s){ // { place, n }。場所が分からなければ null
   const B = BOOKS[s.char]; let cur = {}; try { cur = (B && B.spots && B.spots[(sceneOf(s) || {}).spot]) || {}; } catch(e){} if(!cur.place) return null;
   const byName = {}; for(const x of Object.values(B.spots)) if(x && x.name && !byName[x.name]) byName[x.name] = x;
@@ -13386,10 +13407,6 @@ function mzNearBlip(){
   let nr = null; try { nr = mzNear(loadPlayer(lastView.char)); } catch(e){}
   const key = nr ? lastView.char + ':' + nr.place : ''; if(key === mzNearLast) return; mzNearLast = key;
   if(nr && nr.n){ cutStatic(160); mzSnd('radio'); }
-}
-function mzNearHtml(s){
-  const cur = mzNear(s), n = cur ? cur.n : 0; if(!n) return '';
-  return '<div class="lockbar mz-quest"><span style="flex-basis:100%">' + escText(PLACES[cur.place] || cur.place) + 'に、まだ捕まえていないメタゾンビが' + n + '体、取りついています。</span><button id="mzMapOpen">地図を開く</button></div>';
 }
 // ［✎ 直す］：その場面へ行って、引っかかった文のある段落の、直す欄を開く
 function mzFix(k){ const z = mzOfKey(k); if(z && mzCanAct(z)) editAsk(z.book, () => mzFixGo(k)); }
@@ -13564,7 +13581,7 @@ function mzThreadHtml(k){
         + (room ? '<button data-mzwho="' + k + '">' + (meWho ? '担当をやめる' : '担当になる') + '</button>' : '')
         + (live && act && cmAiCan() && !aiOn ? '<button data-mzai="' + k + '">' + mzAiWord() + '</button>' : '') + (live && act && cmAiCan() && aiOn && !mzAiWait(k) ? '<button data-mzai="' + k + '">AI に再依頼</button>' : '') + (live && aiDone ? '<button data-mzap="' + k + '">承認して封印</button>' : '') + (z.url && !(room && !isHost()) ? '<a href="' + escAttr(z.url) + '" target="_blank" rel="noopener">GitHub で開く</a>' : '') + '</div>'
         + (live && act && mzWalk() && cmAiCan() && !aiOn ? '<div class="mz-hint">［捕まえる］を押すと、AI に、文章を直すように頼みます。</div>' : '')
-        + (act ? (live && mzWalk() && !mzAt(z) ? '<div class="mz-hint">' + escText(CHARS[z.book] ? CHARS[z.book].name : z.book) + 'の本は、もう進められません。スレッドから、メタゾンビを直せます。</div>' : '') : '<div class="mz-hint">主人公が、メタゾンビのいる場面へ行くと、メタゾンビを直せます。</div>') + (live ? mzWayHtml() : '')) + '</div>';   // 招待された人には出さない（GitHub を知らない。ユーザー、2026-11-19）
+        + (act ? (live && mzWalk() && !mzAt(z) ? '<div class="mz-hint">' + escText(CHARS[z.book] ? CHARS[z.book].name : z.book) + 'の本は、もう進められません。スレッドから、メタゾンビを直せます。</div>' : '') : '<div class="mz-hint">主人公が、メタゾンビのいる場面へ行くと、メタゾンビを直せます。</div>') ) + '</div>';   // 招待された人には出さない（GitHub を知らない。ユーザー、2026-11-19）
   let wait = false;
   visRes(it).forEach(([rk, r], j) => {
     if(r.ph){ wait = true; return; }
@@ -13903,7 +13920,7 @@ function mzTagEl(c, no){
   if(!mzOn()) return null;
   const zs = mzHere(c, no); if(!zs.length) return null;
   const box = document.createElement('div'); box.className = 'mz-tag';
-  box.innerHTML = zs.map(z => '<button class="sm" data-mzopen="' + mzKey(z) + '">メタゾンビ #' + z.n + '</button>').join('');
+  box.innerHTML = zs.map(z => '<button class="sm' + (mzWalk() && !mzCap(z) ? ' face' : '') + '" data-mzopen="' + mzKey(z) + '">メタゾンビ #' + z.n + '</button>').join('');
   box.querySelectorAll('[data-mzopen]').forEach(b => { b.onclick = ev => { ev.stopPropagation(); mzOpenThread(b.dataset.mzopen); }; });
   return box;
 }
@@ -13926,7 +13943,7 @@ function mzRadar(body, s, sp){
     for(let i = 0; i < 7; i++){ const [x, y] = at(mzHash(key + 'e' + i) % 628 / 100, r * (.8 + (mzHash(key + 'f' + i) % 80) / 100)); g.appendChild(el('circle', { cx:x, cy:y, r:(r * (.06 + (mzHash(key + 'g' + i) % 10) / 100)).toFixed(1) })); }
     svg.insertBefore(g, ref || null);
   };
-  const cur = sp || B.spots[(sceneOf(s) || {}).spot] || {};
+  const cur = mzAimNow ? mzAimNow.sp : sp || B.spots[(sceneOf(s) || {}).spot] || {};
   let caps = 0; const trk = mzOn() ? mzTrackKey() : '', ringOf = list => (list.some(z => z.k && z.k === trk) ? 'trk' : list.some(z => z.k && mzMineWho(mzOfKey(z.k))) ? 'who' : ''); let rings = 0;
   const town = body.querySelector('.map-scroll svg');
   if(town){ // 街の地図：そのエリアの、地図に載っている場所の全部に付ける
@@ -13935,7 +13952,7 @@ function mzRadar(body, s, sp){
     for(const [id, x] of Object.entries(B.spots)) if(Array.isArray(x.at) && (x.map || '') === mapId && areas[x.place]){ const free = areas[x.place].filter(z => !z.cap); if(free.length) stain(town, x.at[0], x.at[1], 5 + lvMax(free) * 1.6, x.place + ':' + id, ref); else { town.insertBefore(el('circle', { cx:x.at[0], cy:x.at[1], r:6, class:'mz-capm' }), ref || null); caps++; } }
     for(const x of Object.values(B.spots)) if(Array.isArray(x.at) && (x.map || '') === mapId && areas[x.place]){ const rc = ringOf(areas[x.place].filter(z => spotOfZ(z) === x || !Array.isArray((spotOfZ(z) || {}).at))); if(rc){ town.appendChild(el('circle', { cx:x.at[0], cy:x.at[1], r:15, class:'mz-ring ' + rc })); rings++; } }
   }
-  const plan = body.querySelector('.planmap svg'), po = planOf(s);
+  const plan = body.querySelector('.planmap svg'), po = mzAimNow ? mzAimNow : planOf(s);
   if(plan && po){ // 見取り図：部屋ごと。部屋の四角の上、部屋の名前の下（汚れを終わりに足して、名前を後ろへ移す）
     for(const r of plan.querySelectorAll('rect[data-room]')){
       const here = zs.filter(z => { const x = spotOfZ(z); return x && x.place === po.plan && x.room === r.dataset.room; });
