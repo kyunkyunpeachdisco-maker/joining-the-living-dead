@@ -612,7 +612,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.72';
+const APP_VERSION = 'v0.3.73';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -677,7 +677,7 @@ let slot = room ? LS.get('room-' + room + '-slot', '') : '';
 if(!/^[a-z0-9]{2,16}$/.test(slot)) slot = '';
 const slotKey = (id, key) => 'room-' + room + '-' + (id ? 's-' + id + '-' : '') + key;
 if(room) work = LS.get(slotKey(slot, 'work'), '');
-const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try', 'box-key', 'box-enc-done']); // 部屋で1つのもの
+const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try', 'box-key', 'box-enc-done', 'taken']); // 部屋で1つのもの
 const WORK_KEYS = new Set(['pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'gh-repo', 'gh-pat', 'gh-own', 'asset-work']);
 const GLOBAL_KEYS = new Set(['sound', 'room-local', 'room', 'room-kind', 'dev', 'dev-key', 'fb-token', 'fb-name', 'video', 'send-at', 'cleared', 'cm-filter', 'mz-way', 'mz-board-days']);
 const keyOf = key => BASE + (GLOBAL_KEYS.has(key) ? key : room && !WORK_KEYS.has(key) ? (ROOM_KEYS.has(key) ? 'room-' + room + '-' + key : slotKey(slot, key)) : workKey(work, key));
@@ -5421,7 +5421,7 @@ async function slotSet(id){
 async function slotAdd(wid){
   if(!isHost() || !roomLocal() || slotBusy) return;
   if(slotHold()){ roomNote = SLOT_HOLD; render(); return; }
-  const had = roomWorks().find(x => LS.get(slotKey(x.id, 'work'), x.id ? null : '') === wid); if(had) return slotSet(had.id);
+  const had = roomWorks().find(x => LS.get(slotKey(x.id, 'work'), x.id || store.get('taken', 0) ? null : '') === wid); if(had) return slotSet(had.id);
   if(roomWorks().length >= 8){ roomNote = '1つの部屋で使える作品は、8つまでです。'; render(); return; }
   const sd = workSeed(wid); if(!sd){ roomNote = '部屋を出て、［作品一覧］で「' + workName(wid) + '」を一度開くと、替えられるようになります。'; render(); return; }
   const id = 's' + Math.random().toString(36).slice(2, 9), F = vfsLoad(), path = 'book/s-' + id + '/overlay.json';
@@ -6530,7 +6530,7 @@ async function vfsApi0(path, opt = {}){
 // 暗号化：部屋の鍵（box-key）は、端末だけが持つ。ホストが作り、許可した端末に、つながった先でじかに渡す（預かり箱には、鍵の印 kid だけを知らせる）。
 // 中身は、端末で暗号化してから預ける（AES-GCM。道を添えて、入れかえを見分ける）。写し（vfsMem）は、開いた中身。
 // 預かり箱が決まりを確かめるのに要るもの（ロックの端末名と時刻・作品の番号）だけは、暗号化しない
-let boxVer = 0, boxAt = 0, boxStale = true, boxBusy = null, boxIdle = 0, boxDownAt = 0, boxReadyP = null, boxKept = '', boxRestoring = false, boxAssetT = 0, boxEnc = '', boxEncBusy = false, boxK = null;
+let boxVer = 0, boxAt = 0, boxStale = true, boxBusy = null, boxIdle = 0, boxDownAt = 0, boxReadyP = null, boxKept = '', boxRestoring = false, boxAssetT = 0, boxEnc = '', boxEncBusy = false, boxK = null, boxHostAge = 0, boxRoleDone = false;
 const boxAdmitted = new Set(), boxAssetSkip = new Set();
 const boxHash = async t => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))), n => n.toString(16).padStart(2, '0')).join('');
 const BOX_MAGIC = [74, 84, 69, 49], boxBytes = t => Uint8Array.from(atob(t), c => c.charCodeAt(0)), boxB64 = u => { let s = ''; for(let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
@@ -6591,10 +6591,32 @@ async function boxCall(ops, keepalive){
     const k = await boxKeyNow(), body = JSON.stringify({ dev:DEV, key:DEV_KEY, ...(k ? { e:k.kid } : {}), ops });
     const r = await fetch(RELAY_URL + '/box/' + room, { method:'POST', body, keepalive:!!keepalive && new Blob([body]).size < 60000 }); // ブラウザは、64KB を超える keepalive を断る
     let j = null; try { j = await r.json(); } catch(e){}
-    if(r.status === 200 && j) boxEnc = String(j.enc || '');
+    if(r.status === 200 && j){ boxEnc = String(j.enc || ''); if(j.hostAt) boxHostAge = Number(j.now) - Number(j.hostAt); boxRole(j.role); }
     return { http:r.status, err:(j && j.error) || '', res:(j && Array.isArray(j.res) && j.res) || [] };
   } catch(e){ return { http:0, err:'', res:[] }; }
 }
+// ホストの引き継ぎ：ホストの端末が14日この部屋を使わないと、参加者がホストになれる（預かり箱の側で確かめる）。誰がホストかは、預かり箱が決める
+const HOST_IDLE = 14 * 86400000;
+let takeAsk = false;
+function boxRole(role){
+  if(boxRoleDone || !boxOn() || role === (isHost() ? 'host' : 'member') || !['host', 'member'].includes(role)) return;
+  boxRoleDone = true;
+  if(role === 'host'){ store.set('host-of', room); store.set('taken', 1); store.set('room-allowed', {}); store.remove('box-enc-done'); try { sessionStorage.setItem('jtld-host', 'me'); } catch(e){} }
+  else { for(const k of ['host-of', 'room-allowed', 'box-enc-done', 'box-cfg']) store.remove(k); store.set('welcomed', true); try { sessionStorage.setItem('jtld-host', 'other'); } catch(e){} }
+  roomHistSave(roomHist().map(h => (h.code === room ? { ...h, host:role === 'host' } : h)));
+  setTimeout(() => location.reload(), 300);
+}
+async function boxTake(){
+  takeAsk = false; roomNote = 'ホストを引き継いでいます…'; render();
+  const r = await boxCall([{ o:'take' }]), q = r.res[0];
+  if(r.http === 200 && q && q.status === 200) return; // boxRole が、開き直す
+  roomNote = r.http === 200 && q && q.status === 409 ? 'ホストが部屋を開いたか、ほかのメンバーが先に引き継いだので、ホストを引き継げませんでした。' : '部屋に接続できません。通信環境の良い場所で、もう一度［ホストを引き継ぐ］を押してください。';
+  render();
+}
+// 引き継いだホスト：部屋の設定のホストを、自分にする
+async function boxHostCfg(){ if(isHost() && boxOn() && roomCfg().host && roomCfg().host !== DEV) try { await repoConfig({ host:DEV }); liveChanged(); } catch(e){} }
+// 引き継いだホスト：前のホストに許可された端末かを、預かり箱に確かめる
+async function boxKnown(d, k){ const r = await boxCall([{ o:'known', dev:d, hash:await boxHash(k) }]); return r.http === 200 && !!r.res[0] && r.res[0].ok === true; }
 // 預かり箱に断られた：ホストが終わりにした（410）・部屋の人ではない（403）・部屋がない（404）・暗号化した部屋の鍵がない（426）
 function boxFail(http, err){
   boxDownAt = Date.now();
@@ -6616,7 +6638,7 @@ function boxSync(){
       vfsMem = next;
     }
     boxIdle = q.ver === boxVer ? boxIdle + 1 : 0; boxVer = q.ver; boxAt = Date.now(); boxStale = false;
-    if(isHost()){ boxKeep(); boxAssetsSoon(); boxEncrypt(); }
+    if(isHost() && !boxRoleDone){ boxKeep(); boxAssetsSoon(); boxEncrypt(); if(store.get('taken', 0)) setTimeout(boxHostCfg, 1500); }
     return true;
   })().finally(() => { boxBusy = null; }));
 }
@@ -6735,7 +6757,7 @@ function loadPeer(){
 const peerShow = () => { if(roomPanel && !typing()) render(); };
 function peerRetry(ms){ clearTimeout(peerRetryT); if(joinState === 'denied' || joinState === 'needkey') return; peerRetryT = setTimeout(peerStart, ms); }
 async function peerStart(){
-  if(!room || !ghReady()) return;
+  if(!room || !ghReady() || boxRoleDone) return;
   try { await loadPeer(); } catch(e){ peerRetry(60000); return; }
   if(peer && !peer.destroyed){ if(peer.disconnected) peer.reconnect(); else if(!isHost() && !hostConn) memberConnect(); return; }
   peer = isHost() ? new NetPeer('jtld-room-' + room, { wait:PEER_WAIT }) : new NetPeer({ wait:PEER_WAIT });
@@ -6810,14 +6832,19 @@ function joinBannerHtml(){
   return '';
 }
 function hostAccept(c){
-  c.on('data', msg => {
+  const hello = msg => {
     if(!msg || typeof msg !== 'object') return;
     const dev = hostConns.get(c);
     if(msg.t === 'hb'){ if(dev) try { c.send({ t:'hb' }); } catch(e){} return; }
     if(msg.t === 'hello'){
       // ほかの人の端末のふりをして入るのを断る：最初につないだときの合言葉を、ホストが覚えておく
       const d = String(msg.dev || ''), k = String(msg.key || ''), keys = store.get('peer-keys', {});
-      if(!/^[a-z0-9]{4,12}$/.test(d) || !/^[a-f0-9]{32}$/.test(k) || (keys[d] && keys[d] !== k)){ setTimeout(() => c.close(), 200); return; }
+      if(!/^[a-z0-9]{4,12}$/.test(d) || !/^[a-f0-9]{32}$/.test(k)){ setTimeout(() => c.close(), 200); return; }
+      if(boxOn() && store.get('taken', 0) && !msg._k && !joinDenied.has(d) && !(store.get('room-allowed', {})[d] && keys[d] === k)){ // 引き継いだホスト：前のホストに許可された端末なら、そのまま入れる
+        boxKnown(d, k).catch(() => false).then(yes => { if(yes && !isBanned(d)){ const a = store.get('room-allowed', {}), q = store.get('peer-keys', {}); a[d] = String(msg.name || '').replace(/[<>]/g, '').slice(0, 30) || '1'; q[d] = k; store.set('room-allowed', a); store.set('peer-keys', q); boxAdmitted.add(d); } hello({ ...msg, _k:1 }); });
+        return;
+      }
+      if(keys[d] && keys[d] !== k){ setTimeout(() => c.close(), 200); return; }
       if(!keys[d]){ keys[d] = k; store.set('peer-keys', keys); }
       if(isBanned(d)){ try { c.send({ t:'denied' }); } catch(e){} setTimeout(() => c.close(), 300); return; } // 部屋から外した端末
       if(msg.l && !roomLocal()){ try { c.send({ t:'needkey' }); } catch(e){} setTimeout(() => c.close(), 300); return; } // リポジトリのある部屋に、番号だけで入った端末。読み書きを代わりにできないので、つながない
@@ -6849,7 +6876,8 @@ function hostAccept(c){
       for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'changed' }); } catch(e){}
       boxStale = true; clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300);
     }
-  });
+  };
+  c.on('data', msg => { if(msg && typeof msg === 'object') delete msg._k; hello(msg); });
   const gone = () => { hostConns.delete(c); for(const [d, q] of provAsks) if(q.c === c) provAsks.delete(d); for(const [d, q] of joinPending) if(q.c === c) joinPending.delete(d); if(!typing()) render(); };
   c.on('close', gone); c.on('error', gone);
 }
@@ -7394,6 +7422,12 @@ async function roomDelete(){
 const ownerName = o => o.dev === DEV ? 'あなた' : escText(o.name || '名前なし');
 // 部屋の人の一覧。ホストには、［外す］と、外した人の一覧と、トークンを入れ替える手順を出す
 let banPatOpen = false;
+// 参加者に出す、ホストの引き継ぎ
+function takeHtml(){
+  if(boxHostAge < HOST_IDLE) return '<p>ホストが14日間部屋を開かないと、メンバーがホストを引き継げます。</p>';
+  return '<p>ホストは、14日以上部屋を開いていません。メンバーの1人が、ホストを引き継げます。</p>'
+    + (takeAsk ? '<p>ホストを引き継ぐと、部屋に入りたい人を許可したり、メンバーを退出させたり、部屋を終了したりできます。今のホストは、メンバーになります。</p><div class="rowl"><span></span><button class="sm" id="takeYes">引き継ぐ</button><button class="sm" id="takeNo">やめる</button></div>' : '<button class="go" id="takeHost">ホストを引き継ぐ</button>');
+}
 function roomPeopleHtml(){
   const host = isHost(), nm = n => escText(String(n || '') || '名前なし');
   const people = Object.entries(roomMembers).filter(([d, m]) => m && typeof m === 'object' && !isBanned(d)).sort(([a], [b]) => (a === DEV ? -1 : b === DEV ? 1 : 0));
@@ -7402,7 +7436,7 @@ function roomPeopleHtml(){
     + (host && banAsk === d ? '<p>' + nm(m.name) + 'を、部屋から外します。' + nm(m.name) + 'は、部屋に入れなくなります。' + nm(m.name) + 'が通信に書いたメッセージは、残ります。</p>' : '')).join('');
   const out = Object.entries(roomBan()).filter(([d]) => segOk(d));
   return '<div class="step"><div class="n">メンバー</div><h3>参加メンバー</h3>' + rows
-    + (host ? '<p style="margin-top:12px">退出させたいメンバーの［退出させる］を押します。' + (roomLocal() ? '退出させた相手は同じ招待リンクから再入室できません。' : '招待リンクのトークンでリポジトリを書き換えられる状態が残るため、書き込みも止めたい場合は下の［トークンを再発行］から鍵を更新してください。') + '</p>' : '<p style="margin-top:12px">メンバーを退出させられるのはホストのみです。</p>')
+    + (host ? '<p style="margin-top:12px">退出させたいメンバーの［退出させる］を押します。' + (roomLocal() ? '退出させた相手は同じ招待リンクから再入室できません。' : '招待リンクのトークンでリポジトリを書き換えられる状態が残るため、書き込みも止めたい場合は下の［トークンを再発行］から鍵を更新してください。') + '</p>' : '<p style="margin-top:12px">メンバーを退出させられるのはホストのみです。</p>' + (boxOn() ? takeHtml() : ''))
     + (host && out.length ? '<p><b>外した人</b></p>' + out.map(([d, b]) => '<div class="rowl"><span>' + nm(b && b.name) + '</span><button class="sm" data-unban="' + d + '">取り消す</button></div>').join('') : '')
     + (host && !roomLocal() ? '<details class="scr-more" id="banPatBox"' + (banPatOpen ? ' open' : '') + '><summary>トークンを再発行</summary>'
       + '<p>トークンを再発行すると、前のトークンは使えなくなります。</p>'
@@ -8016,7 +8050,7 @@ function render(){
   document.querySelectorAll('[data-roomback]').forEach(el => { el.onclick = () => roomBack(el.dataset.roomback); });
   document.querySelectorAll('[data-roomdrop]').forEach(el => { el.onclick = () => { roomDropAsk = el.dataset.roomdrop; render(); }; });
   document.querySelectorAll('[data-roomdropyes]').forEach(el => { el.onclick = () => { const code = el.dataset.roomdropyes; roomDropAsk = ''; roomHistDrop(code); roomWipe(code); render(); }; }); on('roomDropNo', () => { roomDropAsk = ''; render(); });
-  on('roomLeave', roomLeave); on('menuLeave', roomLeave);
+  on('roomLeave', roomLeave); on('menuLeave', roomLeave); on('takeHost', () => { takeAsk = true; render(); }); on('takeNo', () => { takeAsk = false; render(); }); on('takeYes', boxTake);
   on('roomDel', () => { roomDelAsk = true; render(); });
   // 部屋の人を外す・取り消す、トークンを入れ替える、外されたという知らせを閉じる
   document.querySelectorAll('[data-ban]').forEach(el => { el.onclick = () => { banAsk = el.dataset.ban; render(); }; });
@@ -11650,7 +11684,8 @@ if(room){
   if(myDirty) myTouch('fast');
   try { const n = sessionStorage.getItem('jtld-slot'); if(n){ sessionStorage.removeItem('jtld-slot'); provNote = '部屋で使う作品が「' + n + '」に替わりました。前の作品の進行とロックは、残っています。'; window.scrollTo(0, 0); } } catch(e){}
   if(roomLocal() && !isHost() && !store.get('welcomed', false)){ roomPanel = true; render(); setTimeout(() => { if(!typing()) render(); }, 21000); }
-  boxReadyP = boxInit().catch(() => {}).then(() => { boxReadyP = null; peerStart(); }); if(roomLocal() && !isHost()) offTick();
+  boxReadyP = boxInit().catch(() => {}).then(() => { boxReadyP = null; return isHost() && boxOn() ? Promise.race([boxSync().catch(() => {}), new Promise(z => setTimeout(z, 5000))]) : 0; }).then(() => { if(!boxRoleDone) peerStart(); });
+  try { const h = sessionStorage.getItem('jtld-host'); if(h){ sessionStorage.removeItem('jtld-host'); provNote = h === 'me' ? 'あなたが、ホストになりました。' : 'ほかのメンバーが、ホストを引き継ぎました。あなたは、メンバーになりました。'; } } catch(e){} if(roomLocal() && !isHost()) offTick();
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') peerStart(); });
   // 画面を離れるときに、まだ書いていない分を書く。開いているあいだは、3分ごとに「いる」印を書く
   document.addEventListener('visibilitychange', () => { if(document.visibilityState !== 'hidden') return; if(roomTimer) roomPush(); if(myDirty) myFlush(true); }); // 読んだ直後（まだ自分の分に入れていない）でも、入れてから書く
