@@ -611,7 +611,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.68';
+const APP_VERSION = 'v0.3.69';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -671,10 +671,15 @@ let room = (() => {
 })();
 if(room && !/^[A-Z2-9]{8}$/.test(room)) room = null;
 // 部屋の中では、その部屋を作った作品の設定を使う
-if(room) work = LS.get('room-' + room + '-work', '');
+// 遊ぶ部屋では、部屋の作品を替えられる。作品ごとに、進行・ロック・通信・書き換えを分けて覚える（slot。初めの作品は ''）
+let slot = room ? LS.get('room-' + room + '-slot', '') : '';
+if(!/^[a-z0-9]{2,16}$/.test(slot)) slot = '';
+const slotKey = (id, key) => 'room-' + room + '-' + (id ? 's-' + id + '-' : '') + key;
+if(room) work = LS.get(slotKey(slot, 'work'), '');
+const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon']); // 部屋で1つのもの
 const WORK_KEYS = new Set(['pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'gh-repo', 'gh-pat', 'gh-own', 'asset-work']);
 const GLOBAL_KEYS = new Set(['sound', 'room-local', 'room', 'room-kind', 'dev', 'dev-key', 'fb-token', 'fb-name', 'video', 'send-at', 'cleared', 'cm-filter', 'mz-way', 'mz-board-days']);
-const keyOf = key => BASE + (GLOBAL_KEYS.has(key) ? key : room && !WORK_KEYS.has(key) ? 'room-' + room + '-' + key : workKey(work, key));
+const keyOf = key => BASE + (GLOBAL_KEYS.has(key) ? key : room && !WORK_KEYS.has(key) ? (ROOM_KEYS.has(key) ? 'room-' + room + '-' + key : slotKey(slot, key)) : workKey(work, key));
 let roomApplying = false, roomTimer = 0;
 let saveWarned = false;
 // localStorage が使えない環境でも遊べるよう、メモリにも同じ内容を持っておく（その場合はページを閉じると消える）
@@ -5376,7 +5381,64 @@ const lockNow = L => '作品「' + workName(work) + '」は、' + lockWho(L) + '
 const lockText = L => L.net ? '作品「' + workName(work) + '」を書き換えている人がいるか、確かめられません。電波の良い場所で、もう一度［✎ 編集する］を押してください。' : '作品「' + workName(work) + '」は、' + lockWho(L) + 'が書き換えているので、自分は書き換えられません。';
 // 本のロック：部屋では、その本をロックしている人だけが、その本を書き換えられる。遊び方・作り方の文は、合わせて1つ（guide）
 const unitName = u => u === 'guide' ? '遊び方・作り方の文' : CHARS[u] ? CHARS[u].name + 'の本' : 'この本';
-const roomRo = () => !!room && ((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).ro === true;
+const roomCfg = () => (room && (repoSeen.files['rooms/' + room + '/room.json'] || {}).data) || {};
+const roomWorks = () => { const v = roomCfg().works, l = (Array.isArray(v) ? v : []).filter(x => x && typeof x === 'object' && (x.id === '' || /^[a-z0-9]{2,16}$/.test(String(x.id)))).map(x => ({ id:x.id, name:String(x.name || '').replace(/[<>]/g, '').slice(0, 40), ro:x.ro === true })); return l.some(x => x.id === '') ? l : [{ id:'', name:'', ro:roomCfg().ro === true }, ...l]; };
+const roomWorkName = id => (roomWorks().find(x => x.id === id) || {}).name || (id ? 'ほかの作品' : 'はじめの作品');
+const roomRo = () => !!room && (roomLocal() ? (roomWorks().find(x => x.id === slot) || {}).ro === true : roomCfg().ro === true);
+// ほかの作品の保存を読む
+function withWork(id, fn){ const a = room, b = work; room = null; work = id; try { return fn(); } finally { room = a; work = b; } }
+// 作品一覧の作品の、部屋に入れる中身
+function workSeed(id){
+  return withWork(id, () => {
+    const e = workOf(id), kind = id === 'base' ? 'base' : e ? e.kind : 'mine', given = kind === 'pack' || kind === 'got';
+    const keep = store.get('overlay', null) || {}, o = kind === 'base' ? {} : kind === 'pack' ? store.get('pack-cache', null) : kind === 'got' ? keep : soloOverlay(keep);
+    if(!o) return null;
+    const uid = kind === 'base' ? '' : given ? uidNow() : uidMake(), repo = store.get('gh-repo', ''), pat = store.get('gh-pat', '');
+    return { mine:!given && kind !== 'base', ro:given, data:{ v:1, ...(uid ? { uid } : {}), base:(given ? o.base : keep.base) || baseNow(), items:{}, ...verPick(o), poses:o.poses || {}, auto:(given ? o.auto : keep.auto) || null },
+      src:kind === 'pack' ? { repo:store.get('pack', ''), key:store.get('pack-key', '') } : kind === 'got' ? { work:id } : repo && pat ? { repo, mine:true } : store.get('asset-work', null) };
+  });
+}
+// ホスト：部屋の作品を替える。初めて使う作品は、写しを部屋の置き場所に入れる
+let slotBusy = false;
+async function slotSet(id){
+  if(!isHost() || !roomLocal() || slotBusy || id === slot) return;
+  slotBusy = true; roomNote = '作品を替えています…'; render();
+  try { await repoConfig({ slot:id, works:roomWorks() }); liveChanged(); await slotGo(id); }
+  catch(e){ roomNote = '作品を替えられませんでした。'; }
+  slotBusy = false; render();
+}
+async function slotAdd(wid){
+  if(!isHost() || !roomLocal() || slotBusy) return;
+  const had = roomWorks().find(x => LS.get(slotKey(x.id, 'work'), x.id ? null : '') === wid); if(had) return slotSet(had.id);
+  if(roomWorks().length >= 8){ roomNote = '1つの部屋で使える作品は、8つまでです。'; render(); return; }
+  const sd = workSeed(wid); if(!sd){ roomNote = '部屋を出て、［作品一覧］で「' + workName(wid) + '」を一度開くと、替えられるようになります。'; render(); return; }
+  const id = 's' + Math.random().toString(36).slice(2, 9), F = vfsLoad(), path = 'book/s-' + id + '/overlay.json';
+  F[path] = { sha:'s' + Date.now().toString(36), content:b64(JSON.stringify(sd.data)) };
+  let ok = LS.set(slotKey(id, 'work'), wid) && LS.set(slotKey(id, 'seed'), { mine:sd.mine, data:verPick(sd.data) }) && LS.set(slotKey(id, 'asset-src'), sd.src);
+  try { localStorage.setItem(vfsKey(room), JSON.stringify(F)); } catch(e){ ok = false; }
+  if(!ok){ delete F[path]; vfsSave(); for(const k of ['work', 'seed', 'asset-src']) LS.del(slotKey(id, k)); roomNote = '保存できる量が足りないので、作品を替えられませんでした。部屋を出て、いらない作品を［作品一覧］から消してください。'; render(); return; }
+  slotBusy = true; roomNote = '作品を替えています…'; render();
+  try { await repoConfig({ slot:id, works:[...roomWorks(), { id, name:workName(wid), ro:sd.ro }] }); liveChanged(); await slotGo(id); }
+  catch(e){ roomNote = '作品を替えられませんでした。'; }
+  slotBusy = false; render();
+}
+// 部屋の作品が替わった：書きかけがあれば、ボタンを押すまで待つ
+let slotWait = null, slotGoing = false;
+const slotHold = () => typing() || !!fbe || !!camEdit;
+async function slotGo(id){
+  if(slotGoing) return; slotGoing = true;
+  try { clearTimeout(roomTimer); if(CHAR_IDS.some(mine)) await roomPush(); if(myDirty) await myFlush(); } catch(e){}
+  LS.set('room-' + room + '-slot', id);
+  try { sessionStorage.setItem('jtld-slot', roomWorkName(id)); } catch(e){}
+  location.reload();
+}
+function slotCheck(){
+  if(!room || !roomLocal() || slotGoing) return;
+  const want = String(roomCfg().slot || ''), to = roomWorks().some(x => x.id === want) ? want : '';
+  if(to === slot){ slotWait = null; return; }
+  if(slotHold()){ slotWait = to; return; }
+  slotGo(to);
+}
 const editOk = u => !CUSTOM && (!room || (!roomRo() && mine(u)));
 function editNo(u){
   if(CUSTOM) return 'この作品は書き換えられません。［☰］→［その他］→［作品一覧］でコピーを作ると、コピーを書き換えられます。';
@@ -6154,7 +6216,7 @@ function workCopy(){
 // 部屋の作品を、棚に入れる。一緒に作る部屋：同じリポジトリを書き換える作品。遊ぶ部屋：ホストが許したとき、中身を端末に残す
 const roomTakeOk = () => !!room && !isHost() && (!roomLocal() || ((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).take === true);
 // 棚にある、同じ作品：作品IDが同じもの。なければ、同じ部屋から入れたもの（番号のない作品に、あとから番号が付いたとき）
-const gotSame = () => { const l = shelfList().filter(x => x.kind === 'got'), u = uidNow(); return (u && l.find(x => x.uid === u)) || l.find(x => x.room === room) || null; };
+const gotSame = () => { const l = shelfList().filter(x => x.kind === 'got'), u = uidNow(); return (u && l.find(x => x.uid === u)) || l.find(x => x.room === room + (slot ? ':' + slot : '') && (!x.uid || !u)) || null; };
 async function roomKeep(){
   if(!roomTakeOk()) return;
   const gotNow = roomLocal() && gotSame();
@@ -6173,7 +6235,7 @@ async function roomKeep(){
   const vals = { overlay:{ base:overlay.base || null, ...verPick(overlay), items:{}, poses:overlay.poses || {}, auto:overlay.auto || null }, ...(uid ? { uid } : {}) };
   if(had && !LS.set(workKey(had.id, 'overlay'), vals.overlay)){ roomNote = '保存できる量を超えるので、作品一覧の「' + had.name + '」を最新の内容にできませんでした。'; render(); return; }
   if(had && uid && had.uid !== uid){ LS.set('shelf', shelfList().map(x => (x.id === had.id ? { ...x, uid } : x))); LS.set(workKey(had.id, 'uid'), uid); }
-  const id = had ? had.id : workAdd({ kind:'got', name, room, ...(uid ? { uid } : {}) }, { overlay:{ base:overlay.base || null, ...verPick(overlay), items:{}, poses:overlay.poses || {}, auto:overlay.auto || null } });
+  const id = had ? had.id : workAdd({ kind:'got', name, room:room + (slot ? ':' + slot : ''), ...(uid ? { uid } : {}) }, { overlay:{ base:overlay.base || null, ...verPick(overlay), items:{}, poses:overlay.poses || {}, auto:overlay.auto || null } });
   let miss = 0;
   if(id) for(const a of usedAssets()){ const u = await assetData(a).catch(() => ''); if(!u){ miss++; continue; } try { await (await caches.open(BASE + 'room-assets')).put(location.origin + '/__jtld/w-' + id + '/' + a + '.jpg', new Response(u)); } catch(e){ miss++; } }
   roomNote = id ? (had ? '作品一覧の「' + had.name + '」を、最新の内容にしました。' : 'この作品を追加しました。この作品は、部屋を出ると、タイトル画面の［作品一覧］から開けます。') + (miss ? 'この作品の画像' + miss + '枚は、作品一覧に追加できませんでした。' : '') : '作品一覧に追加できませんでした。'; render();
@@ -6378,7 +6440,21 @@ function vfsDo(m, path, body, raw){
 }
 const vfsRes = r => ({ ok:r.status >= 200 && r.status < 300, status:r.status, json:async () => (r.json == null ? null : r.json), text:async () => r.text || '' });
 const hostAssetId = p => { const m = /^book\/assets\/([A-Za-z0-9_-]{1,60})\.jpg$/.exec(String(p)); return m ? m[1] : ''; };
+// 作品ごとの置き場所に読みかえる（部屋の設定 room.json と、絵は、読みかえない）
+function slotPath(p){
+  const R = 'rooms/' + room;
+  if(!slot || p === R + '/room.json' || hostAssetId(p)) return p;
+  return p.startsWith(R + '/') ? R + '/s-' + slot + p.slice(R.length) : p === 'book' || p.startsWith('book/') ? 'book/s-' + slot + p.slice(4) : p;
+}
 async function vfsApi(path, opt = {}){
+  if(slot && path === 'rooms/' + room && !opt.method){ // 部屋の一覧：設定は部屋のもの、ほかは作品のもの
+    const top = await vfsApi0(path, opt); if(!top.ok) return top;
+    const sub = await vfsApi0(path + '/s-' + slot, opt); if(!sub.ok && sub.status !== 404) return sub;
+    return vfsRes({ status:200, json:[...(await top.json()).filter(f => f.name === 'room.json'), ...(sub.ok ? await sub.json() : [])] });
+  }
+  return vfsApi0(slotPath(path), opt);
+}
+async function vfsApi0(path, opt = {}){
   const m = opt.method || 'GET', body = opt.body ? JSON.parse(opt.body) : null;
   if(isHost()) return vfsRes(vfsDo(m, path, body, !!opt.raw));
   if(joinState === 'needkey') return vfsRes({ status:503 });
@@ -6399,7 +6475,7 @@ const hostConns = new Map(), liveFiles = {}; // hostConns：つないできた�
 const liveOn = () => peerOn && (isHost() ? hostConns.size > 0 : !!hostConn);
 const liveMine = () => ({ ...myFile, name:store.get('fb-name', '').slice(0, 30), icon:store.get('fb-icon', ''), at:Date.now() });
 const liveAll = msg => { if(isHost()){ for(const c of hostConns.keys()) try { c.send(msg); } catch(e){} } else if(hostConn && peerOn) try { hostConn.send(msg); } catch(e){} };
-function liveSend(){ clearTimeout(liveT); liveT = setTimeout(() => { if(liveOn() && !sendAfter()) liveAll({ t:'file', dev:DEV, data:liveMine() }); }, 300); }
+function liveSend(){ clearTimeout(liveT); liveT = setTimeout(() => { if(liveOn() && !sendAfter()) liveAll({ t:'file', dev:DEV, data:liveMine(), slot }); }, 300); }
 // ロックや部屋の設定が変わったことを知らせる（受け取った人は、リポジトリを読み直す）
 function liveChanged(){ if(liveOn()) liveAll({ t:'changed' }); }
 function liveGot(dev, data){
@@ -6454,7 +6530,7 @@ function memberConnect(){
     else if(msg.t === 'denied'){ joinState = 'denied'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'needkey'){ joinState = 'needkey'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'provok') provReply(msg.ok === true);
-    else if(msg.t === 'file') liveGot(String(msg.dev || ''), msg.data);
+    else if(msg.t === 'file'){ if((msg.slot || '') === slot) liveGot(String(msg.dev || ''), msg.data); }
     else if(msg.t === 'changed'){ clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300); }
     else if(msg.t === 'refresh'){ roomSig = ''; roomPull(true); }
     else if(msg.t === 'vfsr' && vfsWait[msg.id]){ const f = vfsWait[msg.id]; delete vfsWait[msg.id]; f({ status:+msg.status || 500, json:msg.json, text:typeof msg.text === 'string' ? msg.text : '' }); }
@@ -6464,8 +6540,8 @@ function memberConnect(){
 }
 function hostWelcome(c, d){
   hostConns.set(c, d); c.send({ t:'welcome' });
-  for(const [o, data] of Object.entries(liveFiles)) if(o !== d) c.send({ t:'file', dev:o, data });
-  c.send({ t:'file', dev:DEV, data:liveMine() });
+  for(const [o, data] of Object.entries(liveFiles)) if(o !== d) c.send({ t:'file', dev:o, data, slot });
+  c.send({ t:'file', dev:DEV, data:liveMine(), slot });
   peerShow();
 }
 // 入りたい人を、許可する・断る
@@ -6480,6 +6556,7 @@ function joinAnswer(d, ok){
 function joinBannerHtml(){
   if(!room){ let k = null; try { k = JSON.parse(localStorage.getItem(BASE + 'kicked') || 'null'); } catch(e){} return k ? '<div class="lockbar" style="border-color:var(--red)"><b>部屋から外されました</b>　部屋 ' + escText(String(k)) + ' を作った人が、あなたを外しました。<button id="kickedOk">閉じる</button></div>' : ''; }
   if(!roomLocal()) return '';
+  if(slotWait !== null) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストが、部屋で使う作品を「' + escText(roomWorkName(slotWait)) + '」に替えました。</b><button id="slotGo">「' + escText(roomWorkName(slotWait)) + '」を開く</button></div>';
   if(provList) return provHtml();
   if(provNote) return '<div class="lockbar" style="border-color:var(--gold)"><b>' + escText(provNote) + '</b><button id="provOk">閉じる</button></div>';
   if(isHost() && provAsks.size) return provAskHtml();
@@ -6510,8 +6587,8 @@ function hostAccept(c){
       }
       hostWelcome(c, d);
     } else if(msg.t === 'file' && dev){ // 受け取るのは、その端末自身の分だけ。ほかの人へ回す
-      if(String(msg.dev) !== dev || !liveGot(dev, msg.data)) return;
-      for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'file', dev, data:msg.data }); } catch(e){}
+      if((msg.slot || '') !== slot || String(msg.dev) !== dev || !liveGot(dev, msg.data)) return;
+      for(const o of hostConns.keys()) if(o !== c) try { o.send({ t:'file', dev, data:msg.data, slot }); } catch(e){}
     } else if(msg.t === 'vfs' && dev && roomLocal() && msg.m === 'GET' && hostAssetId(msg.path)){ // 作品の絵：作品で使っているものだけを渡す
       const id = hostAssetId(msg.path), ok = usedAssets().includes(id);
       (ok ? assetData(id) : Promise.resolve('')).catch(() => '').then(u => { try { c.send(u ? { t:'vfsr', id:msg.id, status:200, json:{ content:u.split(',')[1] } } : { t:'vfsr', id:msg.id, status:404 }); } catch(e){} });
@@ -6827,7 +6904,7 @@ function provAsk(){
   const p = provOf(); if(!p || !provList || offRoom()) return;
   const books = [...new Set(provList.map(x => x.book))]; if(!books.includes(p.c) && provSig(realIO(() => loadPlayer(p.c))) !== provSig(p.base.players[p.c])) books.push(p.c);
   provWait = true;
-  try { hostConn.send({ t:'provask', c:p.c, books, base:{ world:{ events:p.base.world.events, once:p.base.world.once, votes:p.base.world.votes || {} }, players:Object.fromEntries(books.map(x => [x, p.base.players[x]])) } }); } catch(e){ provWait = false; }
+  try { hostConn.send({ t:'provask', slot, c:p.c, books, base:{ world:{ events:p.base.world.events, once:p.base.world.once, votes:p.base.world.votes || {} }, players:Object.fromEntries(books.map(x => [x, p.base.players[x]])) } }); } catch(e){ provWait = false; }
   render();
 }
 async function provReply(ok){
@@ -6839,7 +6916,7 @@ async function provReply(ok){
 function provAsked(c, dev, msg){
   const b = clean(msg.base), books = Array.isArray(msg.books) ? [...new Set(msg.books.map(String))].filter(x => CHARS[x]) : [], p0 = { ...(b && b.players) };
   const bad = () => { try { c.send({ t:'provok', ok:false }); } catch(e){} };
-  if(!CHARS[msg.c] || !books.length || !b || !b.world || !Array.isArray(b.world.events) || !books.every(x => provPast(x, p0[x]))) return bad();
+  if((msg.slot || '') !== slot || !CHARS[msg.c] || !books.length || !b || !b.world || !Array.isArray(b.world.events) || !books.every(x => provPast(x, p0[x]))) return bad();
   provAsks.set(dev, { c, book:msg.c, books, base:b }); render();
 }
 const provStep = h => JSON.stringify([h.para, h.place, h.clock, h.chosen]);
@@ -6897,6 +6974,7 @@ async function roomPull(force){
   if(!room || roomBusy) return;
   try {
     const data = await (await roomFetch(roomUrl())).json();
+    slotCheck(); if(slotGoing) return;
     if(data === null){ roomNote = 'この部屋はすでに終了しています。［☰］→［部屋］から退出してください。'; roomOpen = false; render(); return; }
     if(data.v !== 2){ roomNote = 'この部屋は古い形式のため利用できません。［☰］→［部屋］から退出して新しく作成してください。'; roomOpen = false; render(); return; }
     if(data.ban && data.ban[DEV]){ roomKicked(); return; }
@@ -6972,7 +7050,7 @@ async function roomCreate(play){
       put('seed', { mine:TEST_BUILD && !CUSTOM, data:verPick(seed) });
       LS.set('room-' + code + '-work', work);
       put('asset-src', GOT ? { work } : PACK ? { repo:PACK, key:store.get('pack-key', '') } : TEST_BUILD && ghLinked() ? { repo:ghRepo(), mine:true } : null);
-      localStorage.setItem(vfsKey(code), JSON.stringify({ ['rooms/' + code + '/room.json']:{ sha:'s0', content:b64(JSON.stringify({ v:3, host:DEV, open:true, gap:0, updated:Date.now(), ...(CUSTOM ? { ro:true } : {}) })) }, 'book/overlay.json':{ sha:'s1', content:b64(JSON.stringify(seed)) } }));
+      localStorage.setItem(vfsKey(code), JSON.stringify({ ['rooms/' + code + '/room.json']:{ sha:'s0', content:b64(JSON.stringify({ v:3, host:DEV, open:true, gap:0, updated:Date.now(), slot:'', works:[{ id:'', name:workName(work), ro:CUSTOM }], ...(CUSTOM ? { ro:true } : {}) })) }, 'book/overlay.json':{ sha:'s1', content:b64(JSON.stringify(seed)) } }));
       localStorage.setItem(BASE + 'room-local', JSON.stringify(code));
       localStorage.setItem(BASE + 'room-' + code + '-host-of', JSON.stringify(code));
       roomEnter(code);
@@ -7106,6 +7184,15 @@ async function roomKeyJoin(){
   store.set('room-repo', { repo:slug, pat }); store.remove('room-local'); store.remove('by-code');
   location.reload();
 }
+function roomWorksHtml(host){
+  const list = roomWorks(), used = new Set(list.map(x => LS.get(slotKey(x.id, 'work'), x.id ? null : '')));
+  if(!host) return list.length > 1 ? '<div class="step"><div class="n">作品</div><h3>部屋で使っている作品</h3><p>' + escText(roomWorkName(slot)) + '</p></div>' : '';
+  const more = [TEST_BUILD ? '' : 'base', ...shelfList().filter(x => TEST_BUILD || ['pack', 'got'].includes(x.kind)).map(x => x.id)].filter(id => !used.has(id));
+  return '<div class="step"><div class="n">作品</div><h3>部屋で使う作品を替える</h3>'
+    + list.map(x => '<div class="rowl"><span>' + escText(roomWorkName(x.id)) + '<small>' + (x.id === slot ? 'いま使っている作品' : '') + '</small></span>' + (x.id === slot ? '' : '<button class="sm" data-rslot="' + x.id + '">替える</button>') + '</div>').join('')
+    + more.map(id => '<div class="rowl"><span>' + escText(workName(id)) + '<small>まだ部屋で使っていない作品</small></span><button class="sm" data-rslotadd="' + id + '">替える</button></div>').join('')
+    + '<p style="margin-top:12px">作品を替えると、メンバーの使う作品も替わります。本の進行とロックは、作品ごとに分かれます。</p></div>';
+}
 function roomPanelHtml(){
   const head = '<div class="fb panel">', note = roomNote ? '<div class="note">' + escText(roomNote) + '</div>' : '';
   if(!room) return '<div class="scr"><h2 class="scr-h">' + (TEST_BUILD ? 'みんなで遊ぶ・作る' : 'みんなで遊ぶ') + '</h2><p class="scr-lead">1人1冊ずつ担当し、それぞれの端末から同時に遊べます。' + (TEST_BUILD ? '部屋の中では共同編集もできます。' : '') + '</p>'
@@ -7134,6 +7221,7 @@ function roomPanelHtml(){
       + '<p style="margin-top:12px">進められるのは自分がロックした本だけです。ロック後、左上の「← 戻る」から本編へ戻ります。</p><p>ロックを外すと別の本に切り替えられ、外した本はほかのメンバーが続きから進められます（ゲームを閉じてもロックは維持されます）。</p></div>'
     + '<div class="step"><div class="n">招待</div><h3>人を招待する</h3><p>招待リンクをコピーして送ります。' + (roomLocal() ? (isHost() ? '相手が開くと画面上部に通知が出るので「許可する」を押してください。' : '参加にはホストの許可が必要です。') : isHost() ? 'リンクには書き込み用トークンが含まれるため、参加させたい相手だけに渡してください（漏れた場合は GitHub でトークンを削除すると止められます）。' : '相手は、開くだけで入れます。部屋に入れたい人にだけ渡してください。') + '</p>'
       + '<button class="go" id="roomCopy">招待リンクをコピー</button></div>'
+    + (roomLocal() ? roomWorksHtml(host) : '')
     + (host && roomLocal() ? '<div class="step"><div class="n">作品</div><p><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="roomTakeSet" style="width:20px;height:20px;margin:3px 0 0;flex:none"' + (((repoSeen.files[repoBase() + 'room.json'] || {}).data || {}).take === true ? ' checked' : '') + '><span>メンバーが、この部屋の作品を作品一覧に追加するのを許可する</span></label></p></div>' : '')
     + (roomTakeOk() ? '<div class="step"><div class="n">作品</div><h3>この部屋の作品を作品一覧に追加する</h3><p>' + (roomLocal() ? '部屋を出たあとも、この作品で遊べます。' : '部屋を出たあとも、この作品を書き換えて、作業用リポジトリに保存できます。') + '</p><button class="go" id="roomKeep">作品一覧に追加</button></div>' : '')
     + roomPeopleHtml()
@@ -7749,7 +7837,9 @@ function render(){
   on('linkClose', () => { linkPanel = false; ghNote = ''; render(); });
   on('packLatest', () => { store.set('pack-latest', true); location.replace(siteRoot()); });
   on('packPin', () => { store.remove('pack-latest'); location.reload(); });
-  on('workNew', workNew); on('workCopy', workCopy); on('roomKeep', roomKeep);
+  on('workNew', workNew); on('workCopy', workCopy); on('roomKeep', roomKeep); on('slotGo', () => { if(slotWait !== null) slotGo(slotWait); });
+  document.querySelectorAll('[data-rslot]').forEach(q => { q.onclick = () => slotSet(q.dataset.rslot); }); document.querySelectorAll('[data-rslotadd]').forEach(q => { q.onclick = () => slotAdd(q.dataset.rslotadd); });
+
   on('roomTakeSet', () => { const v = document.getElementById('roomTakeSet').checked; roomFetch(roomPath('take'), { method:'PUT', body:JSON.stringify(v) }).then(() => { roomSig = ''; return roomPull(true); }).catch(() => { roomNote = '設定できませんでした。'; }).then(render); });
   for(const [k, f] of [['wopen', workOpen], ['wdel', id => { shelfDelAsk = id; render(); }], ['wdelno', () => { shelfDelAsk = ''; render(); }], ['wdelyes', id => { shelfDelAsk = ''; workWipe(id); render(); }], ['wname', id => { const n = workAsk('作品の名前', workName(id)); if(!n) return; if(id) LS.set('shelf', shelfList().map(x => (x.id === id ? { ...x, name:n } : x))); else LS.set('work-name', n); render(); }]]) document.querySelectorAll('[data-' + k + ']').forEach(q => { q.onclick = () => f(q.dataset[k]); });
   on('packOn', () => { const slug = repoSlug(document.getElementById('packRepo').value), key = document.getElementById('packKey').value.trim(); if(!slug){ packNote = 'リポジトリの名前を、「持ち主/リポジトリ」の形で入れてください。'; render(); return; } workOpen(shelfPack(slug, key)); });
@@ -11279,6 +11369,7 @@ if(TEST_BUILD && !room){ soloPull().then(() => { if(store.get('take-save', false
 // 部屋に入っていれば、開いたとき・画面に戻ったとき・30秒ごとに、ほかの人の進み具合を読みこむ
 if(room){
   if(myDirty) myTouch('fast');
+  try { const n = sessionStorage.getItem('jtld-slot'); if(n){ sessionStorage.removeItem('jtld-slot'); provNote = '部屋で使う作品が「' + n + '」に替わりました。'; } } catch(e){}
   peerStart(); if(roomLocal() && !isHost()) offTick();
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') peerStart(); });
   // 画面を離れるときに、まだ書いていない分を書く。開いているあいだは、3分ごとに「いる」印を書く
