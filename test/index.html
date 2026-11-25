@@ -614,7 +614,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 11:25 c59e505';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-25 12:26 fd246e9';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -677,7 +677,7 @@ let slot = room ? LS.get('room-' + room + '-slot', '') : '';
 if(!/^[a-z0-9]{2,16}$/.test(slot)) slot = '';
 const slotKey = (id, key) => 'room-' + room + '-' + (id ? 's-' + id + '-' : '') + key;
 if(room) work = LS.get(slotKey(slot, 'work'), '');
-const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try']); // 部屋で1つのもの
+const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try', 'box-key', 'box-enc-done']); // 部屋で1つのもの
 const WORK_KEYS = new Set(['pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'gh-repo', 'gh-pat', 'gh-own', 'asset-work']);
 const GLOBAL_KEYS = new Set(['sound', 'room-local', 'room', 'room-kind', 'dev', 'dev-key', 'fb-token', 'fb-name', 'video', 'send-at', 'cleared', 'cm-filter', 'mz-way', 'mz-board-days']);
 const keyOf = key => BASE + (GLOBAL_KEYS.has(key) ? key : room && !WORK_KEYS.has(key) ? (ROOM_KEYS.has(key) ? 'room-' + room + '-' + key : slotKey(slot, key)) : workKey(work, key));
@@ -9398,24 +9398,81 @@ async function vfsApi0(path, opt = {}){
 // 書くときは、預かり箱に書いて、通ったら写しに入れる。参加者が書ける範囲は、預かり箱の側で確かめる（vfsGuest と同じ決まり）。
 // 部屋の人かどうかは、端末の合言葉（DEV_KEY）で確かめる。ホストが、許可した端末の合言葉のハッシュを、預かり箱に知らせる。
 // 預かり箱を作れなかった部屋は、今までどおり、ホストの端末が置き場所
-let boxVer = 0, boxAt = 0, boxStale = true, boxBusy = null, boxIdle = 0, boxDownAt = 0, boxReadyP = null, boxKept = '', boxRestoring = false, boxAssetT = 0;
+// 暗号化：部屋の鍵（box-key）は、端末だけが持つ。ホストが作り、許可した端末に、つながった先でじかに渡す（預かり箱には、鍵の印 kid だけを知らせる）。
+// 中身は、端末で暗号化してから預ける（AES-GCM。道を添えて、入れかえを見分ける）。写し（vfsMem）は、開いた中身。
+// 預かり箱が決まりを確かめるのに要るもの（ロックの端末名と時刻・作品の番号）だけは、暗号化しない
+let boxVer = 0, boxAt = 0, boxStale = true, boxBusy = null, boxIdle = 0, boxDownAt = 0, boxReadyP = null, boxKept = '', boxRestoring = false, boxAssetT = 0, boxEnc = '', boxEncBusy = false, boxK = null;
 const boxAdmitted = new Set(), boxAssetSkip = new Set();
 const boxHash = async t => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))), n => n.toString(16).padStart(2, '0')).join('');
+const BOX_MAGIC = [74, 84, 69, 49], boxBytes = t => Uint8Array.from(atob(t), c => c.charCodeAt(0)), boxB64 = u => { let s = ''; for(let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+const boxHead = path => /^rooms\/[A-Z2-9]{8}\/room\.json$/.test(path) ? 'cfg' : /\/own\/[^\/]+\.json$/.test(path) ? 'own' : '';
+// 部屋の鍵 → { t, key, kid }。鍵がなければ null
+async function boxKeyNow(){
+  const t = boxOn() || isHost() ? store.get('box-key', '') : ''; if(!/^[a-f0-9]{64}$/.test(t)) return null;
+  if(!boxK || boxK.t !== t) boxK = { t, kid:(await boxHash('jtld-box:' + t)).slice(0, 16), key:await crypto.subtle.importKey('raw', Uint8Array.from(t.match(/../g), h => parseInt(h, 16)), 'AES-GCM', false, ['encrypt', 'decrypt']) };
+  return boxK;
+}
+const boxKeyMake = () => { if(!/^[a-f0-9]{64}$/.test(store.get('box-key', ''))) store.set('box-key', Array.from(crypto.getRandomValues(new Uint8Array(32)), n => n.toString(16).padStart(2, '0')).join('')); return boxKeyNow(); };
+async function boxCrypt(k, path, bytes){
+  const iv = crypto.getRandomValues(new Uint8Array(12)), c = new Uint8Array(await crypto.subtle.encrypt({ name:'AES-GCM', iv, additionalData:new TextEncoder().encode(room + ':' + path) }, k.key, bytes));
+  const u = new Uint8Array(16 + c.length); u.set(BOX_MAGIC); u.set(iv, 4); u.set(c, 16); return boxB64(u);
+}
+// 預ける形にする（鍵がなければ、そのまま）
+async function boxSeal(path, content){
+  const k = await boxKeyNow(); if(!k) return content;
+  const e = await boxCrypt(k, path, boxBytes(String(content).replace(/\s/g, ''))), head = boxHead(path); if(!head) return e;
+  const o = ghDecode({ content }) || {};
+  return b64(JSON.stringify(head === 'own' ? { dev:o.dev, ...(typeof o.at === 'number' ? { at:o.at } : {}), e } : { works:(Array.isArray(o.works) ? o.works : []).map(w => ({ id:w && w.id })), e }));
+}
+// 開く → { content, enc }。暗号化していない中身（前の版が書いた分）は、そのまま。開けないものは、読めないもの（空）にする
+async function boxOpen(path, raw){
+  let e = raw;
+  if(boxHead(path)){ const o = ghDecode({ content:raw }); if(!o || typeof o.e !== 'string') return { content:raw, enc:false }; e = o.e; }
+  try {
+    const u = boxBytes(String(e).replace(/\s/g, '')); if(u.length < 32 || BOX_MAGIC.some((n, i) => u[i] !== n)) return { content:raw, enc:false };
+    const k = await boxKeyNow(); if(!k) return { content:'', enc:true };
+    return { content:boxB64(new Uint8Array(await crypto.subtle.decrypt({ name:'AES-GCM', iv:u.subarray(4, 16), additionalData:new TextEncoder().encode(room + ':' + path) }, k.key, u.subarray(16)))), enc:true };
+  } catch(err){ return { content:'', enc:true }; }
+}
+const boxReset = () => { vfsMem = null; boxVer = 0; boxStale = true; boxDownAt = 0; repoSeen.files = {}; repoSeen.dirs = {}; };
+// 参加者：ホストから鍵が届いた
+function boxKeyGot(k){ if(isHost() || !/^[a-f0-9]{64}$/.test(String(k || '')) || (boxOn() && store.get('box-key', '') === k)) return; store.set('box-key', k); store.set('box', room); boxReset(); roomSig = ''; roomPull(true); }
+// ホスト：部屋を暗号化する。先に預かり箱へ知らせて（前の版が平文を書けなくなる）、参加者に鍵を渡し、平文で残っている中身を、暗号化して置き直す
+async function boxEncrypt(){
+  if(boxEncBusy || !isHost() || !boxOn()) return; boxEncBusy = true;
+  try {
+    const k = await boxKeyMake();
+    if(boxEnc !== k.kid){ if(boxEnc) return; const r = await boxCall([{ o:'enc', kid:k.kid }]); if(r.http !== 200 || !r.res[0] || r.res[0].status !== 200) return; }
+    liveAll({ t:'key', k:k.t });
+    if(store.get('box-enc-done', '') === k.kid) return;
+    let left = 0;
+    for(const p of Object.keys(vfsLoad())){
+      let f = vfsLoad()[p]; if(!f || f.enc) continue;
+      if(f.content === undefined){ const r = await boxCall([{ o:'get', path:p }]), g = r.res[0]; if(r.http !== 200 || !g){ left++; break; } if(g.status !== 200) continue; const o = await boxOpen(p, String(g.content || '')); if(o.enc) continue; f = { sha:String(g.sha), content:o.content }; }
+      const r = await boxCall([{ o:'put', path:p, content:await boxSeal(p, f.content), sha:f.sha }]), g = r.res[0];
+      if(r.http !== 200 || !g){ left++; break; }
+      boxStale = true;
+      if(g.status !== 200) left++;
+    }
+    if(!left) store.set('box-enc-done', k.kid); else boxStale = true;
+  } catch(e){} finally { boxEncBusy = false; }
+}
 async function boxCall(ops, keepalive){
   try {
-    const body = JSON.stringify({ dev:DEV, key:DEV_KEY, ops });
+    const k = await boxKeyNow(), body = JSON.stringify({ dev:DEV, key:DEV_KEY, ...(k ? { e:k.kid } : {}), ops });
     const r = await fetch(RELAY_URL + '/box/' + room, { method:'POST', body, keepalive:!!keepalive && new Blob([body]).size < 60000 }); // ブラウザは、64KB を超える keepalive を断る
     let j = null; try { j = await r.json(); } catch(e){}
+    if(r.status === 200 && j) boxEnc = String(j.enc || '');
     return { http:r.status, err:(j && j.error) || '', res:(j && Array.isArray(j.res) && j.res) || [] };
   } catch(e){ return { http:0, err:'', res:[] }; }
 }
-// 預かり箱に断られた：ホストが終わりにした（410）・部屋の人ではない（403）・部屋がない（404）
+// 預かり箱に断られた：ホストが終わりにした（410）・部屋の人ではない（403）・部屋がない（404）・暗号化した部屋の鍵がない（426）
 function boxFail(http, err){
   boxDownAt = Date.now();
   if(isHost()){ if(http === 404) boxRestore(); return; }
   if(http === 410){ roomEnded(); return; }
   if(http === 403 && err === 'dropped'){ roomKicked(); return; } // ホストが外した
-  if(http === 403 || http === 404){ store.remove('box'); vfsMem = null; boxVer = 0; repoSeen.files = {}; repoSeen.dirs = {}; peerStart(); } // ホストにつないで、入れ直してもらう
+  if(http === 403 || http === 404 || http === 426){ store.remove('box'); boxReset(); boxDownAt = Date.now(); peerStart(); } // ホストにつないで、入れ直してもらう・鍵をもらう
 }
 // 変わった分を受け取って、写しに入れる。大きいものと絵は、道と印だけ（中身は、読むときに取りに行く）
 function boxSync(){
@@ -9426,11 +9483,11 @@ function boxSync(){
     if(r.http !== 200 || !q || q.status !== 200){ boxFail(r.http, r.err); return false; }
     if(q.list && typeof q.list === 'object'){
       const F = vfsMem || {}, next = {};
-      for(const [p, sha] of Object.entries(q.list)) next[p] = { sha:String(sha), content:q.files && typeof q.files[p] === 'string' ? q.files[p] : F[p] && F[p].sha === sha ? F[p].content : undefined };
+      for(const [p, sha] of Object.entries(q.list)) next[p] = { sha:String(sha), ...(q.files && typeof q.files[p] === 'string' ? await boxOpen(p, q.files[p]) : F[p] && F[p].sha === sha ? { content:F[p].content, enc:F[p].enc } : { content:undefined }) };
       vfsMem = next;
     }
     boxIdle = q.ver === boxVer ? boxIdle + 1 : 0; boxVer = q.ver; boxAt = Date.now(); boxStale = false;
-    if(isHost()){ boxKeep(); boxAssetsSoon(); }
+    if(isHost()){ boxKeep(); boxAssetsSoon(); boxEncrypt(); }
     return true;
   })().finally(() => { boxBusy = null; }));
 }
@@ -9447,18 +9504,19 @@ async function boxDo(m, path, body, raw, as, keepalive){
       const r = await boxCall([{ o:'get', path }]), g = r.res[0];
       if(r.http !== 200 || !g) return { status:503 };
       if(g.status !== 200){ boxStale = true; return { status:g.status }; }
-      f.sha = String(g.sha); f.content = String(g.content || '');
+      Object.assign(f, { sha:String(g.sha) }, await boxOpen(path, String(g.content || '')));
     }
     return vfsDo('GET', path, null, raw);
   }
   if(m !== 'PUT' && m !== 'DELETE') return { status:405 };
-  const op = m === 'PUT' ? { o:'put', path, content:body && body.content, sha:(body && body.sha) || undefined } : { o:'del', path, sha:body && body.sha };
+  if(m === 'PUT' && (!body || typeof body.content !== 'string' || !/^[A-Za-z0-9+\/=\s]*$/.test(body.content))) return { status:400 };
+  const op = m === 'PUT' ? { o:'put', path, content:await boxSeal(path, body.content), sha:(body && body.sha) || undefined } : { o:'del', path, sha:body && body.sha };
   if(as) op.as = as;
   const r = await boxCall([op], keepalive), g = r.res[0];
   if(r.http !== 200 || !g){ boxFail(r.http, r.err); return { status:503 }; }
   if(g.status !== 200){ if(g.status === 409 || g.status === 404) boxStale = true; return { status:g.status }; }
   const F = vfsLoad();
-  if(m === 'PUT') F[path] = { sha:String(g.sha), content:body.content }; else delete F[path];
+  if(m === 'PUT') F[path] = { sha:String(g.sha), content:body.content, enc:op.content !== body.content }; else delete F[path];
   if(g.ver === boxVer + 1) boxVer = g.ver; else boxStale = true;
   return m === 'PUT' ? { status:200, json:{ content:{ sha:String(g.sha) } } } : { status:200, json:{} };
 }
@@ -9476,10 +9534,11 @@ async function boxInit(){
   if(!room || !roomLocal() || !isHost() || boxOn() || Date.now() - store.get('box-try', 0) < 86400000) return;
   let F = null; try { F = JSON.parse(localStorage.getItem(vfsKey(room)) || 'null'); } catch(e){}
   if(!F || !F['rooms/' + room + '/room.json']) return;
-  let ops = [{ o:'create', members:await boxMembers() }], size = 0;
+  const k = await boxKeyMake();
+  let ops = [{ o:'create', members:await boxMembers() }, { o:'enc', kid:k.kid }], size = 0;
   const send = async () => { const r = await boxCall(ops); if(r.http !== 200 || r.res.length !== ops.length || r.res.some(x => x.status !== 200)) throw r.http; ops = []; size = 0; };
   try {
-    for(const p of Object.keys(F)){ const c = String((F[p] || {}).content || ''); if(size + c.length > 3000000 || ops.length >= 40) await send(); ops.push({ o:'put', path:p, content:c, force:true }); size += c.length; }
+    for(const p of Object.keys(F)){ const c = String((F[p] || {}).content || ''); if(size + c.length > 3000000 || ops.length >= 40) await send(); ops.push({ o:'put', path:p, content:await boxSeal(p, c), force:true }); size += c.length; }
     await send();
   } catch(e){ if(e) store.set('box-try', Date.now()); return; } // つながらなかった（0）ときは、次に開いたときに、また試す
   store.set('box', room); store.remove('box-try'); vfsMem = null; vfsRaw = null; boxVer = 0; boxStale = true; repoSeen.files = {}; repoSeen.dirs = {};
@@ -9491,8 +9550,8 @@ function boxKeep(){ const f = vfsMem && vfsMem['rooms/' + room + '/room.json']; 
 async function boxRestore(){
   const cfg = store.get('box-cfg', ''); if(boxRestoring || !cfg) return; boxRestoring = true;
   try {
-    const ops = [{ o:'create', members:await boxMembers() }, { o:'put', path:'rooms/' + room + '/room.json', content:cfg, force:true }], works = ((ghDecode({ content:cfg }) || {}).works || []).filter(x => x && (x.id === '' || /^[a-z0-9]{2,16}$/.test(String(x.id))));
-    for(const w of works.some(x => x.id === '') ? works : [{ id:'' }, ...works]){ const o = LS.get(slotKey(w.id, 'overlay'), null); if(o) ops.push({ o:'put', path:'book/' + (w.id ? 's-' + w.id + '/' : '') + 'overlay.json', content:b64(JSON.stringify(o)), force:true }); }
+    const k = await boxKeyMake(), ops = [{ o:'create', members:await boxMembers() }, { o:'enc', kid:k.kid }, { o:'put', path:'rooms/' + room + '/room.json', content:await boxSeal('rooms/' + room + '/room.json', cfg), force:true }], works = ((ghDecode({ content:cfg }) || {}).works || []).filter(x => x && (x.id === '' || /^[a-z0-9]{2,16}$/.test(String(x.id))));
+    for(const w of works.some(x => x.id === '') ? works : [{ id:'' }, ...works]){ const o = LS.get(slotKey(w.id, 'overlay'), null); if(o){ const p = 'book/' + (w.id ? 's-' + w.id + '/' : '') + 'overlay.json'; ops.push({ o:'put', path:p, content:await boxSeal(p, b64(JSON.stringify(o))), force:true }); } }
     const r = await boxCall(ops);
     if(r.http === 200){ boxAdmitted.clear(); boxDownAt = 0; vfsMem = null; boxVer = 0; boxStale = true; repoSeen.files = {}; repoSeen.dirs = {}; myDirty = true; roomSig = ''; roomPull(true); }
   } catch(e){}
@@ -9574,12 +9633,13 @@ function memberConnect(){
     if(!msg || typeof msg !== 'object') return;
     hbMiss = 0;
     if(msg.t === 'hb'){ hbOk = true; return; }
-    if(msg.t === 'welcome'){ clearInterval(hbT); try { c.send({ t:'hb' }); } catch(e){} hbT = setInterval(() => { if(document.visibilityState !== 'visible' || c._f) return; if(hbOk && hbMiss >= 3){ clearInterval(hbT); gone(); try { c.close(); } catch(e){} return; } hbMiss++; try { c.send({ t:'hb' }); } catch(e){} }, 10000); const was = joinState; joinState = ''; peerOn = true; store.set('welcomed', true); provWait = false; if(msg.box && !boxOn()){ store.set('box', room); vfsMem = null; boxVer = 0; repoSeen.files = {}; repoSeen.dirs = {}; } boxStale = true; liveSend(); roomSig = ''; roomPull(true).then(provMerge); if(!typing()) render(); else pendingRender = true; }
+    if(msg.t === 'welcome'){ clearInterval(hbT); try { c.send({ t:'hb' }); } catch(e){} hbT = setInterval(() => { if(document.visibilityState !== 'visible' || c._f) return; if(hbOk && hbMiss >= 3){ clearInterval(hbT); gone(); try { c.close(); } catch(e){} return; } hbMiss++; try { c.send({ t:'hb' }); } catch(e){} }, 10000); const was = joinState; joinState = ''; peerOn = true; store.set('welcomed', true); provWait = false; if(msg.box && /^[a-f0-9]{64}$/.test(String(msg.k || '')) && store.get('box-key', '') !== msg.k){ store.set('box-key', msg.k); boxReset(); } if(msg.box && !boxOn()){ store.set('box', room); boxReset(); } boxStale = true; liveSend(); roomSig = ''; roomPull(true).then(provMerge); if(!typing()) render(); else pendingRender = true; }
     else if(msg.t === 'wait'){ joinState = 'wait'; if(!typing()) render(); }
     else if(msg.t === 'denied'){ joinState = 'denied'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'needkey'){ joinState = 'needkey'; clearTimeout(peerRetryT); if(!typing()) render(); }
     else if(msg.t === 'provok') provReply(msg.ok === true);
     else if(msg.t === 'file'){ if((msg.slot || '') === slot) liveGot(String(msg.dev || ''), msg.data); }
+    else if(msg.t === 'key' && peerOn) boxKeyGot(msg.k);
     else if(msg.t === 'changed'){ boxStale = true; clearTimeout(liveChT); liveChT = setTimeout(() => roomPull(), 300); }
     else if(msg.t === 'ended') roomEnded();
     else if(msg.t === 'refresh'){ roomSig = ''; roomPull(true); }
@@ -9592,7 +9652,7 @@ function memberConnect(){
 function hostWelcome(c, d){
   for(const [o, dv] of [...hostConns]) if(dv === d && o !== c){ hostConns.delete(o); const q = provAsks.get(d); if(q && q.c === o) q.c = c; try { o.close(); } catch(e){} } // 同じ端末の、前のつながり
   hostConns.set(c, d);
-  const hi = box => { try { c.send(box ? { t:'welcome', box:1 } : { t:'welcome' }); for(const [o, data] of Object.entries(liveFiles)) if(o !== d) c.send({ t:'file', dev:o, data, slot }); c.send({ t:'file', dev:DEV, data:liveMine(), slot }); } catch(e){} peerShow(); };
+  const hi = box => { try { c.send(box ? { t:'welcome', box:1, ...(boxEnc && boxK && boxK.kid === boxEnc ? { k:boxK.t } : {}) } : { t:'welcome' }); for(const [o, data] of Object.entries(liveFiles)) if(o !== d) c.send({ t:'file', dev:o, data, slot }); c.send({ t:'file', dev:DEV, data:liveMine(), slot }); } catch(e){} peerShow(); };
   if(boxOn()) boxAdmit(d).then(hi, () => hi(false)); else hi(false); // 預かり箱の部屋：預かり箱を使えるようにしてから、迎える
 }
 // 入りたい人を、許可する・断る
@@ -10321,7 +10381,7 @@ function roomPanelHtml(){
       + (host ? '<div class="rowl"><span>' + (roomOpen ? '部屋を閉じる' : '部屋を開ける') + '<small>部屋を閉じている間は、誰も本を進められません。</small></span><button class="sm" id="roomToggle">' + (roomOpen ? '閉じる' : '開ける') + '</button></div>'
         + '<div class="rowl"><span>部屋を終了する<small>' + (roomLocal() ? '全員が部屋に入れなくなり、部屋での進行が消えます。' : '全員が部屋に入れなくなります。記録は作業用リポジトリに残ります。') + '</small></span>' + (roomDelAsk ? '<button class="sm" id="roomDelYes">本当に終わりにする</button><button class="sm" id="roomDelNo">やめる</button>' : '<button class="sm" id="roomDel">終了する</button>') + '</div>' : '')
       + '</div>'
-    + '<details class="scr-more"><summary>呼び名や進み具合の保存先</summary><p>' + (roomLocal() ? '呼び名と進行データはホストのブラウザに保存されます。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
+    + '<details class="scr-more"><summary>呼び名や進み具合の保存先</summary><p>' + (roomLocal() && boxOn() ? '呼び名と進み具合、［通信］のメッセージ・画像・ファイルは、' + (store.get('box-key', '') ? '暗号化されて、' : '') + 'Cloudflare社のサーバーに保存されます。' + (store.get('box-key', '') ? '暗号を解く鍵は、ホストとメンバーのスマホやパソコンに保存されます。ホストとメンバーの全員がブラウザの保存データを消すと、鍵も消えて、サーバーに保存された内容を誰も読めなくなります。' : '') + 'サーバーに保存された内容は、ホストが部屋を終了したときと、1年間誰も部屋を開かなかったときに消えます。' : roomLocal() ? '呼び名と進行データはホストのブラウザに保存されます。' : '呼び名、書いた話、付けた画像、進み具合が、リポジトリ（' + escText(ghRepo()) + '）に残ります。本名や連絡先など、残したくないものは書かないでください。' + (repoOk ? '' : '今は、リポジトリにつながっていません。進めた分は、つながったときに書きます。')) + '</p></details>'
     + '</div>';
 }
 // 巻き戻し：ロックを取ってから「ロックを外す」を押すまでの自分の手は、直近 100 手まで取り消せる（部屋の中では 10 手まで。端末の保存の枠を、使いすぎないため）。
