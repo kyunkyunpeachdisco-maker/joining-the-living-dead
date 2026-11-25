@@ -11,6 +11,7 @@
  *   - 参加者：まず PeerJS で直接つなぐ。5秒でつながらない・相手が見つからないときは、中継役を通す
  *   - 中継役が設定されていない・動いていないときは、ふつうの PeerJS と同じに動く
  *   - conn.via が 'direct'（直接）か 'relay'（中継）かを表す
+ *   - new NetPeer(id, { wait: ミリ秒 }) で、途切れてから「切れた」にするまでの時間を変えられる（ホストと参加者で同じ数に。既定は60秒）
  *   - 途切れても60秒は「切れた」にしない：元の回線が戻るのを待ちながら、つなぎ直す（直接→中継）。続きの番号を付けて送り、抜けた分は送り直す
  *     その間、conn.lost が true になり、conn の 'lost'・'back' が起き、参加者の画面の上に「ホストとつなぎ直しています…」を出す。相手がわざと閉じたときは、すぐ 'close'
  */
@@ -222,7 +223,9 @@
     constructor(id, opts) {
       super();
       if (id && typeof id === 'object') { opts = id; id = undefined; }
-      this._wantId = id || null; this._opts = opts || {};
+      this._wantId = id || null; this._opts = Object.assign({}, opts);
+      // wait：途切れてから、切れたことにするまでの時間（ミリ秒）。ホストと参加者で、同じ数を渡す。渡さなければ60秒
+      this._wait = Math.min(600000, Math.max(0, +this._opts.wait || 0)); delete this._opts.wait;
       this.destroyed = false; this.open = false; this._id = id || null;
       this._p = null; this._pOpen = false; this._pFailed = false; this._pIdTaken = false;
       this._relayOk = false; this._relayRejected = false; this._ws = null; this._wsTry = 0; this._queue = [];
@@ -326,7 +329,7 @@
       }, wait);
     }
 
-    _track(nc) { this._all.add(nc); nc._onEnd = () => { this._all.delete(nc); if (nc._sid) this._sess.delete(nc._sid); losing.delete(nc); showBar(); }; return nc; }
+    _track(nc) { this._all.add(nc); if (this._wait) nc._waitMs = this._wait + (HOST_WAIT_MS - WAIT_MS); nc._onEnd = () => { this._all.delete(nc); if (nc._sid) this._sess.delete(nc._sid); losing.delete(nc); showBar(); }; return nc; }
 
     // ホスト：参加者の合図（hello）を受けとる。前からの続きなら、その人の回線を付けかえる
     _hello(link, h, peerId, meta, o) {
@@ -453,7 +456,7 @@
     connect(id, opts) {
       opts = opts || {};
       const nc = this._track(new NetConn(id, opts.metadata, opts)), sid = rand(24), base = relayBase();
-      nc._waitMs = WAIT_MS;
+      nc._waitMs = this._wait || WAIT_MS;
       nc.on('lost', () => { losing.add(nc); showBar(); }); nc.on('back', () => { losing.delete(nc); showBar(); });
       this._dial(id, opts, link => {
         if (nc._closed) { link.close(); return; }
@@ -471,7 +474,7 @@
       // つなぎ直し：つながって返事が来るまで、くり返す。元の回線が先に戻ったら、やめる
       let turn = 0;
       nc._redial = () => {
-        const my = ++turn, again = ms => setTimeout(go, ms);
+        const my = ++turn, t0 = Date.now(), again = ms => setTimeout(go, Date.now() - t0 > WAIT_MS ? ms * 4 : ms); // 長く待つときは、1分を過ぎたら間をあける
         const go = () => {
           if (my !== turn || nc._closed || !nc._lost || this.destroyed) return;
           if (this._p && this._p.disconnected && !this._p.destroyed) { try { this._p.reconnect(); } catch (e) {} }
