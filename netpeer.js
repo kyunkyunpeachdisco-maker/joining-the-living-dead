@@ -401,7 +401,7 @@
           } else if (o.t === 'guests') {
             const live = new Set((o.list || []).map(g => g.c));
             this._conns.forEach((l, cid) => { if (!live.has(cid)) { this._conns.delete(cid); if (l.onDown) l.onDown(); } });
-            (o.list || []).forEach(g => { if (!this._conns.has(g.c)) { this._relayGuest(g.c, g.meta); const l = this._conns.get(g.c); if (l) l.send({ __np: 'hello?' }); } });
+            (o.list || []).forEach(g => { if (!this._conns.has(g.c)) { this._relayGuest(g.c, g.meta, true); const l = this._conns.get(g.c); if (l) l.send({ __np: 'hello?' }); } });
             this._all.forEach(nc => { if (nc._mode === 'seq' && nc._link && nc._link.via === 'relay') { nc._raw({ __np: 'n', r: nc._in }); nc._resend(true); } }); // こちらの回線が切れていた間の分
           } else if (o.t === 'conn') {
             this._relayGuest(o.c, o.meta);
@@ -434,7 +434,8 @@
       ws.onerror = () => {};
     }
 
-    _relayGuest(cid, meta) {
+    // old：こちらがつなぐ前から、中継役にいた参加者（ホストの回線が切れていた間・ホストが開き直す前からの回線）
+    _relayGuest(cid, meta, old) {
       const l = { via: 'relay', send: d => {
         const s = 'd' + cid + '\n' + JSON.stringify(d);
         if (this._ws && this._relayOk && this._ws.readyState === 1) this._ws.send(s); else if (this._queue.length < 500) this._queue.push(s);
@@ -448,7 +449,12 @@
       const t = setTimeout(() => plain(), 3000);
       l.onDown = () => clearTimeout(t);
       l.onMsg = d => {
-        if (d && d.__np === 'hello') { clearTimeout(t); l.onMsg = l.onDown = null; this._hello(l, d, 'relay-' + cid, meta, { reliable: true }); } else plain(d);
+        // 中継役は、ホストの回線が切れても20秒は参加者の回線を残す。その間にホストが開き直すと、前のホストとの続きや、ホストがいない間に送られて捨てられた分のある回線が、こちらに来る。
+        // こちらの覚えている続きでなければ、覚えていないと返して、つなぎ直してもらう（受けると、参加者は済んだつもりのまま、アプリの入室の手順をやり直さない）
+        const gone = () => { clearTimeout(t); l.onMsg = l.onDown = null; try { l.send({ __np: 'gone' }); } catch (e) {} setTimeout(() => l.close(), 500); };
+        if (d && d.__np === 'hello') { if (old && !(typeof d.s === 'string' && this._sess.has(d.s))) { gone(); return; } clearTimeout(t); l.onMsg = l.onDown = null; this._hello(l, d, 'relay-' + cid, meta, { reliable: true }); }
+        else if (old && d && typeof d === 'object' && typeof d.__np === 'string') gone(); // 続きの番号を使う参加者の通（送り直し・見張り）が、合図より先に来た
+        else plain(d);
       };
     }
 

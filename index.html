@@ -612,7 +612,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.76';
+const APP_VERSION = 'v0.3.77';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -677,7 +677,7 @@ let slot = room ? LS.get('room-' + room + '-slot', '') : '';
 if(!/^[a-z0-9]{2,16}$/.test(slot)) slot = '';
 const slotKey = (id, key) => 'room-' + room + '-' + (id ? 's-' + id + '-' : '') + key;
 if(room) work = LS.get(slotKey(slot, 'work'), '');
-const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try', 'box-key', 'box-enc-done', 'taken', 'peer-pubs', 'peer-bh', 'host-pub']); // 部屋で1つのもの
+const ROOM_KEYS = new Set(['host-of', 'room-allowed', 'welcomed', 'by-code', 'peer-keys', 'room-repo', 'fb-icon', 'box', 'box-cfg', 'box-try', 'box-key', 'box-enc-done', 'taken', 'peer-pubs', 'peer-bh', 'host-pub', 'host-key']); // 部屋で1つのもの
 const WORK_KEYS = new Set(['pack', 'pack-cache', 'pack-key', 'pack-latest', 'pub-repo', 'gh-repo', 'gh-pat', 'gh-own', 'asset-work']);
 const GLOBAL_KEYS = new Set(['sound', 'room-local', 'room', 'room-kind', 'dev', 'dev-key', 'dev-sk', 'fb-token', 'fb-name', 'video', 'send-at', 'cleared', 'cm-filter', 'mz-way', 'mz-board-days']);
 const keyOf = key => BASE + (GLOBAL_KEYS.has(key) ? key : room && !WORK_KEYS.has(key) ? (ROOM_KEYS.has(key) ? 'room-' + room + '-' + key : slotKey(slot, key)) : workKey(work, key));
@@ -6827,14 +6827,19 @@ async function peerStart(){
   if(!room || !ghReady() || boxRoleDone) return;
   try { await loadPeer(); } catch(e){ peerRetry(60000); return; }
   if(peer && !peer.destroyed){ if(peer.disconnected) peer.reconnect(); else if(!isHost() && !hostConn) memberConnect(); return; }
+  // ホストの鍵（中継役が、同じホストのつなぎ直しかを見分ける）。netpeer はタブの中（sessionStorage）にしか持たないので、閉じて開き直すと別のホストになり、中継役が前のホストの席を空けるまでつながらない。部屋ごとに残しておいて、渡す
+  const hk = 'netpeer-key-jtld-room-' + room;
+  if(isHost()) try { const v = store.get('host-key', ''); if(v && !sessionStorage.getItem(hk)) sessionStorage.setItem(hk, v); } catch(e){}
   peer = isHost() ? new NetPeer('jtld-room-' + room, { wait:PEER_WAIT }) : new NetPeer({ wait:PEER_WAIT });
+  if(isHost()) try { const v = sessionStorage.getItem(hk); if(v && v !== store.get('host-key', '')) store.set('host-key', v); } catch(e){}
   peer.on('open', () => { if(isHost()){ peerOn = true; peerShow(); } else memberConnect(); });
   peer.on('connection', c => { if(isHost()) hostAccept(c); else c.close(); });
-  peer.on('disconnected', () => { if(isHost()){ peerOn = false; peerShow(); } peerRetry(8000); });
+  const me = peer; // 畳んだあとの古いつながりから、遅れて「切れた」が届いても、つなぎ直さない（ほかのタブにホストを渡したあとに、取り返しに行ってしまう）
+  peer.on('disconnected', () => { if(peer !== me) return; if(isHost()){ peerOn = false; peerShow(); } peerRetry(8000); });
   peer.on('error', e => {
     const t = e && e.type; dialAt = 0;
     if(t === 'peer-unavailable'){ peerOn = false; hostConn = null; offAt = 0; peerShow(); if(provOf() === null && !typing()) render(); peerRetry(30000); return; } // ホストが開いていない
-    if(t === 'unavailable-id' || (peer && peer.destroyed) || ['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)){ try { peer.destroy(); } catch(x){} peer = null; peerOn = false; hostConn = null; peerShow(); peerRetry(t === 'unavailable-id' ? 120000 : 30000); }
+    if(t === 'unavailable-id' || (peer && peer.destroyed) || ['network', 'server-error', 'socket-error', 'socket-closed'].includes(t)){ try { peer.destroy(); } catch(x){} peer = null; peerOn = false; hostConn = null; peerShow(); if(t === 'unavailable-id' && e.message === 'replaced') clearTimeout(peerRetryT); else peerRetry(t === 'unavailable-id' ? 25000 : 30000); }
   });
 }
 // dialAt：つないでいる途中（二重につながないように。つながらなければ30秒で忘れる）
