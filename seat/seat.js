@@ -11,7 +11,7 @@
 // 　　　　　　node seat.js wait [秒]        … 画面が変わるまで待つ（既定は600秒。ほかの頼みが来たら、そこで待つのをやめる）
 // 　　　　　　node seat.js wait [秒] --chat … 通信に新しい書きこみが来るか、止まっていた本が先へ進めるようになるまで待つ（手が空いている間は、こちら）
 // 　　　　　　node seat.js shot <ファイル>   … 画面の写真を保存する
-// 　　　　　　node seat.js secret <番号>    … パスワードの欄に、人が入れる（トークンなど）。このパソコンで開くページの場所を返すので、人に渡す。AI には中身が見えない
+// 　　　　　　node seat.js secret <番号>    … パスワードの欄に、ユーザーがトークンを入れる。ユーザーが開くページのアドレスを返す（スマホでも開けるものと、このパソコンでだけ開けるもの）。AI には中身が見えない
 // 　　　　　　node seat.js log             … ブラウザの記録を出す（つながらないときの調べもの用）
 // 　　　　　　node seat.js quit            … ブラウザを閉じて、席を畳む
 // ブラウザの記憶（端末の鍵・進行）は --profile に残る。次に席を開くと、同じメンバーとして、前に開いていたページへ戻る。
@@ -120,7 +120,8 @@ const SCAN = () => {
     pg.on('websocket', w => { keep('[ws 開く] ' + w.url().slice(0, 120)); w.on('close', () => keep('[ws 閉じる] ' + w.url().slice(0, 120))); w.on('socketerror', e => keep('[ws エラー] ' + e)); });
   };
   hook(page);
-  ctx.on('page', p => { if(p !== page){ notes.push('【別のタブが開こうとしたので、閉じた】' + p.url()); p.close().catch(() => {}); } });
+  let allowPage = false, secPage = null, secTimer = null; // secPage：secret で、中継役から暗号にしたトークンを受け取るための、裏のページ
+  ctx.on('page', p => { if(p !== page && !allowPage){ notes.push('【別のタブが開こうとしたので、閉じた】' + p.url()); p.close().catch(() => {}); } });
   const scan = async () => { for(let i = 0; i < 3; i++){ try { return await page.evaluate(SCAN); } catch(e){ await sleep(500); } } return { title:'', url:page.url(), text:'（画面を読めませんでした）', list:[] }; };
   const sigOf = v => v.text + '\n' + v.list.map(x => x.kind + x.label).join('\n');
   const show = async () => {
@@ -182,19 +183,50 @@ const SCAN = () => {
       if(!pw) return a[0] + ' 番は、パスワードの欄ではありません。secret で入れられるのは、パスワードの欄（中身が画面の文に出ない欄）だけです。\n\n' + await show();
       const nonce = crypto.randomBytes(16).toString('hex'), id = await f.el.evaluate(e => e.id || '');
       if(!/^[\w-]+$/.test(id)) await f.el.evaluate((e, n) => e.setAttribute('data-seat-secret', n), nonce);
-      secretAsk = { nonce, sel:/^[\w-]+$/.test(id) ? '[id="' + id + '"]' : '[data-seat-secret="' + nonce + '"]', label:f.was.label.replace(/（(空|入っている)）$/, ''), title:seen.title, until:Date.now() + 15 * 60000 };
-      return 'ユーザーに、次のページを、このパソコンのブラウザで開いてもらいます。15分たつか、1回使うと、ページは使えなくなります：\n'
-        + 'http://127.0.0.1:' + PORT + '/s/' + nonce + '\n'
-        + 'ユーザーが入れる中身は、' + a[0] + ' 番の欄（' + secretAsk.label + '）に入り、あなたには見えません。ユーザーに、中身をこの会話に書かないように伝えます。\n'
+      const s = secretAsk = { nonce, sel:/^[\w-]+$/.test(id) ? '[id="' + id + '"]' : '[data-seat-secret="' + nonce + '"]', label:f.was.label.replace(/（(空|入っている)）$/, ''), title:seen.title, until:Date.now() + 15 * 60000 };
+      const far = await secretFar(s).catch(() => { secretStop(); return ''; });
+      return 'ユーザーに、次のどちらかのページを開いてもらってください。15分たつか、どちらかでトークンを1回入れると、どちらも使えなくなります。\n'
+        + (far ? '・スマホなど、どの端末でも開けるページ：\n' + far + '\n' : '（中継のサーバーにつながらないので、どの端末でも開けるページは出せませんでした）\n')
+        + '・このパソコンのブラウザでだけ開けるページ：\n' + 'http://127.0.0.1:' + PORT + '/s/' + nonce + '\n'
+        + 'ユーザーが入れる中身は、' + a[0] + ' 番の欄（' + s.label + '）に入り、あなたには見えません。ユーザーに、中身をこの会話に書かないように伝えます。\n'
         + '中身が入ると wait が返るので、欄のボタンを押します。［連携する］などです。';
     }
     if(q.cmd === 'log') return logs.join('\n') || '（記録なし）';
     if(q.cmd === 'shot'){ const f = path.resolve(a[0] || 'seat.png'); await page.screenshot({ path:f }); return '保存した：' + f; }
-    if(q.cmd === 'quit'){ setTimeout(async () => { try { await ctx.close(); } catch(e){} process.exit(0); }, 100); return '席を畳みます。'; }
+    if(q.cmd === 'quit'){ secretStop(); setTimeout(async () => { try { await ctx.close(); } catch(e){} process.exit(0); }, 100); return '席を畳みます。'; }
     return '分からない頼みです：' + q.cmd;
   };
-  // secret の入口：人が、このパソコンのブラウザで開いて、秘密の文を入れるページ。中身は、ゲームの欄に入れるだけで、AI への返事にも記録にも出さない
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  // secret：入れるのは、ゲームの欄だけ。AI への返事にも、記録にも出さない
+  const secretFill = async (s, v) => {
+    try { await page.locator(s.sel).first().fill(v, { timeout:8000 }); notes.push('【ユーザーが、' + s.label + ' の欄にトークンを入れた。中身は見せない】'); return true; } // 欄から出さない（ゲームは、欄に入っている間は描き直さないので、入れた文が消えない）
+    catch(e){ notes.push('【ユーザーがトークンを入れようとしたが、欄が画面から消えていて、入らなかった。もう一度 secret を打つ】'); return false; }
+  };
+  const secretStop = () => { clearInterval(secTimer); secTimer = null; const p = secPage; secPage = null; if(p) p.close().catch(() => {}); };
+  // どの端末でも開けるページ（公開のページの seat/secret.html）：席が裏のページで使い捨ての鍵を作り、中継役で待つ。ユーザーのページは、その鍵で暗号にしてから送る。中継役が見るのは、暗号にしたものだけ
+  const SECRET_PAGE = process.env.JTLD_SECRET_PAGE || 'https://kyunkyunpeachdisco-maker.github.io/joining-the-living-dead/seat/secret.html';
+  const secretFar = async s => {
+    secretStop();
+    const room = 'jtld-seat-' + crypto.randomBytes(12).toString('hex'), hk = crypto.randomBytes(24).toString('hex');
+    allowPage = true; let sp; try { sp = await ctx.newPage(); } finally { allowPage = false; }
+    secPage = sp;
+    await sp.goto(SECRET_PAGE + '#r=' + room + '&h=' + hk, { waitUntil:'load', timeout:30000 });
+    await sp.waitForFunction(() => window.__seat && window.__seat.pub && window.__seat.state === 'wait', null, { timeout:20000 });
+    const pub = await sp.evaluate(() => window.__seat.pub);
+    let looking = false;
+    secTimer = setInterval(async () => {
+      if(looking || secPage !== sp) return;
+      if(secretAsk !== s || Date.now() > s.until){ secretStop(); return; }
+      looking = true;
+      try {
+        const st = await sp.evaluate(() => window.__seat.state);
+        if(st === 'got'){ let v = await sp.evaluate(() => { const x = window.__seat.v; window.__seat.v = ''; return x; }); secretAsk = null; secretStop(); await secretFill(s, v); v = ''; }
+        else if(st !== 'wait') secretStop(); // 中継役が切れた・読めないものが3回来た
+      } catch(e){} finally { looking = false; }
+    }, 1000);
+    return SECRET_PAGE + '#s=' + room + '&k=' + pub + '&n=' + encodeURIComponent(s.label);
+  };
+  // このパソコンのブラウザでだけ開けるページ
+  const esc =s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
   const secretPage = (q, r, nonce) => {
     const page0 = (body, st = 200) => { r.writeHead(st, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store', 'Referrer-Policy':'no-referrer', 'X-Frame-Options':'DENY', 'Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'" }); r.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>席にトークンを入れる</title><body style="font:16px/1.7 sans-serif;max-width:560px;margin:32px auto;padding:0 16px">' + body + '</body>'); };
     const s = secretAsk;
@@ -208,9 +240,9 @@ const SCAN = () => {
       if(secretAsk !== s) return page0('<p>このページは、もう使えません。トークンを入れるときは、AI に、ページのアドレスをもう一度頼んでください。</p>', 404);
       let v = (new URLSearchParams(t).get('v') || '').trim(); t = '';
       if(!v) return page0('<p>欄が空でした。前のページに戻って、トークンを入れ直してください。</p>', 400);
-      secretAsk = null; // 1回だけ
-      try { await page.locator(s.sel).first().fill(v, { timeout:8000 }); v = ''; notes.push('【ユーザーが、' + s.label + ' の欄にトークンを入れた。中身は見せない】'); page0('<p>トークンを入れました。AI との会話に戻ってください。</p>'); } // 欄から出さない（ゲームは、欄に入っている間は描き直さないので、入れた文が消えない）
-      catch(e){ v = ''; notes.push('【ユーザーがトークンを入れようとしたが、欄が画面から消えていて、入らなかった。もう一度 secret を打つ】'); page0('<p>トークンを入れられませんでした。席のゲームの画面から、欄が消えていました。AI に、ページのアドレスをもう一度頼んでください。</p>', 409); }
+      secretAsk = null; secretStop(); // 1回だけ（どの端末でも開けるページも、使えなくする）
+      const okd = await secretFill(s, v); v = '';
+      if(okd) page0('<p>トークンを入れました。AI との会話に戻ってください。</p>'); else page0('<p>トークンを入れられませんでした。席のゲームの画面から、欄が消えていました。AI に、ページのアドレスをもう一度頼んでください。</p>', 409);
     });
   };
   let busy = Promise.resolve();
