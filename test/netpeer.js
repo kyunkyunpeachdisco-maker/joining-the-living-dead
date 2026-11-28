@@ -216,6 +216,12 @@
   // ページを閉じる・移るとき：すぐ切れたと分かるように、知らせてから閉じる
   const alive = new Set();
   const sayBye = () => alive.forEach(p => p._all.forEach(nc => nc._bye()));
+  // 画面に戻ったとき・回線が戻ったとき：黙って切れている回線を、すぐ確かめる。
+  // スマホは、ほかのアプリへ行っている間に回線を止める。次の確かめの番（PING_MS × 3）を待つと、切れたと気づくのに1分以上かかる
+  const probes = new Set(), PROBE_MS = 4000;
+  const wake = () => { [...probes].forEach(f => f()); alive.forEach(p => p._wake()); };
+  if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
+  if (window.addEventListener) window.addEventListener('online', wake);
   if (window.addEventListener) { window.addEventListener('pagehide', sayBye); window.addEventListener('pageshow', e => { if (e.persisted) alive.forEach(p => [...p._all].forEach(nc => nc._end())); }); }
 
   // ---- NetPeer（PeerJS の Peer と同じ形） ----
@@ -382,16 +388,19 @@
       try { ws = new WebSocket(wsUrl('/room/' + encodeURIComponent(this._wantId) + '?role=host&key=' + this._hostKey)); }
       catch (e) { this._relayDown = true; return; }
       this._ws = ws;
-      let opened = false, ping = null, quiet = 0;
+      let opened = false, ping = null, quiet = 0, asked = 0;
+      const drop = () => { try { ws.close(); } catch (e) {} if (this._ws === ws) ws.onclose({ code: 0 }); };
+      const probe = () => { if (!opened) return; if (ws.readyState !== 1) { drop(); return; } const n = ++asked; try { ws.send('ping'); } catch (e) { drop(); return; } setTimeout(() => { if (asked === n) drop(); }, PROBE_MS); };
+      probes.add(probe);
       ws.onmessage = ev => {
         const m = String(ev.data);
-        quiet = 0;
+        quiet = 0; asked++;
         if (m === 'pong') return;
         if (m[0] === 'c') {
           let o; try { o = JSON.parse(m.slice(1)); } catch (e) { return; }
           if (o.t === 'open') {
             opened = true; this._relayOk = true; this._relayDown = false; this._wsTry = 0;
-            ping = setInterval(() => { if (++quiet > 2) { try { ws.close(); } catch (e) {} if (this._ws === ws) ws.onclose({ code: 0 }); return; } try { ws.send('ping'); } catch (e) {} }, PING_MS);
+            ping = setInterval(() => { if (++quiet > 2) { drop(); return; } try { ws.send('ping'); } catch (e) {} }, PING_MS);
             const q = this._queue; this._queue = []; q.forEach(s => { try { ws.send(s); } catch (e) {} });
             if (this._pIdTaken) this._retryPeerLater();
             this._markOpen();
@@ -418,7 +427,7 @@
       let closed = false;
       ws.onclose = ev => {
         if (closed) return; closed = true;
-        clearInterval(ping);
+        clearInterval(ping); probes.delete(probe);
         if (this._ws !== ws && this._ws) return;
         this._ws = null;
         this._relayOk = false;
@@ -528,10 +537,13 @@
         relayState = 'trying';
         try { ws = new WebSocket(wsUrl('/room/' + encodeURIComponent(id) + '?role=guest' + (opts.metadata !== undefined ? '&meta=' + encodeURIComponent(JSON.stringify(opts.metadata)) : ''))); }
         catch (e) { relayState = 'network'; finishFail(); return; }
-        let ping = null, wait = 0, link = null;
+        let ping = null, wait = 0, link = null, asked = 0, shut = false;
+        const drop = () => { try { ws.close(); } catch (e) {} ws.onclose(); };
+        const probe = () => { if (!link) return; if (ws.readyState !== 1) { drop(); return; } const n = ++asked; try { ws.send('ping'); } catch (e) { drop(); return; } setTimeout(() => { if (asked === n) drop(); }, PROBE_MS); };
+        probes.add(probe);
         ws.onmessage = ev => {
           const m = String(ev.data);
-          wait = 0;
+          wait = 0; asked++;
           if (m === 'pong') return;
           if (m[0] === 'c') {
             let o; try { o = JSON.parse(m.slice(1)); } catch (e) { return; }
@@ -553,7 +565,8 @@
           }
         };
         ws.onclose = () => {
-          clearInterval(ping);
+          if (shut) return; shut = true;
+          clearInterval(ping); probes.delete(probe);
           if (link) { if (link.onDown) link.onDown(); return; }
           if (relayState === 'trying') relayState = 'network';
           finishFail();
@@ -586,6 +599,12 @@
         if (relayBase()) later(startRelay);
         else if (!quiet) later(() => this.emit('error', { type: 'disconnected', message: 'Cannot connect to new Peer after disconnecting from server.' }));
       }
+    }
+
+    // 画面に戻った：中継役へのつなぎ直しを待っているところなら、待たずにつなぐ
+    _wake() {
+      if (this.destroyed || this._relayRejected) return;
+      if (this._wantId && !this._ws && relayBase()) { clearTimeout(this._wsTimer); this._wsTry = 0; this._startRelayHost(); }
     }
 
     reconnect() {
