@@ -614,7 +614,7 @@ const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length 
 const openIds = () => CHAR_IDS.filter(bookOpen);
 const APP_VERSION = '__APP_VERSION__';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
-const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-27 15:48 e1ef47d';
+const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '編集版 2026-11-28 01:15 e558fab';
 const EMBED = /*EMBED*/null/*EMBED*/;
 const GAME_REPO = 'kyunkyunpeachdisco-maker/joining-the-living-dead', FEEDBACK_KINDS = ['文章', '選択肢', '不具合', '追加の案', 'その他'];
 const BOOKS = {};
@@ -8933,11 +8933,11 @@ function howPages(kind){
         ...(room && roomLocal() ? [] : [linkWay]),
         ['ファイルで共有する', '［ファイルで書き出す］を押すと、ゲームが1つのファイルに書き出されます。ファイルを、遊んでほしい人に送ります。受け取った人は、ファイルをブラウザで開くと遊べます。'],
       ], after:room && roomLocal() ? '' : '※ リンクで公開したあとは、' + (room ? '［部屋の管理］の画面' : '［公開・共有］の画面') + 'に［バージョン履歴］が出ます。［バージョン履歴］を押すと、公開したバージョンが並びます。<br>・［差分を見る］：1つ前のバージョンから変わった所が出ます。<br>・［このバージョンを公開］：選んだバージョンの内容が、新しいバージョンとして公開されます。公開リンクは変わりません。<br>・［このバージョンに復元］：' + (room ? '部屋の全員のゲームが、' : '書き換えた内容が、') + '選んだバージョンの内容に置きかわります。', btn:['howPackBtn', room ? '部屋の管理' : '公開・共有を開く'] },
-      { t:'みんなで作る', text:room ? '［☰］→［部屋］→［部屋の管理］で［招待リンクをコピー］を押して、招待リンクを、招待したい人に送ります。' + (roomLocal() ? '招待された人が招待リンクを開くと、ホストの画面の上に［許可する］が出ます。ホストが［許可する］を押すと、招待された人が部屋に入ります。［許可する］が出るのは、ホストがゲームを開いている間です。' : '招待リンクには、トークンが入っています。トークンは、作業用リポジトリに書き込むための鍵です。招待リンクを開いた人は、ホストの許可なしで部屋に入れて、作業用リポジトリに書き込めます。招待リンクは、一緒に作る人にだけ送ってください。') + (roomRo() ? '' : '<br><br>部屋に入ったメンバーは、ゲームを遊びながら、本文や選択肢を書き換えられます。') : '部屋を作って招待リンクを送ると、何人かで同じゲームを遊んだり、書き換えたりできます。部屋を作った人をホスト、部屋に入っている人をメンバーと呼びます。ホストもメンバーです。<br><br>部屋には、遊ぶ部屋と、一緒に作る部屋があります。どちらの部屋でも、メンバーはゲームを書き換えられます。部屋を作るボタンは、［☰］→［部屋］→［部屋を作る・招待された部屋に入る］を押すと出ます。', list:room ? (roomLocal() && isHost() && (store.get('seed', null) || {}).mine ? [['部屋で書き換えた内容を、部屋を作るときに開いていた作品にも反映する', '［☰］→［部屋］→［部屋の管理］で［書き換えを取りこむ］を押すと、この部屋で全員のゲームへ反映された内容が、部屋を作るときに開いていた作品にも反映されます。']] : []) : [
+      { t:'みんなで作る', text:room ? '［☰］→［部屋］→［部屋の管理］で［招待リンクをコピー］を押して、招待リンクを、招待したい人に送ります。' + (roomLocal() ? '招待された人が招待リンクを開くと、ホストの画面の上に［許可する］が出ます。ホストが［許可する］を押すと、招待された人が部屋に入ります。［許可する］が出るのは、ホストがゲームを開いている間です。' : '招待リンクには、トークンが入っています。トークンは、作業用リポジトリに書き込むための鍵です。招待リンクを開いた人は、ホストの許可なしで部屋に入れて、作業用リポジトリに書き込めます。招待リンクは、一緒に作る人にだけ送ってください。<br>トークンを渡したくない人には、部屋番号だけを伝えます。部屋番号で申し込まれると、ホストの画面の上に［許可する］が出ます。許可した人の読み書きは、ホストのゲームが代わりに作業用リポジトリへ書きます。そのため、許可した人の書き換えが保存されるのは、ホストがゲームを開いている間だけです。') + (roomRo() ? '' : '<br><br>部屋に入ったメンバーは、ゲームを遊びながら、本文や選択肢を書き換えられます。') : '部屋を作って招待リンクを送ると、何人かで同じゲームを遊んだり、書き換えたりできます。部屋を作った人をホスト、部屋に入っている人をメンバーと呼びます。ホストもメンバーです。<br><br>部屋には、遊ぶ部屋と、一緒に作る部屋があります。どちらの部屋でも、メンバーはゲームを書き換えられます。部屋を作るボタンは、［☰］→［部屋］→［部屋を作る・招待された部屋に入る］を押すと出ます。', list:room ? (roomLocal() && isHost() && (store.get('seed', null) || {}).mine ? [['部屋で書き換えた内容を、部屋を作るときに開いていた作品にも反映する', '［☰］→［部屋］→［部屋の管理］で［書き換えを取りこむ］を押すと、この部屋で全員のゲームへ反映された内容が、部屋を作るときに開いていた作品にも反映されます。']] : []) : [
         ['遊ぶ部屋を作る', '遊ぶ部屋は、リポジトリを設定していなくても作れます。遊ぶ部屋で書き換えた内容は、部屋のゲームにだけ反映されます。［遊ぶ部屋を作る］を押します。リポジトリを設定していないときは、ボタンの名前が［部屋を作る］になります。<br>部屋ができたら、［招待リンクをコピー］を押して、招待リンクを、招待したい人に送ります。招待された人が招待リンクを開くと、ホストの画面の上に［許可する］が出ます。ホストが［許可する］を押すと、招待された人が部屋に入ります。［許可する］が出るのは、ホストがゲームを開いている間です。'],
-        ['一緒に作る部屋を作る', '一緒に作る部屋は、リポジトリを設定すると作れます。一緒に作る部屋で書き換えた内容は、作業用リポジトリに保存されます。次のことは、一緒に作る部屋でできて、遊ぶ部屋ではできません。<br>・本文に画像を添付する<br>・本文や選択肢を書くのを AI に頼む<br>・ゲームをリンクで公開する<br>［一緒に作る部屋を作る］を押します。部屋ができたら、［招待リンクをコピー］を押して、招待リンクを、招待したい人に送ります。<br>一緒に作る部屋の招待リンクには、トークンが入ります。招待リンクを開いた人は、ホストの許可なしで部屋に入れて、作業用リポジトリに書き込めます。招待リンクは、一緒に作る人にだけ送ってください。'],
+        ['一緒に作る部屋を作る', '一緒に作る部屋は、リポジトリを設定すると作れます。一緒に作る部屋で書き換えた内容は、作業用リポジトリに保存されます。次のことは、一緒に作る部屋でできて、遊ぶ部屋ではできません。<br>・本文に画像を添付する<br>・本文や選択肢を書くのを AI に頼む<br>・ゲームをリンクで公開する<br>［一緒に作る部屋を作る］を押します。部屋ができたら、［招待リンクをコピー］を押して、招待リンクを、招待したい人に送ります。<br>一緒に作る部屋の招待リンクには、トークンが入ります。招待リンクを開いた人は、ホストの許可なしで部屋に入れて、作業用リポジトリに書き込めます。招待リンクは、一緒に作る人にだけ送ってください。<br>トークンを渡したくない人には、部屋番号だけを伝えます。部屋番号で申し込まれると、ホストの画面の上に［許可する］が出ます。許可した人の読み書きは、ホストのゲームが代わりに作業用リポジトリへ書きます。そのため、許可した人の書き換えが保存されるのは、ホストがゲームを開いている間だけです。'],
         ['遊ぶ部屋で書き換えた内容を、自分の作品に反映する', '遊ぶ部屋で書き換えた内容は、ホストが［☰］→［部屋］→［部屋の管理］で［書き換えを取りこむ］を押すと、部屋を作るときに開いていた作品に反映されます。'],
-      ], after:'※ メンバーが書き換えた内容は、編集提案として通信に並びます。編集提案の説明は、「通信」のページにあります。編集提案がいつ全員のゲームへ反映されるかは、ホストが［☰］→［部屋］→［部屋の管理］の「編集の反映ルール」で、［即時反映］［1人の承認で反映］［ホストの承認で反映］から選びます。<br>※ メンバーを部屋から外すときは、ホストが［☰］→［部屋］→［部屋の管理］で、外したいメンバーの［退出させる］を押します。' + (room && roomLocal() ? (isHost() ? '<br>※ メンバーがこの部屋のゲームを自分の作品一覧に追加できるようにするときは、ホストが［☰］→［部屋］→［部屋の管理］で、「メンバーが、この部屋の作品を作品一覧に追加するのを許可する」にチェックを入れます。作品一覧は、タイトル画面の［作品一覧］を押すと開く、ゲームの一覧です。メンバーは、作品一覧に追加したゲームを、部屋を出たあとも開けます。' : '') : (room ? '' : '一緒に作る部屋では、') + '外したメンバーは、前の招待リンクに入っているトークンで、作業用リポジトリに書き込めるままです。書き込みも止めるときは、［部屋の管理］の画面の［トークンを再発行］を押して、出てくる手順のとおりに、トークンを作り直します。部屋に残るメンバーには、新しい招待リンクを送ります。'), btn:['howPackBtn2', room ? '部屋の管理' : '部屋を作る'] },
+      ], after:'※ メンバーが書き換えた内容は、編集提案として通信に並びます。編集提案の説明は、「通信」のページにあります。編集提案がいつ全員のゲームへ反映されるかは、ホストが［☰］→［部屋］→［部屋の管理］の「編集の反映ルール」で、［即時反映］［1人の承認で反映］［ホストの承認で反映］から選びます。<br>※ メンバーを部屋から外すときは、ホストが［☰］→［部屋］→［部屋の管理］で、外したいメンバーの［退出させる］を押します。' + (room && roomLocal() ? '' : (room ? '' : '一緒に作る部屋では、') + '外したメンバーは、前の招待リンクに入っているトークンで、作業用リポジトリに書き込めるままです。書き込みも止めるときは、［部屋の管理］の画面の［トークンを再発行］を押して、出てくる手順のとおりに、トークンを作り直します。部屋に残るメンバーには、新しい招待リンクを送ります。'), btn:['howPackBtn2', room ? '部屋の管理' : '部屋を作る'] },
       ...(room ? [] : [lockHow]),
       { img:'how-make-2', full:true, t:'通信', lead:room ? '画面の右端の［通信］を押すと、通信が開きます。通信では、メンバーとメッセージをやり取りします。メンバーが書き換えた内容も、編集提案として通信に並びます。' : '画面の右端の［通信］を押すと、通信が開きます。部屋に入っていないとき、通信は、自分用のメモを書く所です。部屋に入っているとき、通信は、メンバーとメッセージをやり取りする所です。', legend:[B('新しいスレッド') + '：スレッドは、話題ごとのやり取りです。最初のメッセージを書いて［送る］を押すと、スレッドが始まります。最初のメッセージが、スレッドの名前になります。', B('スレッド') + '：スレッドを押すと、スレッドが開いて、メッセージを読んだり書いたりできます。', B('編集提案') + '：編集提案は、部屋のメンバーが書き換えた内容のうち、まだ全員のゲームに反映されていないものです。編集提案は、1件ずつスレッドになります。ホストが編集提案を開いて［採用する］を押すと、編集提案が全員のゲームへ反映されます。ホストが［即時反映］を選んだ部屋では、ホストがゲームを開いていると、編集提案がすぐ反映されます。ホストが［1人の承認で反映］を選んだ部屋では、書き換えた人のほかのメンバー1人が［賛成］を押すと、編集提案が反映されます。', B('採用待ち') + '：押すと、編集提案だけが並びます。'], after:'※ ' + (room ? '' : '部屋では、') + 'メッセージを書く所の左の［＋］を押して、［ファイルを添付］を押すと、500KB までのファイルを添付できます。<br>※ 自分が始めたスレッドを長押しすると、［名前を変更］と［削除］が出ます。パソコンでは、スレッドを右クリックします。編集提案のスレッドには、［削除］は出ません。' },
       ...(room && roomLocal() ? [] : [mzHow, mzHow2]),
@@ -8965,12 +8965,12 @@ function howPages(kind){
     // メニュー：写真のタブの番号ごとに、中身を言う（［作る］は編集版だけ。部屋の中では、ロックは部屋の画面でする）
     { img:TEST_BUILD ? 'how-play-1-test' : EMBED ? 'how-play-1-file' : 'how-play-1', full:true, t:'メニュー', lead:'本を読む画面の右上の［☰］を押すと、メニューが開きます。上のタブを押すと、メニューの中身が替わります。', legend:[
       B('本') + (room ? '：読む本を選びます。' : '：読む本を選んだり、本のロックを外したりします。') + '選択肢を選んだあとは、［1つ前に戻す］も出ます。［1つ前に戻す］を押すと、選んだ選択肢が新しい順に並びます。選び直したい選択肢の［ここへ戻す］を押すと、本が、選ぶ前の場面に戻ります。' + (room ? '並ぶ選択肢は、新しいほうから10回分です。自分が選択肢を選んだあとにほかの本が進むと、本を、選ぶ前の場面に戻せません。' : '並ぶ選択肢は、新しいほうから' + UNDO_MAX + '回分です。'),
-      ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の管理］を押すと、本をロックしたり、本のロックを外したりする画面が開きます。人を招待する［招待リンクをコピー］も、同じ画面にあります。' + (isHost() ? 'ホストは、同じ画面で、メンバーを部屋から外せます。' : '') + '［部屋を出る］を押すと、部屋を出て、タイトル画面に戻ります。' : '：「部屋」を作ったり、招待された部屋に入ったりします。部屋は、何人かで一緒に遊ぶ場所です。' + (TEST_BUILD ? '部屋の中では、何人かでゲームを書き換えることもできます。' : '') + '部屋の説明は、次のページの「部屋を作ってみんなで遊ぶ」にあります。')]),
+      ...(EMBED ? [] : [B('部屋') + (room ? '：［部屋の管理］を押すと、本をロックしたり、本のロックを外したりする画面が開きます。人を招待する［招待リンクをコピー］も、同じ画面にあります。' + (isHost() ? 'ホストは、同じ画面で、メンバーを部屋から外せます。' + (roomLocal() ? 'メンバーがこの部屋のゲームを自分の作品一覧に追加できるようにするときは、同じ画面で、「メンバーが、この部屋の作品を作品一覧に追加するのを許可する」にチェックを入れます。作品一覧は、タイトル画面の［作品一覧］を押すと開く、ゲームの一覧です。メンバーは、作品一覧に追加したゲームを、部屋を出たあとも開けます。' : '') : '') + '［部屋を出る］を押すと、部屋を出て、タイトル画面に戻ります。' : '：「部屋」を作ったり、招待された部屋に入ったりします。部屋は、何人かで一緒に遊ぶ場所です。' + (TEST_BUILD ? '部屋の中では、何人かでゲームを書き換えることもできます。' : '') + '部屋の説明は、次のページの「部屋を作ってみんなで遊ぶ」にあります。')]),
       ...(TEST_BUILD ? [B('作る') + (room ? '：ゲームを書き換えるときに使います。' : '：ゲームを書き換えるときと、書き換えたゲームを公開するときに使います。') + '使い方は、［その他］→［作り方］にあります。'] : []),
       B('その他') + (room ? '：' + (TEST_BUILD ? '［遊び方］［作り方］［サウンド］' : '［遊び方］［サウンド］') + 'があります。' : '：' + (TEST_BUILD ? '［遊び方］［作り方］' : '［遊び方］') + '［サウンド］' + (EMBED ? '' : '［作品一覧］') + '［タイトルへ］［最初から］があります。' + (EMBED ? '' : '［作品一覧］の説明は、「作品一覧」のページにあります。') + '［最初から］を押すと、全部の本の進行が消えます。') + '［サウンド］を押すたびに、音の ON と OFF が替わります。'] },
     { t:'ゲームの進めかた', list:[
       ['選択肢を選んで本を進める', '本文の下の選択肢を選ぶと、本と、話の中の時刻が進みます。進む時間は、選択肢ごとに違います。時刻が夜8時になると、投票所が閉まります。'],
-      [room ? 'ほかの本が追いつくのを待つ' : '遅れている本を進める', room ? (roomGap() ? '部屋では、いちばん遅れている本より、話の中の時刻で' + roomGap() + '分より先へ進むと、遅れている本が追いつくまで先へ進めません。' : '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。次の時間帯に先に入った本は、前の時間帯に残っている本が追いつくまで、先へ進めません。') + '遅れている本に、実際の時間で30分間動きがないと、本文の上に［待たずに先へ進む］が出ます。ほかの本は、一度も進めていない本を待ちません。' + (isHost() ? 'ホストは、［☰］→［部屋］→［部屋の管理］の「進行の同期幅」で、ほかの本をどこまで待つかを替えられます。' : '') : '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。ロックした本は、次の時間帯に入ると、前の時間帯に残っている本が追いつくまで、先へ進めません。本文の上に、遅れている本の主人公の名前が入った、「…の本へ移る」のボタンが出ます。「…の本へ移る」のボタンを押すと、進行が保存されて、遅れている本がロックされます。遅れている本を、次の時間帯まで自分で進めます。ロックした本は、一度も進めていない本を待ちません。'],
+      [room ? 'ほかの本が追いつくのを待つ' : '遅れている本を進める', room ? (roomGap() ? '部屋では、いちばん遅れている本より、話の中の時刻で' + roomGap() + '分より先へ進むと、遅れている本が追いつくまで先へ進めません。' : '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。次の時間帯に先に入った本は、前の時間帯に残っている本が追いつくまで、先へ進めません。') + '遅れている本に、実際の時間で30分間動きがないと、本文の上に［待たずに先へ進む］が出ます。ほかの本は、一度も進めていない本を待ちません。' + (isHost() ? 'ホストは、［☰］→［部屋］→［部屋の管理］の「進行の同期幅」で、ほかの本をどこまで待つかを替えられます。' : '') : '一日は、朝・午前・昼・午後・夕方・夜の6つの時間帯に分かれています。ロックした本は、次の時間帯に入ると、前の時間帯に残っている本が追いつくまで、先へ進めません。本文の上に、遅れている本の主人公の名前が入った、「保存して、…の本へ移る」のボタンが出ます。このボタンを押すと、進行が保存されて、遅れている本がロックされます。遅れている本を、次の時間帯まで自分で進めます。ロックした本は、一度も進めていない本を待ちません。'],
       ['持ち物を使う・置く', '主人公が持ち物を持っていると、選べる選択肢が増えることがあります。主人公の状態の［持ち物］に下線が出ているときに［持ち物］を押すと、持ち物を置く選択肢が出ます。置いた持ち物は、ほかの本の主人公も拾えます。'],
       ['主人公がゾンビに襲われたとき', '主人公がゾンビに襲われると、体力が1減ります。襲われた主人公は、感染することがあります。体力がなくなるか、感染したまま時間がたつと、主人公はゾンビになります。'],
       ...(mzPub() ? [['読めない文章を読む', '本文に、にじんだり欠けたりして読めない所が出ることがあります。読めない所を押すと、もとの文章が出ます。']] : []), // 配った版では、メタゾンビとは名乗らない（怪奇現象の正体は言わない）
@@ -9374,20 +9374,39 @@ function vfsDo(m, path, body, raw){
   return { status:405 };
 }
 // 参加者の端末からの読み書き：書けるのは、自分の分（m）・空いているか自分のロック（own）・自分の付けた画像とファイルだけ。部屋の設定と作品（room.json・book）は、ホストだけが書く
+// cur：いまのロックのファイルの中身を返す関数（own のときだけ呼ぶ）
+function guestMay(dev, m, path, body, cur){
+  const g = /^rooms\/([A-Z2-9]{8})\/(?:s-([a-z0-9]{2,16})\/)?(m|own|img|file)\/([A-Za-z0-9_-]{1,160})\.(json|jpg|bin)$/.exec(path);
+  if(!g || g[1] !== room || (g[2] && !roomWorks().some(x => x.id === g[2])) || (m !== 'PUT' && m !== 'DELETE')) return false;
+  const [, , , kind, name, ext] = g;
+  if(kind === 'm') return name === dev && ext === 'json' && m === 'PUT';
+  if(kind === 'own'){
+    if(ext !== 'json' || !segOk(name)) return false;
+    const o = cur(), his = !o || !o.dev || o.dev === dev, free = name === 'guide' && o && Date.now() - (Number(o.at) || 0) >= STALE;
+    if(m === 'DELETE') return his || free;
+    const n = body && typeof body.content === 'string' && body.content.length < 2000 ? ghDecode(body) : null;
+    return his && n && n.dev === dev;
+  }
+  return (name.startsWith(dev + '-') || name.includes('_' + dev + '-')) && ext === (kind === 'img' ? 'jpg' : 'bin');
+}
 function vfsGuest(dev, m, path, body, raw){
   if(m === 'GET') return vfsDo(m, path, body, raw);
-  const g = /^rooms\/([A-Z2-9]{8})\/(?:s-([a-z0-9]{2,16})\/)?(m|own|img|file)\/([A-Za-z0-9_-]{1,160})\.(json|jpg|bin)$/.exec(path), no = { status:403 };
-  if(!g || g[1] !== room || (g[2] && !roomWorks().some(x => x.id === g[2])) || (m !== 'PUT' && m !== 'DELETE')) return no;
-  const [, , , kind, name, ext] = g;
-  if(kind === 'm') return name === dev && ext === 'json' && m === 'PUT' ? vfsDo(m, path, body, raw) : no;
-  if(kind === 'own'){
-    if(ext !== 'json' || !segOk(name)) return no;
-    const f = vfsLoad()[path], o = f ? ghDecode(f) : null, his = !o || !o.dev || o.dev === dev, free = name === 'guide' && o && Date.now() - (Number(o.at) || 0) >= STALE;
-    if(m === 'DELETE') return his || free ? vfsDo(m, path, body, raw) : no;
-    const n = body && typeof body.content === 'string' && body.content.length < 2000 ? ghDecode(body) : null;
-    return his && n && n.dev === dev ? vfsDo(m, path, body, raw) : no;
-  }
-  return (name.startsWith(dev + '-') || name.includes('_' + dev + '-')) && ext === (kind === 'img' ? 'jpg' : 'bin') ? vfsDo(m, path, body, raw) : no;
+  return guestMay(dev, m, path, body, () => { const f = vfsLoad()[path]; return f ? ghDecode(f) : null; }) ? vfsDo(m, path, body, raw) : { status:403 };
+}
+// 一緒に作る部屋に、部屋番号で入った参加者（ホストが許可した端末）：読み書きを、ホストが代わりにリポジトリへ取り次ぐ。トークンは渡さない。書いてよいものは、遊ぶ部屋の参加者と同じ
+async function ghGuest(dev, m, path, body, raw){
+  if(!vfsPathOk(path)) return { status:400 };
+  try {
+    if(m === 'GET'){ const r = await ghApi(path, { raw:!!raw }); if(!r.ok) return { status:r.status }; return raw ? { status:200, text:await r.text() } : { status:200, json:await r.json() }; }
+    if((m !== 'PUT' && m !== 'DELETE') || !body || typeof body !== 'object' || (m === 'DELETE' ? typeof body.sha !== 'string' : body.sha != null && typeof body.sha !== 'string')) return { status:400 };
+    if(m === 'PUT' && (typeof body.content !== 'string' || body.content.length > 1500000 || !/^[A-Za-z0-9+\/=\s]*$/.test(body.content))) return { status:400 };
+    let cur = null;
+    if(/\/own\/[A-Za-z0-9_-]+\.json$/.test(path)){ const g = await ghApi(path); if(!g.ok && g.status !== 404) return { status:g.status }; cur = g.ok ? ghDecode(await g.json()) : null; }
+    if(!guestMay(dev, m, path, body, () => cur)) return { status:403 };
+    const msg = '部屋 ' + room + '：' + ((roomMembers[dev] || {}).name || 'メンバー') + 'の分';
+    const r = await ghApi(path, { method:m, body:JSON.stringify(m === 'PUT' ? { message:msg, content:body.content, ...(body.sha ? { sha:body.sha } : {}) } : { message:msg, sha:body.sha }) });
+    return { status:r.status, json:r.ok ? await r.json().catch(() => null) : null };
+  } catch(e){ return { status:503 }; }
 }
 const vfsRes = r => ({ ok:r.status >= 200 && r.status < 300, status:r.status, json:async () => (r.json == null ? null : r.json), text:async () => r.text || '' });
 const hostAssetId = p => { const m = /^book\/assets\/([A-Za-z0-9_-]{1,60})\.jpg$/.exec(String(p)); return m ? m[1] : ''; };
@@ -9538,14 +9557,14 @@ async function hostAdmit(c, h){
   const d = h.d, known = store.get('peer-pubs', {})[d], bye = (t, ms) => { if(t) try { c.send({ t }); } catch(e){} setTimeout(() => { try { c.close(); } catch(e){} }, ms || 300); };
   if(known && known !== h.pub) return bye('', 200); // 同じ端末の番号を、別の鍵で名のっている
   if(isBanned(d)) return bye('denied'); // 部屋から外した端末
-  if(h.l && !roomLocal()) return bye('needkey'); // リポジトリのある部屋に、番号だけで入った端末。読み書きを代わりにできないので、つながない
+  if(h.l && !roomLocal()) c.jproxy = true; // 一緒に作る部屋に、部屋番号だけで入った端末：ホストが許可したら、読み書きをホストが代わりにリポジトリへ取り次ぐ（ghGuest。トークンは渡さない）
   if(!known){
     if(!roomLocal()) peerSave(d, h.pub, h.bh); // リポジトリのある部屋：初めて見た鍵を覚える
     else if(boxOn() && !joinDenied.has(d) && (await memberPk(d)) === h.pub){ peerSave(d, h.pub, h.bh); const a = store.get('room-allowed', {}); if(!a[d]){ a[d] = h.name || '1'; store.set('room-allowed', a); } } // 預かり箱の部屋：前から部屋にいる端末（引き継いだホスト・前の版から続く部屋）
     else { const a = store.get('room-allowed', {}); if(a[d]){ delete a[d]; store.set('room-allowed', a); } } // 前の版で許可した端末で、鍵を確かめられない：もう一度、許可を待ってもらう
   }
   if(c.jgone) return;
-  if(roomLocal() && !store.get('room-allowed', {})[d]){ // リポジトリのない部屋は、ホストが許可した端末だけを入れる（一度許可した端末は、次からそのまま入れる）
+  if((roomLocal() || c.jproxy) && !store.get('room-allowed', {})[d]){ // リポジトリのない部屋と、番号で入った端末は、ホストが許可した端末だけを入れる（一度許可した端末は、次からそのまま入れる）
     if(joinDenied.has(d)) return bye('denied');
     joinPending.set(d, { c, name:h.name, pub:h.pub, bh:h.bh }); try { c.send({ t:'wait' }); } catch(e){}
     if(!typing()) render();
@@ -9808,7 +9827,9 @@ function hostAccept(c){
     } else if(msg.t === 'vfs' && dev && roomLocal() && msg.m === 'GET' && hostAssetId(msg.path)){ // 作品の絵：作品で使っているものだけを渡す
       const id = hostAssetId(msg.path), ok = usedAssets().includes(id);
       (ok ? assetData(id) : Promise.resolve('')).catch(() => '').then(u => { try { c.send(u ? { t:'vfsr', id:msg.id, status:200, json:{ content:u.split(',')[1] } } : { t:'vfsr', id:msg.id, status:404 }); } catch(e){} });
-    } else if(msg.t === 'provask' && dev && roomLocal()){ provAsked(c, dev, msg);
+    } else if(msg.t === 'provask' && dev && (roomLocal() || c.jproxy)){ provAsked(c, dev, msg);
+    } else if(msg.t === 'vfs' && dev && !roomLocal() && c.jproxy){ // 一緒に作る部屋に番号で入った端末：リポジトリへの読み書きを、代わりにする
+      ghGuest(dev, String(msg.m), String(msg.path), msg.body && typeof msg.body === 'object' ? msg.body : null, !!msg.raw).then(r => { try { c.send({ t:'vfsr', id:msg.id, status:r.status, json:r.json, text:r.text }); } catch(e){} });
     } else if(msg.t === 'vfs' && dev && roomLocal()){ // リポジトリのない部屋：置き場所の読み書きを、代わりにする
       const body = msg.body && typeof msg.body === 'object' ? msg.body : null, back = r => { try { c.send({ t:'vfsr', id:msg.id, status:r.status, json:r.json, text:r.text }); } catch(e){} };
       // 預かり箱の部屋：参加者の決まりのまま、預かり箱に頼む（前の版の参加者と、預かり箱をまだ使えない参加者）
@@ -9916,6 +9937,7 @@ async function roomFetch(url, opts = {}){
 }
 const STALE = 30 * 60000; // 30分動きのない人は、待たずに先へ進める
 let roomNote = '', roomPanel = false, roomBusy = false, roomSig = '';
+const PUSH_LATE = 'リポジトリに届いていません。進行は、残っています。つながったときに、書きます。';
 // この端末が受け持っている本か
 const mine = c => { const o = store.get('own', {})[c]; return !!o && o.dev === DEV; };
 let roomOpen = true; // 部屋が開いているか（ホストが閉じると、本を進められず、書いたものも送れない）
@@ -10189,8 +10211,8 @@ async function roomPush(){
   try {
     const r = await roomFetch(roomUrl(), { method:'PATCH', body:JSON.stringify(roomPayload()) });
     if(!r.ok) throw 0;
-    if(roomNote){ roomNote = ''; render(); }
-  } catch(e){ roomNote = 'リポジトリに届いていません。進行は、残っています。つながったときに、書きます。'; render(); }
+    if(roomNote === PUSH_LATE){ roomNote = ''; render(); }
+  } catch(e){ roomNote = PUSH_LATE; render(); }
 }
 // ほかの人の進み具合を読みこむ
 async function roomPull(force){
@@ -10219,7 +10241,7 @@ async function roomClaim(c){ if((provOf() || {}).c === c){ roomNote = CHARS[c].n
   roomSig = ''; await roomPull(true);
   if(!roomOpen || mine(c)) return;
   // 部屋では、1人1冊（RULES.md「部屋は1種類・1人1冊」）。ほかの本をロックしたままでは、ロックできない
-  { const had = CHAR_IDS.find(x => x !== c && mine(x)); if(had){ roomNote = 'ロックできるのは、1人につき1冊です。' + CHARS[had].name + 'の本のロックを外すと、' + CHARS[c].name + 'の本をロックできます。'; render(); return; } }
+  { const had = CHAR_IDS.find(x => x !== c && mine(x)); if(had){ current = had; store.set('current', had); roomNote = 'ロックできるのは、1人につき1冊です。' + CHARS[had].name + 'の本のロックを外すと、' + CHARS[c].name + 'の本をロックできます。'; render(); return; } }
   roomBusy = true;
   let note = '';
   try {
