@@ -612,7 +612,7 @@ const needMet = (n, self) => {
 };
 const bookOpen = id => !CHARS[id].need || (loadPlayer(id).history || []).length > 0 || !!(room && store.get('own', {})[id]) || needMet(CHARS[id].need, id);
 const openIds = () => CHAR_IDS.filter(bookOpen);
-const APP_VERSION = 'v0.3.78';
+const APP_VERSION = 'v0.3.79';
 // テスト用の版（リリースで版の番号が入っていないもの）だけ、意見を書く欄を出す
 const TEST_BUILD = APP_VERSION.startsWith('__'), BUILD = '__BUILD__';
 const EMBED = /*EMBED*/null/*EMBED*/;
@@ -6919,16 +6919,17 @@ function joinAnswer(d, ok){
   render();
 }
 // 本文の上に出す知らせ：入りたい人がいる（ホスト）・許可を待っている（入る人）
+const joinAskHtml = () => '<div class="lockbar" style="border-color:var(--gold)"><b>部屋に入りたい人がいます</b>' + [...joinPending].map(([d, q]) => '<span style="flex-basis:100%">' + escText(q.name || '名前なし') + '　<button data-joinok="' + d + '">許可する</button> <button data-joinno="' + d + '">断る</button></span>').join('') + '</div>';
 function joinBannerHtml(){
   if(!room && LS.get('ended', null)) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストが、部屋 ' + escText(String(LS.get('ended'))) + ' を終了しました。</b><button id="endedOk">閉じる</button></div>';
   if(!room){ let k = null; try { k = JSON.parse(localStorage.getItem(BASE + 'kicked') || 'null'); } catch(e){} return k ? '<div class="lockbar" style="border-color:var(--red)"><b>部屋から外されました</b>　部屋 ' + escText(String(k)) + ' を作った人が、あなたを外しました。<button id="kickedOk">閉じる</button></div>' : ''; }
-  if(!roomLocal()) return '';
+  if(!roomLocal()) return isHost() && joinPending.size ? joinAskHtml() : ''; // 一緒に作る部屋：部屋番号で申し込んだ人を、ホストが許可する
   if(slotWait !== null) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストが、部屋で使う作品を「' + escText(roomWorkName(slotWait)) + '」に替えました。</b><button id="slotGo">「' + escText(roomWorkName(slotWait)) + '」を開く</button></div>';
   if(provList) return provHtml();
   if(provNote) return '<div class="lockbar" style="border-color:var(--gold)"><b>' + escText(provNote) + '</b><button id="provOk">閉じる</button></div>';
   if(isHost() && oldSeen) return '<div class="lockbar" style="border-color:var(--gold)"><b>' + escText(oldSeen) + 'のゲームは前の版なので、部屋につながりません。</b>　' + escText(oldSeen) + 'に、ゲームのページを開き直すように伝えてください。<button id="oldOk">閉じる</button></div>';
   if(isHost() && provAsks.size) return provAskHtml();
-  if(isHost() && joinPending.size) return '<div class="lockbar" style="border-color:var(--gold)"><b>部屋に入りたい人がいます</b>' + [...joinPending].map(([d, q]) => '<span style="flex-basis:100%">' + escText(q.name || '名前なし') + '　<button data-joinok="' + d + '">許可する</button> <button data-joinno="' + d + '">断る</button></span>').join('') + '</div>';
+  if(isHost() && joinPending.size) return joinAskHtml();
   if(joinState === 'wait') return '<div class="lockbar" style="border-color:var(--gold)"><b>許可を待っています</b>　ホストが許可すると、入れます。</div>';
   if(joinState === 'needkey') return '<div class="lockbar" style="border-color:var(--red)"><b>部屋番号だけでは入れません</b>　ホストに、招待リンクをもらってください。<button id="needKeyBtn">部屋の管理</button></div>';
   if(!joinState && offRoom() && store.get('welcomed', false) && Date.now() - offAt >= 12000 && mine(current) && !roomPanel) return '<div class="lockbar" style="border-color:var(--gold)"><b>ホストとつながっていません。</b><span style="flex-basis:100%">' + CHARS[current].name + 'の本は、このまま進められます。進行は、ホストとつながると、部屋に反映されます。</span></div>';
