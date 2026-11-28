@@ -1,7 +1,7 @@
 // 自分でコマンドを打てない AI・打たせたくない AI（Gemini・Codex・Claude の軽いモデルなど）を、席（seat.js）に座らせるつなぎ役。
 // AI にはコマンドを打たせない。この道具が画面を AI に見せ、AI は「次にすること」を1行で答える。道具が、それを席に頼む。
 //
-// 使い方：node seat-ai.js --ai gemini|codex|claude [--model <モデル>] [--effort <考える深さ>] [--port 8791] [--turns 40] [--goal <やることを書いたファイル>] [--name Gemini] [--log <記録のファイル>]
+// 使い方：node seat-ai.js --ai gemini|codex|claude [--model <モデル>] [--effort <考える深さ>] [--port 8791] [--turns 40（0 で、止めるまで続ける）] [--goal <やることを書いたファイル>] [--name Gemini] [--log <記録のファイル>]
 // 　gemini は Antigravity の agy、codex は Codex CLI、claude は Claude Code（claude -p）を呼ぶ。どれも、その AI の契約の枠の中で動く。
 // 　claude は、何も付けなければ、Opus の中（--model opus --effort medium）で動かす（2026-11-28、ユーザーの決定「haikuは安すぎ」「Opus5.5中がいい」）。
 // 先に、node seat.js serve --port <同じ番号> を裏で動かしておく。
@@ -34,13 +34,13 @@ const RULES = `あなたは「${NAME}」という呼び名で、ゲームブッ�
 次にすることを、答えの最後の行に、次のどれか1つの形で書いてください（番号は、いまの画面の「押せるもの」の番号）。
   ACTION: pick <番号>            … 押す（確認が出て「はい」と答えるときは、pick <番号> yes）
   ACTION: type <番号> <書く文>     … 入力欄に書く（書いたあとに［送る］などを押すのは、次の番で）
-  ACTION: wait <秒>              … 画面が変わるまで待つ（ほかの人を待つとき・許可を待つとき。最大120）
+  ACTION: wait <秒>              … 通信に新しい書きこみが来るか、止まっていた本が先へ進めるようになるまで待つ（ほかの人を待つとき。最大600。待っている間は、考えない）
   ACTION: done                   … やることが済んだので、やめる
 その上の行に、次の自分への覚え書きを1行、MEMO: で書いてください（いまどこで、何をしようとしているか）。`;
 
 (async () => {
   const memos = [], done = [];
-  for(let turn = 1; turn <= TURNS; turn++){
+  for(let turn = 1; !TURNS || turn <= TURNS; turn++){ // --turns 0：やめるまで続ける
     const screen = await seat({ cmd:'look' });
     if(screen.startsWith('（席につながらない')) { say(screen); return; }
     // 通信のボタンに数字が出ていたら（画面に出ている未読の数）、はっきり知らせる。AI は、画面の端の数字を見落としやすい
@@ -63,7 +63,7 @@ const RULES = `あなたは「${NAME}」という呼び名で、ゲームブッ�
     let res;
     if(m[1] === 'pick') res = await seat({ cmd:'pick', args:[m[2]], yes:/^yes$/i.test(m[3]) });
     else if(m[1] === 'type') res = await seat({ cmd:'type', args:[m[2], m[3]] });
-    else res = await seat({ cmd:'wait', args:[String(Math.min(120, +m[2] || 60))] });
+    else res = await seat({ cmd:'wait', chat:true, args:[String(Math.min(600, +m[2] || 300))] }); // 待っている間は AI を呼ばない。通信が来たら起きる
     const first = res.split('\n')[0];
     done.push(a + ' → ' + first);
     say('  ' + first);

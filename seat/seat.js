@@ -9,6 +9,7 @@
 // 　　　　　　node seat.js pick <番号> [--yes|--no] [--text <文>]   … 押す。確認が出たときの答えは、先に決めて付ける
 // 　　　　　　node seat.js type <番号> <文>  … 入力欄に書く
 // 　　　　　　node seat.js wait [秒]        … 画面が変わるまで待つ（既定は600秒。ほかの頼みが来たら、そこで待つのをやめる）
+// 　　　　　　node seat.js wait [秒] --chat … 通信に新しい書きこみが来るか、止まっていた本が先へ進めるようになるまで待つ（手が空いている間は、こちら）
 // 　　　　　　node seat.js shot <ファイル>   … 画面の写真を保存する
 // 　　　　　　node seat.js log             … ブラウザの記録を出す（つながらないときの調べもの用）
 // 　　　　　　node seat.js quit            … ブラウザを閉じて、席を畳む
@@ -22,7 +23,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // ---- 席に頼む側 ----
 if(argv[0] !== 'serve'){
-  const body = JSON.stringify({ cmd:argv[0] || 'look', yes:flag('yes'), no:flag('no'), text:opt('text', null), args:argv.slice(1) });
+  const body = JSON.stringify({ cmd:argv[0] || 'look', yes:flag('yes'), no:flag('no'), chat:flag('chat'), text:opt('text', null), args:argv.slice(1) });
   const q = http.request({ host:'127.0.0.1', port:PORT, path:'/', method:'POST', headers:{ 'Content-Type':'application/json' } }, r => { let t = ''; r.setEncoding('utf8'); r.on('data', d => t += d); r.on('end', () => { process.stdout.write(t + '\n'); }); });
   q.on('error', e => { console.log('席が開いていません（' + (e.code || e.message) + '、ポート ' + PORT + '）。先に、node seat.js serve を、裏で動かします。'); process.exitCode = 1; });
   q.end(body);
@@ -156,7 +157,21 @@ const SCAN = () => {
     }
     if(q.cmd === 'wait'){
       const until = Date.now() + (+a[0] || 600) * 1000, base = sig; let how = '（変わりなし）'; cut = false;
-      while(Date.now() < until){ await sleep(2000); if(cut){ how = '（ほかの頼みが来たので、待つのをやめた）'; break; } if(notes.length){ how = '（画面が変わった）'; break; } const s = sigOf(await scan()); if(s !== base){ await settle(); how = '（画面が変わった）'; break; } }
+      // --chat：通信に新しい書きこみが来たとき（と、止まっていた本が先へ進めるようになったとき）だけ起きる。ほかの人の本が進んだだけでは起きない
+      const chatOf = v => { const open = v.list.some(x => x.label === '× 閉じる' || x.label === '‹ 一覧') && /^通信/.test(v.text); return { n:+((/^\((\d+)\)/.exec(v.title) || [])[1] || 0), at:v.list.some(x => /^通信 ?@/.test(x.label)), open, text:open ? v.text : '', stop:/先へは進めません/.test(v.text) }; };
+      const c0 = q.chat ? chatOf(seen || await scan()) : null;
+      while(Date.now() < until){
+        await sleep(2000);
+        if(cut){ how = '（ほかの頼みが来たので、待つのをやめた）'; break; }
+        if(notes.length){ how = '（画面が変わった）'; break; }
+        const v = await scan();
+        if(c0){
+          const c = chatOf(v);
+          if(c.n > c0.n || (c.at && !c0.at) || (c.open && c0.open && c.text !== c0.text)){ await settle(); how = '（通信に、新しい書きこみが来た）'; break; }
+          if(c0.stop && !c.stop){ await settle(); how = '（止まっていた本が、先へ進めるようになった）'; break; }
+          c0.n = Math.min(c0.n, c.n); // 読んで減った分は、数え直す
+        } else if(sigOf(v) !== base){ await settle(); how = '（画面が変わった）'; break; }
+      }
       return how + '\n\n' + await show();
     }
     if(q.cmd === 'log') return logs.join('\n') || '（記録なし）';
