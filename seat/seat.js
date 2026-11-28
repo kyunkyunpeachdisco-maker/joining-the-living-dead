@@ -11,10 +11,11 @@
 // 　　　　　　node seat.js wait [秒]        … 画面が変わるまで待つ（既定は600秒。ほかの頼みが来たら、そこで待つのをやめる）
 // 　　　　　　node seat.js wait [秒] --chat … 通信に新しい書きこみが来るか、止まっていた本が先へ進めるようになるまで待つ（手が空いている間は、こちら）
 // 　　　　　　node seat.js shot <ファイル>   … 画面の写真を保存する
+// 　　　　　　node seat.js secret <番号>    … パスワードの欄に、人が入れる（トークンなど）。このパソコンで開くページの場所を返すので、人に渡す。AI には中身が見えない
 // 　　　　　　node seat.js log             … ブラウザの記録を出す（つながらないときの調べもの用）
 // 　　　　　　node seat.js quit            … ブラウザを閉じて、席を畳む
 // ブラウザの記憶（端末の鍵・進行）は --profile に残る。次に席を開くと、同じメンバーとして、前に開いていたページへ戻る。
-const fs = require('fs'), path = require('path'), http = require('http'), os = require('os');
+const fs = require('fs'), path = require('path'), http = require('http'), os = require('os'), crypto = require('crypto');
 const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf('--' + k); if(i < 0) return d; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const flag = k => { const i = argv.indexOf('--' + k); if(i < 0) return false; argv.splice(i, 1); return true; };
@@ -99,6 +100,7 @@ const SCAN = () => {
   let page = ctx.pages()[0] || await ctx.newPage(), seen = null, sig = '', answer = null, cut = false; // cut：待っている間に、ほかの頼みが来た
   const logs = [];
   const notes = []; // 確認の窓・ページのエラーなど、次の返事で AI に伝えること
+  let secretAsk = null; // secret：人が入れるのを待っている欄（{ nonce, sel, label, title, until }）。1回使ったら消す
   const hook = pg => {
     pg.on('dialog', async d => {
       const a = answer; answer = null;
@@ -174,13 +176,46 @@ const SCAN = () => {
       }
       return how + '\n\n' + await show();
     }
+    if(q.cmd === 'secret'){
+      const f = await find(+a[0]); if(f.err) return f.err + '\n\n' + await show();
+      const pw = await f.el.evaluate(e => e.tagName === 'INPUT' && e.type === 'password').catch(() => false);
+      if(!pw) return a[0] + ' 番は、パスワードの欄ではありません。secret で入れられるのは、パスワードの欄（中身が画面の文に出ない欄）だけです。\n\n' + await show();
+      const nonce = crypto.randomBytes(16).toString('hex'), id = await f.el.evaluate(e => e.id || '');
+      if(!/^[\w-]+$/.test(id)) await f.el.evaluate((e, n) => e.setAttribute('data-seat-secret', n), nonce);
+      secretAsk = { nonce, sel:/^[\w-]+$/.test(id) ? '[id="' + id + '"]' : '[data-seat-secret="' + nonce + '"]', label:f.was.label.replace(/（(空|入っている)）$/, ''), title:seen.title, until:Date.now() + 15 * 60000 };
+      return 'ユーザーに、次のページを、このパソコンのブラウザで開いてもらいます。15分たつか、1回使うと、ページは使えなくなります：\n'
+        + 'http://127.0.0.1:' + PORT + '/s/' + nonce + '\n'
+        + 'ユーザーが入れる中身は、' + a[0] + ' 番の欄（' + secretAsk.label + '）に入り、あなたには見えません。ユーザーに、中身をこの会話に書かないように伝えます。\n'
+        + '中身が入ると wait が返るので、欄のボタンを押します。［連携する］などです。';
+    }
     if(q.cmd === 'log') return logs.join('\n') || '（記録なし）';
     if(q.cmd === 'shot'){ const f = path.resolve(a[0] || 'seat.png'); await page.screenshot({ path:f }); return '保存した：' + f; }
     if(q.cmd === 'quit'){ setTimeout(async () => { try { await ctx.close(); } catch(e){} process.exit(0); }, 100); return '席を畳みます。'; }
     return '分からない頼みです：' + q.cmd;
   };
+  // secret の入口：人が、このパソコンのブラウザで開いて、秘密の文を入れるページ。中身は、ゲームの欄に入れるだけで、AI への返事にも記録にも出さない
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const secretPage = (q, r, nonce) => {
+    const page0 = (body, st = 200) => { r.writeHead(st, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store', 'Referrer-Policy':'no-referrer', 'X-Frame-Options':'DENY', 'Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'" }); r.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>席にトークンを入れる</title><body style="font:16px/1.7 sans-serif;max-width:560px;margin:32px auto;padding:0 16px">' + body + '</body>'); };
+    const s = secretAsk;
+    if(!s || s.nonce !== nonce || Date.now() > s.until) return page0('<p>このページは、もう使えません。トークンを入れるときは、AI に、ページのアドレスをもう一度頼んでください。</p>', 404);
+    if(q.method === 'GET') return page0('<h1 style="font-size:20px">席にトークンを入れる</h1><p>AI の席のゲーム（' + esc(s.title) + '）の、次の欄にトークンを入れます。入れたトークンは、AI には見えません。</p><p><b>' + esc(s.label) + '</b></p>'
+      + '<form method="post"><input name="v" type="password" autocomplete="off" autofocus style="font-size:16px;width:100%;padding:8px;box-sizing:border-box"><p><button style="font-size:16px;padding:8px 20px">入れる</button></p></form><p style="color:#666">トークンを、AI との会話に書かないでください。</p>');
+    if(q.method !== 'POST') return page0('<p>使えない頼みです。</p>', 405);
+    const o = q.headers.origin; if(o && o !== 'http://127.0.0.1:' + PORT && o !== 'http://localhost:' + PORT) return page0('<p>このページからは入れられません。</p>', 403); // ほかのサイトからの送りこみ
+    let t = ''; q.setEncoding('utf8'); q.on('data', d => { t += d; if(t.length > 8192) q.destroy(); });
+    q.on('end', async () => {
+      if(secretAsk !== s) return page0('<p>このページは、もう使えません。トークンを入れるときは、AI に、ページのアドレスをもう一度頼んでください。</p>', 404);
+      let v = (new URLSearchParams(t).get('v') || '').trim(); t = '';
+      if(!v) return page0('<p>欄が空でした。前のページに戻って、トークンを入れ直してください。</p>', 400);
+      secretAsk = null; // 1回だけ
+      try { await page.locator(s.sel).first().fill(v, { timeout:8000 }); v = ''; notes.push('【ユーザーが、' + s.label + ' の欄にトークンを入れた。中身は見せない】'); page0('<p>トークンを入れました。AI との会話に戻ってください。</p>'); } // 欄から出さない（ゲームは、欄に入っている間は描き直さないので、入れた文が消えない）
+      catch(e){ v = ''; notes.push('【ユーザーがトークンを入れようとしたが、欄が画面から消えていて、入らなかった。もう一度 secret を打つ】'); page0('<p>トークンを入れられませんでした。席のゲームの画面から、欄が消えていました。AI に、ページのアドレスをもう一度頼んでください。</p>', 409); }
+    });
+  };
   let busy = Promise.resolve();
   http.createServer((q, r) => {
+    const sm = /^\/s\/([a-f0-9]{32})$/.exec(String(q.url).split('?')[0]); if(sm) return secretPage(q, r, sm[1]);
     let t = ''; q.setEncoding('utf8'); q.on('data', d => t += d);
     r.on('close', () => { if(!r.writableEnded) cut = true; }); // 頼んだ側が、返事を待たずに切った
     q.on('end', () => { cut = true; busy = busy.then(async () => { let out; try { out = await run(JSON.parse(t || '{}')); } catch(e){ out = '失敗：' + String(e && e.message || e).split('\n')[0]; } r.writeHead(200, { 'Content-Type':'text/plain; charset=utf-8' }); r.end(out); }); });
