@@ -11,7 +11,12 @@
   const enc = new TextEncoder(), dec = new TextDecoder();
   const $ = id => document.getElementById(id);
   const ECDH = { name:'ECDH', namedCurve:'P-256' };
-  const aes = (priv, pub, use) => crypto.subtle.deriveKey({ name:'ECDH', public:pub }, priv, { name:'AES-GCM', length:256 }, false, [use]);
+  // 鍵の作り方：ECDH で2人だけが持つ値を出し、HKDF（SHA-256。部屋の名前と、使い道の名前を混ぜる）で、AES-GCM の鍵に整える
+  const aes = async (priv, pub, use, room) => {
+    const bits = await crypto.subtle.deriveBits({ name:'ECDH', public:pub }, priv, 256);
+    const ikm = await crypto.subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name:'HKDF', hash:'SHA-256', salt:enc.encode(room), info:enc.encode('jtld-seat-secret v2') }, ikm, { name:'AES-GCM', length:256 }, false, [use]);
+  };
 
   // ---- 席の側（受け取る） ----
   if(q.get('r')){
@@ -20,7 +25,7 @@
     const S = window.__seat = { pub:'', state:'start', v:'' };
     if(!ROOM_RE.test(room) || !/^[A-Za-z0-9]{16,64}$/.test(hk)){ S.state = 'bad'; return; }
     (async () => {
-      const kp = await crypto.subtle.generateKey(ECDH, false, ['deriveKey']); // 元に戻す鍵は、取り出せない形で作る
+      const kp = await crypto.subtle.generateKey(ECDH, false, ['deriveBits']); // 元に戻す鍵は、取り出せない形で作る
       S.pub = b64u(await crypto.subtle.exportKey('raw', kp.publicKey));
       let tries = 0, done = false;
       const ws = new WebSocket(RELAY + '/room/' + room + '?role=host&key=' + hk);
@@ -33,7 +38,8 @@
         try {
           const o = JSON.parse(m.slice(nl + 1));
           const epk = await crypto.subtle.importKey('raw', unb64u(o.e), ECDH, false, []);
-          const key = await aes(kp.privateKey, epk, 'decrypt');
+          if(o.v !== 2) throw 0; // 作り方の違う版のページから来たもの
+          const key = await aes(kp.privateKey, epk, 'decrypt', room);
           const v = dec.decode(await crypto.subtle.decrypt({ name:'AES-GCM', iv:unb64u(o.i), additionalData:enc.encode(room) }, key, unb64u(o.c)));
           if(!v || v.length > 500) throw 0;
           done = true; S.v = v; S.state = 'got'; reply({ ok:1 });
@@ -58,10 +64,10 @@
     $('go').disabled = true; say('トークンを送っています…');
     try {
       const seatPub = await crypto.subtle.importKey('raw', unb64u(k), ECDH, false, []);
-      const eph = await crypto.subtle.generateKey(ECDH, false, ['deriveKey']);
-      const key = await aes(eph.privateKey, seatPub, 'encrypt');
+      const eph = await crypto.subtle.generateKey(ECDH, false, ['deriveBits']);
+      const key = await aes(eph.privateKey, seatPub, 'encrypt', room);
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      const msg = { e:b64u(await crypto.subtle.exportKey('raw', eph.publicKey)), i:b64u(iv), c:b64u(await crypto.subtle.encrypt({ name:'AES-GCM', iv, additionalData:enc.encode(room) }, key, enc.encode(v))) };
+      const msg = { v:2, e:b64u(await crypto.subtle.exportKey('raw', eph.publicKey)), i:b64u(iv), c:b64u(await crypto.subtle.encrypt({ name:'AES-GCM', iv, additionalData:enc.encode(room) }, key, enc.encode(v))) };
       v = ''; box.value = '';
       const ws = new WebSocket(RELAY + '/room/' + room + '?role=guest');
       const end = (t, bad) => { say(t, bad); $('go').disabled = !!(!bad); try { ws.close(); } catch(e){} };
