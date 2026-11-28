@@ -60,7 +60,7 @@ const SCAN = () => {
     if(tag === 'input' && (type === 'checkbox' || type === 'radio')){ kind = 'チェック'; const lb = el.closest('label') || (el.id && document.querySelector('label[for="' + el.id + '"]')); label = (el.checked ? '［✔］' : '［　］') + say(lb ? lb.innerText : el.name); }
     else if(tag === 'input' && type === 'range'){ kind = 'つまみ'; label = say(el.getAttribute('aria-label') || el.id) + '（いま：' + el.value + '）'; }
     else if(tag === 'input' && type === 'file'){ kind = 'ファイル'; label = say(el.id); }
-    else if(tag === 'input' || tag === 'textarea'){ kind = '入力'; label = say(el.placeholder || el.getAttribute('aria-label') || el.id) + '（いま：「' + say(el.value).slice(0, 60) + '」）'; }
+    else if(tag === 'input' || tag === 'textarea'){ kind = '入力'; label = say(el.placeholder || el.getAttribute('aria-label') || el.id) + (type === 'password' ? (el.value ? '（入っている）' : '（空）') : '（いま：「' + say(el.value).slice(0, 60) + '」）'); } // パスワードの欄の中身は、AI に見せない
     else if(tag === 'select'){ kind = '選ぶ'; label = say(el.getAttribute('aria-label') || el.id) + '（いま：' + say((el.selectedOptions[0] || {}).text) + '／' + [...el.options].map(o => say(o.text)).join('・') + '）'; }
     else if(el.isContentEditable){ kind = '入力'; label = '（いま：「' + say(el.innerText).slice(0, 60) + '」）'; }
     if(el.disabled || el.getAttribute('aria-disabled') === 'true') kind += '（いまは押せない）';
